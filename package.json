@@ -1,47 +1,79 @@
 {
-	"name": "docfx",
-	"displayName": "docfx",
-	"description": "build and preview docs page",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.38.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"*"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "docfx.signin",
-				"title": "Sign in to Docs portal"
-			},
-			{
-				"command": "docfx.signout",
-				"title": "Sign out from Docs portal"
-			}
-		]
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile",
-		"test": "node ./out/test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/keytar": "^4.4.0",
-		"@types/mocha": "^5.2.6",
-		"@types/node": "^10.12.21",
-		"@types/vscode": "^1.38.0",
-		"glob": "^7.1.4",
-		"mocha": "^6.1.4",
-		"tslint": "^5.12.1",
-		"typescript": "^3.3.1",
-		"vscode-test": "^1.2.0"
-	}
+  "name": "docfx",
+  "displayName": "docfx",
+  "description": "build and preview docs page",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.39.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "publisher": "gizmos",
+  "enableProposedApi": true,
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "docs.signIn",
+        "title": "Sign in to Docs portal",
+        "category": "Docs"
+      },
+      {
+        "command": "docs.signOut",
+        "title": "Sign out from Docs portal",
+        "category": "Docs"
+      },
+      {
+        "command": "docs.build",
+        "title": "Build this workspace folder",
+        "category": "Docs"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "docs.build",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/keytar": "^4.4.0",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^10.12.21",
+    "@types/vscode": "^1.38.0",
+    "mocha": "^6.1.4",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.1",
+    "vscode-test": "^1.2.0"
+  },
+  "dependencies": {
+    "@types/fs-extra": "^8.0.1",
+    "@types/git-url-parse": "^9.0.0",
+    "@types/request-promise": "^4.1.44",
+    "@types/url-template": "^2.0.28",
+    "@types/uuid": "^3.4.5",
+    "fs-extra": "^8.1.0",
+    "git-url-parse": "^11.1.2",
+    "ms-rest-azure": "^3.0.0",
+    "querystring": "^0.2.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "simple-git": "^1.126.0",
+    "url-template": "^2.0.8"
+  }
 }

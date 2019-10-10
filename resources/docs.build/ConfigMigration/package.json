@@ -1,0 +1,33 @@
+{
+  "name": "@docfx-migration-tool/docs-docfx-migrationtool",
+  "version": "2.3.0",
+  "author": "docv3-mt@microsoft.com",
+  "main": "src/migration/main.js",
+  "description": "This repo is used to migrate docset from V2 to V3.",
+  "scripts": {
+    "migrate": "node src/migration/migrate.js",
+    "migrate-usercache": "node src/tools/migrate-usercache/migrate-usercache.js",
+    "test": "mocha \"test/**/*.js\" --exclude \"test/e2e-test/**/*.js\"",
+    "test-ci": "mocha \"test/**/*.js\" --exclude \"test/e2e-test/**/*.js\" --reporter mocha-junit-reporter --reporter-options mochaFile=./test-result/TEST-RESULT.xml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://ceapex.visualstudio.com/Engineering/_git/Docs.DocFX.MigrationTool"
+  },
+  "dependencies": {
+    "chardet": "^0.8.0",
+    "commander": "^2.18.0",
+    "glob": "^7.1.3",
+    "hosted-git-info": "^2.7.1",
+    "js-yaml": "^3.10.0",
+    "json-stable-stringify": "^1.0.1",
+    "request": "^2.88.0",
+    "simple-git": "^1.107.0",
+    "string-format": "^2.0.0",
+    "winston": "^3.1.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "mocha-junit-reporter": "^1.18.0"
+  }
+}

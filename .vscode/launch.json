@@ -10,6 +10,7 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
+			"sourceMaps": true,
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
@@ -30,7 +31,7 @@
 			"outFiles": [
 				"${workspaceFolder}/out/test/**/*.js"
 			],
-			"preLaunchTask": "npm: watch"
+			"preLaunchTask": "npm"
 		}
 	]
 }
