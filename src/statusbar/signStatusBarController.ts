@@ -2,16 +2,16 @@ import * as vscode from 'vscode';
 import { DocsAccount } from '../common/shared';
 import { credentialController } from '../credential/credentialController';
 
-class StatusBarController implements vscode.Disposable {
+class SignStatusBarController implements vscode.Disposable {
     private statusBar: vscode.StatusBarItem;
     constructor(docsAccount: DocsAccount) {
-        this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+        this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1024);
         docsAccount.onStatusChanged((docsAccount) => this.updateStatusBar(docsAccount));
         this.updateStatusBar(docsAccount);
         this.statusBar.show();
     }
 
-    private updateStatusBar(docsAccount: DocsAccount,) {
+    private updateStatusBar(docsAccount: DocsAccount, ) {
         let text = 'Docs: ';
         let command = undefined;
         switch (docsAccount.status) {
@@ -39,4 +39,4 @@ class StatusBarController implements vscode.Disposable {
     }
 }
 
-export const statusBarController = new StatusBarController(credentialController.account);
+export const signStatusBarController = new SignStatusBarController(credentialController.account);

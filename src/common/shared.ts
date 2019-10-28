@@ -9,6 +9,8 @@ export interface DocsetInfo {
 
 export type BuildEnv = 'prod' | 'ppe';
 
+export type BuildStatus = 'Building' | 'Ready';
+
 export interface IExecError extends Error {
     action?: any;
 }

@@ -4,7 +4,7 @@ import * as path from 'path';
 import { docsChannel } from '../common/docsChannel';
 import { diagnosticController } from '../diagnostics/diagnosticsController';
 import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder } from '../common/utility';
-import { DocsetInfo, BuildEnv } from '../common/shared';
+import { DocsetInfo, BuildEnv, BuildStatus } from '../common/shared';
 import { OpBuildAPIClient } from '../common/opBuildAPIClient';
 import { credentialController } from '../credential/credentialController';
 import { docsBuildExcutor } from './docsBuildExcutor';
@@ -44,12 +44,21 @@ class BuildController implements vscode.Disposable {
     private docsetInfo: DocsetInfo | undefined;
     private buildEnv: BuildEnv;
     private opBuildAPIClient: OpBuildAPIClient;
-    private avaibleForNewBuild: boolean = true;
+    private BuildStatus: BuildStatus = 'Ready';
+    private didChange: vscode.EventEmitter<BuildStatus>;
+
+    public onStatusChanged: vscode.Event<BuildStatus>;
 
     constructor() {
         this.buildEnv = 'ppe';
+        this.didChange = new vscode.EventEmitter<BuildStatus>();
+        this.onStatusChanged = this.didChange.event;
     }
 
+    public getBuildStatus() {
+        return this.BuildStatus;
+    }
+    
     public async build(uri: vscode.Uri): Promise<void> {
         try {
             if (!this.trySetAvaibleFlag()) {
@@ -139,15 +148,17 @@ class BuildController implements vscode.Disposable {
     }
 
     public trySetAvaibleFlag(): boolean {
-        if (!this.avaibleForNewBuild) {
+        if (this.BuildStatus === 'Building') {
             return false;
         }
-        this.avaibleForNewBuild = false;
+        this.BuildStatus = 'Building';
+        this.didChange.fire(this.BuildStatus);
         return true;
     }
 
     public resetAvaibleFlag() {
-        this.avaibleForNewBuild = true;
+        this.BuildStatus = 'Ready';
+        this.didChange.fire(this.BuildStatus);
     }
 
     public visualizeBuildReport() {

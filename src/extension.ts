@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import { credentialController } from './credential/credentialController';
-import { statusBarController } from './statusbar/statusBarController';
+import { signStatusBarController } from './statusbar/signStatusBarController';
 import { uriHandler } from './common/uri';
 import { buildController } from './build/buildController';
 import { docsChannel } from './common/docsChannel';
 import { codeActionProvider } from './codeAction/codeActionProvider';
 import { docsBuildExcutor } from './build/docsBuildExcutor';
+import { buildStatusBarController } from './statusbar/buildStatusBarController';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     docsChannel.appendLine("Checking Extension running environment...");
@@ -17,7 +18,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     
     context.subscriptions.push(
         credentialController,
-        statusBarController,
+        signStatusBarController,
+        buildStatusBarController,
         buildController,
         docsChannel,
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn()),
