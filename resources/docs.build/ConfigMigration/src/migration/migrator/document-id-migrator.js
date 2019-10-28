@@ -16,7 +16,6 @@ const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
     logger.info(`[document-id-migrator.migrateSingleDocfxConfig] migrating route config in docset: ${docsetToPublish.docset_name}`);
     
     let defaultDocumentId = {
-        sourceBasePath: '.',
         depotMappings: {}, 
         directoryMappings: {}
     }

@@ -35,7 +35,8 @@ const sort = function (pathA, pathB) {
     if (!pathB) {
         return 1;
     }
-    let result = pathA.split('/').length - pathB.split('/').length;
+    let result = pathA.split('/').filter(p => p).length - 
+                 pathB.split('/').filter(p => p).length;
     if (result == 0) {
         result = pathA.localeCompare(pathB);
     }

@@ -9,9 +9,7 @@ module.exports = {
     pdf: false
   },
   baseUrl: "https://docs.microsoft.com",
-  documentId: {
-    sourceBasePath: '.'
-  },
+  documentId: {},
   globalMetadata: null,
   routes: null,
   monikerRange: null,
