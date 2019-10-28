@@ -1,18 +1,40 @@
 {
   "name": "docfx",
   "displayName": "docfx",
-  "description": "build and preview docs page",
-  "version": "0.0.1",
+  "description": "Local build Docs repository",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.39.0"
   },
   "categories": [
+    "Programming Languages",
+    "Snippets",
     "Other"
   ],
+  "keywords": [
+    "Docs",
+    "docfx",
+    "local build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/928PJY/vscode-docfx"
+  },
+  "homepage": "https://github.com/dotnet/docfx",
+  "icon": "resources/favicon.ico",
+  "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
   "activationEvents": [
     "*"
   ],
-  "publisher": "gizmos",
+  "author": {
+    "email": "jipe@microsoft.com",
+    "name": "Jiayin Pei"
+  },
+  "preview": true,
+  "publisher": "docfx-svc",
   "enableProposedApi": true,
   "main": "./out/extension.js",
   "contributes": {
