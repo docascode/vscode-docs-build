@@ -93,58 +93,6 @@ class BuildController implements vscode.Disposable {
 
             this.resetAvaibleFlag();
         }
-
-        {
-            // vscode.window.withProgress({
-            //     location: vscode.ProgressLocation.Notification,
-            //     title: 'Docs Build',
-            //     cancellable: true
-            // }, (progress, token) => {
-            //     token.onCancellationRequested(() => {
-            //         console.log('Docs build has been cancelled');
-            //     });
-
-            //     docsChannel.appendLine(`Running Docs.Build to build repository...`);
-            //     progress.report({ increment: 0 });
-
-            //     setTimeout(() => {
-            //         docsChannel.appendLine(`Generating docfx config...`);
-            //         progress.report({ increment: 10, message: 'Generating config...' });
-            //     }, 2000);
-
-            //     setTimeout(() => {
-            //         docsChannel.appendLine(`dotnet docfx.dll restore...`);
-            //         progress.report({ increment: 20, message: 'Restore...' });
-            //     }, 4000);
-
-            //     setTimeout(() => {
-            //         let log1 = `file-not-found microsoft-edge/extensions.md(9, 7): Invalid file link: 'non-existed.md'`;
-            //         let log2 = `yaml-duplicate-key microsoft-edge/extensions.md(4,1): Key 'title' is already defined, remove the duplicate key.`;
-            //         docsChannel.appendLine(`dotnet docfx.dll build...`);
-            //         docsChannel.appendLine('');
-            //         docsChannel.appendLine(log1);
-            //         docsChannel.appendLine(log2);
-            //         docsChannel.appendLine('');
-            //         diagnosticController.addDiagnostic(convertLogToDiagnostic(log1));
-            //         diagnosticController.addDiagnostic(convertLogToDiagnostic(log2));
-            //         progress.report({ increment: 20, message: 'Build...' });
-            //     }, 6000);
-
-            //     setTimeout(() => {
-            //         docsChannel.appendLine(` 0 Error(s), 59 Warning(s), 0 Suggestion(s)`);
-            //         docsChannel.appendLine(`Build Finished`);
-            //         progress.report({ increment: 50, message: 'Finished' });
-            //     }, 10000);
-
-            //     var p = new Promise(resolve => {
-            //         setTimeout(() => {
-            //             resolve();
-            //         }, 15000);
-            //     });
-
-            //     return p;
-            // });
-        }
     }
 
     public trySetAvaibleFlag(): boolean {

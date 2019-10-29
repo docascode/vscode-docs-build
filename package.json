@@ -1,8 +1,8 @@
 {
-  "name": "docfx",
-  "displayName": "docfx",
+  "name": "docs-build",
+  "displayName": "Docs Build",
   "description": "Local build Docs repository",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -13,18 +13,20 @@
   ],
   "keywords": [
     "Docs",
+    "Docs Build",
+    "ceapex",
     "docfx",
     "local build"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/928PJY/vscode-docfx"
+    "url": "https://github.com/928PJY/vscode-docs-build"
   },
-  "homepage": "https://github.com/dotnet/docfx",
+  "homepage": "https://github.com/928PJY/vscode-docs-build",
   "icon": "resources/favicon.ico",
   "galleryBanner": {
-    "color": "#C80000",
-    "theme": "dark"
+    "color": "#FFFFFF",
+    "theme": "light"
   },
   "activationEvents": [
     "*"
@@ -34,7 +36,7 @@
     "name": "Jiayin Pei"
   },
   "preview": true,
-  "publisher": "docfx-svc",
+  "publisher": "ceapex",
   "enableProposedApi": true,
   "main": "./out/extension.js",
   "contributes": {

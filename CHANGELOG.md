@@ -2,6 +2,10 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.2]
+### Fix
+- Make docs-pipeline self-contained
+
 ## [0.1.0]
 ### Added
 - Sign in/out to Docs, and display the status in statusBar

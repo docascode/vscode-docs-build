@@ -1,38 +1,38 @@
-# docfx
+# Docs Build
 
 VS Code extension to provide the Local build experience for docs.
 
 ## Features
 
 - Sign in/out to Docs, and display the status in statusBar
-![OAuth](./resources/vscode-docfx-OAuth.gif)
+![OAuth](https://github.com/928PJY/vscode-docs-build/blob/dev/resources/VSCode-Docs-OAuth.gif?raw=true)
 
 - Build the current workspace folder
 - Display the real-time build streaming output in `Docs` channel
 - Display all diagnostics in `Problem` view with detail information after build finished.
+![OAuth](https://github.com/928PJY/vscode-docs-build/blob/dev/resources/vscode-docs-build.gif?raw=true)
 
 ## Upcoming Features:
 
-- Build 
+- Provide two command:
+    - Restore: Restore the external dependecies.
+    - Build: Build the repository(Offline Command)
 
 ## Requirements
 
-- Dotnet installed
-
-## Extension Settings
-
-// TODO: Add configuration description
+- [Dotnet](https://dotnet.microsoft.com/download) installed
+- [NodeJs](https://nodejs.org/en/download/) installed
 
 ## Known Issues
 
-- Build environment: default to be `PROD`, and provide extension config `buildEnvironment` to customize.
-- Does the user care about real-time build streaming output? Or they just need just care about the build status(building/builld finished).
 - Docfx.yml
-    - The docfx.yml is generated during  the build time, so there will be a uncommit change in the local git repository: we are going to remove it after the build finished.
-    - The diagnostics on the docfx.yml will bring confusion, user cannot fix the error/warning by changing this file: we are trying to convert them to the real source file(openpublishing.publish.config.json or docfx.json)(so as the server build)
-- Provide two command:
-- Build the current workspace folder
-    - Skip restore if dependency already be restored. (6s ~ 8s)
-    - Skip fetch validation rules is it already existed. (30s ~ 40s)
-- Rebuild the current workspace folder
-    - Always restore and re-fetch validation rules.
+    - The docfx.yml is generated during the build time, so there will be a uncommit change in the local git repository: we are going to remove it after the build finished.
+    - The diagnostics on the docfx.yml will bring confusion, user cannot fix the error/warning by changing this file: Docfx v3 are going to use v2 config directly, so the warning/error will be reported directly on the corresponding config with right location information.
+
+
+## Contacts
+
+If you meet any problem or have any feedback about this extension, please Contact:
+
+- Jiayin Pei(jipe@microsoft.com)
+- Docfx VNext(docfxvnext@microsoft.com)
