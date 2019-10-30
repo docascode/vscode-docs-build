@@ -2,6 +2,10 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.3]
+### Fix
+- Fix failing to get user info after sign in.
+
 ## [0.1.2]
 ### Fix
 - Make docs-pipeline self-contained
