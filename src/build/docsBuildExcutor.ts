@@ -6,7 +6,8 @@ import { docsChannel } from '../common/docsChannel';
 import { DocsetInfo } from '../common/shared';
 import { buildController } from './buildController';
 
-const DOTNET_INSTALL_PAGE = "https://dotnet.microsoft.com/download";
+const DOTNET_INSTALL_PAGE = "https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.2.402-windows-x64-installer";
+const NODEJS_INSTALL_PAGE = "https://nodejs.org/en/download/";
 
 class DocsBuildExcutor implements vscode.Disposable {
     private docsBuildPath: string;
@@ -35,7 +36,7 @@ class DocsBuildExcutor implements vscode.Disposable {
         const exitHandler = (code: number) => {
             if (code !== 0) {
                 docsChannel.appendLine(`Running command "${command}" failed with exit code "${code}".`);
-            } else{
+            } else {
                 buildController.visualizeBuildReport();
             }
 
@@ -53,17 +54,41 @@ class DocsBuildExcutor implements vscode.Disposable {
 
     public async checkEnvironment(): Promise<boolean> {
         try {
-            var dotnetVersion = await executeCommandSync('dotnet', ['--version']);
-            docsChannel.appendLine(`  - dotnet version: ${dotnetVersion}\n`);
+            docsChannel.appendLine(`  - Checking Dotnet version...`);
+            var installedDotnetVersion = await executeCommandSync('dotnet', ['--list-sdks']);
+            if (installedDotnetVersion.toString().indexOf('2.2.') > -1) {
+                docsChannel.appendLine(`    dotnet 2.2.0 installed: ✔`);
+            } else {
+                throw new Error();
+            }
         } catch (error) {
+            docsChannel.appendLine(`    dotnet 2.2.0 installed: ✘`);
             const input = await vscode.window.showErrorMessage(
-                "[Docs] Docs Build extension needs dotnet installed in environment path",
+                "[Docs] Docs Build extension requires dotnet(2.2.0) installed in environment path",
                 {
-                    "title": "Install dotnet"
+                    "title": "Install dotnet(2.2.0)"
                 },
             );
             if (input) {
                 openUrl(DOTNET_INSTALL_PAGE);
+            }
+            return false;
+        }
+
+        try {
+            docsChannel.appendLine(`  - Checking NodeJs version...`);
+            var installedNodeVersion = await executeCommandSync('node', ['--version']);
+            docsChannel.appendLine(`    NodeJs installed: ${installedNodeVersion.toString().trim()} ✔`);
+        } catch (error) {
+            docsChannel.appendLine(`    NodeJs installed: ✘`);
+            const input = await vscode.window.showErrorMessage(
+                "[Docs] Docs Build extension needs NodeJs installed in environment path",
+                {
+                    "title": "Install NodeJs"
+                },
+            );
+            if (input) {
+                openUrl(NODEJS_INSTALL_PAGE);
             }
             return false;
         }
