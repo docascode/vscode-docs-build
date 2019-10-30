@@ -6,6 +6,7 @@ import { DocsAccount, BuildEnv, UserInfo } from '../common/shared';
 import { keyChain } from './keyChain';
 import { parseQuery, delay, openUrl } from '../common/utility';
 import { uriHandler } from '../common/uri';
+import { docsChannel } from '../common/docsChannel';
 const config = require('../../configs/vscode-docs-build.json');
 
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
@@ -59,9 +60,11 @@ class CredentialController implements vscode.Disposable {
             this.resetUserInfo();
             this.account.status = 'SigningIn';
             this.didChange.fire(this.account);
+            docsChannel.show();
 
             // Step-1: AAD
             if (!this.account.aadInfo) {
+                docsChannel.appendLine(`[Docs Sign] Sign in to docs build with AAD...`);
                 var aadInfo = await this.loginWithAAD();
                 if (!aadInfo) {
                     vscode.window.showWarningMessage('[Docs Build] Login with AAD failed');
@@ -74,12 +77,17 @@ class CredentialController implements vscode.Disposable {
             }
 
             // Step-2: Github login
+            docsChannel.appendLine(`[Docs Sign] Sign in to docs build with GitHub account...`);
             let userInfo = await this.loginWithGithub();
             if (!userInfo) {
                 vscode.window.showWarningMessage('[Docs Build] Login with Github failed');
                 this.account.status = 'SignedOut';
                 return;
             }
+
+            docsChannel.appendLine(`[Docs Sign] Successfully sign in to Docs build system:`);
+            docsChannel.appendLine(`    - Github Acount: ${userInfo.userName}`);
+            docsChannel.appendLine(`    - User email   : ${userInfo.userEmail}`);
 
             this.account.status = 'SignedIn';
             this.account.userInfo = userInfo;
@@ -103,6 +111,7 @@ class CredentialController implements vscode.Disposable {
     }
 
     public signOut() {
+        docsChannel.appendLine(`[Docs Sign] Successfully sign out from Docs build system`);
         this.resetUserInfo();
         this.didChange.fire(this.account);
     }
@@ -128,6 +137,8 @@ class CredentialController implements vscode.Disposable {
             if (opened) {
                 var code = (await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
                     try {
+                        // TODO: add adjust OP `Authorizations/aad` API to return the code and expiry time of AAD token.
+                        
                         // const query = parseQuery(uri);
                         // const code = query.code;
                         const code = 'fake-code';
