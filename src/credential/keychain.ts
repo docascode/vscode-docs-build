@@ -40,10 +40,6 @@ class KeyChain {
         return undefined;
     }
 
-    public async setAADInfo(aadInfo: string): Promise<void> {
-        await this.keytar.setPassword(SERVICE_ID, AAD_ACCOUNT_ID, aadInfo);
-    }
-
     public async getUserInfo(): Promise<UserInfo | null> {
         let userInfoStr = await this.keytar.getPassword(SERVICE_ID, USER_INFO_ACCOUNT_ID)
         if (userInfoStr == null) {
@@ -52,12 +48,20 @@ class KeyChain {
         return JSON.parse(userInfoStr);
     }
 
+    public async setAADInfo(aadInfo: string): Promise<void> {
+        await this.keytar.setPassword(SERVICE_ID, AAD_ACCOUNT_ID, aadInfo);
+    }
+    
     public async setUserInfo(userInfo: UserInfo): Promise<void> {
         await this.keytar.setPassword(SERVICE_ID, USER_INFO_ACCOUNT_ID, JSON.stringify(userInfo));
     }
 
     public async deleteUserInfo(): Promise<void> {
         await this.keytar.deletePassword(SERVICE_ID, USER_INFO_ACCOUNT_ID);
+    }
+
+    public async deleteAADInfo(): Promise<void> {
+        await this.keytar.deletePassword(SERVICE_ID, AAD_ACCOUNT_ID);
     }
 }
 

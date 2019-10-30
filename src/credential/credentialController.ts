@@ -96,7 +96,9 @@ class CredentialController implements vscode.Disposable {
 
     public resetUserInfo() {
         keyChain.deleteUserInfo();
+        keyChain.deleteAADInfo();
         this.account.status = 'SignedOut';
+        this.account.aadInfo = undefined;
         this.account.userInfo = undefined;
     }
 
@@ -106,16 +108,15 @@ class CredentialController implements vscode.Disposable {
     }
 
     private async loginWithAAD(): Promise<string | undefined> {
-        const state = uuid();
         const callbackUri = (await vscode.env.createAppUri({ payload: { path: '/aad-authenticate' } }));
         const signUrlTemplate = template.parse(`${AzureEnvironment.Azure.activeDirectoryEndpointUrl}/{tenantId}/oauth2/authorize` +
-            '?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope={scope}&state={state}&resource={resource}&prompt=select_account');
+            '?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope={scope}&state={state}&resource={resource}');
         const signUrl = signUrlTemplate.expand({
             tenantId: this.authConfig.AADAuthTenantId,
             clientId: this.authConfig.AADAuthClientId,
-            redirectUri: callbackUri.with({ query: '' }).toString(),
+            redirectUri: this.authConfig.AADAuthRedirectUrl,
             scope: this.authConfig.AADAuthScope,
-            state,
+            state: callbackUri.with({ query: '' }).toString(),
             resource: this.authConfig.AADAuthResource
         })
 
@@ -125,20 +126,23 @@ class CredentialController implements vscode.Disposable {
         try {
             var opened = await vscode.env.openExternal(uri);
             if (opened) {
-                return (await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
+                var code = (await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
                     try {
-                        const query = parseQuery(uri);
-                        const code = query.code;
+                        // const query = parseQuery(uri);
+                        // const code = query.code;
+                        const code = 'fake-code';
 
-                        if (query.state !== state) {
-                            throw new Error('Login with GitHub failed: State does not match.');
-                        }
+                        // if (query.state !== state) {
+                        //     throw new Error('Login with GitHub failed: State does not match.');
+                        // }
 
                         resolve(code);
                     } catch (err) {
                         reject(err);
                     }
                 }));
+
+                return code;
             }
             return undefined;
         } catch (err) {
