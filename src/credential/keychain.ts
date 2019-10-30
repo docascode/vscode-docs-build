@@ -21,9 +21,9 @@ const failingKeytar: Keytar = {
     async setPassword(_service, _string, _password) { throw new Error('System keyChain unavailable'); },
     async deletePassword(_service, _string) { throw new Error('System keyChain unavailable'); }
 };
-const SERVICE_ID = 'vscode-docfx';
-const AAD_ACCOUNT_ID = 'docfx-aad';
-const USER_INFO_ACCOUNT_ID = 'docfx-user-info';
+const SERVICE_ID = 'vscode-docs-build';
+const AAD_ACCOUNT_ID = 'docs-build-aad';
+const USER_INFO_ACCOUNT_ID = 'docs-build-user-info';
 
 class KeyChain {
     private keytar: Keytar;

@@ -63,7 +63,7 @@ class BuildController implements vscode.Disposable {
         try {
             if (!this.trySetAvaibleFlag()) {
                 // TODO: support cancle the current build
-                vscode.window.showWarningMessage(`[DocFx] Last build has not finished.`);
+                vscode.window.showWarningMessage(`[Docs Build] Last build has not finished.`);
                 return;
             }
 
@@ -82,12 +82,12 @@ class BuildController implements vscode.Disposable {
             docsChannel.appendLine(`Build abort since some error happened: ${err.message}`);
 
             if (err.action) {
-                let input = await vscode.window.showErrorMessage(`[DocFx] Error happened when building the current workspace folder: \n${err.message}`, err.action);
+                let input = await vscode.window.showErrorMessage(`[Docs Build] Error happened when building the current workspace folder: \n${err.message}`, err.action);
                 if (input) {
                     vscode.commands.executeCommand(input!.command)
                 }
             } else {
-                vscode.window.showErrorMessage(`[DocFx] Error happened when building the current workspace folder: \n${err.message}`);
+                vscode.window.showErrorMessage(`[Docs Build] Error happened when building the current workspace folder: \n${err.message}`);
 
             }
 
@@ -112,7 +112,7 @@ class BuildController implements vscode.Disposable {
     public visualizeBuildReport() {
         var reportFilePath = path.join(this.activeWorkSpaceFolder!.uri.fsPath, OUTPUT_FOLDER_NAME, REPORT_FILENAME);
         if (!fs.existsSync(reportFilePath)) {
-            vscode.window.showErrorMessage(`[DocFx] Cannot find the report file(.error.log)`);
+            vscode.window.showErrorMessage(`[Docs Build] Cannot find the report file(.error.log)`);
         }
 
         var report = fs.readFileSync(reportFilePath).toString().split('\n').filter(item => item);
@@ -143,7 +143,7 @@ class BuildController implements vscode.Disposable {
             docsChannel.appendLine(`Build abort since you haven't signed in to Docs, please Sign in and try again.`);
 
             let input = await vscode.window.showErrorMessage(
-                `[DocFx] Please Sign in to Docs portal first`,
+                `[Docs Build] Please Sign in to Docs portal first`,
                 { title: 'Sign In', command: 'docs.signIn' }
             );
             if (input) {
@@ -193,20 +193,20 @@ class BuildController implements vscode.Disposable {
 
     private validateWorkSpaceFolder(workspaceFolder: vscode.WorkspaceFolder | undefined): boolean {
         if (!workspaceFolder) {
-            vscode.window.showErrorMessage('[DocFx] You can only trigger the build on a workspace folder.')
+            vscode.window.showErrorMessage('[Docs Build] You can only trigger the build on a workspace folder.')
             return false;
         }
 
         let opConfigPath = path.join(workspaceFolder.uri.fsPath, '.openpublishing.publish.config.json');
         if (!fs.existsSync(opConfigPath)) {
             // TODO: add more instruction
-            vscode.window.showErrorMessage('[DocFx] Cannot find `.openpublishing.publish.config.json` file under current workspace folder.')
+            vscode.window.showErrorMessage('[Docs Build] Cannot find `.openpublishing.publish.config.json` file under current workspace folder.')
             return false;
         }
 
         let opConfig = safelyReadJsonFile(opConfigPath);
         if (!opConfig.docs_build_engine || opConfig.docs_build_engine.name !== 'docfx_v3') {
-            vscode.window.showErrorMessage('[DocFx] Please migrate your repository to docfx v3.')
+            vscode.window.showErrorMessage('[Docs Build] Please migrate your repository to docfx v3.')
             return false;
         }
 

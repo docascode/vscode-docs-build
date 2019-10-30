@@ -4,7 +4,7 @@ import * as querystring from 'querystring';
 import { BuildEnv, DocsetInfo, IExecError } from './shared';
 import { docsChannel } from './docsChannel';
 import { credentialController } from '../credential/credentialController';
-const config = require('../../configs/vscode-docfx.json');
+const config = require('../../configs/vscode-docs-build.json');
 
 const OP_BUILD_USER_TOKEN_HEADER_NAME = 'X-OP-BuildUserToken';
 

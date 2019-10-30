@@ -6,7 +6,7 @@ import { DocsAccount, BuildEnv, UserInfo } from '../common/shared';
 import { keyChain } from './keyChain';
 import { parseQuery, delay, openUrl } from '../common/utility';
 import { uriHandler } from '../common/uri';
-const config = require('../../configs/vscode-docfx.json');
+const config = require('../../configs/vscode-docs-build.json');
 
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
     let uriEventListener: vscode.Disposable;
@@ -64,7 +64,7 @@ class CredentialController implements vscode.Disposable {
             if (!this.account.aadInfo) {
                 var aadInfo = await this.loginWithAAD();
                 if (!aadInfo) {
-                    vscode.window.showWarningMessage('[DocFx] Login with AAD failed');
+                    vscode.window.showWarningMessage('[Docs Build] Login with AAD failed');
                     this.account.status = 'SignedOut';
                     return;
                 } else{
@@ -76,7 +76,7 @@ class CredentialController implements vscode.Disposable {
             // Step-2: Github login
             let userInfo = await this.loginWithGithub();
             if (!userInfo) {
-                vscode.window.showWarningMessage('[DocFx] Login with Github failed');
+                vscode.window.showWarningMessage('[Docs Build] Login with Github failed');
                 this.account.status = 'SignedOut';
                 return;
             }
@@ -86,7 +86,7 @@ class CredentialController implements vscode.Disposable {
 
             await keyChain.setUserInfo(userInfo);
         } catch (err) {
-            vscode.window.showWarningMessage(`[DocFx] SignIn failed: ${err}`);
+            vscode.window.showWarningMessage(`[Docs Build] SignIn failed: ${err}`);
             this.resetUserInfo();
         } finally {
             this.didChange.fire(this.account);

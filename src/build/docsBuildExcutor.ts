@@ -57,7 +57,7 @@ class DocsBuildExcutor implements vscode.Disposable {
             docsChannel.appendLine(`  - dotnet version: ${dotnetVersion}\n`);
         } catch (error) {
             const input = await vscode.window.showErrorMessage(
-                "[DocFx] Docs Build extension needs dotnet installed in environment path",
+                "[Docs] Docs Build extension needs dotnet installed in environment path",
                 {
                     "title": "Install dotnet"
                 },
