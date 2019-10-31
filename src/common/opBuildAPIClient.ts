@@ -11,7 +11,7 @@ const OP_BUILD_USER_TOKEN_HEADER_NAME = 'X-OP-BuildUserToken';
 export class OpBuildAPIClient implements vscode.Disposable {
   private APIBaseUrl: string;
 
-  constructor(buildEnv: BuildEnv, oPBuildUserToken: string) {
+  constructor(buildEnv: BuildEnv) {
     this.APIBaseUrl = config.OPBuildAPIEndPoint[buildEnv.toString()];
   }
 

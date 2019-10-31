@@ -3,6 +3,8 @@
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [0.1.4]
+### Added
+- One-click to migrate to docfx v3.
 ### Changed 
 - Add new requirement: Azure CLI installed and login
 

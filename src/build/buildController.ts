@@ -153,13 +153,13 @@ class BuildController implements vscode.Disposable {
         }
 
         // TODO: get build env
-        this.opBuildAPIClient = new OpBuildAPIClient('ppe', credentialController.account.userInfo!.userToken!);
+        this.opBuildAPIClient = new OpBuildAPIClient('ppe');
         return true;
     }
 
     private async initializeWorkspaceFolderInfo(uri: vscode.Uri): Promise<boolean> {
         let workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-        if (!this.validateWorkSpaceFolder(workspaceFolder)) {
+        if (!(await this.validateWorkSpaceFolder(workspaceFolder))) {
             return false;
         }
 
@@ -191,7 +191,7 @@ class BuildController implements vscode.Disposable {
         return true;
     }
 
-    private validateWorkSpaceFolder(workspaceFolder: vscode.WorkspaceFolder | undefined): boolean {
+    private async validateWorkSpaceFolder(workspaceFolder: vscode.WorkspaceFolder | undefined): Promise<boolean> {
         if (!workspaceFolder) {
             vscode.window.showErrorMessage('[Docs Build] You can only trigger the build on a workspace folder.')
             return false;
@@ -206,7 +206,18 @@ class BuildController implements vscode.Disposable {
 
         let opConfig = safelyReadJsonFile(opConfigPath);
         if (!opConfig.docs_build_engine || opConfig.docs_build_engine.name !== 'docfx_v3') {
-            vscode.window.showErrorMessage('[Docs Build] Please migrate your repository to docfx v3.')
+            let input = await vscode.window.showErrorMessage(
+                `[Docs] Docs Build extension requires the repository migrated to docfx v3`,
+                { title: 'Migrate to docfx v3' }
+            );
+            if (input) {
+                opConfig.docs_build_engine = { name: 'docfx_v3' };
+                vscode.window.showTextDocument(vscode.Uri.file(opConfigPath));
+                fs.writeJSONSync(opConfigPath, opConfig, { spaces: 2 });
+                docsChannel.appendLine(`This repository has been migrated to docfx v3, build continue..`);
+                return true;
+            }
+            docsChannel.appendLine(`Build abort since this repository has been migrated to docfx v3`);
             return false;
         }
 
