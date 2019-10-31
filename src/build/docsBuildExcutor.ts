@@ -6,8 +6,9 @@ import { docsChannel } from '../common/docsChannel';
 import { DocsetInfo } from '../common/shared';
 import { buildController } from './buildController';
 
-const DOTNET_INSTALL_PAGE = "https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.2.402-windows-x64-installer";
+const DOTNET_INSTALL_PAGE = "https://dotnet.microsoft.com/download/dotnet-core/2.2";
 const NODEJS_INSTALL_PAGE = "https://nodejs.org/en/download/";
+const AZURE_CLI_INSTALL_PAGE = "https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest";
 
 class DocsBuildExcutor implements vscode.Disposable {
     private docsBuildPath: string;
@@ -82,13 +83,52 @@ class DocsBuildExcutor implements vscode.Disposable {
         } catch (error) {
             docsChannel.appendLine(`    NodeJs installed: ✘`);
             const input = await vscode.window.showErrorMessage(
-                "[Docs] Docs Build extension needs NodeJs installed in environment path",
+                "[Docs] Docs Build extension requires NodeJs installed in environment path",
                 {
                     "title": "Install NodeJs"
                 },
             );
             if (input) {
                 openUrl(NODEJS_INSTALL_PAGE);
+            }
+            return false;
+        }
+
+        try {
+            // TODO: Just a workaround to access KeyVault
+            docsChannel.appendLine(`  - Checking Azure CLI account ...`);
+            var azureCLIAcounts = JSON.parse((await executeCommandSync('az', ['account list'])).toString().trim());
+            docsChannel.appendLine(`    Azure CLI Installed: ✔`);
+
+            if (azureCLIAcounts.length === 0) {
+                docsChannel.appendLine(`    Azure CLI Logined: ✘`);
+                const input = await vscode.window.showErrorMessage(
+                    "[Docs] Docs Build extension requires Azure CLI login",
+                    {
+                        "title": "Login with Azure CLI"
+                    },
+                );
+                if (input) {
+                    let terminal = vscode.window.createTerminal('Ext Terminal #Docs Build');
+                    terminal.show();
+                    terminal.sendText('az login');
+                }
+                return false;
+            } else {
+                docsChannel.appendLine(`    Azure CLI Logined: ✔`);
+                let filterFunc = (account: { isDefault: any; }) => { return account.isDefault };
+                docsChannel.appendLine(`    Azure Default account: ${azureCLIAcounts.filter(filterFunc)[0].user.name}`);
+            }
+        } catch (error) {
+            docsChannel.appendLine(`    Azure CLI installed: ✘`);
+            const input = await vscode.window.showErrorMessage(
+                "[Docs] Docs Build extension requires Azure CLI installed in environment path",
+                {
+                    "title": "Install Azure CLI"
+                },
+            );
+            if (input) {
+                openUrl(AZURE_CLI_INSTALL_PAGE);
             }
             return false;
         }

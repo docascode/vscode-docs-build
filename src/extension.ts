@@ -10,12 +10,12 @@ import { buildStatusBarController } from './statusbar/buildStatusBarController';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     docsChannel.appendLine("Checking Extension running environment...");
-    if(!(await docsBuildExcutor.checkEnvironment())){
-        throw new Error("The environment doesn't meet requirements.");
+    if (!(await docsBuildExcutor.checkEnvironment())) {
+        throw new Error("The environment doesn't meet requirements, Please follow the instruction to setup environment and ReOpen this window");
     }
 
     await credentialController.initialize();
-    
+
     context.subscriptions.push(
         credentialController,
         signStatusBarController,

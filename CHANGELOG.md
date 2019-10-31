@@ -2,12 +2,16 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.4]
+### Changed 
+- Add new requirement: Azure CLI installed and login
+
 ## [0.1.3]
-### Fix
+### Fixed
 - Fix failing to get user info after sign in.
 
 ## [0.1.2]
-### Fix
+### Fixed
 - Make docs-pipeline self-contained
 
 ## [0.1.0]
