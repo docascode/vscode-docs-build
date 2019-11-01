@@ -58,7 +58,7 @@ class BuildController implements vscode.Disposable {
     public getBuildStatus() {
         return this.BuildStatus;
     }
-    
+
     public async build(uri: vscode.Uri): Promise<void> {
         try {
             if (!this.trySetAvaibleFlag()) {
@@ -110,32 +110,41 @@ class BuildController implements vscode.Disposable {
     }
 
     public visualizeBuildReport() {
-        var reportFilePath = path.join(this.activeWorkSpaceFolder!.uri.fsPath, OUTPUT_FOLDER_NAME, REPORT_FILENAME);
-        if (!fs.existsSync(reportFilePath)) {
-            vscode.window.showErrorMessage(`[Docs Build] Cannot find the report file(.error.log)`);
-        }
-
-        var report = fs.readFileSync(reportFilePath).toString().split('\n').filter(item => item);
-        var diagnosticsSet = new Map<string, any>();
-        report.forEach(item => {
-            var reportItem = <ReportItem>JSON.parse(item);
-
-            let range = new vscode.Range(reportItem.line - 1, reportItem.column - 1, reportItem.end_line - 1, reportItem.end_column - 1);
-            let diagnostic = new vscode.Diagnostic(range, reportItem.message, SeverityMap.get(reportItem.message_severity));
-            diagnostic.code = reportItem.code;
-
-            if (!diagnosticsSet.has(reportItem.file)) {
-                diagnosticsSet.set(reportItem.file, {
-                    uri: vscode.Uri.file(path.resolve(this.activeWorkSpaceFolder!.uri.fsPath, reportItem.file)),
-                    diagnostics: []
-                })
+        try {
+            var reportFilePath = path.join(this.activeWorkSpaceFolder!.uri.fsPath, OUTPUT_FOLDER_NAME, REPORT_FILENAME);
+            if (!fs.existsSync(reportFilePath)) {
+                vscode.window.showErrorMessage(`[Docs Build] Cannot find the report file(.error.log)`);
             }
-            diagnosticsSet.get(reportItem.file).diagnostics.push(diagnostic)
-        })
 
-        diagnosticsSet.forEach((value) => {
-            diagnosticController.setDiagnostic(value.uri, value.diagnostics);
-        });
+            var report = fs.readFileSync(reportFilePath).toString().split('\n').filter(item => item);
+            var diagnosticsSet = new Map<string, any>();
+            report.forEach(item => {
+                var reportItem = <ReportItem>JSON.parse(item);
+
+                if (!reportItem.file) {
+                    // TODO: handle the diagnostics without source info
+                    console.log(`Diagnostics without source info: ${item}`);
+                    return;
+                }
+                let range = new vscode.Range(reportItem.line - 1, reportItem.column - 1, reportItem.end_line - 1, reportItem.end_column - 1);
+                let diagnostic = new vscode.Diagnostic(range, reportItem.message, SeverityMap.get(reportItem.message_severity));
+                diagnostic.code = reportItem.code;
+
+                if (!diagnosticsSet.has(reportItem.file)) {
+                    diagnosticsSet.set(reportItem.file, {
+                        uri: vscode.Uri.file(path.resolve(this.activeWorkSpaceFolder!.uri.fsPath, reportItem.file)),
+                        diagnostics: []
+                    })
+                }
+                diagnosticsSet.get(reportItem.file).diagnostics.push(diagnostic)
+            })
+
+            diagnosticsSet.forEach((value) => {
+                diagnosticController.setDiagnostic(value.uri, value.diagnostics);
+            });
+        } catch (err) {
+            docsChannel.appendLine(`Error happened when visualizing the build report: ${err}`);
+        }
     }
 
     private async initializeOpBuildAPIClient(): Promise<boolean> {

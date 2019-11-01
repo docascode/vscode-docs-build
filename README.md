@@ -26,9 +26,15 @@ VS Code extension to provide the Local build experience for docs.
 
 ## Known Issues
 
-- Docfx.yml
+- Docfx.yml  
     - The docfx.yml is generated during the build time, so there will be a uncommit change in the local git repository: we are going to remove it after the build finished.
     - The diagnostics on the docfx.yml will bring confusion, user cannot fix the error/warning by changing this file: Docfx v3 are going to use v2 config directly, so the warning/error will be reported directly on the corresponding config with right location information.
+
+- Diagnostics without source info  
+The Following error log does not contain source info, which cannot be displayed in the `problem` view, how can we show it to end user:
+    - unknown-publish-error
+    - MetadataValidationRuleset
+    - validation-incomplete
 
 
 ## Contacts
