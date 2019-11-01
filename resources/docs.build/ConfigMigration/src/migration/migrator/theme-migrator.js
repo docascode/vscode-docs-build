@@ -26,7 +26,8 @@ const migrate = function (dependentRepositories, sourceRepoBranch) {
     if (!themeRepository) {
         return '';
     }
-    return `${themeRepository.url}${dependencyMigrator.mapDependentBranch(themeRepository, sourceRepoBranch)}`;
+    let mappedBranch = dependencyMigrator.mapDependentBranch(themeRepository, sourceRepoBranch);
+    return `${themeRepository.url}${mappedBranch ? `#${mappedBranch}` : ''}`;
 }
-    
+
 module.exports.migrate = migrate;

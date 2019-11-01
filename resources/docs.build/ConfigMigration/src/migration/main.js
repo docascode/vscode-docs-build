@@ -22,7 +22,6 @@ const baseUrlMigrator = require('./migrator/base-url-migrator');
 const buildScopeMigrator = require('./migrator/build-scope-migrator');
 const redirectionMigrator = require('./migrator/redirection-migrator');
 const dependencyMigrator = require('./migrator/dependency-migrator');
-const resolveAliasMigrator = require('./migrator/resolve-alias-migrator');
 const themeMigrator = require('./migrator/theme-migrator');
 const routeMigrator = require('./migrator/route-migrator');
 const monikerRangeMigrator = require('./migrator/moniker-range-migrator');
@@ -74,21 +73,21 @@ const validCmdParams = function (cmdParams) {
 }
 
 /**
- * Main config migration logic.
- * Return false when fail.
- * Return docfx config object when succeed.
- * @param {*} cmdParams 
+ * Prepare required configs and for each invoke each config generation.
+ * On failed: return false.
+ * On succeeded: return a map of {docsetName: v3DocfxConfig}
  */
 async function main(cmdParams) {
     // initialize logger
-    let repositoryDir = cmdParams.directory || '.';
+    let repositoryDirectory = cmdParams.directory || '.';
 
     // transport log to console only if logDirectory equals console-only
-    if (cmdParams.logDirectory === 'console-only') {
+    let logDirectory = cmdParams.logDirectory || cmdParams.outputDirectory || repositoryDirectory || '.';
+    if (logDirectory === 'console-only') {
         logger.consoleOnlyLogger();
     } else {
         // by default write to output root
-        logger.resetDest(cmdParams.logDirectory || cmdParams.outputDirectory || repositoryDir || '.');
+        logger.resetDest(logDirectory);
     }
 
     // validate command line parameters
@@ -98,9 +97,9 @@ async function main(cmdParams) {
         return false;
     }
 
-    logger.logger.info(`[migrate.main] migrating repository: ${repositoryDir}`);
+    logger.logger.info(`[migrate.main] migrating repository: ${repositoryDirectory}`);
     // create output dir
-    let outputDirectory = cmdParams.outputDirectory ? cmdParams.outputDirectory : repositoryDir
+    let outputDirectory = cmdParams.outputDirectory ? cmdParams.outputDirectory : repositoryDirectory
     if (!fs.existsSync(outputDirectory)) {
         fs.mkdirSync(outputDirectory);
     }
@@ -111,8 +110,8 @@ async function main(cmdParams) {
     // read from remote/local resource provider (3 parts, docfx.json, op publish, product name )
     let OPSPublishConfig, docfxConfigs;
     try {
-        OPSPublishConfig = await opsPublishConfigProvider.getLocalOPPublishJsonConfig(repositoryDir);
-        docfxConfigs = await docfxConfigProvider.getAllLocalDocfxConfigs(repositoryDir, OPSPublishConfig.docsets_to_publish);
+        OPSPublishConfig = await opsPublishConfigProvider.getLocalOPPublishJsonConfig(repositoryDirectory);
+        docfxConfigs = await docfxConfigProvider.getAllLocalDocfxConfigs(repositoryDirectory, OPSPublishConfig.docsets_to_publish);
     } catch (err) {
         if (!OPSPublishConfig || !docfxConfigs) {
             logger.logger.error(`[migrate.main] fail to load configs, error: ${err}`);
@@ -123,7 +122,9 @@ async function main(cmdParams) {
     // {docsetA: {docfxConfigProperty1: 1, docfxConfigProperty2: 2}} =>
     // {docsetA: {docfxConfig: {docfxConfigProperty1: 1, docfxConfigProperty2: 2}}}
     docfxConfigs = Object.entries(docfxConfigs).reduce((acc, [docsetName, docfxConfig]) => {
-        acc[docsetName] = { docfxConfig: docfxConfig.build };
+        acc[docsetName] = {
+            docfxConfig: docfxConfig.build
+        };
         return acc;
     }, {});
     OPSPublishConfig.docsets_to_publish.forEach(docsetToPublish => {
@@ -132,16 +133,22 @@ async function main(cmdParams) {
     // assign docsetInfo to each docfxConfig object, if cmd parameters have product_name, base_path, the API call will be ignored
     // defaultDocsetConfig include 3 members: 'docfxConfig', 'docsetToPublish', 'docsetInfo'(from API)
     let [defaultDocsetName, defaultDocsetConfig] = Object.entries(docfxConfigs)[0];
-    let docsetsInfo = await docsetInfoProvider.getDocsetsInfo(
-        {
-            repository: cmdParams.repository,
-            defaultDocsetName,
-            basePath: cmdParams.basePath,
-            productName: cmdParams.productName,
-            opBuildUserToken: cmdParams.opBuildUserToken,
-            env
-        }
-    );
+    // call api to get docsets info when multiple docsets, keep direct generation path(single docset) for easier local debug experience
+    let docsetsInfo = OPSPublishConfig.docsets_to_publish.length > 1
+                    ? await docsetInfoProvider.getDocsetsInfo({
+                        repository: cmdParams.repository,
+                        opBuildUserToken: cmdParams.opBuildUserToken,
+                        env
+                    })
+                    : await docsetInfoProvider.getDocsetsInfo({
+                        repository: cmdParams.repository,
+                        defaultDocsetName,
+                        basePath: cmdParams.basePath,
+                        productName: cmdParams.productName,
+                        opBuildUserToken: cmdParams.opBuildUserToken,
+                        siteName: cmdParams.siteName,
+                        env
+                    });
     // a list of docset info, which has product_name, base_path
     docsetsInfo.forEach(docsetInfo => {
         if (docfxConfigs.hasOwnProperty(docsetInfo.name)) {
@@ -149,64 +156,113 @@ async function main(cmdParams) {
         }
     });
 
-    if (cmdParams.logDirectory !== 'console-only') {
-        logger.resetDest(path.join(cmdParams.logDirectory || cmdParams.outputDirectory || repositoryDir || '.', defaultDocsetConfig.docsetToPublish.build_source_folder));
+    let baseUrl = baseUrlMigrator.migrate(cmdParams.hostName, defaultDocsetConfig.docsetInfo.base_path, env);
+    let redirections = await opsRedirectionProvider.getOPRedirections(repositoryDirectory);
+
+    let v3DocfxConfigs = Object.entries(docfxConfigs).reduce((defaultV3DocfxConfigs, [docsetName, docsetConfig]) => {
+        defaultV3DocfxConfigs[docsetName] = generateSingleDocsetConfig({
+            OPSPublishConfig,
+            docsetName,
+            docsetConfig,
+            redirections: redirections.redirections,
+            repository: cmdParams.repository,
+            branch: cmdParams.branch,
+            baseUrl,
+            hostName: cmdParams.hostName,
+            repositoryDirectory,
+            outputDirectory,
+            logDirectory,
+            scanRedirection: cmdParams.scanRedirection,
+            writeFile: cmdParams.writeFile,
+            userCache: cmdParams.userCache
+        });
+        return defaultV3DocfxConfigs;
+    }, {});
+    
+    return Object.entries(v3DocfxConfigs).some(([_, v3DocfxConfig]) => v3DocfxConfig === false)
+    ? false
+    : v3DocfxConfigs;
+}
+
+
+/**
+ * Return false when fail.
+ * Return docfx config object when succeed.
+ */
+async function generateSingleDocsetConfig({
+    OPSPublishConfig, // for dependencies, contributions, output
+    docsetName,
+    docsetConfig,
+    redirections,
+    repository,
+    branch,
+    baseUrl,
+    hostName,
+    repositoryDirectory,
+    outputDirectory,
+    logDirectory,
+    scanRedirection,
+    writeFile,
+    userCache
+} = {}) {
+    if (logDirectory !== 'console-only') {
+        logger.resetDest(path.join(logDirectory, docsetConfig.docsetToPublish.build_source_folder));
     }
+
+    logger.logger.info(`[main.generateSingleDocsetConfig] generating config for docset: ${docsetName}`);
 
     // initialize default template
     let defaultV3DocfxConfig = require('../../config/default-docfx-config');
 
     // migrate all fields
     // set base url
-    let baseUrl = baseUrlMigrator.migrate(cmdParams.hostName, defaultDocsetConfig.docsetInfo.base_path, env);
     defaultV3DocfxConfig.baseUrl = baseUrl;
 
     // migrate content config
     // assign content.include + reource.include => config.files; content.exclude + resource.exclude => config.excludes
-    Object.assign(defaultV3DocfxConfig, buildScopeMigrator.migrate(docfxConfigs));
+    Object.assign(defaultV3DocfxConfig, buildScopeMigrator.migrate(docsetConfig.docfxConfig));
 
     // migrate redirection config
     // the generated `files` & `exclude` in content-migrator is prerequisite of this step for globbing files
     // gather all existing configurations(local and remote)
-    let localOPSRedirections = await opsRedirectionProvider.getOPRedirections(repositoryDir);
-    let redirect = redirectionMigrator.migrate(
-        localOPSRedirections.redirections,
-        repositoryDir,
-        { includes: defaultV3DocfxConfig.files, excludes: defaultV3DocfxConfig.exclude },
-        cmdParams.scanRedirection,
-        [cmdParams.hostName],
-        defaultDocsetConfig.docsetToPublish.build_source_folder);
-    Object.assign(defaultV3DocfxConfig, redirect.redirection);
+    let v3Redirections = redirectionMigrator.migrate(
+        redirections,
+        repositoryDirectory,
+        {
+            includes: defaultV3DocfxConfig.files,
+            excludes: defaultV3DocfxConfig.exclude
+        },
+        scanRedirection,
+        [hostName],
+        docsetConfig.docsetToPublish.build_source_folder);
+    Object.assign(defaultV3DocfxConfig, v3Redirections.redirection);
 
     // migrate dependency config
-    defaultV3DocfxConfig.dependencies = dependencyMigrator.migrate(OPSPublishConfig.dependent_repositories, cmdParams.branch, defaultDocsetConfig.docsetToPublish);
+    defaultV3DocfxConfig.dependencies = dependencyMigrator.migrate(OPSPublishConfig.dependent_repositories, branch, docsetConfig.docsetToPublish);
 
     // migrate themes
-    defaultV3DocfxConfig.template = themeMigrator.migrate(OPSPublishConfig.dependent_repositories, cmdParams.branch);
-
-    // migrate resolveAlias
-    defaultV3DocfxConfig.resolveAlias = resolveAliasMigrator.migrate(docfxConfigs);
+    defaultV3DocfxConfig.template = themeMigrator.migrate(OPSPublishConfig.dependent_repositories, branch);
 
     // migrate route config
-    defaultV3DocfxConfig.routes = routeMigrator.migrate(docfxConfigs);
+    defaultV3DocfxConfig.routes = routeMigrator.migrate(docsetConfig.docfxConfig);
 
     // migrate monikerRange config
-    defaultV3DocfxConfig.monikerRange = monikerRangeMigrator.migrate(docfxConfigs);
+    defaultV3DocfxConfig.monikerRange = monikerRangeMigrator.migrate(docsetConfig.docfxConfig);
 
     // migrate contribution
-    defaultV3DocfxConfig.contribution = contributionMigrator.migrate(OPSPublishConfig, docfxConfigs, cmdParams.repository, cmdParams.branch);
+    defaultV3DocfxConfig.contribution = contributionMigrator.migrate(OPSPublishConfig, docsetConfig.docfxConfig, repository, branch);
 
     // migrate document id
-    defaultV3DocfxConfig.documentId = documentIdMigrator.migrate(docfxConfigs);
+    defaultV3DocfxConfig.documentId = documentIdMigrator.migrate(docsetConfig.docfxConfig);
 
     // migrate global metadata
-    defaultV3DocfxConfig.globalMetadata = globalMetadataMigrator.migrate(docfxConfigs);
+    defaultV3DocfxConfig.globalMetadata = globalMetadataMigrator.migrate(docsetConfig.docfxConfig, docsetConfig.docsetToPublish);
 
     // migrate file metadata
-    defaultV3DocfxConfig.fileMetadata = fileMetadataMigrator.migrate(docfxConfigs);
+    defaultV3DocfxConfig.fileMetadata = fileMetadataMigrator.migrate(docsetConfig.docfxConfig);
 
     // migrate xref config
-    let xref = xrefMigrator.migrate(docfxConfigs);
+    let xref = xrefMigrator.migrate(docsetConfig.docfxConfig);
     if (xref.length > 0)
         defaultV3DocfxConfig.xref = xref;
 
@@ -214,20 +270,20 @@ async function main(cmdParams) {
     defaultV3DocfxConfig.output = outputMigrator.migrate(OPSPublishConfig);
 
     // migration localization config
-    let localizationConfig = localizationMigrator.migrate(cmdParams.branch);
+    let localizationConfig = localizationMigrator.migrate(branch);
     // only set localizationConfig when bilingual is true
     localizationConfig.bilingual && (defaultV3DocfxConfig.localization = localizationConfig);
 
     // migrate other easier properties
     // name & product & site_name
-    defaultV3DocfxConfig.name = defaultDocsetName;
-    defaultV3DocfxConfig.product = defaultDocsetConfig.docsetInfo.product_name;
-    if (cmdParams.siteName){
-        defaultV3DocfxConfig.siteName = cmdParams.siteName;
+    defaultV3DocfxConfig.name = docsetName;
+    defaultV3DocfxConfig.product = docsetConfig.docsetInfo.product_name;
+    if (docsetConfig.docsetInfo.site_name) {
+        defaultV3DocfxConfig.siteName = docsetConfig.docsetInfo.site_name;
     }
 
     // add git-hub config property when `user-cache` flag is on
-    if (cmdParams.userCache) {
+    if (userCache) {
         Object.assign(defaultV3DocfxConfig, constants.GIT_HUB_CONFIG)
     }
 
@@ -240,8 +296,8 @@ async function main(cmdParams) {
 
     // output 'docfx.yml' to output directory, default output to the same input directory
     // only write when write-file flag is on
-    if (cmdParams.writeFile) {
-        let configOutputPath = path.join(outputDirectory, defaultDocsetConfig.docsetToPublish.build_source_folder || '.', 'docfx.yml');
+    if (writeFile) {
+        let configOutputPath = path.join(outputDirectory, docsetConfig.docsetToPublish.build_source_folder || '.', 'docfx.yml');
         fs.writeFileSync(configOutputPath, yaml.dump(defaultV3DocfxConfig));
     }
 

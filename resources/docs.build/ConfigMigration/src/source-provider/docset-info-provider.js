@@ -6,18 +6,21 @@
 const { logger } = require('../logger');
 const opBuildApiClient = require('../lib/op-build-api-client');
 
-const getDocsetsInfo = async function ({repository, defaultDocsetName, basePath, productName, opBuildUserToken, env} = {} ) {
+const getDocsetsInfo = async function ({repository, defaultDocsetName, basePath, productName, siteName, opBuildUserToken, env} = {} ) {
     logger.info(`[docset-info-provider.getDocsetsInfo] generating docsets info`);
     // if it's passed from command line, then pack it directly 
     if (basePath && 
         typeof(basePath) === 'string' &&
         productName &&
-        typeof(productName) === 'string') {
+        typeof(productName) === 'string' &&
+        siteName &&
+        typeof(siteName) === 'string' ) {
         return [
             {
                 name: defaultDocsetName,
                 base_path: basePath,
-                product_name: productName
+                product_name: productName,
+                site_name: siteName
             }
         ]
     }

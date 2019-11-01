@@ -3,27 +3,15 @@
  * build output subfolder is like splitted with dash '-', 'a-b-c' => build to 'a/b/c'
  * 1. in `docfx.json`, `content.src` => `content.dest`
  * 2. in `docfx.json`, `resource.src` => `resource.dest`
- * Support multiple docset.
  */
 'use strict';
 
-const path = require('path');
 
 const {logger} = require('../../logger');
 const pathUtils = require('../../lib/path-utils');
 
-
-/**
- * Return all route configs in one docset.  
- * Consisting of: 
- *  - in `docfx.json`, `content.src` => `content.dest`
- *  - in `docfx.json`, `resource.src` => `resource.dest`
- * @param {*} docfxConfig 
- * @param {*} docsetToPublish 
- */
-const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
-    logger.info(`[route-migrator.migrateSingleDocfxConfig] migrating route config in docset: ${docsetToPublish.docset_name}`);
-
+const migrate = function (docfxConfig) {
+    logger.info('[route-migrator.migrate] migrating route config');
     let result = {};
 
     // gather content & resource route source, content route overwrites resource route
@@ -49,41 +37,4 @@ const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
     return result;
 }
 
-/**
- * Return merged all route configs in all docsets.
- *  - in `docfx.json`, `content.src` => `content.dest`
- *  - in `docfx.json`, `resource.src` => `resource.dest`
- * 
- * Return Example:
- ```json
-    {
-        "source/": "dest/",
-        "articles/": "azure/"
-    }
- ```
- * @param {*} docfxConfigs 
- */
-const migrateAllDocfxConfigs = function (docfxConfigs) {
-    logger.info('[route-migrator.migrateAllDocfxConfigs] migrating route configs: ' +
-                        `${Object.entries(docfxConfigs).length} docfx ${Object.entries(docfxConfigs).length > 1 ? 'configs': 'config'} found `);
-    
-    // only migrate the first one
-    let allRouteConfigs =  Object.entries(docfxConfigs).map(([docsetName, config]) =>
-    migrateSingleDocfxConfig(config.docfxConfig, config.docsetToPublish));
-
-    // merge all route configs into one map
-    return allRouteConfigs.reduce((acc, routeConfig, idx) => {
-        if (idx > 0) {
-            Object.entries(routeConfig).forEach(([src, dest]) => {
-                if (!acc.hasOwnProperty(src)) {
-                    acc[src] = dest;
-                } else {
-                    logger.error(`[route-migrator.migrateAllDocfxConfigs] duplicate route config source: ${src}`);
-                }
-            })
-        }
-        return acc;
-    }, allRouteConfigs[0]);
-}
-
-module.exports.migrate = migrateAllDocfxConfigs;
+module.exports.migrate = migrate;

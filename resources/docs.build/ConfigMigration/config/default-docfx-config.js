@@ -3,6 +3,7 @@
 module.exports = {
   name: null,
   product: null,
+  siteName: null,
   files: null,
   exclude: null,
   output: {
@@ -24,7 +25,6 @@ module.exports = {
   },
   template: null,
   dependencies: null,
-  resolveAlias: { "~": "." },
   fileMetadata: null,
   redirections: null
 }

@@ -4,7 +4,6 @@
  * 1. `docfx.json`'s content src, files and group
  * 2. `docfx.json`'s groups
  * {docsetFolder}/{content.src}(means a glob pattern) => monikerRange string
- * Only support single docset
  */
 'use strict';
 
@@ -14,8 +13,8 @@ const globUtils = require('../../lib/glob-utils');
 const pathUtils = require('../../lib/path-utils');
 const { logger } = require('../../logger');
 
-const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
-    logger.info(`[moniker-range-migrator.migrateSingleDocfxConfig] migrating monikerRange in docset: ${docsetToPublish.docset_name}`);
+const migrate = function (docfxConfig) {
+    logger.info('[moniker-range-migrator.migrate] migrating monikerRange');
 
     let scopes = [].concat(docfxConfig.content || []).concat(docfxConfig.resource || []);
     let monikerRoutes = scopes.reduce((monikerRoutes, item) => {
@@ -52,10 +51,4 @@ const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
     return result;
 }
 
-const migrateAllDocfxConfigs = function (docfxConfigs) {
-    let config = Object.entries(docfxConfigs)[0][1];
-    return migrateSingleDocfxConfig(config.docfxConfig, config.docsetToPublish, config.docsetInfo);
-
-}
-
-module.exports.migrate = migrateAllDocfxConfigs;
+module.exports.migrate = migrate;

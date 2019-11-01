@@ -21,9 +21,9 @@ cmdParams
   .option('--host-name [host-name]', 'Pass site host name')
   .option('--base-path [base-path]', 'The docset publish base path')
   .option('--product-name [product-name]', 'The docset product name')
+  .option('--site-name [site-name]', 'The docset site name')
   .option('--user-cache', 'Add git-hub config property to config')
   .option('--scan-redirection', 'Scan all .md files\' metadata and resolve redirections(attention, this is not optimized and may cause long running time)')
-  .option('--site-name [site-name]', 'The docset site name')
   .parse(process.argv);
 
 (async () => {
@@ -36,7 +36,7 @@ cmdParams
             throw new Error('migration failed');
         }
         let end = process.hrtime(start);
-        logger.info (`migration succeeded in ${end[0]}.${end[1]}s`);
+        logger.info(`migration succeeded in ${end[0]}.${end[1]}s`);
     } catch (error) {
         process.exitCode = 1;
         logger.error(`[migrate.entry] ${error}`);

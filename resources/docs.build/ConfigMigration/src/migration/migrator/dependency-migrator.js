@@ -24,19 +24,24 @@ const migrate = function (dependentRepositories, sourceRepoBranch, docsetToPubli
     logger.info('[dependency-migrator.migrate] migrating dependent repositories, ' +
     `${dependentRepositories.length} ${dependentRepositories.length > 1 ? 'dependencies' : 'dependency'} found`);
 
-    let pathToRepoRoot = pathUtils.normalizeFolder(docsetToPublish.build_source_folder).split('/').filter(path => path).map(_ => '..').join('/');
     let result = dependentRepositories.reduce((acc, dependentRepository) => {
         // exclude DEPENDENCY_TO_EXCLUDE
         if (!constants.DEPENDENCY_TO_EXCLUDE.includes(dependentRepository.path_to_root)) {
-            let pathToDocsetRoot = pathUtils.normalize(path.join(pathToRepoRoot, dependentRepository.path_to_root));
+            let mappedBranch = mapDependentBranch(dependentRepository, sourceRepoBranch);
+            // path.relative(left, right). always treat `left` as a relative directory
+            let pathToDocsetRoot = pathUtils.normalize(path.relative(`${docsetToPublish.build_source_folder || '.'}/`, dependentRepository.path_to_root));
             if (dependentRepository.include_in_build 
                 && (dependentRepository.include_in_build === true || dependentRepository.include_in_build.toLowerCase() === 'true')) {
-                acc[pathToDocsetRoot] = {
-                    url: `${dependentRepository.url}${mapDependentBranch(dependentRepository, sourceRepoBranch)}`,
+                let dependency = {
+                    url: `${dependentRepository.url}`,
                     includeInBuild: true
                 };
+                if (mappedBranch) {
+                    dependency.branch = mappedBranch;
+                }
+                acc[pathToDocsetRoot] = dependency;
             } else {
-                acc[pathToDocsetRoot] = `${dependentRepository.url}${mapDependentBranch(dependentRepository, sourceRepoBranch)}`;
+                acc[pathToDocsetRoot] = `${dependentRepository.url}${mappedBranch ? `#${mappedBranch}`: ''}`;
             }
         }
         return acc;
@@ -57,7 +62,7 @@ const mapDependentBranch = function (dependentRepository, sourceRepoBranch) {
     } else {
         sourceRepoBranch = dependentRepository.branch;
     }
-    return !sourceRepoBranch ? '' : '#' + sourceRepoBranch;
+    return sourceRepoBranch;
 }
 
 module.exports.migrate = migrate;

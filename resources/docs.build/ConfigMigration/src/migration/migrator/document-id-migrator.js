@@ -1,6 +1,5 @@
 /**
  * Migrate document id field.
- * Only works for single docset.
  */
 'use strict';
 
@@ -12,8 +11,8 @@ const {logger} = require('../../logger');
  * @param {*} docfxConfig 
  * @param {*} docsetToPublish 
  */
-const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
-    logger.info(`[document-id-migrator.migrateSingleDocfxConfig] migrating route config in docset: ${docsetToPublish.docset_name}`);
+const migrate = function (docfxConfig) {
+    logger.info('[document-id-migrator.migrateSingleDocfxConfig] migrating route config');
     
     let defaultDocumentId = {
         depotMappings: {}, 
@@ -27,12 +26,7 @@ const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
             acc.directoryMappings[sourcePath] = values.folder_relative_path_in_docset;
             return acc;
         }, defaultDocumentId) : defaultDocumentId;
-};
-
-const migrateAllDocfxConfigs = function (docfxConfigs) {
-    let config = Object.entries(docfxConfigs)[0][1];
-    return migrateSingleDocfxConfig(config.docfxConfig, config.docsetToPublish, config.docsetInfo);
 
 }
 
-module.exports.migrate = migrateAllDocfxConfigs;
+module.exports.migrate = migrate;

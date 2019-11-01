@@ -1,6 +1,5 @@
 /**
  * Migrate the build scope, property content(files & exclude glob patterns).
- * Only works for single docset.
  */
 'use strict';
 
@@ -40,8 +39,8 @@ const preprocessBuildScopes = function (docfxConfig) {
  * @param {*} docfxConfig The `docfx.json` file content
  * @param {*} docsetToPublish The `.openpublishing.publish.config.json`'s docsets_to_publish
  */
-const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
-    logger.info(`[build-scope-migrator.migrateSingleDocfxConfig] migrating content & resource config in docset: ${docsetToPublish.docset_name}`);
+const migrate = function (docfxConfig) {
+    logger.info('[build-scope-migrator.migrate] migrating content & resource config');
 
     preprocessBuildScopes(docfxConfig);
     let buildScopes = [...(docfxConfig.content || []), ...(docfxConfig.resource || [])];
@@ -57,7 +56,7 @@ const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
             exclude = buildScope.exclude.map(globPattern => {
                 let result = pathUtils.normalize(path.join(src, globUtils.normalizeGlobPattern(globPattern)));
                 if (result == "**" || result == "/**" || result == "../**") {
-                    throw new Error(`[build-scope-migrator.migrateSingleDocfxConfig] '${globPattern}' in exclude is not allowed, for it's resolved to '**', please remove it from docfx.json`);
+                    throw new Error(`[build-scope-migrator.migrate] '${globPattern}' in exclude is not allowed, for it's resolved to '**', please remove it from docfx.json`);
                 }
                 return result;
             });
@@ -73,38 +72,4 @@ const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
     return fileGroups.length > 1 ? {fileGroups} : fileGroups[0];
 }
 
-/**
- * Migrate all `docfx.json` files' file groups config.
- * Only support single docset.
- * Return Example:
- * a. when only one file group is defined
- ```json
-{
-    "files": ["pattern1", "pattern2", "..." ],
-    "exclude": ["pattern1", "pattern2", "..." ]
-}
- ```
- * b. when multiple file groups are defined
- ```json
-{ 
-    fileGroups: [
-        {   
-            "files": ["pattern1", "pattern2", "..." ],
-            "exclude": ["pattern1", "pattern2", "..." ]
-        },
-        ...
-    ]
-}
- ```
- * @param {*} docfxConfigs docfx configs map:  
- *   {"docset_name": {"docfxConfig":{}, "docsetToPublish":{}}}
- */
-const migrateAllDocfxConfigs = function (docfxConfigs) {
-    logger.info('[build-scope-migrator.migrateAllDocfxConfigs] migrating content & resource configs: ' +
-                        `${Object.entries(docfxConfigs).length} docfx ${Object.entries(docfxConfigs).length > 1 ? 'configs': 'config'} found `);
-
-    let config = Object.entries(docfxConfigs)[0][1];
-    return migrateSingleDocfxConfig(config.docfxConfig, config.docsetToPublish);
-}
-
-module.exports.migrate = migrateAllDocfxConfigs;
+module.exports.migrate = migrate;

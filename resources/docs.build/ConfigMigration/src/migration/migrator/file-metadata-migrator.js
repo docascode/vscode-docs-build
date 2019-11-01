@@ -1,11 +1,9 @@
 /**
  * Migrate global metadata field.
- * Only works for single docset.
  */
 'use strict';
 
 const path = require('path');
-const pathUtils = require('../../lib/path-utils');
 const globUtils = require('../../lib/glob-utils');
 
 const {logger} = require('../../logger');
@@ -14,10 +12,9 @@ const {logger} = require('../../logger');
  * In `docfx.json`'s `fileMetadata`.
  * Return {docsetToPublish.build_source_folder}/{glob_pattern}
  * @param {*} docfxConfig 
- * @param {*} docsetToPublish 
  */
-const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
-    logger.info(`[file-metadata-migrator.migrateSingleDocfxConfig] migrating file metadata in docset: ${docsetToPublish.docset_name}`);
+const migrate = function (docfxConfig) {
+    logger.info('[file-metadata-migrator.migrateSingleDocfxConfig] migrating file metadata');
 
     let result = {};
     if (docfxConfig.hasOwnProperty('fileMetadata')) {
@@ -41,15 +38,4 @@ const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
     return result;
 }
 
-/**
- * Only support single docset case.
- * Return the file metadata defined in the first `docfx.json`.
- * @param {*} docfxConfigs 
- */
-const migrateAllDocfxConfigs = function (docfxConfigs) {
-    let config = Object.entries(docfxConfigs)[0][1];
-    return migrateSingleDocfxConfig(config.docfxConfig, config.docsetToPublish);
-
-}
-
-module.exports.migrate = migrateAllDocfxConfigs;
+module.exports.migrate = migrate;

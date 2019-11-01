@@ -6,22 +6,13 @@
  * "git_repository_branch_open_to_public_contributors": "master"
  * in `docfx.json`:
  *  `globalMetadata.contributors_to_exclude`
- * Only works for single docset.
  */
 
 'use strict';
 
 const {logger} = require('../../logger');
 
-/**
- * 
- * @param {*} docfxConfigs docfx configs map:  
- *   {"docset_name": {"docfxConfig":{}, "docsetToPublish":{}}}
- * @param {*} docsetToPublish 
- */
-const extractContributorsToExcludeFromSingleDocset = function (docfxConfig, docsetToPublish) {
-    logger.info('[route-migrator.migrateSingleDocfxConfig] extracting excluded contributors in docset: '+
-                                `${docsetToPublish.docset_name}`);
+const extractContributorsToExclude = function (docfxConfig) {
 
     if (docfxConfig.hasOwnProperty('globalMetadata') && docfxConfig.globalMetadata.hasOwnProperty('contributors_to_exclude')) {
         return docfxConfig.globalMetadata.contributors_to_exclude;
@@ -34,14 +25,10 @@ const extractContributorsToExcludeFromSingleDocset = function (docfxConfig, docs
  * @param {*} OPSPublishConfig 
  * @param {*} docfxConfigs 
  */
-const migrate = function (OPSPublishConfig, docfxConfigs, gitRepoUrl, sourceRepoBranch) {
-    logger.info('[contribution-migrator.migrateAllDocfxConfigs] migrating contribution configs: ' +
-                        `${Object.entries(docfxConfigs).length} docfx ${Object.entries(docfxConfigs).length > 1 ? 'configs': 'config'} found `);
-    
-    // take the first docset by default
-    let config = Object.entries(docfxConfigs)[0][1];
+const migrate = function (OPSPublishConfig, docfxConfig, gitRepoUrl, sourceRepoBranch) {
+    logger.info('[contribution-migrator.migrate] migrating contribution config');
 
-    let contributorsToExclude = extractContributorsToExcludeFromSingleDocset(config.docfxConfig, config.docsetToPublish);
+    let contributorsToExclude = extractContributorsToExclude(docfxConfig);
 
     // always generate repository no matter open_to_public_contributors is true or false
     let contributionConfig = {

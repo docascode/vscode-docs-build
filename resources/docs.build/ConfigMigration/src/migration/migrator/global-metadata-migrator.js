@@ -1,6 +1,5 @@
 /**
  * Migrate global metadata field.
- * Only works for single docset.
  */
 'use strict';
 
@@ -9,15 +8,9 @@ const pathUtils = require('../../lib/path-utils');
 
 const PROPERTIES_TO_EXCLUDE = ['contributors_to_exclude', '_op_documentIdPathDepotMapping'];
 
-/**
- * In `docfx.json`'s `globalMetadata`, exclude 'contributors_to_exclude' and '_op_documentIdPathDepotMapping'.
- * In `.openpublishing.publish.config.json`'s `docsetToPublish`: 
- *   "open_to_public_contributors"
- * @param {*} docfxConfig 
- * @param {*} docsetToPublish 
- */
-const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
-    logger.info(`[global-metadata-migrator.migrateSingleDocfxConfig] migrating global metadata in docset: ${docsetToPublish.docset_name}`);
+
+const migrate = function (docfxConfig, docsetToPublish) {
+    logger.info('[global-metadata-migrator.migrateSingleDocfxConfig] migrating global metadata');
     let result = {};
     if (docfxConfig.hasOwnProperty('globalMetadata')) {
         result = Object.entries(docfxConfig.globalMetadata).reduce((acc, [key, value]) => {
@@ -44,14 +37,4 @@ const migrateSingleDocfxConfig = function (docfxConfig, docsetToPublish) {
     return result;
 };
 
-/**
- * Only support single docset case.
- * Return the global metadata defined in the first `docfx.json`.
- * @param {*} docfxConfigs 
- */
-const migrateAllDocfxConfigs = function (docfxConfigs) {
-    let config = Object.entries(docfxConfigs)[0][1];
-    return migrateSingleDocfxConfig(config.docfxConfig, config.docsetToPublish);
-};
-
-module.exports.migrate = migrateAllDocfxConfigs;
+module.exports.migrate = migrate;
