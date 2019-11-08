@@ -4,6 +4,11 @@ import * as gitUrlParse from 'git-url-parse';
 import { diagnosticItem } from '../diagnostics/diagnosticsController';
 import * as simpleGit from 'simple-git/promise';
 
+export function getExtensionId() {
+    const { name, publisher } = require('../../package.json') as { name: string, publisher: string };
+    return `${publisher}.${name}`;
+}
+
 export function openUrl(url: string): Thenable<boolean> {
     return vscode.env.openExternal(vscode.Uri.parse(url));
 }
