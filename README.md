@@ -22,7 +22,6 @@ VS Code extension to provide the Local build experience for docs.
 
 - [Dotnet](https://dotnet.microsoft.com/download) installed
 - [NodeJs](https://nodejs.org/en/download/) installed
-- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) installed and login
 
 ## Known Issues
 

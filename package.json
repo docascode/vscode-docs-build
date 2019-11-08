@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "Docs Build",
   "description": "Local build Docs repository",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -29,7 +29,7 @@
     "theme": "light"
   },
   "activationEvents": [
-    "*"
+    "workspaceContains:**/.openpublishing.publish.config.json"
   ],
   "author": {
     "email": "jipe@microsoft.com",
@@ -106,6 +106,7 @@
     "@types/request-promise": "^4.1.44",
     "@types/url-template": "^2.0.28",
     "@types/uuid": "^3.4.5",
+    "fs-extra": "^8.1.0",
     "git-url-parse": "^11.1.2",
     "ms-rest-azure": "^3.0.0",
     "querystring": "^0.2.0",
