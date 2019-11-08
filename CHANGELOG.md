@@ -2,14 +2,18 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.6]
+### Changed
+- Removing the dependency on proposed API
+
 ## [0.1.5]
-### Changed 
+### Changed
 - Removing the dependency on Azure CLI
 
 ## [0.1.4]
 ### Added
 - One-click to migrate to docfx v3.
-### Changed 
+### Changed
 - Add new requirement: Azure CLI installed and login
 
 ## [0.1.3]

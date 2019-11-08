@@ -4,7 +4,7 @@ import { AzureEnvironment } from 'ms-rest-azure';
 import * as template from 'url-template';
 import { DocsAccount, BuildEnv, UserInfo } from '../common/shared';
 import { keyChain } from './keyChain';
-import { parseQuery, delay, openUrl } from '../common/utility';
+import { parseQuery, delay, openUrl, getExtensionId } from '../common/utility';
 import { uriHandler } from '../common/uri';
 import { docsChannel } from '../common/docsChannel';
 const config = require('../../configs/vscode-docs-build.json');
@@ -117,7 +117,7 @@ class CredentialController implements vscode.Disposable {
     }
 
     private async loginWithAAD(): Promise<string | undefined> {
-        const callbackUri = (await vscode.env.createAppUri({ payload: { path: '/aad-authenticate' } }));
+        const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${getExtensionId()}/aad-authenticate`));
         const signUrlTemplate = template.parse(`${AzureEnvironment.Azure.activeDirectoryEndpointUrl}/{tenantId}/oauth2/authorize` +
             '?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope={scope}&state={state}&resource={resource}');
         const signUrl = signUrlTemplate.expand({
@@ -143,10 +143,6 @@ class CredentialController implements vscode.Disposable {
                         // const code = query.code;
                         const code = 'fake-code';
 
-                        // if (query.state !== state) {
-                        //     throw new Error('Login with GitHub failed: State does not match.');
-                        // }
-
                         resolve(code);
                     } catch (err) {
                         reject(err);
@@ -162,7 +158,7 @@ class CredentialController implements vscode.Disposable {
     }
 
     private async loginWithGithub(): Promise<UserInfo | null> {
-        const callbackUri = await vscode.env.createAppUri({ payload: { path: '/github-authenticate' } });
+        const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${getExtensionId()}/github-authenticate`));
         const state = callbackUri.with({ query: "" }).toString();
         const signUrlTemplate = template.parse(`https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirect_uri}&scope={scope}&state={state}`);
         const signUrl = signUrlTemplate.expand({
