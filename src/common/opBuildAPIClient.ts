@@ -16,6 +16,12 @@ export class OpBuildAPIClient implements vscode.Disposable {
   }
 
   public getDocsetInfo(gitRepoUrl: string): Promise<DocsetInfo> {
+    if (!credentialController.account || credentialController.account.status !== 'SignedIn') {
+      var error: IExecError = new Error(`You have to sign in first`);
+      error.action = { title: 'Sign In', command: 'docs.signIn' }
+      throw error;
+    }
+
     const requestUrl = `${this.APIBaseUrl}/v2/Queries/Docsets`
       + `?${querystring.stringify({
         git_repo_url: gitRepoUrl,

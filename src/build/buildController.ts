@@ -148,20 +148,7 @@ class BuildController implements vscode.Disposable {
     }
 
     private async initializeOpBuildAPIClient(): Promise<boolean> {
-        if (credentialController.account.status !== 'SignedIn') {
-            docsChannel.appendLine(`Build abort since you haven't signed in to Docs, please Sign in and try again.`);
-
-            let input = await vscode.window.showErrorMessage(
-                `[Docs Build] Please Sign in to Docs portal first`,
-                { title: 'Sign In', command: 'docs.signIn' }
-            );
-            if (input) {
-                vscode.commands.executeCommand(input!.command);
-            }
-            return false;
-        }
-
-        // TODO: get build env
+        // TODO: remove the constructor and get build env at the run-time
         this.opBuildAPIClient = new OpBuildAPIClient('ppe');
         return true;
     }
