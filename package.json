@@ -4,7 +4,7 @@
   "description": "Local build Docs repository",
   "version": "0.1.5",
   "engines": {
-    "vscode": "^1.39.0"
+    "vscode": "^1.40.0"
   },
   "categories": [
     "Programming Languages",
