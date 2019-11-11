@@ -49,7 +49,7 @@ class DocsBuildExcutor implements vscode.Disposable {
             + `& set DOCS_BASE_PATH=${docsetInfo.BasePath}`
             + `& set DOCS_SITE_NAME=${docsetInfo.SiteName}`
             + `& set DOCS_PRODUCT_NAME=${docsetInfo.ProductName}`
-            + `& set DOCS_OP_BUILD_USER_TOKEN=${credentialController.account.userInfo!.userToken}`
+            + `& set DOCS_OP_BUILD_USER_TOKEN=${credentialController.userInfo!.userToken}`
             + `& dotnet "${this.docsBuildPath}" "${repositoryPath}" `
         executeCommand(command, stdOutHandler, stdErrHandler, exitHandler);
     }

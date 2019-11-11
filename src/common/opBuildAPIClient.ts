@@ -1,22 +1,17 @@
 import * as vscode from 'vscode';
 import * as request from 'request';
 import * as querystring from 'querystring';
-import { BuildEnv, DocsetInfo, IExecError } from './shared';
+import { DocsetInfo, IExecError } from './shared';
 import { docsChannel } from './docsChannel';
 import { credentialController } from '../credential/credentialController';
+import { environmentController } from '../build/environmentController';
 const config = require('../../configs/vscode-docs-build.json');
 
 const OP_BUILD_USER_TOKEN_HEADER_NAME = 'X-OP-BuildUserToken';
 
-export class OpBuildAPIClient implements vscode.Disposable {
-  private APIBaseUrl: string;
-
-  constructor(buildEnv: BuildEnv) {
-    this.APIBaseUrl = config.OPBuildAPIEndPoint[buildEnv.toString()];
-  }
-
+class OpBuildAPIClient implements vscode.Disposable {
   public getDocsetInfo(gitRepoUrl: string): Promise<DocsetInfo> {
-    if (!credentialController.account || credentialController.account.status !== 'SignedIn') {
+    if (credentialController.signInStatus !== 'SignedIn') {
       var error: IExecError = new Error(`You have to sign in first`);
       error.action = { title: 'Sign In', command: 'docs.signIn' }
       throw error;
@@ -55,6 +50,10 @@ export class OpBuildAPIClient implements vscode.Disposable {
       });
   };
 
+  private get APIBaseUrl(): string{
+    return config.OPBuildAPIEndPoint[environmentController.env]
+  }
+
   private sendRequest(
     url: string,
     method: string,
@@ -63,7 +62,7 @@ export class OpBuildAPIClient implements vscode.Disposable {
     headers: any = {}
   ): Promise<any> {
     method = method || 'GET';
-    headers[OP_BUILD_USER_TOKEN_HEADER_NAME] = credentialController.account.userInfo!.userToken;
+    headers[OP_BUILD_USER_TOKEN_HEADER_NAME] = credentialController.userInfo!.userToken;
     const promise = new Promise((resolve, reject) => {
       request({
         url,
@@ -95,6 +94,8 @@ export class OpBuildAPIClient implements vscode.Disposable {
 
   }
 }
+
+export const opBuildApiClient = new OpBuildAPIClient();
 
 function isResultEmpty(result: any): boolean {
   if (Array.isArray(result)) {

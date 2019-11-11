@@ -1,15 +1,19 @@
 import * as vscode from 'vscode';
-import { DocsAccount, BuildStatus } from '../common/shared';
-import { credentialController } from '../credential/credentialController';
+import { BuildStatus } from '../common/shared';
 import { buildController } from '../build/buildController';
 
 class BuildStatusBarController implements vscode.Disposable {
-    private statusBar: vscode.StatusBarItem;
+    private _statusBar: vscode.StatusBarItem;
+    private _buildStatusChangeListener: vscode.Disposable;
+
     constructor() {
-        this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1023);
-        buildController.onStatusChanged((buildStatus) => this.updateStatusBar(buildStatus));
-        this.updateStatusBar(buildController.getBuildStatus());
-        this.statusBar.show();
+        this._statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1023);
+        this._buildStatusChangeListener = buildController.onDidChangeBuildStatus(
+            (buildStatus) => this.updateStatusBar(buildStatus)
+        );
+
+        this.updateStatusBar(buildController.buildStatus);
+        this._statusBar.show();
     }
 
     private updateStatusBar(buildStatus: BuildStatus) {
@@ -30,13 +34,14 @@ class BuildStatusBarController implements vscode.Disposable {
                 tooltip = 'Building the current workspace folder';
                 break;
         }
-        this.statusBar.text = icon;
-        this.statusBar.command = command;
-        this.statusBar.tooltip = tooltip;
+        this._statusBar.text = icon;
+        this._statusBar.command = command;
+        this._statusBar.tooltip = tooltip;
     }
 
     public dispose(): void {
-        this.statusBar.dispose();
+        this._statusBar.dispose();
+        this._buildStatusChangeListener.dispose();
     }
 }
 

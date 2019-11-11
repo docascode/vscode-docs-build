@@ -4,9 +4,8 @@ import * as path from 'path';
 import { docsChannel } from '../common/docsChannel';
 import { diagnosticController } from '../diagnostics/diagnosticsController';
 import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder } from '../common/utility';
-import { DocsetInfo, BuildEnv, BuildStatus } from '../common/shared';
-import { OpBuildAPIClient } from '../common/opBuildAPIClient';
-import { credentialController } from '../credential/credentialController';
+import { DocsetInfo, BuildStatus } from '../common/shared';
+import { opBuildApiClient } from '../common/opBuildAPIClient';
 import { docsBuildExcutor } from './docsBuildExcutor';
 
 const OUTPUT_FOLDER_NAME = '_site';
@@ -38,25 +37,24 @@ interface ReportItem {
 class BuildController implements vscode.Disposable {
     // TODO: support building on save
 
-    private activeWorkSpaceFolder: vscode.WorkspaceFolder | undefined;
-    private repositoryUrl: string | undefined;
-    private repositoryBranch: string | undefined;
-    private docsetInfo: DocsetInfo | undefined;
-    private buildEnv: BuildEnv;
-    private opBuildAPIClient: OpBuildAPIClient;
-    private BuildStatus: BuildStatus = 'Ready';
-    private didChange: vscode.EventEmitter<BuildStatus>;
+    private _activeWorkSpaceFolder: vscode.WorkspaceFolder | undefined;
+    private _repositoryUrl: string | undefined;
+    private _repositoryBranch: string | undefined;
+    private _docsetInfo: DocsetInfo | undefined;
+    private _buildStatus: BuildStatus;
+    private _didChangeBuildStatus: vscode.EventEmitter<BuildStatus>;
 
-    public onStatusChanged: vscode.Event<BuildStatus>;
+    public readonly onDidChangeBuildStatus: vscode.Event<BuildStatus>;
 
     constructor() {
-        this.buildEnv = 'ppe';
-        this.didChange = new vscode.EventEmitter<BuildStatus>();
-        this.onStatusChanged = this.didChange.event;
+        this._buildStatus = 'Ready';
+        this._didChangeBuildStatus = new vscode.EventEmitter<BuildStatus>();
+
+        this.onDidChangeBuildStatus = this._didChangeBuildStatus.event;
     }
 
-    public getBuildStatus() {
-        return this.BuildStatus;
+    public get buildStatus() {
+        return this._buildStatus;
     }
 
     public async build(uri: vscode.Uri): Promise<void> {
@@ -76,8 +74,8 @@ class BuildController implements vscode.Disposable {
                 return;
             }
 
-            docsChannel.appendLine(`Start to build workspace folder '${this.activeWorkSpaceFolder!.name}'`);
-            docsBuildExcutor.RunBuildPipeline(this.activeWorkSpaceFolder!.uri.fsPath, this.repositoryUrl!, this.repositoryBranch!, this.docsetInfo!);
+            docsChannel.appendLine(`Start to build workspace folder '${this._activeWorkSpaceFolder!.name}'`);
+            docsBuildExcutor.RunBuildPipeline(this._activeWorkSpaceFolder!.uri.fsPath, this._repositoryUrl!, this._repositoryBranch!, this._docsetInfo!);
         } catch (err) {
             docsChannel.appendLine(`Build abort since some error happened: ${err.message}`);
 
@@ -96,22 +94,22 @@ class BuildController implements vscode.Disposable {
     }
 
     public trySetAvaibleFlag(): boolean {
-        if (this.BuildStatus === 'Building') {
+        if (this._buildStatus === 'Building') {
             return false;
         }
-        this.BuildStatus = 'Building';
-        this.didChange.fire(this.BuildStatus);
+        this._buildStatus = 'Building';
+        this._didChangeBuildStatus.fire(this._buildStatus);
         return true;
     }
 
     public resetAvaibleFlag() {
-        this.BuildStatus = 'Ready';
-        this.didChange.fire(this.BuildStatus);
+        this._buildStatus = 'Ready';
+        this._didChangeBuildStatus.fire(this._buildStatus);
     }
 
     public visualizeBuildReport() {
         try {
-            var reportFilePath = path.join(this.activeWorkSpaceFolder!.uri.fsPath, OUTPUT_FOLDER_NAME, REPORT_FILENAME);
+            var reportFilePath = path.join(this._activeWorkSpaceFolder!.uri.fsPath, OUTPUT_FOLDER_NAME, REPORT_FILENAME);
             if (!fs.existsSync(reportFilePath)) {
                 vscode.window.showErrorMessage(`[Docs Build] Cannot find the report file(.error.log)`);
             }
@@ -132,7 +130,7 @@ class BuildController implements vscode.Disposable {
 
                 if (!diagnosticsSet.has(reportItem.file)) {
                     diagnosticsSet.set(reportItem.file, {
-                        uri: vscode.Uri.file(path.resolve(this.activeWorkSpaceFolder!.uri.fsPath, reportItem.file)),
+                        uri: vscode.Uri.file(path.resolve(this._activeWorkSpaceFolder!.uri.fsPath, reportItem.file)),
                         diagnostics: []
                     })
                 }
@@ -147,43 +145,31 @@ class BuildController implements vscode.Disposable {
         }
     }
 
-    private async initializeOpBuildAPIClient(): Promise<boolean> {
-        // TODO: remove the constructor and get build env at the run-time
-        this.opBuildAPIClient = new OpBuildAPIClient('ppe');
-        return true;
-    }
-
     private async initializeWorkspaceFolderInfo(uri: vscode.Uri): Promise<boolean> {
         let workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
         if (!(await this.validateWorkSpaceFolder(workspaceFolder))) {
             return false;
         }
 
-        if (this.activeWorkSpaceFolder && this.activeWorkSpaceFolder.uri === workspaceFolder!.uri) {
+        if (this._activeWorkSpaceFolder && this._activeWorkSpaceFolder.uri === workspaceFolder!.uri) {
             return true;
-        }
-
-        if (!this.opBuildAPIClient) {
-            if (!(await this.initializeOpBuildAPIClient())) {
-                return false;
-            }
         }
 
         // TODO: user may switch branch, the opconfig(locale) may also change according to that
         docsChannel.appendLine(`\nGetting repository information for the current workspace folder...`);
-        [this.repositoryUrl, this.repositoryBranch] = await getRepositoryInfoFromLocalFolder(workspaceFolder!.uri.fsPath);
-        docsChannel.appendLine(`  Repository URL: ${this.repositoryUrl};`);
-        docsChannel.appendLine(`  Repository Branch: ${this.repositoryBranch};`);
+        [this._repositoryUrl, this._repositoryBranch] = await getRepositoryInfoFromLocalFolder(workspaceFolder!.uri.fsPath);
+        docsChannel.appendLine(`  Repository URL: ${this._repositoryUrl};`);
+        docsChannel.appendLine(`  Repository Branch: ${this._repositoryBranch};`);
 
         docsChannel.appendLine(`\nGetting docset information for this repository...`);
 
-        this.docsetInfo = await this.opBuildAPIClient.getDocsetInfo(this.repositoryUrl)
+        this._docsetInfo = await opBuildApiClient.getDocsetInfo(this._repositoryUrl)
 
-        docsChannel.appendLine(`  Docset Site Base Path: ${this.docsetInfo.BasePath};`);
-        docsChannel.appendLine(`  Docset Site Name: ${this.docsetInfo.SiteName};`);
-        docsChannel.appendLine(`  Docset Product Name: ${this.docsetInfo.ProductName};`);
+        docsChannel.appendLine(`  Docset Site Base Path: ${this._docsetInfo.BasePath};`);
+        docsChannel.appendLine(`  Docset Site Name: ${this._docsetInfo.SiteName};`);
+        docsChannel.appendLine(`  Docset Product Name: ${this._docsetInfo.ProductName};`);
 
-        this.activeWorkSpaceFolder = workspaceFolder;
+        this._activeWorkSpaceFolder = workspaceFolder;
         return true;
     }
 
@@ -221,7 +207,7 @@ class BuildController implements vscode.Disposable {
     }
 
     public dispose(): void {
-
+        this._didChangeBuildStatus.dispose();
     }
 }
 

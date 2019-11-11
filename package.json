@@ -39,6 +39,17 @@
   "publisher": "ceapex",
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Docs-build",
+      "properties": {
+        "docs-build.environment": {
+          "type": "string",
+          "enum": ["PROD", "PPE"],
+          "default": "PPE",
+          "description": "The Build environment"
+        }
+      }
+    },
     "commands": [
       {
         "command": "docs.signIn",

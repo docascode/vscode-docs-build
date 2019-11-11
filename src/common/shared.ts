@@ -7,7 +7,7 @@ export interface DocsetInfo {
     SiteName: string
 }
 
-export type BuildEnv = 'prod' | 'ppe';
+export type BuildEnv = 'PROD' | 'PPE';
 
 export type BuildStatus = 'Building' | 'Ready';
 
@@ -18,17 +18,10 @@ export interface IExecError extends Error {
 // OAuth
 export type DocsSignInStatus = 'Initializing' | 'SigningIn' | 'SignedIn' | 'SignedOut';
 
-export type SignInType = 'Github' | 'DevOps'
-
-export interface DocsAccount {
-    status: DocsSignInStatus;
-    onStatusChanged: vscode.Event<DocsAccount>;
-    signInType: SignInType;
-    aadInfo: string | undefined;
-    userInfo: UserInfo | undefined;
-}
+export type DocsSignInType = 'Github' | 'DevOps'
 
 export interface UserInfo {
+    readonly signType: DocsSignInType;
     readonly userName: string;
     readonly userEmail: string;
     readonly userToken: string;

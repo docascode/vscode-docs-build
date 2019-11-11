@@ -7,6 +7,7 @@ import { docsChannel } from './common/docsChannel';
 import { codeActionProvider } from './codeAction/codeActionProvider';
 import { docsBuildExcutor } from './build/docsBuildExcutor';
 import { buildStatusBarController } from './statusbar/buildStatusBarController';
+import { environmentController } from './build/environmentController';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     docsChannel.appendLine("Checking Extension running environment...");
@@ -17,11 +18,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     await credentialController.initialize();
 
     context.subscriptions.push(
-        credentialController,
-        signStatusBarController,
         buildStatusBarController,
         buildController,
+        credentialController,
         docsChannel,
+        environmentController,
+        signStatusBarController,
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn()),
         vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut()),
         vscode.commands.registerCommand('docs.build', async (uri) => { await buildController.build(uri) }),

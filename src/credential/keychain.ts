@@ -1,5 +1,6 @@
 import * as keytarType from 'keytar';
 import { UserInfo } from '../common/shared';
+import { environmentController } from '../build/environmentController';
 
 type Keytar = {
     getPassword: typeof keytarType['getPassword'];
@@ -22,8 +23,6 @@ const failingKeytar: Keytar = {
     async deletePassword(_service, _string) { throw new Error('System keyChain unavailable'); }
 };
 const SERVICE_ID = 'vscode-docs-build';
-const AAD_ACCOUNT_ID = 'docs-build-aad';
-const USER_INFO_ACCOUNT_ID = 'docs-build-user-info';
 
 class KeyChain {
     private keytar: Keytar;
@@ -33,7 +32,7 @@ class KeyChain {
     }
 
     public async getAADInfo(): Promise<string | undefined> {
-        var aadInfo = await this.keytar.getPassword(SERVICE_ID, AAD_ACCOUNT_ID)
+        var aadInfo = await this.keytar.getPassword(SERVICE_ID, this.AADAccountId)
         if (aadInfo) {
             return aadInfo;
         }
@@ -41,7 +40,7 @@ class KeyChain {
     }
 
     public async getUserInfo(): Promise<UserInfo | null> {
-        let userInfoStr = await this.keytar.getPassword(SERVICE_ID, USER_INFO_ACCOUNT_ID)
+        let userInfoStr = await this.keytar.getPassword(SERVICE_ID, this.userInfoAccountId)
         if (userInfoStr == null) {
             return null;
         }
@@ -49,19 +48,27 @@ class KeyChain {
     }
 
     public async setAADInfo(aadInfo: string): Promise<void> {
-        await this.keytar.setPassword(SERVICE_ID, AAD_ACCOUNT_ID, aadInfo);
+        await this.keytar.setPassword(SERVICE_ID, this.AADAccountId, aadInfo);
     }
-    
+
     public async setUserInfo(userInfo: UserInfo): Promise<void> {
-        await this.keytar.setPassword(SERVICE_ID, USER_INFO_ACCOUNT_ID, JSON.stringify(userInfo));
+        await this.keytar.setPassword(SERVICE_ID, this.userInfoAccountId, JSON.stringify(userInfo));
     }
 
     public async deleteUserInfo(): Promise<void> {
-        await this.keytar.deletePassword(SERVICE_ID, USER_INFO_ACCOUNT_ID);
+        await this.keytar.deletePassword(SERVICE_ID, this.userInfoAccountId);
     }
 
     public async deleteAADInfo(): Promise<void> {
-        await this.keytar.deletePassword(SERVICE_ID, AAD_ACCOUNT_ID);
+        await this.keytar.deletePassword(SERVICE_ID, this.AADAccountId);
+    }
+
+    private get AADAccountId(): string {
+        return `docs-build-aad-${environmentController.env}`;
+    }
+
+    private get userInfoAccountId(): string {
+        return `docs-build-user-info-${environmentController.env}`;
     }
 }
 

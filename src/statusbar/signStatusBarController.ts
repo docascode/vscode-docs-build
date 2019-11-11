@@ -1,26 +1,29 @@
 import * as vscode from 'vscode';
-import { DocsAccount } from '../common/shared';
 import { credentialController } from '../credential/credentialController';
+import { environmentController } from '../build/environmentController';
 
 class SignStatusBarController implements vscode.Disposable {
-    private statusBar: vscode.StatusBarItem;
-    constructor(docsAccount: DocsAccount) {
-        this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1024);
-        docsAccount.onStatusChanged((docsAccount) => this.updateStatusBar(docsAccount));
-        this.updateStatusBar(docsAccount);
-        this.statusBar.show();
+    private _statusBar: vscode.StatusBarItem;
+    private _credentialChangeListener: vscode.Disposable;
+
+    constructor() {
+        this._statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1024);
+        this._credentialChangeListener = credentialController.onDidChangeCredential(() => this.updateStatusBar());
+
+        this.updateStatusBar();
+        this._statusBar.show();
     }
 
-    private updateStatusBar(docsAccount: DocsAccount, ) {
-        let text = 'Docs: ';
+    private updateStatusBar() {
+        let text = environmentController.env === 'PPE' ? 'Docs(Sandbox): ' : 'Docs: ';
         let command = undefined;
-        switch (docsAccount.status) {
+        switch (credentialController.signInStatus) {
             case 'SigningIn':
                 text += 'Signing In';
                 break;
             case 'SignedIn':
-                text += docsAccount.signInType == 'Github' ? '$(mark-github) ' : '$(rocket) ';
-                text += `${docsAccount.userInfo!.userName}(${docsAccount.userInfo!.userEmail})`;
+                text += credentialController.userInfo!.signType == 'Github' ? '$(mark-github) ' : '$(rocket) ';
+                text += `${credentialController.userInfo!.userName}(${credentialController.userInfo!.userEmail})`;
                 break;
             case 'SignedOut':
                 text += 'Sign in to Docs';
@@ -30,13 +33,14 @@ class SignStatusBarController implements vscode.Disposable {
             default:
                 text += 'Initializing';
         }
-        this.statusBar.text = text;
-        this.statusBar.command = command;
+        this._statusBar.text = text;
+        this._statusBar.command = command;
     }
 
     public dispose(): void {
-        this.statusBar.dispose();
+        this._statusBar.dispose();
+        this._credentialChangeListener.dispose();
     }
 }
 
-export const signStatusBarController = new SignStatusBarController(credentialController.account);
+export const signStatusBarController = new SignStatusBarController();

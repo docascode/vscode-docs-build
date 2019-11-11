@@ -1,6 +1,6 @@
 {
     "auth": {
-        "prod": {
+        "PROD": {
             "GitHubOauthClientId": "cab2f1d73e2dc96c7f8b",
             "GitHubOauthScope": "repo,user:email read:user",
             "GitHubOauthRedirectUrl": "https://op-build-prod.azurewebsites.net/v1/Authorizations/github",
@@ -10,7 +10,7 @@
             "AADAuthResource": "https://graph.windows.net",
             "AADAuthRedirectUrl": "https://op-build-prod.azurewebsites.net/v1/Authorizations/aad"
         },
-        "ppe": {
+        "PPE": {
             "GitHubOauthClientId": "7decdab5f6801e75e1d5",
             "GitHubOauthScope": "repo,user:email read:user",
             "GitHubOauthRedirectUrl": "https://op-build-sandbox2.azurewebsites.net/v1/Authorizations/github",
@@ -22,7 +22,7 @@
         }
     },
     "OPBuildAPIEndPoint": {
-        "prod": "https://op-build-prod.azurewebsites.net",
-        "ppe": "https://op-build-sandbox2.azurewebsites.net"
+        "PROD": "https://op-build-prod.azurewebsites.net",
+        "PPE": "https://op-build-sandbox2.azurewebsites.net"
     }
 }

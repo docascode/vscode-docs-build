@@ -3,6 +3,8 @@
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [0.1.6]
+### Added
+- Support different build environment.
 ### Changed
 - Removing the dependency on proposed API
 
