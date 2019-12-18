@@ -1,0 +1,156 @@
+{
+  "name": "docs-build",
+  "displayName": "Docs Validation",
+  "description": "Local build Docs repository",
+  "version": "0.1.7",
+  "engines": {
+    "vscode": "^1.40.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "Docs",
+    "Docs Build",
+    "ceapex",
+    "docfx",
+    "local build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/docascode/vscode-docs-build"
+  },
+  "homepage": "https://github.com/docascode/vscode-docs-build",
+  "icon": "resources/favicon.ico",
+  "galleryBanner": {
+    "color": "#FFFFFF",
+    "theme": "light"
+  },
+  "activationEvents": [
+    "workspaceContains:**/.openpublishing.publish.config.json"
+  ],
+  "author": {
+    "email": "jipe@microsoft.com",
+    "name": "Jiayin Pei"
+  },
+  "preview": true,
+  "publisher": "ceapex",
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Docs Validation Configuration",
+      "properties": {
+        "docs-build.environment": {
+          "type": "string",
+          "enum": [
+            "PROD",
+            "PPE"
+          ],
+          "default": "PROD",
+          "description": "The Build environment"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "docs.signIn",
+        "title": "Sign in to Docs portal",
+        "category": "Docs"
+      },
+      {
+        "command": "docs.signOut",
+        "title": "Sign out from Docs portal",
+        "category": "Docs"
+      },
+      {
+        "command": "docs.build",
+        "title": "Build this workspace folder",
+        "category": "Docs"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "docs.build",
+          "group": "navigation"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "docs-output",
+        "mimetypes": [
+          "text/x-code-output"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "docs-output",
+        "scopeName": "docs.output",
+        "path": "./resources/syntaxes/docs-output.tmLanguage"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^10.12.21",
+    "@types/vscode": "^1.40.0",
+    "mocha": "^6.1.4",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.1",
+    "vscode-test": "^1.2.0"
+  },
+  "dependencies": {
+    "@types/fs-extra": "^8.0.1",
+    "@types/git-url-parse": "^9.0.0",
+    "@types/keytar": "^4.4.0",
+    "@types/mkdirp": "^0.5.2",
+    "@types/request-promise": "^4.1.44",
+    "@types/url-template": "^2.0.28",
+    "@types/uuid": "^3.4.5",
+    "@types/yauzl": "^2.9.1",
+    "fs-extra": "^8.1.0",
+    "git-url-parse": "^11.1.2",
+    "mkdirp": "^0.5.1",
+    "ms-rest-azure": "^3.0.0",
+    "querystring": "^0.2.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "simple-git": "^1.126.0",
+    "url-template": "^2.0.8",
+    "yauzl": "^2.10.0"
+  },
+  "docfx-version": "3.0.0-beta-01428-402a00854",
+  "runtimeDependencies": [
+    {
+      "id": "docfx",
+      "description": "Docfx for Windows (x86_64)",
+      "url": "https://opbuildstorageprod.blob.core.windows.net/docfx-local-build-packages/docfx-win-x86_64-3.0.0-beta-01428-402a00854.zip",
+      "binary": "docfx.exe",
+      "installPath": ".docfx",
+      "platformId": "win-x86_64",
+      "integrity": "F6EF211194A99769423B7D90FF38575230EF009BBCDEE46EF9EB69F18647AFC8"
+    },
+    {
+      "id": "docfx",
+      "description": "Docfx for OSX",
+      "url": "https://opbuildstorageprod.blob.core.windows.net/docfx-local-build-packages/docfx-osx-3.0.0-beta-01428-402a00854.zip",
+      "binary": "./docfx",
+      "installPath": ".docfx",
+      "platformId": "osx",
+      "integrity": "06C4783ED9314915A29FCD23F1A3AC5725908CAB1224131490D4D184B7A122AA"
+    }
+  ]
+}
