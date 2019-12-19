@@ -132,24 +132,25 @@
     "url-template": "^2.0.8",
     "yauzl": "^2.10.0"
   },
-  "docfx-version": "3.0.0-beta-01428-402a00854",
   "runtimeDependencies": [
     {
-      "id": "docfx",
-      "description": "Docfx for Windows (x86_64)",
-      "url": "https://opbuildstorageprod.blob.core.windows.net/docfx-local-build-packages/docfx-win-x86_64-3.0.0-beta-01428-402a00854.zip",
+      "id": "docfx-win-x64",
+      "name": "docfx",
+      "description": "Docfx for Windows (x64)",
+      "url": "https://opbuildstorageprod.blob.core.windows.net/docfx-local-build-packages/docfx-win-x64-3.0.0-beta-01428-402a00854.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
-      "platformId": "win-x86_64",
+      "rid": "win-x64",
       "integrity": "F6EF211194A99769423B7D90FF38575230EF009BBCDEE46EF9EB69F18647AFC8"
     },
     {
-      "id": "docfx",
-      "description": "Docfx for OSX",
-      "url": "https://opbuildstorageprod.blob.core.windows.net/docfx-local-build-packages/docfx-osx-3.0.0-beta-01428-402a00854.zip",
+      "id": "docfx-osx-x64",
+      "name": "docfx",
+      "description": "Docfx for OSX(x64)",
+      "url": "https://opbuildstorageprod.blob.core.windows.net/docfx-local-build-packages/docfx-osx-x64-3.0.0-beta-01428-402a00854.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
-      "platformId": "osx",
+      "rid": "osx-x64",
       "integrity": "06C4783ED9314915A29FCD23F1A3AC5725908CAB1224131490D4D184B7A122AA"
     }
   ]
