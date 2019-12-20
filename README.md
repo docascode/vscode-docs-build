@@ -21,4 +21,4 @@ VS Code extension to provide the Local build experience for docs repository.
 If you meet any problem or have any feedback about this extension, please Contact:
 
 - Jiayin Pei(jipe@microsoft.com)
-- Docfx VNext(docfxvnext@microsoft.com)
+- DocFX VNext(docfxvnext@microsoft.com)

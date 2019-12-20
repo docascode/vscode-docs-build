@@ -136,7 +136,7 @@
     {
       "id": "docfx-win-x64",
       "name": "docfx",
-      "description": "Docfx for Windows (x64)",
+      "description": "DocFX for Windows (x64)",
       "url": "https://opbuildstorageprod.blob.core.windows.net/docfx-local-build-packages/docfx-win-x64-3.0.0-beta-01428-402a00854.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
@@ -146,7 +146,7 @@
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
-      "description": "Docfx for OSX(x64)",
+      "description": "DocFX for OSX(x64)",
       "url": "https://opbuildstorageprod.blob.core.windows.net/docfx-local-build-packages/docfx-osx-x64-3.0.0-beta-01428-402a00854.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
