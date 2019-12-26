@@ -42,10 +42,7 @@ steps:
     verbose: false
     customCommand: run test
 
-- task: Npm@1
+- bash: |
+    npm run publish -- -p $(VSCODE_MARKETPLACE_TOKEN)
   displayName: 'Publish'
-  inputs:
-    command: custom
-    verbose: false
-    customCommand: run publish
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['Agent.OS'], 'Windows_NT'))
