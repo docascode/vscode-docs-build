@@ -5,7 +5,7 @@ import * as yauzl from 'yauzl';
 import { docsChannel } from '../common/shared';
 import { AbsolutePath } from '../common/AbsolutePath';
 
-export async function InstallZip(buffer: Buffer, description: string, destinationInstallPath: AbsolutePath): Promise<void> {
+export async function InstallZip(buffer: Buffer, destinationInstallPath: AbsolutePath): Promise<void> {
     docsChannel.appendLine(`Installing zip file...`);
 
     return new Promise<void>((resolve, reject) => {

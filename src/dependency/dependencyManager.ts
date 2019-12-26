@@ -55,7 +55,7 @@ async function installDependencies(packages: AbsolutePathPackage[]): Promise<boo
                     let buffer = await downloadFile(pkg.description, pkg.url, pkg.integrity);
 
                     // Install zip file
-                    await InstallZip(buffer, pkg.description, pkg.installPath);
+                    await InstallZip(buffer, pkg.installPath);
 
                     // Create Download finished lock
                     await createInstallLockFile(pkg.installPath, InstallFileType.Finish);

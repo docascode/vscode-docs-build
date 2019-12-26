@@ -1,5 +1,5 @@
 import * as os from 'os';
-import { executeCommandSync } from './cpUtils';
+const arch = require('arch');
 
 export class PlatformInformation {
     public constructor(private platform: string, private architecture: string, public rid: string) { }
@@ -27,50 +27,28 @@ export class PlatformInformation {
         return result;
     }
 
-    public static async GetCurrent(): Promise<PlatformInformation> {
+    public static async getCurrent(): Promise<PlatformInformation> {
         let platform = os.platform();
-        let architecture: string;
+        let architecture = arch();
         let rid: string;
 
         switch (platform) {
             case 'win32':
-                architecture = await PlatformInformation.GetWindowsArchitecture();
                 rid = 'win-';
                 break;
 
             case 'darwin':
-                architecture = await PlatformInformation.GetUnixArchitecture();
                 rid = 'osx-';
                 break;
 
             default:
                 throw new Error(`Unsupported platform: ${platform}`);
         }
-        if (architecture === 'x86') {
+        if (architecture !== 'x64') {
             throw new Error(`Unsupported architecture: ${architecture}(${platform})`);
         }
         rid += architecture;
 
         return new PlatformInformation(platform, architecture, rid);
-    }
-
-    private static async GetWindowsArchitecture(): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            if (process.env.PROCESSOR_ARCHITECTURE === 'x86' && process.env.PROCESSOR_ARCHITEW6432 === undefined) {
-                resolve('x86');
-            }
-            else {
-                resolve('x64');
-            }
-        });
-    }
-
-    private static async GetUnixArchitecture(): Promise<string> {
-        try {
-            let architecture = executeCommandSync('uname', ['-m']);
-            return architecture.trim();
-        } catch {
-            return null;
-        }
     }
 }
