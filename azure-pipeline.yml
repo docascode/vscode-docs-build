@@ -6,12 +6,15 @@ trigger:
     include:
     - '*'
 
+variables:
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
 strategy:
   matrix:
     mac:
-      imageName: 'macos-10.13'
+      imageName: 'macOS-latest'
     windows:
-      imageName: 'vs2017-win2016'
+      imageName: 'windows-latest'
 
 pool:
   vmImage: $(imageName)
@@ -22,6 +25,16 @@ steps:
   displayName: 'Use Node 10.x'
   inputs:
     versionSpec: 10.x
+
+- task: Cache@2
+  inputs:
+    key: 'npm | "$(Agent.OS)" | package-lock.json'
+    restoreKeys: |
+       npm | "$(Agent.OS)"
+       npm
+    path: $(npm_config_cache)
+  displayName: Cache npm
+
 
 - task: Npm@1
   displayName: 'npm install'

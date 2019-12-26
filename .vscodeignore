@@ -5,6 +5,7 @@ test/**
 src/**
 .gitignore
 .docfx/**
+.npm/**
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/tslint.json

@@ -5,7 +5,9 @@ Please follow the following steps to publish a new version extension.
 1. Update the `version` property in [package.json](../package.json) file.
 
 2. Update [CHANGELOG](../CHANGELOG.md) file to add the notable changes of this version.
-> Pleas follow the this [instruction](http://keepachangelog.com/) to structure this file.
+
+> Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure that file.
+> Please link each change to the specific PR.
 
 3. Update the docfx version(**Not required**)
 
