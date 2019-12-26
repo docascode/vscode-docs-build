@@ -1,15 +1,28 @@
 {
 	"rules": {
 		"no-string-throw": true,
-		"no-unused-expression": true,
+		"no-unused-expression-chai": true,
 		"no-duplicate-variable": true,
+		"no-var-keyword": true,
+		"promise-must-complete": true,
 		"curly": true,
 		"class-name": true,
 		"semicolon": [
 			true,
 			"always"
 		],
-		"triple-equals": true
+		"triple-equals": true,
+		"indent": [
+			true,
+			"spaces",
+			4
+		],
+		"no-switch-case-fall-through": true,
+		"no-null-keyword": true,
+		"variable-name": true
 	},
-	"defaultSeverity": "warning"
+	"rulesDirectory": [
+		"tslint-microsoft-contrib",
+		"tslint-no-unused-expression-chai"
+	]
 }
