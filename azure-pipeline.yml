@@ -1,0 +1,51 @@
+trigger:
+  branches:
+    include:
+    - master
+  tags:
+    include:
+    - '*'
+
+strategy:
+  matrix:
+    mac:
+      imageName: 'macos-10.13'
+    windows:
+      imageName: 'vs2017-win2016'
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+
+- task: NodeTool@0
+  displayName: 'Use Node 10.x'
+  inputs:
+    versionSpec: 10.x
+
+- task: Npm@1
+  displayName: 'npm install'
+  inputs:
+    verbose: false
+
+- task: Npm@1
+  displayName: 'TSLint'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: run lint
+
+- task: Npm@1
+  displayName: 'Run test'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: run test
+
+- task: Npm@1
+  displayName: 'Publish'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: run publish
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['Agent.OS'], 'Windows_NT'))

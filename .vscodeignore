@@ -11,4 +11,6 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/*.gif
+testAssets/**
 package-lock.json
+node_modules/**

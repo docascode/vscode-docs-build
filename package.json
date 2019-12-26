@@ -96,10 +96,11 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
+    "publish": "vsce publish",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js",
+    "test": "gulp test",
     "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose"
   },
   "devDependencies": {
@@ -132,7 +133,6 @@
     "fs-extra": "^8.1.0",
     "git-url-parse": "^11.1.2",
     "gulp": "^4.0.2",
-    "gulp-tslint": "^8.1.4",
     "mkdirp": "^0.5.1",
     "ms-rest-azure": "^3.0.0",
     "querystring": "^0.2.0",
