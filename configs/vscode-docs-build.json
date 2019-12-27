@@ -24,5 +24,6 @@
     "OPBuildAPIEndPoint": {
         "PROD": "https://op-build-prod.azurewebsites.net",
         "PPE": "https://op-build-sandbox2.azurewebsites.net"
-    }
+    },
+    "SignInTimeOut": 120000
 }

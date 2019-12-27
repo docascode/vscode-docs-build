@@ -1,29 +1,26 @@
 import * as fs from 'fs-extra';
 import { AbsolutePathPackage, Package } from "./Package";
-import { PACKAGE_JSON, EXTENSION_PATH } from "../common/shared";
+import { PACKAGE_JSON, EXTENSION_PATH, eventStream } from "../common/shared";
 import { PlatformInformation } from "../common/PlatformInformation";
-import { docsChannel } from "../common/shared";
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
+import { LogPlatformInfo, DependencyInstallStart, DependencyInstallSuccess, PackageInstallFailed, PackageInstallSuccess, PackageInstallStart } from '../common/loggingEvents';
 
 export async function ensureRuntimeDependencies(platformInfo: PlatformInformation) {
     let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
     let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, EXTENSION_PATH);
     if (packagesToInstall && packagesToInstall.length > 0) {
-        docsChannel.show();
-        docsChannel.appendLine(`Installing runtime dependencies...`);
-        docsChannel.appendLine(`Platform: '${platformInfo.toString()}'`);
+        eventStream.post(new DependencyInstallStart());
+        eventStream.post(new LogPlatformInfo(platformInfo));
 
         if (await installDependencies(packagesToInstall)) {
-            docsChannel.appendLine();
-            docsChannel.appendLine('Runtime dependencies installation finished');
+            eventStream.post(new DependencyInstallSuccess());
             return true;
         }
         return false;
     }
 
-    docsChannel.appendLine('Runtime dependencies installed');
     return true;
 }
 
@@ -38,9 +35,7 @@ function getAbsolutePathPackagesToInstall(packages: Package[], platformInfo: Pla
 async function installDependencies(packages: AbsolutePathPackage[]): Promise<boolean> {
     if (packages) {
         for (let pkg of packages) {
-            docsChannel.appendLine();
-            docsChannel.appendLine(`Installing package '${pkg.description}'...`);
-
+            eventStream.post(new PackageInstallStart(pkg.description));
             fs.mkdirpSync(pkg.installPath.value);
 
             let count = 1;
@@ -62,7 +57,7 @@ async function installDependencies(packages: AbsolutePathPackage[]): Promise<boo
 
                     break;
                 } catch (error) {
-                    docsChannel.appendLine(`Failed to install package '${pkg.description}': ${error.message}${count <= 3 ? '. Will retry' : ''}`);
+                    eventStream.post(new PackageInstallFailed(pkg.description, error.message, count <= 3));
                 } finally {
                     // Remove download begin lock file 
                     if (installFileExists(pkg.installPath, InstallFileType.Begin)) {
@@ -72,7 +67,7 @@ async function installDependencies(packages: AbsolutePathPackage[]): Promise<boo
             }
 
             if (installFileExists(pkg.installPath, InstallFileType.Finish)) {
-                docsChannel.appendLine(`Package '${pkg.description}' installed!`);
+                eventStream.post(new PackageInstallSuccess(pkg.description));
             } else {
                 return false;
             }
