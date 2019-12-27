@@ -1,13 +1,12 @@
 import * as vscode from 'vscode';
-import { BaseEvent, UserSignedIn } from "../common/loggingEvents";
+import { BaseEvent } from "../common/loggingEvents";
 import { EventType } from "../common/EventType";
 import { MessageAction } from '../common/shared';
 export class InfoMessageObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.UserSignedIn:
-                let asUserSignedIn = <UserSignedIn>event;
-                this.showInfoMessage('Sign In Successfully!', asUserSignedIn.action);
+                this.showInfoMessage('Sign In Successfully!', new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
                 break;
         }
     }

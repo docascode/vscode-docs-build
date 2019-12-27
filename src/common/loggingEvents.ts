@@ -1,7 +1,7 @@
 import { EventType } from './EventType';
 import { Credential } from '../credential/CredentialController';
 import { PlatformInformation } from './PlatformInformation';
-import { Environment, MessageAction } from './shared';
+import { Environment } from './shared';
 
 export interface BaseEvent {
     type: EventType;
@@ -10,7 +10,7 @@ export interface BaseEvent {
 // Credential Related
 export class UserSignedIn implements BaseEvent {
     type = EventType.UserSignedIn;
-    constructor(public credential: Credential, public action?: MessageAction) { }
+    constructor(public credential: Credential) { }
 }
 
 export class FetchFromLocalCredentialManager implements BaseEvent {

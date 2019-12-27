@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import * as template from 'url-template';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, eventStream, environmentController, MessageAction, uriHandler } from '../common/shared';
+import { UserInfo, DocsSignInStatus, EXTENSION_ID, eventStream, environmentController, uriHandler } from '../common/shared';
 import { keyChain } from './keyChain';
 import { parseQuery, delay, openUrl } from '../utils/utils';
 import { UserSigningIn, UserSignedIn, UserSignedOut, ResetUserInfo, SignInFailed, BaseEvent, LogProgress, FetchFromLocalCredentialManager } from '../common/loggingEvents';
@@ -96,7 +96,7 @@ export class CredentialController implements vscode.Disposable {
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
             await keyChain.setUserInfo(userInfo);
-            eventStream.post(new UserSignedIn(this.credential, new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?')));
+            eventStream.post(new UserSignedIn(this.credential));
         } catch (err) {
             this.resetUserInfo();
             eventStream.post(new SignInFailed(err));
