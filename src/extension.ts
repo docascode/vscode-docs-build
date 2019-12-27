@@ -4,7 +4,7 @@ import { PlatformInformation } from './common/PlatformInformation';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     let platformInformation = await PlatformInformation.getCurrent();
-    var runtimeDependenciesInstalled = await ensureRuntimeDependencies(platformInformation);
+    let runtimeDependenciesInstalled = await ensureRuntimeDependencies(platformInformation);
     if (!runtimeDependenciesInstalled) {
         throw new Error("Install runtime dependencies failed, Please restart Visual Studio Code to re-trigger the download.");
     }
