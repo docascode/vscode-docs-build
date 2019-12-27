@@ -46,7 +46,7 @@ export async function downloadFile(description: string, urlString: string, integ
 
             response.on('end', () => {
                 docsChannel.appendLine(` Done!`);
-                var buffer = Buffer.concat(buffers);
+                let buffer = Buffer.concat(buffers);
                 docsChannel.appendLine('Validating download...');
                 if (isValidDownload(buffer, integrity)) {
                     resolve(buffer);

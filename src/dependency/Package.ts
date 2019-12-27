@@ -2,6 +2,7 @@ import { AbsolutePath } from "../common/AbsolutePath";
 
 export interface Package {
     id: string;
+    name: string;
     description: string;
     url: string;
     rid: string;

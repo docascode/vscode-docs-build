@@ -5,10 +5,13 @@ test/**
 src/**
 .gitignore
 .docfx/**
+.npm/**
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/tslint.json
 **/*.map
 **/*.ts
 **/*.gif
+testAssets/**
 package-lock.json
+node_modules/**
