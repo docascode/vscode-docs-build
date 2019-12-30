@@ -17,13 +17,13 @@ export const EXTENSION_PATH = extension.extensionPath;
 export type Environment = 'PROD' | 'PPE';
 
 export class MessageAction implements vscode.MessageItem {
-    constructor(public title: string, public command?: string, public desctiption?: string, public callback?: Function, public args?: any[]) { }
+    constructor(public title: string, public command?: string, public description?: string, public callback?: Function, public args?: any[]) { }
 }
 
 // OAuth
 export type DocsSignInStatus = 'Initializing' | 'SigningIn' | 'SignedIn' | 'SignedOut';
 
-export type DocsSignInType = 'GitHub' | 'DevOps';
+export type DocsSignInType = 'GitHub' | 'Azure DevOps';
 
 export interface UserInfo {
     readonly signType: DocsSignInType;

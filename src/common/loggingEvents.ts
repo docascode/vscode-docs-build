@@ -13,8 +13,8 @@ export class UserSignedIn implements BaseEvent {
     constructor(public credential: Credential) { }
 }
 
-export class FetchFromLocalCredentialManager implements BaseEvent {
-    type = EventType.FetchFromLocalCredentialManager;
+export class RetrieveFromLocalCredentialManager implements BaseEvent {
+    type = EventType.RetrieveFromLocalCredentialManager;
     constructor(public credential: Credential) { }
 }
 

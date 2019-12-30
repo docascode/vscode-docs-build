@@ -6,15 +6,15 @@ export class InfoMessageObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.UserSignedIn:
-                this.showInfoMessage('Sign In Successfully!', new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
+                this.showInfoMessage('Sign-in Successfully!', new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
                 break;
         }
     }
 
     private async showInfoMessage(message: string, action?: MessageAction) {
         let infoMsg = `[Docs Validation] ${message}`;
-        if (action && action.desctiption) {
-            infoMsg += ` ${action.desctiption}`;
+        if (action && action.description) {
+            infoMsg += ` ${action.description}`;
         }
         let input = <MessageAction>(await vscode.window.showInformationMessage(infoMsg, action));
         if (input) {

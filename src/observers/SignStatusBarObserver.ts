@@ -1,5 +1,5 @@
 import { BaseStatusBarItemObserver } from "./BaseStatusBarObserver";
-import { BaseEvent, UserSignedIn, FetchFromLocalCredentialManager } from "../common/loggingEvents";
+import { BaseEvent, UserSignedIn, RetrieveFromLocalCredentialManager } from "../common/loggingEvents";
 import { EventType } from "../common/EventType";
 import { Credential } from "../credential/CredentialController";
 import { StatusBarItem } from "vscode";
@@ -16,19 +16,19 @@ export class SignStatusBarObserver extends BaseStatusBarItemObserver {
                 this.SetAndShowStatusBar(`${this.statusBarTextPrefix} Initializing`, undefined);
                 break;
             case EventType.UserSigningIn:
-                this.SetAndShowStatusBar(`${this.statusBarTextPrefix} Signing In`, undefined);
+                this.SetAndShowStatusBar(`${this.statusBarTextPrefix} Signing-in`, undefined);
                 break;
             case EventType.UserSignedIn:
                 let asUserSignIn = <UserSignedIn>event;
                 this.handleSignedIn(asUserSignIn.credential);
                 break;
-            case EventType.FetchFromLocalCredentialManager:
-                let asFetchFromLocalCredentialManager = <FetchFromLocalCredentialManager>event;
-                this.handleSignedIn(asFetchFromLocalCredentialManager.credential);
+            case EventType.RetrieveFromLocalCredentialManager:
+                let asRetrieveFromLocalCredentialManager = <RetrieveFromLocalCredentialManager>event;
+                this.handleSignedIn(asRetrieveFromLocalCredentialManager.credential);
                 break;
             case EventType.UserSignedOut:
             case EventType.ResetCredential:
-                this.SetAndShowStatusBar(`${this.statusBarTextPrefix} Sign in to Docs`, 'docs.signIn');
+                this.SetAndShowStatusBar(`${this.statusBarTextPrefix} Sign-in to Docs`, 'docs.signIn');
                 break;
         }
     }

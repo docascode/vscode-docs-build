@@ -1,5 +1,5 @@
 import { OutputChannel } from "vscode";
-import { BaseEvent, LogPlatformInfo, UserSignedIn, LogProgress, PackageInstallStart, PackageInstallSuccess, PackageInstallFailed, DownloadStart, DownloadProgress, DownloadSizeObtained, DownloadValidation, IntegrityCheckFailure, InstallZipFile, FetchFromLocalCredentialManager } from "../common/loggingEvents";
+import { BaseEvent, LogPlatformInfo, UserSignedIn, LogProgress, PackageInstallStart, PackageInstallSuccess, PackageInstallFailed, DownloadStart, DownloadProgress, DownloadSizeObtained, DownloadValidation, IntegrityCheckFailure, InstallZipFile, RetrieveFromLocalCredentialManager } from "../common/loggingEvents";
 import { EventType } from "../common/EventType";
 
 export class DocsLoggerObserver {
@@ -19,8 +19,8 @@ export class DocsLoggerObserver {
             case EventType.UserSignedIn:
                 this.handleUserSignedIn(<UserSignedIn>event);
                 break;
-            case EventType.FetchFromLocalCredentialManager:
-                this.handleFetchFromLocalCredentialManager(<FetchFromLocalCredentialManager>event);
+            case EventType.RetrieveFromLocalCredentialManager:
+                this.handleRetrieveFromLocalCredentialManager(<RetrieveFromLocalCredentialManager>event);
                 break;
             case EventType.UserSignedOut:
                 this.handleUserSignedOut();
@@ -83,21 +83,21 @@ export class DocsLoggerObserver {
 
     // Sign
     private handleUserSignedIn(event: UserSignedIn) {
-        this.appendLine(`Successfully sign in to Docs build system:`);
-        this.appendLine(`    - GitHub Acount: ${event.credential.userInfo.userName}`);
+        this.appendLine(`Successfully sign-in to Docs build system:`);
+        this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
         this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
     }
 
-    private handleFetchFromLocalCredentialManager(event: FetchFromLocalCredentialManager) {
-        this.appendLine(`Successfully get User credential From Local Credential Manager:`);
-        this.appendLine(`    - GitHub Acount: ${event.credential.userInfo.userName}`);
+    private handleRetrieveFromLocalCredentialManager(event: RetrieveFromLocalCredentialManager) {
+        this.appendLine(`Successfully retrieved user credential from Local Credential Manager:`);
+        this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
         this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
     }
 
     private handleUserSignedOut() {
-        this.appendLine(`Successfully sign out from Docs build system!`);
+        this.appendLine(`Successfully sign-out from Docs build system!`);
         this.appendLine();
     }
 
@@ -124,7 +124,7 @@ export class DocsLoggerObserver {
         if (event.willRetry) {
             this.appendLine(`Failed to install package '${event.pkgDescription}': ${event.message}. Retrying..`);
         } else {
-            this.appendLine(`Failed to install package '${event.pkgDescription}': ${event.message}. Some features may not work as expected. Please restart Visual Studio Code to retrigger the download.`);
+            this.appendLine(`Failed to install package '${event.pkgDescription}': ${event.message}. Some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.`);
         }
         this.appendLine();
     }
@@ -142,9 +142,9 @@ export class DocsLoggerObserver {
         if (event.downloadPercentage === 100) {
             this.appendLine(` Done!`);
         }
-        let newdownloadProgressDot = Math.ceil(event.downloadPercentage / 5);
-        this.append('.'.repeat(newdownloadProgressDot - this.downloadProgressDot));
-        this.downloadProgressDot = newdownloadProgressDot;
+        let newDownloadProgressDot = Math.ceil(event.downloadPercentage / 5);
+        this.append('.'.repeat(newDownloadProgressDot - this.downloadProgressDot));
+        this.downloadProgressDot = newDownloadProgressDot;
     }
 
     private handleDownloadValidation(event: DownloadValidation) {

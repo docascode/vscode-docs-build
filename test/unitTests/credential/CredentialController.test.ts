@@ -1,10 +1,9 @@
 import * as vscode from 'vscode';
-import { CredentialExpiry, ResetCredential, RefreshCredential, EnvironmentChange, BaseEvent, FetchFromLocalCredentialManager, UserSignedOut, LogProgress, UserSigningIn, UserSignedIn, SignInFailed } from '../../../src/common/loggingEvents';
+import { CredentialExpiry, ResetCredential, RefreshCredential, EnvironmentChange, BaseEvent, RetrieveFromLocalCredentialManager, UserSignedOut, LogProgress, UserSigningIn, UserSignedIn, SignInFailed } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/EventStream';
 import { CredentialController, Credential } from '../../../src/credential/CredentialController';
 import { KeyChain } from '../../../src/credential/KeyChain';
 import { EnvironmentController } from '../../../src/common/EnvironmentController';
-// import { UserInfo } from '../../../src/common/shared';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import { expect } from 'chai';
 import TestEventBus from '../../utils/TestEventBus';
@@ -123,7 +122,7 @@ describe('CredentialController', () => {
         });
     });
 
-    it('CredentialExpiry: Credentail should be reset', () => {
+    it('CredentialExpiry: Credential should be reset', () => {
         let event = new CredentialExpiry();
         credentialController.eventHandler(event);
 
@@ -133,7 +132,7 @@ describe('CredentialController', () => {
     });
 
     describe(`Initialize`, () => {
-        it(`Should be 'SignedIn' status if the user info can be fetched from keyChain`, async () => {
+        it(`Should be 'SignedIn' status if the user info can be retrieved from keyChain`, async () => {
             // Prepare
             mocFakeKeyChainInfo();
 
@@ -153,10 +152,10 @@ describe('CredentialController', () => {
                 }
             };
             expect(credential).to.deep.equal(expectedCredential);
-            expect(testEventBus.getEvents()).to.deep.equal([new FetchFromLocalCredentialManager(expectedCredential)]);
+            expect(testEventBus.getEvents()).to.deep.equal([new RetrieveFromLocalCredentialManager(expectedCredential)]);
         });
 
-        it(`Should be 'SignedOut' status if the user info can not be fetched from keyChain`, async () => {
+        it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
             // Prepare
             mocUndefinedKeyChainInfo();
 
@@ -170,8 +169,8 @@ describe('CredentialController', () => {
         });
     });
 
-    describe(`User Sign in`, () => {
-        it(`Sign in successfully`, async () => {
+    describe(`User Sign-in`, () => {
+        it(`Sign-in successfully`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
                 function (target: vscode.Uri): Thenable<boolean> {
@@ -215,13 +214,13 @@ describe('CredentialController', () => {
             expect(testEventBus.getEvents()).to.deep.equal([
                 new ResetCredential(),
                 new UserSigningIn(),
-                new LogProgress(`Sign in to docs build with AAD...`, 'Sign In'),
-                new LogProgress(`Sign in to docs build with GitHub account...`, 'Sign In'),
+                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new LogProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
                 new UserSignedIn(expectedCredential)
             ]);
         });
 
-        it(`Sign in with AAD failed`, async () => {
+        it(`Sign-in with AAD failed`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(false);
 
@@ -234,13 +233,13 @@ describe('CredentialController', () => {
             expect(testEventBus.getEvents()).to.deep.equal([
                 new ResetCredential(),
                 new UserSigningIn(),
-                new LogProgress(`Sign in to docs build with AAD...`, 'Sign In'),
-                new SignInFailed(`Sign In with AAD Failed`),
+                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new SignInFailed(`Sign-in with AAD Failed`),
                 new ResetCredential()
             ]);
         });
 
-        it(`Sign in with GitHub failed`, async () => {
+        it(`Sign-in with GitHub failed`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
                 function (target: vscode.Uri): Thenable<boolean> {
@@ -265,16 +264,16 @@ describe('CredentialController', () => {
             expect(testEventBus.getEvents()).to.deep.equal([
                 new ResetCredential(),
                 new UserSigningIn(),
-                new LogProgress(`Sign in to docs build with AAD...`, 'Sign In'),
-                new LogProgress(`Sign in to docs build with GitHub account...`, 'Sign In'),
-                new SignInFailed(`Sign In with GitHub Failed`),
+                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new LogProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
+                new SignInFailed(`Sign-in with GitHub Failed`),
                 new ResetCredential()
             ]);
         });
 
-        it(`Sign in with AAD time out`, async () => {
+        it(`Sign-in with AAD time out`, async () => {
             // Prepare
-            // Overwrite sign in timeout to 1s.
+            // Moc sign-in timeout config to 1s.
             stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
                 return 1000;
             });
@@ -289,15 +288,15 @@ describe('CredentialController', () => {
             expect(testEventBus.getEvents()).to.deep.equal([
                 new ResetCredential(),
                 new UserSigningIn(),
-                new LogProgress(`Sign in to docs build with AAD...`, 'Sign In'),
-                new SignInFailed(`Sign In with AAD Failed: Timeout`),
+                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new SignInFailed(`Sign-in with AAD Failed: Timeout`),
                 new ResetCredential()
             ]);
         });
 
-        it(`Sign in with GitHub time out`, async () => {
+        it(`Sign-in with GitHub time out`, async () => {
             // Prepare
-            // Overwrite sign in timeout to 1s.
+            // Overwrite sign-in timeout to 1s.
             stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
                 return 1000;
             });
@@ -323,20 +322,20 @@ describe('CredentialController', () => {
             expect(testEventBus.getEvents()).to.deep.equal([
                 new ResetCredential(),
                 new UserSigningIn(),
-                new LogProgress(`Sign in to docs build with AAD...`, 'Sign In'),
-                new LogProgress(`Sign in to docs build with GitHub account...`, 'Sign In'),
-                new SignInFailed(`Sign In with GitHub Failed: Timeout`),
+                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new LogProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
+                new SignInFailed(`Sign-in with GitHub Failed: Timeout`),
                 new ResetCredential()
             ]);
         });
     });
 
-    it(`User sign out`, async () => {
-        // Sign In first
+    it(`User sign-out`, async () => {
+        // Sign-in first
         mocFakeKeyChainInfo();
         credentialController.initialize();
 
-        // Act - Sign out
+        // Act - Sign-out
         credentialController.signOut();
 
         // Assert

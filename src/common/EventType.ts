@@ -5,7 +5,7 @@ export enum EventType {
 
     // Sign
     CredentialInitializing,
-    FetchFromLocalCredentialManager,
+    RetrieveFromLocalCredentialManager,
     UserSigningIn,
     UserSignedIn,
     UserSignedOut,

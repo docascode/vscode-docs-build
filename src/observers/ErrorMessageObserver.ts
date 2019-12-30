@@ -7,8 +7,8 @@ export class ErrorMessageObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.SignInFailed:
-                let asSigninFailed = <SignInFailed>event;
-                this.showErrorMessage(`SignIn failed: ${asSigninFailed.message}`);
+                let asSignInFailed = <SignInFailed>event;
+                this.showErrorMessage(`Sign-In failed: ${asSignInFailed.message}`);
                 break;
             case EventType.CredentialExpiry:
                 this.handleCredentialExpiry();
@@ -18,8 +18,8 @@ export class ErrorMessageObserver {
 
     private async showErrorMessage(message: string, action?: MessageAction) {
         let infoMsg = `[Docs Validation] ${message}`;
-        if (action && action.desctiption) {
-            infoMsg += `\n${action.desctiption}`;
+        if (action && action.description) {
+            infoMsg += `\n${action.description}`;
         }
         let input = <MessageAction>(await vscode.window.showErrorMessage(infoMsg, action));
         if (input) {
@@ -32,8 +32,8 @@ export class ErrorMessageObserver {
     }
 
     private handleCredentialExpiry() {
-        let message = `The Credential has expiried, please Re-Sign to refresh the credentail`;
-        let messageAction = new MessageAction('Sign in', 'docs.signIn');
+        let message = `Credential has expired. Please sign-in again to continue.`;
+        let messageAction = new MessageAction('Sign-in', 'docs.signIn');
         this.showErrorMessage(message, messageAction);
     }
 }

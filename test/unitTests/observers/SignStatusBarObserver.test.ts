@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { SignStatusBarObserver } from '../../../src/observers/SignStatusBarObserver';
 import { StatusBarItem } from 'vscode';
 import { createSandbox } from 'sinon';
-import { CredentialInitializing, UserSigningIn, UserSignedIn, FetchFromLocalCredentialManager, UserSignedOut, ResetCredential } from '../../../src/common/loggingEvents';
+import { CredentialInitializing, UserSigningIn, UserSignedIn, RetrieveFromLocalCredentialManager, UserSignedOut, ResetCredential } from '../../../src/common/loggingEvents';
 import { Credential } from '../../../src/credential/CredentialController';
 import { EnvironmentController } from '../../../src/common/EnvironmentController';
 import { MocPPEEnv } from '../../utils/faker';
@@ -33,11 +33,11 @@ describe('SignStatusBarObserver', () => {
         expect(statusBarItem.tooltip).to.be.undefined;
     });
 
-    it(`User Sigining in: Status bar is shown with 'Signing In' text`, () => {
+    it(`User Signing in: Status bar is shown with 'Signing In' text`, () => {
         let event = new UserSigningIn();
         observer.eventHandler(event);
         expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: Signing In`);
+        expect(statusBarItem.text).to.equal(`Docs: Signing-in`);
         expect(statusBarItem.command).to.be.undefined;
         expect(statusBarItem.tooltip).to.be.undefined;
     });
@@ -61,7 +61,7 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`Fetch From Local Credential Manager: Status bar is shown with user info`, () => {
-        let event = new FetchFromLocalCredentialManager(<Credential>{
+        let event = new RetrieveFromLocalCredentialManager(<Credential>{
             signInStatus: 'SignedIn',
             aadInfo: 'fake-add',
             userInfo: {
@@ -78,20 +78,20 @@ describe('SignStatusBarObserver', () => {
         expect(statusBarItem.tooltip).to.be.undefined;
     });
 
-    it(`User Sign Out: Status bar is shown with 'Sign in to Docs' text`, () => {
+    it(`User Sign-out: Status bar is shown with 'Sign-in to Docs' text`, () => {
         let event = new UserSignedOut();
         observer.eventHandler(event);
         expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: Sign in to Docs`);
+        expect(statusBarItem.text).to.equal(`Docs: Sign-in to Docs`);
         expect(statusBarItem.command).to.equal('docs.signIn');
         expect(statusBarItem.tooltip).to.be.undefined;
     });
 
-    it(`Reset User Info: Status bar is shown with 'Sign in to Docs' text`, () => {
+    it(`Reset User Info: Status bar is shown with 'Sign-in to Docs' text`, () => {
         let event = new ResetCredential();
         observer.eventHandler(event);
         expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: Sign in to Docs`);
+        expect(statusBarItem.text).to.equal(`Docs: Sign-in to Docs`);
         expect(statusBarItem.command).to.equal('docs.signIn');
         expect(statusBarItem.tooltip).to.be.undefined;
     });

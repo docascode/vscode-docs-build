@@ -56,12 +56,12 @@
     "commands": [
       {
         "command": "docs.signIn",
-        "title": "Sign in to Docs portal",
+        "title": "Sign-in to Docs portal",
         "category": "Docs"
       },
       {
         "command": "docs.signOut",
-        "title": "Sign out from Docs portal",
+        "title": "Sign-out from Docs portal",
         "category": "Docs"
       },
       {
