@@ -1,6 +1,4 @@
 import * as vscode from 'vscode';
-import { EnvironmentController } from './EnvironmentController';
-import { EventStream } from './EventStream';
 import { UriEventHandler } from './UriEventHandler';
 
 // Extension
@@ -25,7 +23,7 @@ export class MessageAction implements vscode.MessageItem {
 // OAuth
 export type DocsSignInStatus = 'Initializing' | 'SigningIn' | 'SignedIn' | 'SignedOut';
 
-export type DocsSignInType = 'Github' | 'DevOps';
+export type DocsSignInType = 'GitHub' | 'DevOps';
 
 export interface UserInfo {
     readonly signType: DocsSignInType;
@@ -35,8 +33,6 @@ export interface UserInfo {
 }
 
 // Global variables
-export const environmentController = new EnvironmentController();
-
-export const eventStream = new EventStream();
-
 export const uriHandler = new UriEventHandler();
+
+export const extensionConfig = require('../../../configs/vscode-docs-build.json');

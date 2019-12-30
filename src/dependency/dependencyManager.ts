@@ -1,20 +1,21 @@
 import * as fs from 'fs-extra';
 import { AbsolutePathPackage, Package } from "./Package";
-import { PACKAGE_JSON, EXTENSION_PATH, eventStream } from "../common/shared";
+import { PACKAGE_JSON, EXTENSION_PATH } from "../common/shared";
 import { PlatformInformation } from "../common/PlatformInformation";
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
 import { LogPlatformInfo, DependencyInstallStart, DependencyInstallSuccess, PackageInstallFailed, PackageInstallSuccess, PackageInstallStart } from '../common/loggingEvents';
+import { EventStream } from '../common/EventStream';
 
-export async function ensureRuntimeDependencies(platformInfo: PlatformInformation) {
+export async function ensureRuntimeDependencies(platformInfo: PlatformInformation, eventStream: EventStream) {
     let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
     let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, EXTENSION_PATH);
     if (packagesToInstall && packagesToInstall.length > 0) {
         eventStream.post(new DependencyInstallStart());
         eventStream.post(new LogPlatformInfo(platformInfo));
 
-        if (await installDependencies(packagesToInstall)) {
+        if (await installDependencies(packagesToInstall, eventStream)) {
             eventStream.post(new DependencyInstallSuccess());
             return true;
         }
@@ -32,7 +33,7 @@ function getAbsolutePathPackagesToInstall(packages: Package[], platformInfo: Pla
     return [];
 }
 
-async function installDependencies(packages: AbsolutePathPackage[]): Promise<boolean> {
+async function installDependencies(packages: AbsolutePathPackage[], eventStream: EventStream): Promise<boolean> {
     if (packages) {
         for (let pkg of packages) {
             eventStream.post(new PackageInstallStart(pkg.description));
@@ -47,10 +48,10 @@ async function installDependencies(packages: AbsolutePathPackage[]): Promise<boo
                     await createInstallLockFile(pkg.installPath, InstallFileType.Begin);
 
                     // Download file
-                    let buffer = await downloadFile(pkg.description, pkg.url, pkg.integrity);
+                    let buffer = await downloadFile(pkg.description, pkg.url, eventStream, pkg.integrity);
 
                     // Install zip file
-                    await InstallZip(buffer, pkg.installPath);
+                    await InstallZip(buffer, pkg.installPath, eventStream);
 
                     // Create Download finished lock
                     await createInstallLockFile(pkg.installPath, InstallFileType.Finish);

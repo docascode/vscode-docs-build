@@ -1,11 +1,15 @@
 import { expect } from 'chai';
 import { SignStatusBarObserver } from '../../../src/observers/SignStatusBarObserver';
 import { StatusBarItem } from 'vscode';
-import { CredentialInitializing, UserSigningIn, UserSignedIn, FetchFromLocalCredentialManager, UserSignedOut, ResetUserInfo } from '../../../src/common/loggingEvents';
+import { createSandbox } from 'sinon';
+import { CredentialInitializing, UserSigningIn, UserSignedIn, FetchFromLocalCredentialManager, UserSignedOut, ResetCredential } from '../../../src/common/loggingEvents';
 import { Credential } from '../../../src/credential/CredentialController';
+import { EnvironmentController } from '../../../src/common/EnvironmentController';
+import { MocPPEEnv } from '../../utils/faker';
 
 describe('SignStatusBarObserver', () => {
     let showCalled: boolean;
+    let environmentController = new EnvironmentController(undefined);
 
     beforeEach(() => {
         statusBarItem.text = undefined;
@@ -18,7 +22,7 @@ describe('SignStatusBarObserver', () => {
         show: () => { showCalled = true; }
     };
 
-    let observer = new SignStatusBarObserver(statusBarItem);
+    let observer = new SignStatusBarObserver(statusBarItem, environmentController);
 
     it(`Initialization: Status bar is shown with 'Initializing' text`, () => {
         let event = new CredentialInitializing();
@@ -43,7 +47,7 @@ describe('SignStatusBarObserver', () => {
             signInStatus: 'SignedIn',
             aadInfo: 'fake-add',
             userInfo: {
-                signType: 'Github',
+                signType: 'GitHub',
                 userEmail: 'fake@microsoft.com',
                 userName: 'Fake User',
                 userToken: 'fake-token'
@@ -61,7 +65,7 @@ describe('SignStatusBarObserver', () => {
             signInStatus: 'SignedIn',
             aadInfo: 'fake-add',
             userInfo: {
-                signType: 'Github',
+                signType: 'GitHub',
                 userEmail: 'fake@microsoft.com',
                 userName: 'Fake User',
                 userToken: 'fake-token'
@@ -84,11 +88,28 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`Reset User Info: Status bar is shown with 'Sign in to Docs' text`, () => {
-        let event = new ResetUserInfo();
+        let event = new ResetCredential();
         observer.eventHandler(event);
         expect(showCalled).to.be.true;
         expect(statusBarItem.text).to.equal(`Docs: Sign in to Docs`);
         expect(statusBarItem.command).to.equal('docs.signIn');
         expect(statusBarItem.tooltip).to.be.undefined;
+    });
+
+    it(`PPE Environment: Status bar is shown with 'Docs(Sandbox):'`, () => {
+        // Moc PPE environment
+        let sinon = createSandbox();
+        MocPPEEnv(sinon, environmentController);
+
+        // Test
+        let event = new CredentialInitializing();
+        observer.eventHandler(event);
+        expect(showCalled).to.be.true;
+        expect(statusBarItem.text).to.equal(`Docs(Sandbox): Initializing`);
+        expect(statusBarItem.command).to.be.undefined;
+        expect(statusBarItem.tooltip).to.be.undefined;
+
+        // Reset Moc
+        sinon.restore();
     });
 });

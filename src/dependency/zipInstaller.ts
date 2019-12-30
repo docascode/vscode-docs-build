@@ -3,10 +3,10 @@ import * as mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as yauzl from 'yauzl';
 import { AbsolutePath } from '../common/AbsolutePath';
-import { eventStream } from '../common/shared';
 import { InstallZipFile } from '../common/loggingEvents';
+import { EventStream } from '../common/EventStream';
 
-export async function InstallZip(buffer: Buffer, destinationInstallPath: AbsolutePath): Promise<void> {
+export async function InstallZip(buffer: Buffer, destinationInstallPath: AbsolutePath, eventStream: EventStream): Promise<void> {
     eventStream.post(new InstallZipFile());
 
     return new Promise<void>((resolve, reject) => {

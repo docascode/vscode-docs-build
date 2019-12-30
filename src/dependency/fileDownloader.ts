@@ -1,10 +1,10 @@
 import * as crypto from "crypto";
 import * as https from 'https';
 import { parse as parseUrl } from 'url';
-import { eventStream } from "../common/shared";
 import { DownloadStart, DownloadSizeObtained, DownloadProgress, DownloadValidation, IntegrityCheckFailure } from "../common/loggingEvents";
+import { EventStream } from "../common/EventStream";
 
-export async function downloadFile(description: string, urlString: string, integrity?: string): Promise<Buffer> {
+export async function downloadFile(description: string, urlString: string, eventStream: EventStream, integrity?: string): Promise<Buffer> {
     eventStream.post(new DownloadStart(description));
 
     const url = parseUrl(urlString);
@@ -21,7 +21,7 @@ export async function downloadFile(description: string, urlString: string, integ
         let request = https.request(options, response => {
             if (response.statusCode === 301 || response.statusCode === 302) {
                 // Redirect - download from new location
-                return resolve(downloadFile(description, response.headers.location!, integrity));
+                return resolve(downloadFile(description, response.headers.location!, eventStream, integrity));
             }
             else if (response.statusCode !== 200) {
                 // Download failed

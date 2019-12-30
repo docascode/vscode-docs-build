@@ -10,7 +10,7 @@ export enum EventType {
     UserSignedIn,
     UserSignedOut,
     SignInFailed,
-    ResetUserInfo,
+    ResetCredential,
     CredentialExpiry,
 
     // Others

@@ -84,14 +84,14 @@ export class DocsLoggerObserver {
     // Sign
     private handleUserSignedIn(event: UserSignedIn) {
         this.appendLine(`Successfully sign in to Docs build system:`);
-        this.appendLine(`    - Github Acount: ${event.credential.userInfo.userName}`);
+        this.appendLine(`    - GitHub Acount: ${event.credential.userInfo.userName}`);
         this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
     }
 
     private handleFetchFromLocalCredentialManager(event: FetchFromLocalCredentialManager) {
         this.appendLine(`Successfully get User credential From Local Credential Manager:`);
-        this.appendLine(`    - Github Acount: ${event.credential.userInfo.userName}`);
+        this.appendLine(`    - GitHub Acount: ${event.credential.userInfo.userName}`);
         this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
     }

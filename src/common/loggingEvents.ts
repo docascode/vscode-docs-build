@@ -31,8 +31,8 @@ export class SignInFailed implements BaseEvent {
     constructor(public message: string) { }
 }
 
-export class ResetUserInfo implements BaseEvent {
-    type = EventType.ResetUserInfo;
+export class ResetCredential implements BaseEvent {
+    type = EventType.ResetCredential;
 }
 
 export class CredentialInitializing implements BaseEvent {

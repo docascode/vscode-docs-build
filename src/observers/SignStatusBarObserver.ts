@@ -1,10 +1,15 @@
 import { BaseStatusBarItemObserver } from "./BaseStatusBarObserver";
 import { BaseEvent, UserSignedIn, FetchFromLocalCredentialManager } from "../common/loggingEvents";
 import { EventType } from "../common/EventType";
-import { environmentController } from "../common/shared";
 import { Credential } from "../credential/CredentialController";
+import { StatusBarItem } from "vscode";
+import { EnvironmentController } from "../common/EnvironmentController";
 
 export class SignStatusBarObserver extends BaseStatusBarItemObserver {
+    constructor(statusBarItem: StatusBarItem, private environmentController: EnvironmentController) {
+        super(statusBarItem);
+    }
+
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.CredentialInitializing:
@@ -22,18 +27,18 @@ export class SignStatusBarObserver extends BaseStatusBarItemObserver {
                 this.handleSignedIn(asFetchFromLocalCredentialManager.credential);
                 break;
             case EventType.UserSignedOut:
-            case EventType.ResetUserInfo:
+            case EventType.ResetCredential:
                 this.SetAndShowStatusBar(`${this.statusBarTextPrefix} Sign in to Docs`, 'docs.signIn');
                 break;
         }
     }
 
     private get statusBarTextPrefix() {
-        return environmentController.env === 'PPE' ? 'Docs(Sandbox):' : 'Docs:';
+        return this.environmentController.env === 'PPE' ? 'Docs(Sandbox):' : 'Docs:';
     }
 
     private handleSignedIn(credential: Credential) {
-        let icon = credential.userInfo!.signType === 'Github' ? '$(mark-github)' : '$(rocket)';
+        let icon = credential.userInfo!.signType === 'GitHub' ? '$(mark-github)' : '$(rocket)';
         this.SetAndShowStatusBar(`${this.statusBarTextPrefix} ${icon} ${credential.userInfo!.userName}(${credential.userInfo!.userEmail})`, undefined);
     }
 }

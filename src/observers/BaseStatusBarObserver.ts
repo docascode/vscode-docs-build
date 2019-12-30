@@ -2,8 +2,10 @@ import { StatusBarItem } from 'vscode';
 import { BaseEvent } from '../common/loggingEvents';
 
 export abstract class BaseStatusBarItemObserver {
+    private statusBarItem: StatusBarItem;
 
-    constructor(private statusBarItem: StatusBarItem) {
+    constructor(statusBarItem: StatusBarItem) {
+        this.statusBarItem = statusBarItem;
     }
 
     public SetAndShowStatusBar(text: string, command: string, color?: string, tooltip?: string) {

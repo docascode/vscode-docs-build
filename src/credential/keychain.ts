@@ -1,7 +1,8 @@
 import * as keytarType from 'keytar';
-import { UserInfo, environmentController } from '../common/shared';
+import { UserInfo } from '../common/shared';
+import { EnvironmentController } from '../common/EnvironmentController';
 
-type Keytar = {
+export type Keytar = {
     getPassword: typeof keytarType['getPassword'];
     setPassword: typeof keytarType['setPassword'];
     deletePassword: typeof keytarType['deletePassword'];
@@ -23,11 +24,11 @@ const failingKeytar: Keytar = {
 };
 const SERVICE_ID = 'vscode-docs-build';
 
-class KeyChain {
+export class KeyChain {
     private keytar: Keytar;
 
-    constructor() {
-        this.keytar = getNodeModule<Keytar>('keytar') || failingKeytar;
+    constructor(private environmentController: EnvironmentController, overwriteKeytar?: Keytar) {
+        this.keytar = overwriteKeytar || getNodeModule<Keytar>('keytar') || failingKeytar;
     }
 
     public async getAADInfo(): Promise<string | undefined> {
@@ -40,10 +41,10 @@ class KeyChain {
 
     public async getUserInfo(): Promise<UserInfo | null> {
         let userInfoStr = await this.keytar.getPassword(SERVICE_ID, this.userInfoAccountId);
-        if (userInfoStr === null) {
-            return undefined;
+        if (userInfoStr) {
+            return JSON.parse(userInfoStr);
         }
-        return JSON.parse(userInfoStr);
+        return undefined;
     }
 
     public async setAADInfo(aadInfo: string): Promise<void> {
@@ -63,12 +64,10 @@ class KeyChain {
     }
 
     private get AADAccountId(): string {
-        return `docs-build-aad-${environmentController.env}`;
+        return `docs-build-aad-${this.environmentController.env}`;
     }
 
     private get userInfoAccountId(): string {
-        return `docs-build-user-info-${environmentController.env}`;
+        return `docs-build-user-info-${this.environmentController.env}`;
     }
 }
-
-export const keyChain = new KeyChain();

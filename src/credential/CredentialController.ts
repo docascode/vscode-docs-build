@@ -1,18 +1,18 @@
 import * as vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import * as template from 'url-template';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, eventStream, environmentController, uriHandler } from '../common/shared';
-import { keyChain } from './keyChain';
+import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, extensionConfig } from '../common/shared';
 import { parseQuery, delay, openUrl } from '../utils/utils';
-import { UserSigningIn, UserSignedIn, UserSignedOut, ResetUserInfo, SignInFailed, BaseEvent, LogProgress, FetchFromLocalCredentialManager } from '../common/loggingEvents';
+import { UserSigningIn, UserSignedIn, UserSignedOut, ResetCredential, SignInFailed, BaseEvent, LogProgress, FetchFromLocalCredentialManager } from '../common/loggingEvents';
 import { EventType } from '../common/EventType';
-
-const config = require('../../configs/vscode-docs-build.json');
+import { EventStream } from '../common/EventStream';
+import { KeyChain } from './keyChain';
+import { EnvironmentController } from '../common/EnvironmentController';
 
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
     let uriEventListener: vscode.Disposable;
     return Promise.race([
-        delay(config.SignInTimeOut, undefined),
+        delay(extensionConfig.SignInTimeOut, new Error(`Timeout`)),
         new Promise((resolve: (result: any) => void, reject: (reason: any) => void) => {
             uriEventListener = uriHandler.event((uri) => callback(uri, resolve, reject));
         }).then(result => {
@@ -38,19 +38,21 @@ export class CredentialController implements vscode.Disposable {
 
     public onDidChangeCredential: vscode.Event<Credential>;
 
+    constructor(private keyChain: KeyChain, private eventStream: EventStream, private environmentController: EnvironmentController) { }
+
+    public dispose(): void {
+    }
+
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.RefreshCredential:
             case EventType.EnvironmentChange:
-                this.refreshCredential();
+                this.initialize();
                 break;
             case EventType.CredentialExpiry:
-                this.resetUserInfo();
+                this.resetCredential();
                 break;
         }
-    }
-
-    public dispose(): void {
     }
 
     public async initialize(): Promise<void> {
@@ -68,72 +70,72 @@ export class CredentialController implements vscode.Disposable {
     public async signIn(): Promise<void> {
         try {
             // Step-0: Start login
-            this.resetUserInfo();
+            this.resetCredential();
             this.signInStatus = 'SigningIn';
-            eventStream.post(new UserSigningIn());
+            this.eventStream.post(new UserSigningIn());
 
             // Step-1: AAD
             if (!this.aadInfo) {
-                eventStream.post(new LogProgress(`Sign in to docs build with AAD...`, 'Sign In'));
+                this.eventStream.post(new LogProgress(`Sign in to docs build with AAD...`, 'Sign In'));
                 let aadInfo = await this.loginWithAAD();
                 if (!aadInfo) {
-                    this.resetUserInfo();
+                    this.resetCredential();
                     return;
                 } else {
                     this.aadInfo = aadInfo;
-                    keyChain.setAADInfo(aadInfo);
+                    this.keyChain.setAADInfo(aadInfo);
                 }
             }
 
-            // Step-2: Github login
-            eventStream.post(new LogProgress(`Sign in to docs build with GitHub account...`, 'Sign In'));
-            let userInfo = await this.loginWithGithub();
+            // Step-2: GitHub login
+            this.eventStream.post(new LogProgress(`Sign in to docs build with GitHub account...`, 'Sign In'));
+            let userInfo = await this.loginWithGitHub();
             if (!userInfo) {
-                this.resetUserInfo();
+                this.resetCredential();
                 return;
             }
 
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
-            await keyChain.setUserInfo(userInfo);
-            eventStream.post(new UserSignedIn(this.credential));
+            await this.keyChain.setUserInfo(userInfo);
+            this.eventStream.post(new UserSignedIn(this.credential));
         } catch (err) {
-            this.resetUserInfo();
-            eventStream.post(new SignInFailed(err));
+            this.resetCredential();
+            this.eventStream.post(new SignInFailed(err));
         }
 
     }
 
-    public resetUserInfo() {
-        keyChain.resetAADInfo();
-        keyChain.resetUserInfo();
+    public signOut() {
+        this.resetCredential();
+        this.eventStream.post(new UserSignedOut());
+    }
+
+    private resetCredential() {
+        this.keyChain.resetAADInfo();
+        this.keyChain.resetUserInfo();
         this.signInStatus = 'SignedOut';
         this.aadInfo = undefined;
         this.userInfo = undefined;
-        eventStream.post(new ResetUserInfo());
-    }
-
-    public signOut() {
-        this.resetUserInfo();
-        eventStream.post(new UserSignedOut());
+        this.eventStream.post(new ResetCredential());
     }
 
     private async refreshCredential(): Promise<void> {
-        let userInfo = await keyChain.getUserInfo();
-        let aadInfo = await keyChain.getAADInfo();
+        let userInfo = await this.keyChain.getUserInfo();
+        let aadInfo = await this.keyChain.getAADInfo();
         if (userInfo && aadInfo) {
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
             this.aadInfo = aadInfo;
-            eventStream.post(new FetchFromLocalCredentialManager(this.credential));
+            this.eventStream.post(new FetchFromLocalCredentialManager(this.credential));
         } else {
-            this.resetUserInfo();
+            this.resetCredential();
         }
     }
 
 
     private async loginWithAAD(): Promise<string | undefined> {
-        const authConfig = config.auth[environmentController.env.toString()];
+        const authConfig = extensionConfig.auth[this.environmentController.env.toString()];
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/aad-authenticate`));
         const signUrlTemplate = template.parse(`${AzureEnvironment.Azure.activeDirectoryEndpointUrl}/{tenantId}/oauth2/authorize` +
             '?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope={scope}&state={state}&resource={resource}');
@@ -151,7 +153,7 @@ export class CredentialController implements vscode.Disposable {
         try {
             let opened = await vscode.env.openExternal(uri);
             if (opened) {
-                return (await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
+                let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
                     try {
                         // TODO: Adjust OP `Authorizations/aad` API to return the code.
                         const code = 'aad-code';
@@ -160,18 +162,23 @@ export class CredentialController implements vscode.Disposable {
                     } catch (err) {
                         reject(err);
                     }
-                }));
+                });
+
+                if (result instanceof Error) {
+                    throw result;
+                }
+                return result;
             }
-            eventStream.post(new SignInFailed(`Sign In with AAD Failed`));
+            this.eventStream.post(new SignInFailed(`Sign In with AAD Failed`));
             return undefined;
         } catch (err) {
-            eventStream.post(new SignInFailed(`Sign In with AAD Failed: ${err.message}`));
+            this.eventStream.post(new SignInFailed(`Sign In with AAD Failed: ${err.message}`));
             return undefined;
         }
     }
 
-    private async loginWithGithub(): Promise<UserInfo | null> {
-        const authConfig = config.auth[environmentController.env.toString()];
+    private async loginWithGitHub(): Promise<UserInfo | null> {
+        const authConfig = extensionConfig.auth[this.environmentController.env.toString()];
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/github-authenticate`));
         const state = callbackUri.with({ query: "" }).toString();
         const signUrlTemplate = template.parse(`https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirect_uri}&scope={scope}&state={state}`);
@@ -185,7 +192,7 @@ export class CredentialController implements vscode.Disposable {
         try {
             let opened = await openUrl(signUrl);
             if (opened) {
-                return (await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
+                let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
                     try {
                         const query = parseQuery(uri);
 
@@ -193,17 +200,21 @@ export class CredentialController implements vscode.Disposable {
                             userName: query.name,
                             userEmail: query.email,
                             userToken: query['X-OP-BuildUserToken'],
-                            signType: 'Github'
+                            signType: 'GitHub'
                         });
                     } catch (err) {
                         reject(err);
                     }
-                }));
+                });
+                if (result instanceof Error) {
+                    throw result;
+                }
+                return result;
             }
-            eventStream.post(new SignInFailed(`Sign In with Github Failed`));
+            this.eventStream.post(new SignInFailed(`Sign In with GitHub Failed`));
             return undefined;
         } catch (err) {
-            eventStream.post(new SignInFailed(`Sign In with Github Failed: ${err.message}`));
+            this.eventStream.post(new SignInFailed(`Sign In with GitHub Failed: ${err.message}`));
             return undefined;
         }
     }

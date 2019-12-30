@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { Environment, EXTENSION_NAME, eventStream } from './shared';
+import { Environment, EXTENSION_NAME } from './shared';
 import { EnvironmentChange } from './loggingEvents';
+import { EventStream } from './EventStream';
 
 const ENVIRONMENT_CONFIG_NAME = 'environment';
 
@@ -8,7 +9,7 @@ export class EnvironmentController implements vscode.Disposable {
     private environment: Environment;
     private configurationChangeListener: vscode.Disposable;
 
-    constructor() {
+    constructor(private eventStream: EventStream) {
         this.environment = this.getEnv();
         this.configurationChangeListener = vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
             if (event.affectsConfiguration(`${EXTENSION_NAME}.${ENVIRONMENT_CONFIG_NAME}`)) {
@@ -32,6 +33,6 @@ export class EnvironmentController implements vscode.Disposable {
 
     private refreshEnv(): void {
         this.environment = this.getEnv();
-        eventStream.post(new EnvironmentChange(this.env));
+        this.eventStream.post(new EnvironmentChange(this.env));
     }
 }
