@@ -13,7 +13,7 @@ export class PlatformInformation {
     }
 
     public toString(): string {
-        let result = `${this.rid} (${this.platform}`;
+        let result = this.platform;
 
         if (this.architecture) {
             if (result) {
@@ -22,7 +22,6 @@ export class PlatformInformation {
 
             result += this.architecture;
         }
-        result += ')';
 
         return result;
     }
@@ -34,7 +33,7 @@ export class PlatformInformation {
 
         switch (platform) {
             case 'win32':
-                rid = 'win-';
+                rid = 'win7-';
                 break;
 
             case 'darwin':

@@ -2,13 +2,13 @@
 
 import * as gulp from 'gulp';
 import * as path from 'path';
-import * as packageDependencyUpdater from './src/tools/UpdateRuntimeDepenendencies';
+import * as packageDependencyUpdater from './src/tools/UpdateRuntimeDependencies';
 import { runTests } from 'vscode-test';
 
 // Disable warning about wanting an async function
 // tslint:disable-next-line
 gulp.task('updateRuntimeDependencies', async (): Promise<void> => {
-    await packageDependencyUpdater.updateRuntimeDepenendencies();
+    await packageDependencyUpdater.updateRuntimeDependencies();
     return;
 });
 
