@@ -8,7 +8,7 @@ interface PackageJSONFile {
 
 const DOCFX_PACKAGE_BLOB_URL = "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin";
 
-export async function updateRuntimeDepenendencies(): Promise<void> {
+export async function updateRuntimeDependencies(): Promise<void> {
     console.log(`Updating package dependencies...`);
     let packageJSON = <PackageJSONFile>JSON.parse(fs.readFileSync('package.json').toString());
 
