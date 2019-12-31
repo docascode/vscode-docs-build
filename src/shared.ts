@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { DocsChannel } from './DocsChannel';
 
 // Extension
 export const EXTENSION_NAME = 'docs-build';
@@ -12,5 +11,10 @@ export const PACKAGE_JSON = extension.packageJSON;
 
 export const EXTENSION_PATH = extension.extensionPath;
 
-// Global variables
-export const docsChannel = new DocsChannel();
+// Environment
+
+export type Environment = 'PROD' | 'PPE';
+
+export class MessageAction implements vscode.MessageItem {
+    constructor(public title: string, public command?: string, public description?: string, public callback?: Function, public args?: any[]) { }
+}

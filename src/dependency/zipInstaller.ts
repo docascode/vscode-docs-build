@@ -2,11 +2,12 @@ import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as yauzl from 'yauzl';
-import { docsChannel } from '../common/shared';
 import { AbsolutePath } from '../common/AbsolutePath';
+import { ZipFileInstalling } from '../common/loggingEvents';
+import { EventStream } from '../common/EventStream';
 
-export async function InstallZip(buffer: Buffer, destinationInstallPath: AbsolutePath): Promise<void> {
-    docsChannel.appendLine(`Installing zip file...`);
+export async function InstallZip(buffer: Buffer, destinationInstallPath: AbsolutePath, eventStream: EventStream): Promise<void> {
+    eventStream.post(new ZipFileInstalling());
 
     return new Promise<void>((resolve, reject) => {
         yauzl.fromBuffer(buffer, { lazyEntries: true }, (err, zipFile) => {

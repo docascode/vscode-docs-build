@@ -1,10 +1,11 @@
 import * as crypto from "crypto";
 import * as https from 'https';
-import { docsChannel } from '../common/shared';
 import { parse as parseUrl } from 'url';
+import { DownloadStart, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed } from "../common/loggingEvents";
+import { EventStream } from "../common/EventStream";
 
-export async function downloadFile(description: string, urlString: string, integrity: string): Promise<Buffer> {
-    docsChannel.append(`Downloading package '${description}' `);
+export async function downloadFile(description: string, urlString: string, eventStream: EventStream, integrity?: string): Promise<Buffer> {
+    eventStream.post(new DownloadStart(description));
 
     const url = parseUrl(urlString);
     // TODO: Apply network settings(proxy, strictSSL..)
@@ -20,7 +21,7 @@ export async function downloadFile(description: string, urlString: string, integ
         let request = https.request(options, response => {
             if (response.statusCode === 301 || response.statusCode === 302) {
                 // Redirect - download from new location
-                return resolve(downloadFile(description, response.headers.location!, integrity));
+                return resolve(downloadFile(description, response.headers.location!, eventStream, integrity));
             }
             else if (response.statusCode !== 200) {
                 // Download failed
@@ -31,28 +32,29 @@ export async function downloadFile(description: string, urlString: string, integ
             let downloadedBytes = 0;
             let downloadPercentage = 0;
 
-            docsChannel.append(`(${Math.ceil(packageSize / 1024)} KB) `);
+            eventStream.post(new DownloadSizeObtained(packageSize));
 
             response.on('data', data => {
                 downloadedBytes += data.length;
                 buffers.push(data);
 
-                let newPercentage = Math.ceil(100 * (downloadedBytes / packageSize) / 5);
+                let newPercentage = Math.ceil(100 * (downloadedBytes / packageSize));
                 if (newPercentage !== downloadPercentage) {
                     downloadPercentage = newPercentage;
-                    docsChannel.append('.');
+                    eventStream.post(new DownloadProgress(downloadPercentage));
                 }
             });
 
             response.on('end', () => {
-                docsChannel.appendLine(` Done!`);
                 let buffer = Buffer.concat(buffers);
-                docsChannel.appendLine('Validating download...');
-                if (isValidDownload(buffer, integrity)) {
-                    resolve(buffer);
-                } else {
-                    reject(new Error(`Failed integrity check.`));
+                if (integrity) {
+                    eventStream.post(new DownloadValidating());
+                    if (!isValidDownload(buffer, integrity)) {
+                        eventStream.post(new DownloadIntegrityCheckFailed(description));
+                        reject(new Error(`Failed integrity check.`));
+                    }
                 }
+                resolve(buffer);
             });
 
             response.on('error', err => {
