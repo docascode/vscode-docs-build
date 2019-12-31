@@ -1,11 +1,11 @@
 import * as fs from 'fs-extra';
 import { AbsolutePathPackage, Package } from "./Package";
-import { PACKAGE_JSON, EXTENSION_PATH } from "../common/shared";
+import { PACKAGE_JSON, EXTENSION_PATH } from "../shared";
 import { PlatformInformation } from "../common/PlatformInformation";
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
-import { LogPlatformInfo, DependencyInstallStart, DependencyInstallSuccess, PackageInstallFailed, PackageInstallSuccess, PackageInstallStart } from '../common/loggingEvents';
+import { PlatformInfoRetrieved, DependencyInstallStart, DependencyInstallFinished, PackageInstallFailed, PackageInstallSucceeded, PackageInstallStart } from '../common/loggingEvents';
 import { EventStream } from '../common/EventStream';
 
 export async function ensureRuntimeDependencies(platformInfo: PlatformInformation, eventStream: EventStream) {
@@ -13,10 +13,10 @@ export async function ensureRuntimeDependencies(platformInfo: PlatformInformatio
     let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, EXTENSION_PATH);
     if (packagesToInstall && packagesToInstall.length > 0) {
         eventStream.post(new DependencyInstallStart());
-        eventStream.post(new LogPlatformInfo(platformInfo));
+        eventStream.post(new PlatformInfoRetrieved(platformInfo));
 
         if (await installDependencies(packagesToInstall, eventStream)) {
-            eventStream.post(new DependencyInstallSuccess());
+            eventStream.post(new DependencyInstallFinished());
             return true;
         }
         return false;
@@ -68,7 +68,7 @@ async function installDependencies(packages: AbsolutePathPackage[], eventStream:
             }
 
             if (installFileExists(pkg.installPath, InstallFileType.Finish)) {
-                eventStream.post(new PackageInstallSuccess(pkg.description));
+                eventStream.post(new PackageInstallSucceeded(pkg.description));
             } else {
                 return false;
             }

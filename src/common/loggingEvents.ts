@@ -1,20 +1,20 @@
 import { EventType } from './EventType';
 import { Credential } from '../credential/CredentialController';
 import { PlatformInformation } from './PlatformInformation';
-import { Environment } from './shared';
+import { Environment } from '../shared';
 
 export interface BaseEvent {
     type: EventType;
 }
 
 // Credential Related
-export class UserSignedIn implements BaseEvent {
-    type = EventType.UserSignedIn;
+export class UserSignInSucceeded implements BaseEvent {
+    type = EventType.UserSignInSucceeded;
     constructor(public credential: Credential) { }
 }
 
-export class RetrieveFromLocalCredentialManager implements BaseEvent {
-    type = EventType.RetrieveFromLocalCredentialManager;
+export class CredentialRetrieveFromLocalCredentialManager implements BaseEvent {
+    type = EventType.CredentialRetrieveFromLocalCredentialManager;
     constructor(public credential: Credential) { }
 }
 
@@ -26,42 +26,37 @@ export class UserSigningIn implements BaseEvent {
     type = EventType.UserSigningIn;
 }
 
-export class SignInFailed implements BaseEvent {
-    type = EventType.SignInFailed;
+export class UserSignInFailed implements BaseEvent {
+    type = EventType.UserSignInFailed;
     constructor(public message: string) { }
 }
 
-export class ResetCredential implements BaseEvent {
-    type = EventType.ResetCredential;
+export class CredentialReset implements BaseEvent {
+    type = EventType.CredentialReset;
 }
 
 export class CredentialInitializing implements BaseEvent {
     type = EventType.CredentialInitializing;
 }
 
-
-export class CredentialExpiry implements BaseEvent {
-    type = EventType.CredentialExpiry;
+export class CredentialExpired implements BaseEvent {
+    type = EventType.CredentialExpired;
 }
 
-export class RefreshCredential implements BaseEvent {
-    type = EventType.RefreshCredential;
-}
-
-// Log
-export class LogPlatformInfo implements BaseEvent {
-    type = EventType.LogPlatformInfo;
-    constructor(public platformInfo: PlatformInformation) { }
-}
-
-export class LogProgress implements BaseEvent {
-    type = EventType.LogProgress;
+export class SignInProgress implements BaseEvent {
+    type = EventType.SignInProgress;
     constructor(public message: string, public tag?: string) { }
 }
 
+// Log
+export class PlatformInfoRetrieved implements BaseEvent {
+    type = EventType.PlatformInfoRetrieved;
+    constructor(public platformInfo: PlatformInformation) { }
+}
+
 // Others
-export class EnvironmentChange implements BaseEvent {
-    type = EventType.EnvironmentChange;
+export class EnvironmentChanged implements BaseEvent {
+    type = EventType.EnvironmentChanged;
     constructor(public env: Environment) { }
 }
 
@@ -70,8 +65,8 @@ export class DependencyInstallStart implements BaseEvent {
     type = EventType.DependencyInstallStart;
 }
 
-export class DependencyInstallSuccess implements BaseEvent {
-    type = EventType.DependencyInstallSuccess;
+export class DependencyInstallFinished implements BaseEvent {
+    type = EventType.DependencyInstallFinished;
 }
 
 export class PackageInstallStart implements BaseEvent {
@@ -79,8 +74,8 @@ export class PackageInstallStart implements BaseEvent {
     constructor(public pkgDescription: string) { }
 }
 
-export class PackageInstallSuccess implements BaseEvent {
-    type = EventType.PackageInstallSuccess;
+export class PackageInstallSucceeded implements BaseEvent {
+    type = EventType.PackageInstallSucceeded;
     constructor(public pkgDescription: string) { }
 }
 
@@ -104,16 +99,16 @@ export class DownloadSizeObtained implements BaseEvent {
     constructor(public packageSize: number) { }
 }
 
-export class DownloadValidation implements BaseEvent {
-    type = EventType.DownloadValidation;
+export class DownloadValidating implements BaseEvent {
+    type = EventType.DownloadValidating;
     constructor() { }
 }
 
-export class IntegrityCheckFailure implements BaseEvent {
-    type = EventType.IntegrityCheckFailure;
+export class DownloadIntegrityCheckFailed implements BaseEvent {
+    type = EventType.DownloadIntegrityCheckFailed;
     constructor(public pkgDescription: string) { }
 }
 
-export class InstallZipFile implements BaseEvent {
-    type = EventType.InstallZipFile;
+export class ZipFileInstalling implements BaseEvent {
+    type = EventType.ZipFileInstalling;
 }

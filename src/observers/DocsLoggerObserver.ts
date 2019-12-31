@@ -1,5 +1,5 @@
 import { OutputChannel } from "vscode";
-import { BaseEvent, LogPlatformInfo, UserSignedIn, LogProgress, PackageInstallStart, PackageInstallSuccess, PackageInstallFailed, DownloadStart, DownloadProgress, DownloadSizeObtained, DownloadValidation, IntegrityCheckFailure, InstallZipFile, RetrieveFromLocalCredentialManager } from "../common/loggingEvents";
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, SignInProgress, PackageInstallStart, PackageInstallSucceeded, PackageInstallFailed, DownloadStart, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager } from "../common/loggingEvents";
 import { EventType } from "../common/EventType";
 
 export class DocsLoggerObserver {
@@ -9,18 +9,18 @@ export class DocsLoggerObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             // Log
-            case EventType.LogPlatformInfo:
-                this.handleLogPlatformInfo(<LogPlatformInfo>event);
+            case EventType.PlatformInfoRetrieved:
+                this.handlePlatformInfoRetrieved(<PlatformInfoRetrieved>event);
                 break;
-            case EventType.LogProgress:
-                this.handleLogProgress(<LogProgress>event);
+            case EventType.SignInProgress:
+                this.handleSignInProgress(<SignInProgress>event);
                 break;
             // Sign
-            case EventType.UserSignedIn:
-                this.handleUserSignedIn(<UserSignedIn>event);
+            case EventType.UserSignInSucceeded:
+                this.handleUserSignInSucceeded(<UserSignInSucceeded>event);
                 break;
-            case EventType.RetrieveFromLocalCredentialManager:
-                this.handleRetrieveFromLocalCredentialManager(<RetrieveFromLocalCredentialManager>event);
+            case EventType.CredentialRetrieveFromLocalCredentialManager:
+                this.handleCredentialRetrieveFromLocalCredentialManager(<CredentialRetrieveFromLocalCredentialManager>event);
                 break;
             case EventType.UserSignedOut:
                 this.handleUserSignedOut();
@@ -29,14 +29,14 @@ export class DocsLoggerObserver {
             case EventType.DependencyInstallStart:
                 this.handleDependencyInstallStart();
                 break;
-            case EventType.DependencyInstallSuccess:
-                this.handleDependencyInstallSuccess();
+            case EventType.DependencyInstallFinished:
+                this.handleDependencyInstallFinished();
                 break;
             case EventType.PackageInstallStart:
                 this.handlePackageInstallStart(<PackageInstallStart>event);
                 break;
-            case EventType.PackageInstallSuccess:
-                this.handlePackageInstallSuccess(<PackageInstallSuccess>event);
+            case EventType.PackageInstallSucceeded:
+                this.handlePackageInstallSucceeded(<PackageInstallSucceeded>event);
                 break;
             case EventType.PackageInstallFailed:
                 this.handlePackageInstallFailed(<PackageInstallFailed>event);
@@ -50,14 +50,14 @@ export class DocsLoggerObserver {
             case EventType.DownloadProgress:
                 this.handleDownloadProgress(<DownloadProgress>event);
                 break;
-            case EventType.DownloadValidation:
-                this.handleDownloadValidation(<DownloadValidation>event);
+            case EventType.DownloadValidating:
+                this.handleDownloadValidating(<DownloadValidating>event);
                 break;
-            case EventType.IntegrityCheckFailure:
-                this.handleIntegrityCheckFailure(<IntegrityCheckFailure>event);
+            case EventType.DownloadIntegrityCheckFailed:
+                this.handleDownloadIntegrityCheckFailed(<DownloadIntegrityCheckFailed>event);
                 break;
-            case EventType.InstallZipFile:
-                this.handleInstallZipFile(<InstallZipFile>event);
+            case EventType.ZipFileInstalling:
+                this.handleZipFileInstalling(<ZipFileInstalling>event);
                 break;
         }
     }
@@ -71,25 +71,25 @@ export class DocsLoggerObserver {
     }
 
     // Log
-    private handleLogPlatformInfo(event: LogPlatformInfo) {
+    private handlePlatformInfoRetrieved(event: PlatformInfoRetrieved) {
         this.appendLine(`Platform: ${event.platformInfo.toString()}`);
         this.appendLine();
     }
 
-    private handleLogProgress(event: LogProgress) {
+    private handleSignInProgress(event: SignInProgress) {
         let tag = event.tag ? `[${event.tag}] ` : '';
         this.appendLine(`${tag}${event.message}`);
     }
 
     // Sign
-    private handleUserSignedIn(event: UserSignedIn) {
+    private handleUserSignInSucceeded(event: UserSignInSucceeded) {
         this.appendLine(`Successfully sign-in to Docs build system:`);
         this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
         this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
     }
 
-    private handleRetrieveFromLocalCredentialManager(event: RetrieveFromLocalCredentialManager) {
+    private handleCredentialRetrieveFromLocalCredentialManager(event: CredentialRetrieveFromLocalCredentialManager) {
         this.appendLine(`Successfully retrieved user credential from Local Credential Manager:`);
         this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
         this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
@@ -106,7 +106,7 @@ export class DocsLoggerObserver {
         this.appendLine(`Installing runtime dependencies...`);
     }
 
-    private handleDependencyInstallSuccess() {
+    private handleDependencyInstallFinished() {
         this.appendLine('Runtime dependencies installation finished!');
         this.appendLine();
     }
@@ -115,7 +115,7 @@ export class DocsLoggerObserver {
         this.appendLine(`Installing package '${event.pkgDescription}'...`);
     }
 
-    private handlePackageInstallSuccess(event: PackageInstallSuccess) {
+    private handlePackageInstallSucceeded(event: PackageInstallSucceeded) {
         this.appendLine(`Package '${event.pkgDescription}' installed!`);
         this.appendLine();
     }
@@ -147,15 +147,15 @@ export class DocsLoggerObserver {
         this.downloadProgressDot = newDownloadProgressDot;
     }
 
-    private handleDownloadValidation(event: DownloadValidation) {
+    private handleDownloadValidating(event: DownloadValidating) {
         this.appendLine("Validating download...");
     }
 
-    private handleIntegrityCheckFailure(event: IntegrityCheckFailure) {
+    private handleDownloadIntegrityCheckFailed(event: DownloadIntegrityCheckFailed) {
         this.appendLine(`Package ${event.pkgDescription} download failed integrity check.`);
     }
 
-    private handleInstallZipFile(event: InstallZipFile) {
+    private handleZipFileInstalling(event: ZipFileInstalling) {
         this.appendLine(`Installing zip file...`);
     }
 }

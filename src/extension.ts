@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { CredentialController } from './credential/CredentialController';
-import { uriHandler } from './common/shared';
+import { uriHandler } from './shared';
 import { PlatformInformation } from './common/PlatformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
 import { SignStatusBarObserver } from './observers/SignStatusBarObserver';

@@ -2,7 +2,7 @@ import { KeyChain, Keytar } from '../../../src/credential/keyChain';
 import { EnvironmentController } from '../../../src/common/EnvironmentController';
 import { expect } from 'chai';
 import { SinonSandbox, createSandbox } from 'sinon';
-import { UserInfo } from '../../../src/common/shared';
+import { UserInfo } from '../../../src/shared';
 import { MocPRODEnv, MocPPEEnv } from '../../utils/faker';
 
 class MocKeytar implements Keytar {

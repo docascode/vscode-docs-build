@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { SignStatusBarObserver } from '../../../src/observers/SignStatusBarObserver';
 import { StatusBarItem } from 'vscode';
 import { createSandbox } from 'sinon';
-import { CredentialInitializing, UserSigningIn, UserSignedIn, RetrieveFromLocalCredentialManager, UserSignedOut, ResetCredential } from '../../../src/common/loggingEvents';
+import { CredentialInitializing, UserSigningIn, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, CredentialReset } from '../../../src/common/loggingEvents';
 import { Credential } from '../../../src/credential/CredentialController';
 import { EnvironmentController } from '../../../src/common/EnvironmentController';
 import { MocPPEEnv } from '../../utils/faker';
@@ -43,7 +43,7 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`User Signed In: Status bar is shown with user info`, () => {
-        let event = new UserSignedIn(<Credential>{
+        let event = new UserSignInSucceeded(<Credential>{
             signInStatus: 'SignedIn',
             aadInfo: 'fake-add',
             userInfo: {
@@ -61,7 +61,7 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`Fetch From Local Credential Manager: Status bar is shown with user info`, () => {
-        let event = new RetrieveFromLocalCredentialManager(<Credential>{
+        let event = new CredentialRetrieveFromLocalCredentialManager(<Credential>{
             signInStatus: 'SignedIn',
             aadInfo: 'fake-add',
             userInfo: {
@@ -88,7 +88,7 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`Reset User Info: Status bar is shown with 'Sign-in to Docs' text`, () => {
-        let event = new ResetCredential();
+        let event = new CredentialReset();
         observer.eventHandler(event);
         expect(showCalled).to.be.true;
         expect(statusBarItem.text).to.equal(`Docs: Sign-in to Docs`);

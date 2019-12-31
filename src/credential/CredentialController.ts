@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import * as template from 'url-template';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, extensionConfig } from '../common/shared';
+import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, extensionConfig } from '../shared';
 import { parseQuery, delay, openUrl } from '../utils/utils';
-import { UserSigningIn, UserSignedIn, UserSignedOut, ResetCredential, SignInFailed, BaseEvent, LogProgress, RetrieveFromLocalCredentialManager } from '../common/loggingEvents';
+import { UserSigningIn, UserSignInSucceeded, UserSignedOut, CredentialReset, UserSignInFailed, BaseEvent, SignInProgress, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
 import { EventType } from '../common/EventType';
 import { EventStream } from '../common/EventStream';
 import { KeyChain } from './keyChain';
@@ -45,11 +45,10 @@ export class CredentialController implements vscode.Disposable {
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
-            case EventType.RefreshCredential:
-            case EventType.EnvironmentChange:
+            case EventType.EnvironmentChanged:
                 this.initialize();
                 break;
-            case EventType.CredentialExpiry:
+            case EventType.CredentialExpired:
                 this.resetCredential();
                 break;
         }
@@ -75,7 +74,7 @@ export class CredentialController implements vscode.Disposable {
 
             // Step-1: AAD sign-in
             if (!this.aadInfo) {
-                this.eventStream.post(new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'));
+                this.eventStream.post(new SignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'));
                 let aadInfo = await this.signInWithAAD();
                 if (!aadInfo) {
                     this.resetCredential();
@@ -87,7 +86,7 @@ export class CredentialController implements vscode.Disposable {
             }
 
             // Step-2: GitHub sign-in
-            this.eventStream.post(new LogProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'));
+            this.eventStream.post(new SignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'));
             let userInfo = await this.signInWithGitHub();
             if (!userInfo) {
                 this.resetCredential();
@@ -97,10 +96,10 @@ export class CredentialController implements vscode.Disposable {
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
             await this.keyChain.setUserInfo(userInfo);
-            this.eventStream.post(new UserSignedIn(this.credential));
+            this.eventStream.post(new UserSignInSucceeded(this.credential));
         } catch (err) {
             this.resetCredential();
-            this.eventStream.post(new SignInFailed(err));
+            this.eventStream.post(new UserSignInFailed(err));
         }
 
     }
@@ -116,7 +115,7 @@ export class CredentialController implements vscode.Disposable {
         this.signInStatus = 'SignedOut';
         this.aadInfo = undefined;
         this.userInfo = undefined;
-        this.eventStream.post(new ResetCredential());
+        this.eventStream.post(new CredentialReset());
     }
 
     private async refreshCredential(): Promise<void> {
@@ -126,7 +125,7 @@ export class CredentialController implements vscode.Disposable {
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
             this.aadInfo = aadInfo;
-            this.eventStream.post(new RetrieveFromLocalCredentialManager(this.credential));
+            this.eventStream.post(new CredentialRetrieveFromLocalCredentialManager(this.credential));
         } else {
             this.resetCredential();
         }
@@ -168,10 +167,10 @@ export class CredentialController implements vscode.Disposable {
                 }
                 return result;
             }
-            this.eventStream.post(new SignInFailed(`Sign-in with AAD Failed`));
+            this.eventStream.post(new UserSignInFailed(`Sign-in with AAD Failed`));
             return undefined;
         } catch (err) {
-            this.eventStream.post(new SignInFailed(`Sign-in with AAD Failed: ${err.message}`));
+            this.eventStream.post(new UserSignInFailed(`Sign-in with AAD Failed: ${err.message}`));
             return undefined;
         }
     }
@@ -210,10 +209,10 @@ export class CredentialController implements vscode.Disposable {
                 }
                 return result;
             }
-            this.eventStream.post(new SignInFailed(`Sign-in with GitHub Failed`));
+            this.eventStream.post(new UserSignInFailed(`Sign-in with GitHub Failed`));
             return undefined;
         } catch (err) {
-            this.eventStream.post(new SignInFailed(`Sign-in with GitHub Failed: ${err.message}`));
+            this.eventStream.post(new UserSignInFailed(`Sign-in with GitHub Failed: ${err.message}`));
             return undefined;
         }
     }

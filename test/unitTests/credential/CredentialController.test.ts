@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CredentialExpiry, ResetCredential, RefreshCredential, EnvironmentChange, BaseEvent, RetrieveFromLocalCredentialManager, UserSignedOut, LogProgress, UserSigningIn, UserSignedIn, SignInFailed } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, SignInProgress, UserSigningIn, UserSignInSucceeded, UserSignInFailed } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/EventStream';
 import { CredentialController, Credential } from '../../../src/credential/CredentialController';
 import { KeyChain } from '../../../src/credential/KeyChain';
@@ -7,7 +7,7 @@ import { EnvironmentController } from '../../../src/common/EnvironmentController
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import { expect } from 'chai';
 import TestEventBus from '../../utils/TestEventBus';
-import { UserInfo, uriHandler, extensionConfig } from '../../../src/common/shared';
+import { UserInfo, uriHandler, extensionConfig } from '../../../src/shared';
 
 describe('CredentialController', () => {
     let sinon: SinonSandbox;
@@ -101,8 +101,7 @@ describe('CredentialController', () => {
     }
 
     [
-        new RefreshCredential(),
-        new EnvironmentChange('PPE')
+        new EnvironmentChanged('PPE')
     ].forEach((event: BaseEvent) => {
         describe(`Observer[${event.constructor.name}]: Credential should be refreshed`, () => {
             beforeEach(() => {
@@ -122,13 +121,13 @@ describe('CredentialController', () => {
         });
     });
 
-    it('CredentialExpiry: Credential should be reset', () => {
-        let event = new CredentialExpiry();
+    it('CredentialExpired: Credential should be reset', () => {
+        let event = new CredentialExpired();
         credentialController.eventHandler(event);
 
         let credential = credentialController.credential;
         AssertCredentialReset(credential);
-        expect(testEventBus.getEvents()).to.deep.equal([new ResetCredential()]);
+        expect(testEventBus.getEvents()).to.deep.equal([new CredentialReset()]);
     });
 
     describe(`Initialize`, () => {
@@ -152,7 +151,7 @@ describe('CredentialController', () => {
                 }
             };
             expect(credential).to.deep.equal(expectedCredential);
-            expect(testEventBus.getEvents()).to.deep.equal([new RetrieveFromLocalCredentialManager(expectedCredential)]);
+            expect(testEventBus.getEvents()).to.deep.equal([new CredentialRetrieveFromLocalCredentialManager(expectedCredential)]);
         });
 
         it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
@@ -165,7 +164,7 @@ describe('CredentialController', () => {
             // Assert
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
-            expect(testEventBus.getEvents()).to.deep.equal([new ResetCredential()]);
+            expect(testEventBus.getEvents()).to.deep.equal([new CredentialReset()]);
         });
     });
 
@@ -212,11 +211,11 @@ describe('CredentialController', () => {
             expect(isSetUserInfoCalled).to.be.true;
             expect(setUserInfo).to.deep.equal(expectedUserInfo);
             expect(testEventBus.getEvents()).to.deep.equal([
-                new ResetCredential(),
+                new CredentialReset(),
                 new UserSigningIn(),
-                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new LogProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
-                new UserSignedIn(expectedCredential)
+                new SignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new SignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
+                new UserSignInSucceeded(expectedCredential)
             ]);
         });
 
@@ -231,11 +230,11 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
             expect(testEventBus.getEvents()).to.deep.equal([
-                new ResetCredential(),
+                new CredentialReset(),
                 new UserSigningIn(),
-                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new SignInFailed(`Sign-in with AAD Failed`),
-                new ResetCredential()
+                new SignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new UserSignInFailed(`Sign-in with AAD Failed`),
+                new CredentialReset()
             ]);
         });
 
@@ -262,12 +261,12 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
             expect(testEventBus.getEvents()).to.deep.equal([
-                new ResetCredential(),
+                new CredentialReset(),
                 new UserSigningIn(),
-                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new LogProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
-                new SignInFailed(`Sign-in with GitHub Failed`),
-                new ResetCredential()
+                new SignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new SignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
+                new UserSignInFailed(`Sign-in with GitHub Failed`),
+                new CredentialReset()
             ]);
         });
 
@@ -286,11 +285,11 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
             expect(testEventBus.getEvents()).to.deep.equal([
-                new ResetCredential(),
+                new CredentialReset(),
                 new UserSigningIn(),
-                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new SignInFailed(`Sign-in with AAD Failed: Timeout`),
-                new ResetCredential()
+                new SignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new UserSignInFailed(`Sign-in with AAD Failed: Timeout`),
+                new CredentialReset()
             ]);
         });
 
@@ -320,12 +319,12 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
             expect(testEventBus.getEvents()).to.deep.equal([
-                new ResetCredential(),
+                new CredentialReset(),
                 new UserSigningIn(),
-                new LogProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new LogProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
-                new SignInFailed(`Sign-in with GitHub Failed: Timeout`),
-                new ResetCredential()
+                new SignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
+                new SignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
+                new UserSignInFailed(`Sign-in with GitHub Failed: Timeout`),
+                new CredentialReset()
             ]);
         });
     });
@@ -341,6 +340,6 @@ describe('CredentialController', () => {
         // Assert
         let credential = credentialController.credential;
         AssertCredentialReset(credential);
-        expect(testEventBus.getEvents()).to.deep.equal([new ResetCredential(), new UserSignedOut()]);
+        expect(testEventBus.getEvents()).to.deep.equal([new CredentialReset(), new UserSignedOut()]);
     });
 });

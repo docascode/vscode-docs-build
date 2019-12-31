@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
 import { EventType } from "../common/EventType";
-import { BaseEvent, SignInFailed } from '../common/loggingEvents';
-import { MessageAction } from '../common/shared';
+import { BaseEvent, UserSignInFailed } from '../common/loggingEvents';
+import { MessageAction } from '../shared';
 
 export class ErrorMessageObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
-            case EventType.SignInFailed:
-                let asSignInFailed = <SignInFailed>event;
-                this.showErrorMessage(`Sign-In failed: ${asSignInFailed.message}`);
+            case EventType.UserSignInFailed:
+                let asUserSignInFailed = <UserSignInFailed>event;
+                this.showErrorMessage(`Sign-In failed: ${asUserSignInFailed.message}`);
                 break;
-            case EventType.CredentialExpiry:
-                this.handleCredentialExpiry();
+            case EventType.CredentialExpired:
+                this.handleCredentialExpired();
                 break;
         }
     }
@@ -31,7 +31,7 @@ export class ErrorMessageObserver {
         }
     }
 
-    private handleCredentialExpiry() {
+    private handleCredentialExpired() {
         let message = `Credential has expired. Please sign-in again to continue.`;
         let messageAction = new MessageAction('Sign-in', 'docs.signIn');
         this.showErrorMessage(message, messageAction);

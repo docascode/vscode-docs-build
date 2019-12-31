@@ -1,7 +1,7 @@
 import * as crypto from "crypto";
 import * as https from 'https';
 import { parse as parseUrl } from 'url';
-import { DownloadStart, DownloadSizeObtained, DownloadProgress, DownloadValidation, IntegrityCheckFailure } from "../common/loggingEvents";
+import { DownloadStart, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed } from "../common/loggingEvents";
 import { EventStream } from "../common/EventStream";
 
 export async function downloadFile(description: string, urlString: string, eventStream: EventStream, integrity?: string): Promise<Buffer> {
@@ -48,9 +48,9 @@ export async function downloadFile(description: string, urlString: string, event
             response.on('end', () => {
                 let buffer = Buffer.concat(buffers);
                 if (integrity) {
-                    eventStream.post(new DownloadValidation());
+                    eventStream.post(new DownloadValidating());
                     if (!isValidDownload(buffer, integrity)) {
-                        eventStream.post(new IntegrityCheckFailure(description));
+                        eventStream.post(new DownloadIntegrityCheckFailed(description));
                         reject(new Error(`Failed integrity check.`));
                     }
                 }

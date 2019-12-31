@@ -1,5 +1,5 @@
 import * as keytarType from 'keytar';
-import { UserInfo } from '../common/shared';
+import { UserInfo } from '../shared';
 import { EnvironmentController } from '../common/EnvironmentController';
 
 export type Keytar = {

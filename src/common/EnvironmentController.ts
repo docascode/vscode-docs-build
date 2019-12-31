@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { Environment, EXTENSION_NAME } from './shared';
-import { EnvironmentChange } from './loggingEvents';
+import { Environment, EXTENSION_NAME } from '../shared';
+import { EnvironmentChanged } from './loggingEvents';
 import { EventStream } from './EventStream';
 
 const ENVIRONMENT_CONFIG_NAME = 'environment';
@@ -33,6 +33,6 @@ export class EnvironmentController implements vscode.Disposable {
 
     private refreshEnv(): void {
         this.environment = this.getEnv();
-        this.eventStream.post(new EnvironmentChange(this.env));
+        this.eventStream.post(new EnvironmentChanged(this.env));
     }
 }

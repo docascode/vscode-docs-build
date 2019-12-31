@@ -1,32 +1,29 @@
 export enum EventType {
-    // Log
-    LogPlatformInfo,
-    LogProgress,
-
     // Sign
     CredentialInitializing,
-    RetrieveFromLocalCredentialManager,
+    SignInProgress,
+    CredentialRetrieveFromLocalCredentialManager,
     UserSigningIn,
-    UserSignedIn,
+    UserSignInSucceeded,
+    UserSignInFailed,
     UserSignedOut,
-    SignInFailed,
-    ResetCredential,
-    CredentialExpiry,
-
-    // Others
-    EnvironmentChange,
-    RefreshCredential,
+    CredentialReset,
+    CredentialExpired,
 
     // Runtime dependency
     DependencyInstallStart,
-    DependencyInstallSuccess,
+    DependencyInstallFinished,
     PackageInstallStart,
-    PackageInstallSuccess,
+    PackageInstallSucceeded,
     PackageInstallFailed,
     DownloadStart,
     DownloadProgress,
     DownloadSizeObtained,
-    DownloadValidation,
-    IntegrityCheckFailure,
-    InstallZipFile,
+    DownloadValidating,
+    DownloadIntegrityCheckFailed,
+    ZipFileInstalling,
+    PlatformInfoRetrieved,
+
+    // Others
+    EnvironmentChanged,
 }
