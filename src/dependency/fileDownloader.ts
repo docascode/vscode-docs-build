@@ -1,11 +1,11 @@
 import * as crypto from "crypto";
 import * as https from 'https';
 import { parse as parseUrl } from 'url';
-import { DownloadStart, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed } from "../common/loggingEvents";
+import { DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed } from "../common/loggingEvents";
 import { EventStream } from "../common/EventStream";
 
 export async function downloadFile(description: string, urlString: string, eventStream: EventStream, integrity?: string): Promise<Buffer> {
-    eventStream.post(new DownloadStart(description));
+    eventStream.post(new DownloadStarted(description));
 
     const url = parseUrl(urlString);
     // TODO: Apply network settings(proxy, strictSSL..)

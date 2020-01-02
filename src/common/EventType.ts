@@ -1,11 +1,11 @@
 export enum EventType {
     // Runtime dependency
-    DependencyInstallStart,
+    DependencyInstallStarted,
     DependencyInstallFinished,
-    PackageInstallStart,
+    PackageInstallStarted,
     PackageInstallSucceeded,
     PackageInstallFailed,
-    DownloadStart,
+    DownloadStarted,
     DownloadProgress,
     DownloadSizeObtained,
     DownloadValidating,

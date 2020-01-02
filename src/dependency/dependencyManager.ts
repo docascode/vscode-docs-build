@@ -5,14 +5,14 @@ import { PlatformInformation } from "../common/PlatformInformation";
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
-import { PlatformInfoRetrieved, DependencyInstallStart, DependencyInstallFinished, PackageInstallFailed, PackageInstallSucceeded, PackageInstallStart } from '../common/loggingEvents';
+import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallFinished, PackageInstallFailed, PackageInstallSucceeded, PackageInstallStarted } from '../common/loggingEvents';
 import { EventStream } from '../common/EventStream';
 
 export async function ensureRuntimeDependencies(platformInfo: PlatformInformation, eventStream: EventStream) {
     let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
     let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, EXTENSION_PATH);
     if (packagesToInstall && packagesToInstall.length > 0) {
-        eventStream.post(new DependencyInstallStart());
+        eventStream.post(new DependencyInstallStarted());
         eventStream.post(new PlatformInfoRetrieved(platformInfo));
 
         if (await installDependencies(packagesToInstall, eventStream)) {
@@ -36,7 +36,7 @@ function getAbsolutePathPackagesToInstall(packages: Package[], platformInfo: Pla
 async function installDependencies(packages: AbsolutePathPackage[], eventStream: EventStream): Promise<boolean> {
     if (packages) {
         for (let pkg of packages) {
-            eventStream.post(new PackageInstallStart(pkg.description));
+            eventStream.post(new PackageInstallStarted(pkg.description));
             fs.mkdirpSync(pkg.installPath.value);
 
             let count = 1;

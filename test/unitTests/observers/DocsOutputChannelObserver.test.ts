@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { OutputChannel } from 'vscode';
-import { BaseEvent, DependencyInstallStart } from '../../../src/common/loggingEvents';
+import { BaseEvent, DependencyInstallStarted } from '../../../src/common/loggingEvents';
 import { DocsOutputChannelObserver } from '../../../src/observers/DocsOutputChannelObserver';
 
 describe('DocsOutputChannelObserver', () => {
@@ -17,7 +17,7 @@ describe('DocsOutputChannelObserver', () => {
     let observer = new DocsOutputChannelObserver(outputChannel);
 
     [
-        new DependencyInstallStart()
+        new DependencyInstallStarted()
     ].forEach((event: BaseEvent) => {
         it(`${event.constructor.name}: Channel is shown and focused `, () => {
             observer.eventHandler(event);

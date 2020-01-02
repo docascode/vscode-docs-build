@@ -1,5 +1,5 @@
 import { OutputChannel } from "vscode";
-import { BaseEvent, PlatformInfoRetrieved, PackageInstallStart, PackageInstallSucceeded, PackageInstallFailed, DownloadStart, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling } from "../common/loggingEvents";
+import { BaseEvent, PlatformInfoRetrieved, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling } from "../common/loggingEvents";
 import { EventType } from "../common/EventType";
 
 export class DocsLoggerObserver {
@@ -9,14 +9,14 @@ export class DocsLoggerObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             // Runtime Dependency
-            case EventType.DependencyInstallStart:
-                this.handleDependencyInstallStart();
+            case EventType.DependencyInstallStarted:
+                this.handleDependencyInstallStarted();
                 break;
             case EventType.DependencyInstallFinished:
                 this.handleDependencyInstallFinished();
                 break;
-            case EventType.PackageInstallStart:
-                this.handlePackageInstallStart(<PackageInstallStart>event);
+            case EventType.PackageInstallStarted:
+                this.handlePackageInstallStarted(<PackageInstallStarted>event);
                 break;
             case EventType.PackageInstallSucceeded:
                 this.handlePackageInstallSucceeded(<PackageInstallSucceeded>event);
@@ -24,8 +24,8 @@ export class DocsLoggerObserver {
             case EventType.PackageInstallFailed:
                 this.handlePackageInstallFailed(<PackageInstallFailed>event);
                 break;
-            case EventType.DownloadStart:
-                this.handleDownloadStart(<DownloadStart>event);
+            case EventType.DownloadStarted:
+                this.handleDownloadStarted(<DownloadStarted>event);
                 break;
             case EventType.DownloadSizeObtained:
                 this.handleDownloadSizeObtained(<DownloadSizeObtained>event);
@@ -57,7 +57,7 @@ export class DocsLoggerObserver {
     }
 
     // Runtime Dependency
-    private handleDependencyInstallStart() {
+    private handleDependencyInstallStarted() {
         this.appendLine(`Installing runtime dependencies...`);
     }
 
@@ -66,7 +66,7 @@ export class DocsLoggerObserver {
         this.appendLine();
     }
 
-    private handlePackageInstallStart(event: PackageInstallStart) {
+    private handlePackageInstallStarted(event: PackageInstallStarted) {
         this.appendLine(`Installing package '${event.pkgDescription}'...`);
     }
 
@@ -84,7 +84,7 @@ export class DocsLoggerObserver {
         this.appendLine();
     }
 
-    private handleDownloadStart(event: DownloadStart) {
+    private handleDownloadStarted(event: DownloadStarted) {
         this.append(`Downloading package '${event.pkgDescription}' `);
         this.downloadProgressDot = 0;
     }

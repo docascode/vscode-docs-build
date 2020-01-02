@@ -13,16 +13,16 @@ export class EnvironmentChanged implements BaseEvent {
 }
 
 // Runtime Dependency
-export class DependencyInstallStart implements BaseEvent {
-    type = EventType.DependencyInstallStart;
+export class DependencyInstallStarted implements BaseEvent {
+    type = EventType.DependencyInstallStarted;
 }
 
 export class DependencyInstallFinished implements BaseEvent {
     type = EventType.DependencyInstallFinished;
 }
 
-export class PackageInstallStart implements BaseEvent {
-    type = EventType.PackageInstallStart;
+export class PackageInstallStarted implements BaseEvent {
+    type = EventType.PackageInstallStarted;
     constructor(public pkgDescription: string) { }
 }
 
@@ -36,8 +36,8 @@ export class PackageInstallFailed implements BaseEvent {
     constructor(public pkgDescription: string, public message: string, public willRetry: boolean) { }
 }
 
-export class DownloadStart implements BaseEvent {
-    type = EventType.DownloadStart;
+export class DownloadStarted implements BaseEvent {
+    type = EventType.DownloadStarted;
     constructor(public pkgDescription: string) { }
 }
 

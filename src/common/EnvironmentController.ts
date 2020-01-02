@@ -10,7 +10,7 @@ export class EnvironmentController implements vscode.Disposable {
     private configurationChangeListener: vscode.Disposable;
 
     constructor(private eventStream: EventStream) {
-        this.environment = this.getEnv();
+        this.refreshEnv();
         this.configurationChangeListener = vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
             if (event.affectsConfiguration(`${EXTENSION_NAME}.${ENVIRONMENT_CONFIG_NAME}`)) {
                 this.refreshEnv();
@@ -32,7 +32,10 @@ export class EnvironmentController implements vscode.Disposable {
     }
 
     private refreshEnv(): void {
-        this.environment = this.getEnv();
-        this.eventStream.post(new EnvironmentChanged(this.env));
+        let newEnv = this.getEnv();
+        if(this.environment && this.environment !== newEnv){
+            this.eventStream.post(new EnvironmentChanged(newEnv));
+        }
+        this.environment = newEnv;
     }
 }
