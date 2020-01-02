@@ -1,29 +1,27 @@
 import * as fs from 'fs-extra';
 import { AbsolutePathPackage, Package } from "./Package";
-import { PACKAGE_JSON, EXTENSION_PATH } from "../common/shared";
+import { PACKAGE_JSON, EXTENSION_PATH } from "../shared";
 import { PlatformInformation } from "../common/PlatformInformation";
-import { docsChannel } from "../common/shared";
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
+import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallFinished, PackageInstallFailed, PackageInstallSucceeded, PackageInstallStarted } from '../common/loggingEvents';
+import { EventStream } from '../common/EventStream';
 
-export async function ensureRuntimeDependencies(platformInfo: PlatformInformation) {
+export async function ensureRuntimeDependencies(platformInfo: PlatformInformation, eventStream: EventStream) {
     let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
     let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, EXTENSION_PATH);
     if (packagesToInstall && packagesToInstall.length > 0) {
-        docsChannel.show();
-        docsChannel.appendLine(`Installing runtime dependencies...`);
-        docsChannel.appendLine(`Platform: '${platformInfo.toString()}'`);
+        eventStream.post(new DependencyInstallStarted());
+        eventStream.post(new PlatformInfoRetrieved(platformInfo));
 
-        if (await installDependencies(packagesToInstall)) {
-            docsChannel.appendLine();
-            docsChannel.appendLine('Runtime dependencies installation finished');
+        if (await installDependencies(packagesToInstall, eventStream)) {
+            eventStream.post(new DependencyInstallFinished());
             return true;
         }
         return false;
     }
 
-    docsChannel.appendLine('Runtime dependencies installed');
     return true;
 }
 
@@ -35,12 +33,10 @@ function getAbsolutePathPackagesToInstall(packages: Package[], platformInfo: Pla
     return [];
 }
 
-async function installDependencies(packages: AbsolutePathPackage[]): Promise<boolean> {
+async function installDependencies(packages: AbsolutePathPackage[], eventStream: EventStream): Promise<boolean> {
     if (packages) {
         for (let pkg of packages) {
-            docsChannel.appendLine();
-            docsChannel.appendLine(`Installing package '${pkg.description}'...`);
-
+            eventStream.post(new PackageInstallStarted(pkg.description));
             fs.mkdirpSync(pkg.installPath.value);
 
             let count = 1;
@@ -52,17 +48,17 @@ async function installDependencies(packages: AbsolutePathPackage[]): Promise<boo
                     await createInstallLockFile(pkg.installPath, InstallFileType.Begin);
 
                     // Download file
-                    let buffer = await downloadFile(pkg.description, pkg.url, pkg.integrity);
+                    let buffer = await downloadFile(pkg.description, pkg.url, eventStream, pkg.integrity);
 
                     // Install zip file
-                    await InstallZip(buffer, pkg.installPath);
+                    await InstallZip(buffer, pkg.installPath, eventStream);
 
                     // Create Download finished lock
                     await createInstallLockFile(pkg.installPath, InstallFileType.Finish);
 
                     break;
                 } catch (error) {
-                    docsChannel.appendLine(`Failed to install package '${pkg.description}': ${error.message}${count <= 3 ? '. Will retry' : ''}`);
+                    eventStream.post(new PackageInstallFailed(pkg.description, error.message, count <= 3));
                 } finally {
                     // Remove download begin lock file 
                     if (installFileExists(pkg.installPath, InstallFileType.Begin)) {
@@ -72,7 +68,7 @@ async function installDependencies(packages: AbsolutePathPackage[]): Promise<boo
             }
 
             if (installFileExists(pkg.installPath, InstallFileType.Finish)) {
-                docsChannel.appendLine(`Package '${pkg.description}' installed!`);
+                eventStream.post(new PackageInstallSucceeded(pkg.description));
             } else {
                 return false;
             }
