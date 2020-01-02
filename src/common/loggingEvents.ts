@@ -1,9 +1,51 @@
 import { EventType } from './EventType';
+import { Credential } from '../credential/CredentialController';
 import { PlatformInformation } from './PlatformInformation';
 import { Environment } from '../shared';
 
 export interface BaseEvent {
     type: EventType;
+}
+
+// Sign in
+export class UserSignInSucceeded implements BaseEvent {
+    type = EventType.UserSignInSucceeded;
+    constructor(public credential: Credential) { }
+}
+
+export class CredentialRetrieveFromLocalCredentialManager implements BaseEvent {
+    type = EventType.CredentialRetrieveFromLocalCredentialManager;
+    constructor(public credential: Credential) { }
+}
+
+export class UserSignedOut implements BaseEvent {
+    type = EventType.UserSignedOut;
+}
+
+export class UserSigningIn implements BaseEvent {
+    type = EventType.UserSigningIn;
+}
+
+export class UserSignInFailed implements BaseEvent {
+    type = EventType.UserSignInFailed;
+    constructor(public message: string) { }
+}
+
+export class CredentialReset implements BaseEvent {
+    type = EventType.CredentialReset;
+}
+
+export class CredentialInitializing implements BaseEvent {
+    type = EventType.CredentialInitializing;
+}
+
+export class CredentialExpired implements BaseEvent {
+    type = EventType.CredentialExpired;
+}
+
+export class SignInProgress implements BaseEvent {
+    type = EventType.SignInProgress;
+    constructor(public message: string, public tag?: string) { }
 }
 
 // Others

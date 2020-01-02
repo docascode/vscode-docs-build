@@ -6,7 +6,7 @@ interface PackageJSONFile {
     runtimeDependencies: Package[];
 }
 
-const DOCFX_PACKAGE_BLOB_URL = "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin";
+const DOCFX_PACKAGE_BLOB_URL = 'https://opsbuildk8sprod.blob.core.windows.net/docfx-bin';
 
 export async function updateRuntimeDependencies(): Promise<void> {
     console.log(`Updating package dependencies...`);
@@ -43,11 +43,11 @@ async function getFileFromURL(url: string): Promise<string> {
                 return reject(new Error(`Failed to download from ${url}. Error code '${response.statusCode}'`));
             }
 
-            response.on("data", (chunk) => {
+            response.on('data', (chunk) => {
                 result += chunk;
             });
 
-            response.on("end", () => {
+            response.on('end', () => {
                 try {
                     resolve(result);
                 } catch (error) {

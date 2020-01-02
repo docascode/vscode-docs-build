@@ -1,6 +1,6 @@
-import { OutputChannel } from "vscode";
-import { BaseEvent, PlatformInfoRetrieved, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling } from "../common/loggingEvents";
-import { EventType } from "../common/EventType";
+import { OutputChannel } from 'vscode';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, SignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
+import { EventType } from '../common/EventType';
 
 export class DocsLoggerObserver {
     private downloadProgressDot: number;
@@ -8,6 +8,19 @@ export class DocsLoggerObserver {
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
+            // Sign
+            case EventType.UserSignInSucceeded:
+                this.handleUserSignInSucceeded(<UserSignInSucceeded>event);
+                break;
+            case EventType.CredentialRetrieveFromLocalCredentialManager:
+                this.handleCredentialRetrieveFromLocalCredentialManager(<CredentialRetrieveFromLocalCredentialManager>event);
+                break;
+            case EventType.UserSignedOut:
+                this.handleUserSignedOut();
+                break;
+            case EventType.SignInProgress:
+                this.handleSignInProgress(<SignInProgress>event);
+                break;
             // Runtime Dependency
             case EventType.DependencyInstallStarted:
                 this.handleDependencyInstallStarted();
@@ -49,11 +62,36 @@ export class DocsLoggerObserver {
     }
 
     private appendLine(message?: string): void {
-        this.logger.appendLine(message || "");
+        this.logger.appendLine(message || '');
     }
 
     private append(message: string): void {
         this.logger.append(message);
+    }
+
+    // Sign
+    private handleUserSignInSucceeded(event: UserSignInSucceeded) {
+        this.appendLine(`Successfully sign-in to Docs build system:`);
+        this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
+        this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
+        this.appendLine();
+    }
+
+    private handleCredentialRetrieveFromLocalCredentialManager(event: CredentialRetrieveFromLocalCredentialManager) {
+        this.appendLine(`Successfully retrieved user credential from Local Credential Manager:`);
+        this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
+        this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
+        this.appendLine();
+    }
+
+    private handleUserSignedOut() {
+        this.appendLine(`Successfully sign-out from Docs build system!`);
+        this.appendLine();
+    }
+
+    private handleSignInProgress(event: SignInProgress) {
+        let tag = event.tag ? `[${event.tag}] ` : '';
+        this.appendLine(`${tag}${event.message}`);
     }
 
     // Runtime Dependency
@@ -103,7 +141,7 @@ export class DocsLoggerObserver {
     }
 
     private handleDownloadValidating(event: DownloadValidating) {
-        this.appendLine("Validating download...");
+        this.appendLine('Validating download...');
     }
 
     private handleDownloadIntegrityCheckFailed(event: DownloadIntegrityCheckFailed) {
