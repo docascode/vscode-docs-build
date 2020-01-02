@@ -22,7 +22,6 @@
 		"variable-name": true
 	},
 	"rulesDirectory": [
-		"tslint-microsoft-contrib",
-		"tslint-no-unused-expression-chai"
+		"tslint-microsoft-contrib"
 	]
 }

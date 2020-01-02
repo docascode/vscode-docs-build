@@ -13,6 +13,7 @@ export interface Package {
 
 export class AbsolutePathPackage {
     constructor(public id: string,
+        public name: string,
         public description: string,
         public url: string,
         public binary: string,
@@ -24,6 +25,7 @@ export class AbsolutePathPackage {
     public static getAbsolutePathPackage(pkg: Package, extensionPath: string) {
         return new AbsolutePathPackage(
             pkg.id,
+            pkg.name,
             pkg.description,
             pkg.url,
             pkg.binary,
