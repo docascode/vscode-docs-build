@@ -47,6 +47,7 @@ steps:
     command: custom
     verbose: false
     customCommand: run lint
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
 
 - task: Npm@1
   displayName: 'Run test'
@@ -54,6 +55,12 @@ steps:
     command: custom
     verbose: false
     customCommand: run test
+
+- bash: ./node_modules/.bin/codecov -f coverage/unit/lcov.info -F unit
+  displayName: 'Report unit test coverage'
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+  env:
+    CODECOV_TOKEN: $(CODECOV_TOKEN)
 
 - bash: |
     npm run publish -- -p $(VSCODE_MARKETPLACE_TOKEN)
