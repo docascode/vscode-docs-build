@@ -4,3 +4,5 @@ node_modules
 *.vsix
 .docfx/
 .DS_Store
+.nyc_output/
+coverage/
