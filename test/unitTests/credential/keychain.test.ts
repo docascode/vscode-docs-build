@@ -1,11 +1,11 @@
 import { KeyChain, Keytar } from '../../../src/credential/keyChain';
-import { EnvironmentController } from '../../../src/common/EnvironmentController';
+import { EnvironmentController } from '../../../src/common/environmentController';
 import { expect } from 'chai';
 import { SinonSandbox, createSandbox } from 'sinon';
 import { UserInfo } from '../../../src/shared';
-import { MocPRODEnv, MocPPEEnv } from '../../utils/faker';
+import { mockPRODEnv, mockPPEEnv } from '../../utils/faker';
 
-class MocKeytar implements Keytar {
+class MockKeytar implements Keytar {
     map = new Map;
 
     async getPassword(service: string, account: string) {
@@ -32,17 +32,17 @@ describe('KeyChain', () => {
     });
 
     beforeEach(() => {
-        keyChain = new KeyChain(environmentController, new MocKeytar());
+        keyChain = new KeyChain(environmentController, new MockKeytar());
     });
 
     it('getAADInfo gets tokens set by setAADInfo with the same environment', async () => {
-        MocPRODEnv(sinon, environmentController);
+        mockPRODEnv(sinon, environmentController);
         await keyChain.setAADInfo('fake-aad');
         let aadInfo = await keyChain.getAADInfo();
         expect(aadInfo).to.equal('fake-aad');
 
-        // Moc PPE environment
-        MocPPEEnv(sinon, environmentController);
+        // Mock PPE environment
+        mockPRODEnv(sinon, environmentController);
 
         // Test
         aadInfo = await keyChain.getAADInfo();
@@ -50,7 +50,7 @@ describe('KeyChain', () => {
     });
 
     it('setUserInfo gets tokens set by setToken with the same environment', async () => {
-        MocPRODEnv(sinon, environmentController);
+        mockPRODEnv(sinon, environmentController);
         let expectedUserInfo = <UserInfo>{
             signType: 'GitHub',
             userEmail: 'fake@microsoft.com',
@@ -61,8 +61,8 @@ describe('KeyChain', () => {
         let userInfo = await keyChain.getUserInfo();
         expect(userInfo).to.deep.equal(expectedUserInfo);
 
-        // Moc PPE environment
-        MocPPEEnv(sinon, environmentController);
+        // Mock PPE environment
+        mockPPEEnv(sinon, environmentController);
 
         // Test
         userInfo = await keyChain.getUserInfo();

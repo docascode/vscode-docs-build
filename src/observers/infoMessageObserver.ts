@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { BaseEvent } from '../common/loggingEvents';
-import { EventType } from '../common/EventType';
+import { EventType } from '../common/eventType';
 import { MessageAction } from '../shared';
 export class InfoMessageObserver {
     public eventHandler = (event: BaseEvent) => {

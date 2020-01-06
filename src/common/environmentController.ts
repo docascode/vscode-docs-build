@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Environment, EXTENSION_NAME } from '../shared';
 import { EnvironmentChanged } from './loggingEvents';
-import { EventStream } from './EventStream';
+import { EventStream } from './eventStream';
 
 const ENVIRONMENT_CONFIG_NAME = 'environment';
 

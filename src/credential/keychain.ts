@@ -1,6 +1,6 @@
 import * as keytarType from 'keytar';
 import { UserInfo } from '../shared';
-import { EnvironmentController } from '../common/EnvironmentController';
+import { EnvironmentController } from '../common/environmentController';
 
 export type Keytar = {
     getPassword: typeof keytarType['getPassword'];

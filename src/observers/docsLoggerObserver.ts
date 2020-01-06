@@ -1,6 +1,6 @@
 import { OutputChannel } from 'vscode';
 import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, SignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
-import { EventType } from '../common/EventType';
+import { EventType } from '../common/eventType';
 
 export class DocsLoggerObserver {
     private downloadProgressDot: number;

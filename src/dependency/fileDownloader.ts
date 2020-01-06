@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as https from 'https';
 import { parse as parseUrl } from 'url';
 import { DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed } from '../common/loggingEvents';
-import { EventStream } from '../common/EventStream';
+import { EventStream } from '../common/eventStream';
 
 export async function downloadFile(description: string, urlString: string, eventStream: EventStream, integrity?: string): Promise<Buffer> {
     eventStream.post(new DownloadStarted(description));

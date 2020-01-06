@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, SignInProgress, UserSigningIn, UserSignInSucceeded, UserSignInFailed } from '../../../src/common/loggingEvents';
-import { EventStream } from '../../../src/common/EventStream';
-import { CredentialController, Credential } from '../../../src/credential/CredentialController';
-import { KeyChain } from '../../../src/credential/KeyChain';
-import { EnvironmentController } from '../../../src/common/EnvironmentController';
+import { EventStream } from '../../../src/common/eventStream';
+import { CredentialController, Credential } from '../../../src/credential/credentialController';
+import { KeyChain } from '../../../src/credential/keyChain';
+import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import { expect } from 'chai';
-import TestEventBus from '../../utils/TestEventBus';
+import TestEventBus from '../../utils/testEventBus';
 import { UserInfo, uriHandler, extensionConfig } from '../../../src/shared';
 
 describe('CredentialController', () => {
@@ -75,7 +75,7 @@ describe('CredentialController', () => {
         sinon.restore();
     });
 
-    function mocFakeKeyChainInfo() {
+    function mockFakeKeyChainInfo() {
         stubGetAADInfo = sinon.stub(keyChain, 'getAADInfo').resolves('fake-aad');
         stubGetUserInfo = sinon.stub(keyChain, 'getUserInfo').resolves(<UserInfo>{
             signType: 'GitHub',
@@ -85,7 +85,7 @@ describe('CredentialController', () => {
         });
     }
 
-    function mocUndefinedKeyChainInfo() {
+    function mockUndefinedKeyChainInfo() {
         stubGetAADInfo = sinon.stub(keyChain, 'getAADInfo').resolves(undefined);
         stubGetUserInfo = sinon.stub(keyChain, 'getUserInfo').resolves(undefined);
     }
@@ -133,7 +133,7 @@ describe('CredentialController', () => {
     describe(`Initialize`, () => {
         it(`Should be 'SignedIn' status if the user info can be retrieved from keyChain`, async () => {
             // Prepare
-            mocFakeKeyChainInfo();
+            mockFakeKeyChainInfo();
 
             // Act
             await credentialController.initialize();
@@ -156,7 +156,7 @@ describe('CredentialController', () => {
 
         it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
             // Prepare
-            mocUndefinedKeyChainInfo();
+            mockUndefinedKeyChainInfo();
 
             // Act
             await credentialController.initialize();
@@ -272,7 +272,7 @@ describe('CredentialController', () => {
 
         it(`Sign-in with AAD time out`, async () => {
             // Prepare
-            // Moc sign-in timeout config to 1s.
+            // Mock sign-in timeout config to 1s.
             stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
                 return 1000;
             });
@@ -331,7 +331,7 @@ describe('CredentialController', () => {
 
     it(`User sign-out`, async () => {
         // Sign-in first
-        mocFakeKeyChainInfo();
+        mockFakeKeyChainInfo();
         credentialController.initialize();
 
         // Act - Sign-out

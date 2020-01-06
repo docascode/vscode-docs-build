@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { OutputChannel } from 'vscode';
 import { UserSigningIn, BaseEvent, DependencyInstallStarted } from '../../../src/common/loggingEvents';
-import { DocsOutputChannelObserver } from '../../../src/observers/DocsOutputChannelObserver';
+import { DocsOutputChannelObserver } from '../../../src/observers/docsOutputChannelObserver';
 
 describe('DocsOutputChannelObserver', () => {
     let showCalled: boolean;

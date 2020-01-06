@@ -1,9 +1,9 @@
-import { BaseStatusBarItemObserver } from './BaseStatusBarObserver';
+import { BaseStatusBarItemObserver } from './baseStatusBarObserver';
 import { BaseEvent, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
-import { EventType } from '../common/EventType';
-import { Credential } from '../credential/CredentialController';
+import { EventType } from '../common/eventType';
+import { Credential } from '../credential/credentialController';
 import { StatusBarItem } from 'vscode';
-import { EnvironmentController } from '../common/EnvironmentController';
+import { EnvironmentController } from '../common/environmentController';
 
 export class SignStatusBarObserver extends BaseStatusBarItemObserver {
     constructor(statusBarItem: StatusBarItem, private environmentController: EnvironmentController) {

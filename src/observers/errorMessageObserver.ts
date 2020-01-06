@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { EventType } from '../common/EventType';
+import { EventType } from '../common/eventType';
 import { BaseEvent, UserSignInFailed } from '../common/loggingEvents';
 import { MessageAction } from '../shared';
 

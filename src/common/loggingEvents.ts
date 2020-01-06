@@ -1,6 +1,6 @@
-import { EventType } from './EventType';
-import { Credential } from '../credential/CredentialController';
-import { PlatformInformation } from './PlatformInformation';
+import { EventType } from './eventType';
+import { Credential } from '../credential/credentialController';
+import { PlatformInformation } from './platformInformation';
 import { Environment } from '../shared';
 
 export interface BaseEvent {

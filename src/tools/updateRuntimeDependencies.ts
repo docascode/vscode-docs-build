@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as https from 'https';
-import { Package } from '../dependency/Package';
+import { Package } from '../dependency/package';
 
 interface PackageJSONFile {
     runtimeDependencies: Package[];

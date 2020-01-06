@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import { SignStatusBarObserver } from '../../../src/observers/SignStatusBarObserver';
+import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
 import { createSandbox } from 'sinon';
 import { CredentialInitializing, UserSigningIn, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, CredentialReset } from '../../../src/common/loggingEvents';
-import { Credential } from '../../../src/credential/CredentialController';
-import { EnvironmentController } from '../../../src/common/EnvironmentController';
-import { MocPPEEnv } from '../../utils/faker';
+import { Credential } from '../../../src/credential/credentialController';
+import { EnvironmentController } from '../../../src/common/environmentController';
+import { mockPPEEnv } from '../../utils/faker';
 
 describe('SignStatusBarObserver', () => {
     let showCalled: boolean;
@@ -97,9 +97,9 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`PPE Environment: Status bar is shown with 'Docs(Sandbox):'`, () => {
-        // Moc PPE environment
+        // Mock PPE environment
         let sinon = createSandbox();
-        MocPPEEnv(sinon, environmentController);
+        mockPPEEnv(sinon, environmentController);
 
         // Test
         let event = new CredentialInitializing();
@@ -109,7 +109,7 @@ describe('SignStatusBarObserver', () => {
         expect(statusBarItem.command).to.be.undefined;
         expect(statusBarItem.tooltip).to.be.undefined;
 
-        // Reset Moc
+        // Reset Mock
         sinon.restore();
     });
 });

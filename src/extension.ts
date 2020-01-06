@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
-import { CredentialController } from './credential/CredentialController';
+import { CredentialController } from './credential/credentialController';
 import { uriHandler } from './shared';
-import { PlatformInformation } from './common/PlatformInformation';
+import { PlatformInformation } from './common/platformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
-import { SignStatusBarObserver } from './observers/SignStatusBarObserver';
-import { DocsLoggerObserver } from './observers/DocsLoggerObserver';
-import { DocsOutputChannelObserver } from './observers/DocsOutputChannelObserver';
-import { ErrorMessageObserver } from './observers/ErrorMessageObserver';
-import { InfoMessageObserver } from './observers/InfoMessageObserver';
-import ExtensionExports from './common/ExtensionExport';
-import { EventStream } from './common/EventStream';
+import { SignStatusBarObserver } from './observers/signStatusBarObserver';
+import { DocsLoggerObserver } from './observers/docsLoggerObserver';
+import { DocsOutputChannelObserver } from './observers/docsOutputChannelObserver';
+import { ErrorMessageObserver } from './observers/errorMessageObserver';
+import { InfoMessageObserver } from './observers/infoMessageObserver';
+import ExtensionExports from './common/extensionExport';
+import { EventStream } from './common/eventStream';
 import { KeyChain } from './credential/keyChain';
-import { EnvironmentController } from './common/EnvironmentController';
+import { EnvironmentController } from './common/environmentController';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();

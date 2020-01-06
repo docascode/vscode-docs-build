@@ -4,10 +4,10 @@ import * as template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, extensionConfig } from '../shared';
 import { parseQuery, delay, openUrl } from '../utils/utils';
 import { UserSigningIn, UserSignInSucceeded, UserSignedOut, CredentialReset, UserSignInFailed, BaseEvent, SignInProgress, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
-import { EventType } from '../common/EventType';
-import { EventStream } from '../common/EventStream';
+import { EventType } from '../common/eventType';
+import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
-import { EnvironmentController } from '../common/EnvironmentController';
+import { EnvironmentController } from '../common/environmentController';
 
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
     let uriEventListener: vscode.Disposable;
