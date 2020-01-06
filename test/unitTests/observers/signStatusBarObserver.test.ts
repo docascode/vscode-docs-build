@@ -1,15 +1,24 @@
 import { expect } from 'chai';
 import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
-import { createSandbox } from 'sinon';
 import { CredentialInitializing, UserSigningIn, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, CredentialReset } from '../../../src/common/loggingEvents';
 import { Credential } from '../../../src/credential/credentialController';
+import { getFakeEnvironmentController, setEnvToPPE } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
-import { mockPPEEnv } from '../../utils/faker';
 
 describe('SignStatusBarObserver', () => {
     let showCalled: boolean;
-    let environmentController = new EnvironmentController(undefined);
+    let environmentController: EnvironmentController;
+    let observer: SignStatusBarObserver;
+
+    let statusBarItem = <StatusBarItem>{
+        show: () => { showCalled = true; }
+    };
+
+    before(() => {
+        environmentController = getFakeEnvironmentController();
+        observer = new SignStatusBarObserver(statusBarItem, environmentController)
+    });
 
     beforeEach(() => {
         statusBarItem.text = undefined;
@@ -17,12 +26,6 @@ describe('SignStatusBarObserver', () => {
         statusBarItem.tooltip = undefined;
         showCalled = false;
     });
-
-    let statusBarItem = <StatusBarItem>{
-        show: () => { showCalled = true; }
-    };
-
-    let observer = new SignStatusBarObserver(statusBarItem, environmentController);
 
     it(`Initialization: Status bar is shown with 'Initializing' text`, () => {
         let event = new CredentialInitializing();
@@ -98,8 +101,7 @@ describe('SignStatusBarObserver', () => {
 
     it(`PPE Environment: Status bar is shown with 'Docs(Sandbox):'`, () => {
         // Mock PPE environment
-        let sinon = createSandbox();
-        mockPPEEnv(sinon, environmentController);
+        setEnvToPPE(environmentController);
 
         // Test
         let event = new CredentialInitializing();
@@ -108,8 +110,5 @@ describe('SignStatusBarObserver', () => {
         expect(statusBarItem.text).to.equal(`Docs(Sandbox): Initializing`);
         expect(statusBarItem.command).to.be.undefined;
         expect(statusBarItem.tooltip).to.be.undefined;
-
-        // Reset Mock
-        sinon.restore();
     });
 });

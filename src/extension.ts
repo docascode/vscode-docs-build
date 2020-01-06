@@ -11,11 +11,11 @@ import { InfoMessageObserver } from './observers/infoMessageObserver';
 import ExtensionExports from './common/extensionExport';
 import { EventStream } from './common/eventStream';
 import { KeyChain } from './credential/keyChain';
-import { EnvironmentController } from './common/environmentController';
+import { DocsEnvironmentController } from './common/docsEnvironmentController';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
-    const environmentController = new EnvironmentController(eventStream);
+    const environmentController = new DocsEnvironmentController(eventStream);
     const platformInformation = await PlatformInformation.getCurrent();
 
     // Output Channel

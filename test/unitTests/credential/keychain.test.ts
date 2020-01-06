@@ -1,9 +1,8 @@
 import { KeyChain, Keytar } from '../../../src/credential/keyChain';
-import { EnvironmentController } from '../../../src/common/environmentController';
 import { expect } from 'chai';
-import { SinonSandbox, createSandbox } from 'sinon';
 import { UserInfo } from '../../../src/shared';
-import { mockPRODEnv, mockPPEEnv } from '../../utils/faker';
+import { getFakeEnvironmentController, setEnvToPROD, setEnvToPPE } from '../../utils/faker';
+import { EnvironmentController } from '../../../src/common/environmentController';
 
 class MockKeytar implements Keytar {
     map = new Map;
@@ -24,11 +23,9 @@ class MockKeytar implements Keytar {
 describe('KeyChain', () => {
     let environmentController: EnvironmentController;
     let keyChain: KeyChain;
-    let sinon: SinonSandbox;
 
     before(() => {
-        environmentController = new EnvironmentController(undefined);
-        sinon = createSandbox();
+        environmentController = getFakeEnvironmentController();
     });
 
     beforeEach(() => {
@@ -36,13 +33,13 @@ describe('KeyChain', () => {
     });
 
     it('getAADInfo gets tokens set by setAADInfo with the same environment', async () => {
-        mockPRODEnv(sinon, environmentController);
+        setEnvToPROD(environmentController);
         await keyChain.setAADInfo('fake-aad');
         let aadInfo = await keyChain.getAADInfo();
         expect(aadInfo).to.equal('fake-aad');
 
         // Mock PPE environment
-        mockPRODEnv(sinon, environmentController);
+        setEnvToPPE(environmentController);
 
         // Test
         aadInfo = await keyChain.getAADInfo();
@@ -50,7 +47,7 @@ describe('KeyChain', () => {
     });
 
     it('setUserInfo gets tokens set by setToken with the same environment', async () => {
-        mockPRODEnv(sinon, environmentController);
+        setEnvToPROD(environmentController);
         let expectedUserInfo = <UserInfo>{
             signType: 'GitHub',
             userEmail: 'fake@microsoft.com',
@@ -62,7 +59,7 @@ describe('KeyChain', () => {
         expect(userInfo).to.deep.equal(expectedUserInfo);
 
         // Mock PPE environment
-        mockPPEEnv(sinon, environmentController);
+        setEnvToPPE(environmentController);
 
         // Test
         userInfo = await keyChain.getUserInfo();

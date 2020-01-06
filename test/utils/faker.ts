@@ -1,10 +1,15 @@
-import { SinonSandbox } from 'sinon';
 import { EnvironmentController } from '../../src/common/environmentController';
 
-export function mockPRODEnv(sinon: SinonSandbox, environmentController: EnvironmentController) {
-    sinon.stub(environmentController, 'env').get(() => 'PROD');
+export function getFakeEnvironmentController(): EnvironmentController {
+    return {
+        env: 'PROD',
+    };
 }
 
-export function mockPPEEnv(sinon: SinonSandbox, environmentController: EnvironmentController){
-    sinon.stub(environmentController, 'env').get(() => 'PPE');
+export function setEnvToPROD(environmentController: EnvironmentController) {
+    environmentController.env = 'PROD';
+}
+
+export function setEnvToPPE(environmentController: EnvironmentController) {
+    environmentController.env = 'PPE';
 }
