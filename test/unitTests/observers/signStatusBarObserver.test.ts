@@ -17,7 +17,7 @@ describe('SignStatusBarObserver', () => {
 
     before(() => {
         environmentController = getFakeEnvironmentController();
-        observer = new SignStatusBarObserver(statusBarItem, environmentController)
+        observer = new SignStatusBarObserver(statusBarItem, environmentController);
     });
 
     beforeEach(() => {
