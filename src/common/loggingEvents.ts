@@ -58,7 +58,6 @@ export class DownloadValidating implements BaseEvent {
 
 export class DownloadIntegrityCheckFailed implements BaseEvent {
     type = EventType.DownloadIntegrityCheckFailed;
-    constructor(public pkgDescription: string) { }
 }
 
 export class ZipFileInstalling implements BaseEvent {

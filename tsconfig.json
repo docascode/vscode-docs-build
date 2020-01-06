@@ -8,9 +8,10 @@
       "es6"
     ],
     "sourceMap": true,
-    "rootDir": ".",
+    "moduleResolution": "node",
     "noImplicitAny": true,
     "alwaysStrict": true,
+    "skipLibCheck": true,
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
     "typeRoots": [
@@ -18,12 +19,9 @@
       "./src/typings/"
     ]
   },
-  "include": [
-    "src/**/*",
-    "test/**/*"
-  ],
   "exclude": [
+    ".vscode-test",
+    "resources",
     "node_modules",
-    ".vscode-test"
   ]
 }

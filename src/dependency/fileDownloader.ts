@@ -4,15 +4,20 @@ import { parse as parseUrl } from 'url';
 import { DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed } from "../common/loggingEvents";
 import { EventStream } from "../common/EventStream";
 
-export async function downloadFile(description: string, urlString: string, eventStream: EventStream, integrity?: string): Promise<Buffer> {
+export function downloadFile(description: string, urlString: string, eventStream: EventStream, integrity?: string, strictSSL = true): Promise<Buffer> {
     eventStream.post(new DownloadStarted(description));
 
+    return downloadCore(urlString, eventStream, integrity, strictSSL);
+}
+
+function downloadCore(urlString: string, eventStream: EventStream, integrity?: string, strictSSL = true): Promise<Buffer> {
     const url = parseUrl(urlString);
     // TODO: Apply network settings(proxy, strictSSL..)
     const options: https.RequestOptions = {
         host: url.hostname,
         path: url.path,
-        port: url.port
+        port: url.port,
+        rejectUnauthorized: strictSSL
     };
 
     let buffers: any[] = [];
@@ -21,7 +26,7 @@ export async function downloadFile(description: string, urlString: string, event
         let request = https.request(options, response => {
             if (response.statusCode === 301 || response.statusCode === 302) {
                 // Redirect - download from new location
-                return resolve(downloadFile(description, response.headers.location!, eventStream, integrity));
+                return resolve(downloadCore(response.headers.location!, eventStream, integrity, strictSSL));
             }
             else if (response.statusCode !== 200) {
                 // Download failed
@@ -50,7 +55,7 @@ export async function downloadFile(description: string, urlString: string, event
                 if (integrity) {
                     eventStream.post(new DownloadValidating());
                     if (!isValidDownload(buffer, integrity)) {
-                        eventStream.post(new DownloadIntegrityCheckFailed(description));
+                        eventStream.post(new DownloadIntegrityCheckFailed());
                         reject(new Error(`Failed integrity check.`));
                     }
                 }
