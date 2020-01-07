@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import { Environment, EXTENSION_NAME } from '../shared';
 import { EnvironmentChanged } from './loggingEvents';
-import { EventStream } from './EventStream';
+import { EventStream } from './eventStream';
+import { EnvironmentController } from './environmentController';
 
 const ENVIRONMENT_CONFIG_NAME = 'environment';
 
-export class EnvironmentController implements vscode.Disposable {
+export class DocsEnvironmentController implements EnvironmentController, vscode.Disposable {
     private environment: Environment;
     private configurationChangeListener: vscode.Disposable;
 

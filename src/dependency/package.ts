@@ -1,4 +1,4 @@
-import { AbsolutePath } from "../common/AbsolutePath";
+import { AbsolutePath } from '../common/absolutePath';
 
 export interface Package {
     id: string;

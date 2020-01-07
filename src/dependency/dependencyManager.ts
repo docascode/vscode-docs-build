@@ -1,12 +1,12 @@
 import * as fs from 'fs-extra';
-import { AbsolutePathPackage, Package } from "./Package";
-import { PACKAGE_JSON, EXTENSION_PATH } from "../shared";
-import { PlatformInformation } from "../common/PlatformInformation";
+import { AbsolutePathPackage, Package } from './package';
+import { PACKAGE_JSON, EXTENSION_PATH } from '../shared';
+import { PlatformInformation } from '../common/platformInformation';
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
 import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallFinished, PackageInstallFailed, PackageInstallSucceeded, PackageInstallStarted } from '../common/loggingEvents';
-import { EventStream } from '../common/EventStream';
+import { EventStream } from '../common/eventStream';
 
 export async function ensureRuntimeDependencies(platformInfo: PlatformInformation, eventStream: EventStream) {
     let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
@@ -87,7 +87,7 @@ function getPackagesForCurrentPlatform(packages: AbsolutePathPackage[], platform
         return packages.filter(pkg => pkg.rid === platformInfo.rid);
     }
     else {
-        throw new Error("Package manifest does not exist.");
+        throw new Error('Package manifest does not exist.');
     }
 }
 
@@ -98,6 +98,6 @@ function filterInstalledPackages(packages: AbsolutePathPackage[]) {
         });
     }
     else {
-        throw new Error("Package manifest does not exist.");
+        throw new Error('Package manifest does not exist.');
     }
 }

@@ -1,4 +1,15 @@
 export enum EventType {
+    // Sign
+    CredentialExpired,
+    CredentialInitializing,
+    CredentialRetrieveFromLocalCredentialManager,
+    CredentialReset,
+    UserSignInProgress,
+    UserSigningIn,
+    UserSignInSucceeded,
+    UserSignInFailed,
+    UserSignedOut,
+
     // Runtime dependency
     DependencyInstallStarted,
     DependencyInstallFinished,
