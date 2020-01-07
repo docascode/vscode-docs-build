@@ -1,5 +1,5 @@
 import { Subject, Subscription } from 'rxjs';
-import { BaseEvent } from "./loggingEvents";
+import { BaseEvent } from './loggingEvents';
 
 export class EventStream {
     private sink: Subject<BaseEvent>;

@@ -1,15 +1,51 @@
-import { EventType } from './EventType';
-import { PlatformInformation } from './PlatformInformation';
+import { EventType } from './eventType';
+import { Credential } from '../credential/credentialController';
+import { PlatformInformation } from './platformInformation';
 import { Environment } from '../shared';
 
 export interface BaseEvent {
     type: EventType;
 }
 
-// Others
-export class EnvironmentChanged implements BaseEvent {
-    type = EventType.EnvironmentChanged;
-    constructor(public env: Environment) { }
+// Sign in
+export class UserSignInSucceeded implements BaseEvent {
+    type = EventType.UserSignInSucceeded;
+    constructor(public credential: Credential) { }
+}
+
+export class UserSignedOut implements BaseEvent {
+    type = EventType.UserSignedOut;
+}
+
+export class UserSigningIn implements BaseEvent {
+    type = EventType.UserSigningIn;
+}
+
+export class UserSignInFailed implements BaseEvent {
+    type = EventType.UserSignInFailed;
+    constructor(public message: string) { }
+}
+
+export class UserSignInProgress implements BaseEvent {
+    type = EventType.UserSignInProgress;
+    constructor(public message: string, public tag?: string) { }
+}
+
+export class CredentialRetrieveFromLocalCredentialManager implements BaseEvent {
+    type = EventType.CredentialRetrieveFromLocalCredentialManager;
+    constructor(public credential: Credential) { }
+}
+
+export class CredentialReset implements BaseEvent {
+    type = EventType.CredentialReset;
+}
+
+export class CredentialInitializing implements BaseEvent {
+    type = EventType.CredentialInitializing;
+}
+
+export class CredentialExpired implements BaseEvent {
+    type = EventType.CredentialExpired;
 }
 
 // Runtime Dependency
@@ -67,4 +103,10 @@ export class ZipFileInstalling implements BaseEvent {
 export class PlatformInfoRetrieved implements BaseEvent {
     type = EventType.PlatformInfoRetrieved;
     constructor(public platformInfo: PlatformInformation) { }
+}
+
+// Others
+export class EnvironmentChanged implements BaseEvent {
+    type = EventType.EnvironmentChanged;
+    constructor(public env: Environment) { }
 }
