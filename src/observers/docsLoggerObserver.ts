@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, SignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 
 export class DocsLoggerObserver {
@@ -18,8 +18,8 @@ export class DocsLoggerObserver {
             case EventType.UserSignedOut:
                 this.handleUserSignedOut();
                 break;
-            case EventType.SignInProgress:
-                this.handleSignInProgress(<SignInProgress>event);
+            case EventType.UserSignInProgress:
+                this.handleUserSignInProgress(<UserSignInProgress>event);
                 break;
             // Runtime Dependency
             case EventType.DependencyInstallStarted:
@@ -89,7 +89,7 @@ export class DocsLoggerObserver {
         this.appendLine();
     }
 
-    private handleSignInProgress(event: SignInProgress) {
+    private handleUserSignInProgress(event: UserSignInProgress) {
         let tag = event.tag ? `[${event.tag}] ` : '';
         this.appendLine(`${tag}${event.message}`);
     }

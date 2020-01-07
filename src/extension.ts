@@ -50,7 +50,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     context.subscriptions.push(
         outputChannel,
-        credentialController,
         environmentController,
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn()),
         vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut()),

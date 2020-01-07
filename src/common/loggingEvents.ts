@@ -13,11 +13,6 @@ export class UserSignInSucceeded implements BaseEvent {
     constructor(public credential: Credential) { }
 }
 
-export class CredentialRetrieveFromLocalCredentialManager implements BaseEvent {
-    type = EventType.CredentialRetrieveFromLocalCredentialManager;
-    constructor(public credential: Credential) { }
-}
-
 export class UserSignedOut implements BaseEvent {
     type = EventType.UserSignedOut;
 }
@@ -31,6 +26,16 @@ export class UserSignInFailed implements BaseEvent {
     constructor(public message: string) { }
 }
 
+export class UserSignInProgress implements BaseEvent {
+    type = EventType.UserSignInProgress;
+    constructor(public message: string, public tag?: string) { }
+}
+
+export class CredentialRetrieveFromLocalCredentialManager implements BaseEvent {
+    type = EventType.CredentialRetrieveFromLocalCredentialManager;
+    constructor(public credential: Credential) { }
+}
+
 export class CredentialReset implements BaseEvent {
     type = EventType.CredentialReset;
 }
@@ -41,17 +46,6 @@ export class CredentialInitializing implements BaseEvent {
 
 export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
-}
-
-export class SignInProgress implements BaseEvent {
-    type = EventType.SignInProgress;
-    constructor(public message: string, public tag?: string) { }
-}
-
-// Others
-export class EnvironmentChanged implements BaseEvent {
-    type = EventType.EnvironmentChanged;
-    constructor(public env: Environment) { }
 }
 
 // Runtime Dependency
@@ -110,4 +104,10 @@ export class ZipFileInstalling implements BaseEvent {
 export class PlatformInfoRetrieved implements BaseEvent {
     type = EventType.PlatformInfoRetrieved;
     constructor(public platformInfo: PlatformInformation) { }
+}
+
+// Others
+export class EnvironmentChanged implements BaseEvent {
+    type = EventType.EnvironmentChanged;
+    constructor(public env: Environment) { }
 }
