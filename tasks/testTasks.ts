@@ -20,6 +20,7 @@ gulp.task('test:unit', async () => {
         mochaPath,
         '--require',
         'ts-node/register',
+        '--color',
         '--ui',
         'bdd',
         '--',

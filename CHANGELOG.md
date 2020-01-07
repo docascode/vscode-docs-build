@@ -25,7 +25,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## 0.1.3 (October 30, 2019)
 ### Fixed
-- Fix failing to get user info after sign in.
+- Fix failing to get user info after sign-in.
 
 ## 0.1.2 (October 29, 2019)
 ### Fixed

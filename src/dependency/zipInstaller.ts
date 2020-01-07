@@ -2,9 +2,9 @@ import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as yauzl from 'yauzl';
-import { AbsolutePath } from '../common/AbsolutePath';
+import { AbsolutePath } from '../common/absolutePath';
 import { ZipFileInstalling } from '../common/loggingEvents';
-import { EventStream } from '../common/EventStream';
+import { EventStream } from '../common/eventStream';
 
 export async function InstallZip(buffer: Buffer, destinationInstallPath: AbsolutePath, eventStream: EventStream): Promise<void> {
     eventStream.post(new ZipFileInstalling());
