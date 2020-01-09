@@ -8,6 +8,12 @@ export class InfoMessageObserver {
             case EventType.UserSignInSucceeded:
                 this.showInfoMessage('Sign-in Successfully!', new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
                 break;
+            case EventType.RepositoryEnabledV3:
+                this.handleRepositoryEnabledV3();
+                break;
+            case EventType.BuildJobSucceeded:
+                this.handleBuildJobSucceeded();
+                break;
         }
     }
 
@@ -24,5 +30,20 @@ export class InfoMessageObserver {
                 input.callback(input.args);
             }
         }
+    }
+
+    private handleRepositoryEnabledV3() {
+        this.showInfoMessage(
+            `Repository has been migrated to DocFx V3`,
+            new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
+    }
+
+    private handleBuildJobSucceeded() {
+        this.showInfoMessage(
+            `Build finished. Please open the 'Problem' panel to review the result`,
+            new MessageAction(
+                "Open",
+                'workbench.actions.view.problems'
+            ));
     }
 }
