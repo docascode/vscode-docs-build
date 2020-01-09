@@ -121,7 +121,7 @@ export class BuildController {
             [this.repositoryUrl, this.repositoryBranch] = await this.retrieveRepositoryInfo(credential.userInfo.userToken);
         } catch (err) {
             this.eventStream.post(new BuildTriggerFailed(
-                err.messages,
+                err.message,
                 TriggerErrorType.TriggerBuildOnInvalidDocsRepo
             ));
             return false;
