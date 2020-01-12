@@ -15,10 +15,10 @@ import { visualizeBuildReport } from './reportGenerator';
 import { BuildJobSucceeded, BuildTriggerFailed, BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildJobTriggered, BuildJobFailed } from '../common/loggingEvents';
 
 export class BuildController {
-    private activeWorkSpaceFolder: vscode.WorkspaceFolder | undefined;
+    private activeWorkSpaceFolder: vscode.WorkspaceFolder;
     private instantAvailable: boolean;
-    private repositoryUrl: string | undefined;
-    private repositoryBranch: string | undefined;
+    private repositoryUrl: string;
+    private repositoryBranch: string;
     private opBuildAPIClient: OPBuildAPIClient;
     private buildExecutor: BuildExecutor;
 
@@ -130,7 +130,7 @@ export class BuildController {
         return true;
     }
 
-    private async validateWorkSpaceFolder(workspaceFolder: vscode.WorkspaceFolder | undefined): Promise<boolean> {
+    private async validateWorkSpaceFolder(workspaceFolder: vscode.WorkspaceFolder): Promise<boolean> {
         if (!workspaceFolder) {
             this.eventStream.post(new BuildTriggerFailed('You can only trigger the build on a workspace folder.', TriggerErrorType.TriggerBuildOnNonWorkspace));
             return false;
