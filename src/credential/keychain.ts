@@ -8,7 +8,7 @@ export type Keytar = {
     deletePassword: typeof keytarType['deletePassword'];
 };
 
-function getNodeModule<T>(moduleName: string): T | undefined {
+function getNodeModule<T>(moduleName: string): T {
     const vscodeRequire = eval('require');
     try {
         return vscodeRequire(moduleName);
@@ -31,7 +31,7 @@ export class KeyChain {
         this.keytar = overwriteKeytar || getNodeModule<Keytar>('keytar') || failingKeytar;
     }
 
-    public async getAADInfo(): Promise<string | undefined> {
+    public async getAADInfo(): Promise<string> {
         let aadInfo = await this.keytar.getPassword(SERVICE_ID, this.AADAccountId);
         if (aadInfo) {
             return aadInfo;

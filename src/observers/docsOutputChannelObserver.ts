@@ -7,6 +7,7 @@ export class DocsOutputChannelObserver {
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
+            case EventType.BuildInstantAllocated:
             case EventType.UserSigningIn:
             case EventType.DependencyInstallStarted:
                 this.channel.show();

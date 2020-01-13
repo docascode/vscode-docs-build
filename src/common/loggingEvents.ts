@@ -2,6 +2,7 @@ import { EventType } from './eventType';
 import { Credential } from '../credential/credentialController';
 import { PlatformInformation } from './platformInformation';
 import { Environment } from '../shared';
+import { TriggerErrorType } from '../build/triggerErrorType';
 
 export interface BaseEvent {
     type: EventType;
@@ -46,6 +47,108 @@ export class CredentialInitializing implements BaseEvent {
 
 export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
+}
+
+// Build
+export class RepositoryEnabledV3 implements BaseEvent {
+    type = EventType.RepositoryEnabledV3;
+}
+
+export class RepositoryInfoRetrieved implements BaseEvent {
+    type = EventType.RepositoryInfoRetrieved;
+    constructor(public repositoryUrl: string, public sourceRepositoryUrl: string, public repositoryBranch: string) { }
+}
+
+export class BuildInstantAllocated implements BaseEvent {
+    type = EventType.BuildInstantAllocated;
+}
+
+export class BuildInstantReleased implements BaseEvent {
+    type = EventType.BuildInstantReleased;
+}
+
+export class BuildTriggerFailed implements BaseEvent {
+    type = EventType.BuildTriggerFailed;
+    constructor(public message: string, public triggerErrorType?: TriggerErrorType, public extensionData?: any[]) { }
+}
+
+export class BuildJobTriggered implements BaseEvent {
+    type = EventType.BuildJobTriggered;
+    constructor(public workSpaceFolderName: string) { }
+}
+
+export class BuildJobSucceeded implements BaseEvent {
+    type = EventType.BuildJobSucceeded;
+}
+
+export class BuildJobFailed implements BaseEvent {
+    type = EventType.BuildJobFailed;
+}
+
+export class BuildProgress implements BaseEvent {
+    type = EventType.BuildProgress;
+    constructor(public message: string) { }
+}
+
+export class DocfxRestoreStarted implements BaseEvent {
+    type = EventType.DocfxRestoreStarted;
+    constructor(public workSpaceFolderName: string) { }
+}
+
+export class DocfxRestoreFinished implements BaseEvent {
+    type = EventType.DocfxRestoreFinished;
+    public exitCode: number;
+}
+
+export class DocfxRestoreSucceeded extends DocfxRestoreFinished {
+    exitCode = 0;
+}
+
+export class DocfxRestoreFailed extends DocfxRestoreFinished {
+    constructor(public exitCode: number) { super(); }
+}
+
+export class DocfxRestoreCanceled implements BaseEvent {
+    type = EventType.DocfxRestoreCanceled;
+}
+
+export class DocfxBuildStarted implements BaseEvent {
+    type = EventType.DocfxBuildStarted;
+    constructor(public workSpaceFolderName: string) { }
+}
+
+export class DocfxBuildFinished implements BaseEvent {
+    type = EventType.DocfxBuildFinished;
+    public exitCode: number;
+}
+
+export class DocfxBuildSucceeded extends DocfxBuildFinished {
+    exitCode = 0;
+}
+
+export class DocfxBuildFailed extends DocfxBuildFinished {
+    constructor(public exitCode: number) { super(); }
+}
+
+export class DocfxBuildCanceled implements BaseEvent {
+    type = EventType.DocfxBuildCanceled;
+}
+
+export class ReportGenerationFailed implements BaseEvent {
+    type = EventType.ReportGenerationFailed;
+
+    constructor(public message: string) { }
+}
+
+// API
+export class APICallStarted implements BaseEvent {
+    type = EventType.APICallStarted;
+    constructor(public name: string, public url: string) { }
+}
+
+export class APICallFailed implements BaseEvent {
+    type = EventType.APICallFailed;
+    constructor(public name: string, public url: string, public message: string) { }
 }
 
 // Runtime Dependency

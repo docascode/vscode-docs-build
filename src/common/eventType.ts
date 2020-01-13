@@ -10,6 +10,31 @@ export enum EventType {
     UserSignInFailed,
     UserSignedOut,
 
+    // Build
+    RepositoryEnabledV3,
+    RepositoryInfoRetrieved,
+
+    BuildInstantReleased,
+    BuildInstantAllocated,
+    BuildTriggerFailed,
+    BuildJobTriggered,
+    BuildJobSucceeded,
+    BuildJobFailed,
+    BuildProgress,
+
+    DocfxRestoreStarted,
+    DocfxRestoreFinished,
+    DocfxRestoreCanceled,
+    DocfxBuildStarted,
+    DocfxBuildFinished,
+    DocfxBuildCanceled,
+
+    ReportGenerationFailed,
+
+    // API
+    APICallStarted,
+    APICallFailed,
+
     // Runtime dependency
     DependencyInstallStarted,
     DependencyInstallFinished,

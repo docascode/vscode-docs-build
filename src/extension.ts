@@ -5,6 +5,8 @@ import { PlatformInformation } from './common/platformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
 import { SignStatusBarObserver } from './observers/signStatusBarObserver';
 import { DocsLoggerObserver } from './observers/docsLoggerObserver';
+import { DiagnosticController } from './build/diagnosticController';
+import { BuildController } from './build/buildController';
 import { DocsOutputChannelObserver } from './observers/docsOutputChannelObserver';
 import { ErrorMessageObserver } from './observers/errorMessageObserver';
 import { InfoMessageObserver } from './observers/infoMessageObserver';
@@ -48,14 +50,23 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let signStatusBarObserver = new SignStatusBarObserver(signStatusBar, environmentController);
     eventStream.subscribe(signStatusBarObserver.eventHandler);
 
+    // Build component initialize
+    let diagnosticController = new DiagnosticController();
+    let buildController = new BuildController(environmentController, platformInformation, diagnosticController, eventStream);
+
+    // TODO: Add Build status bar
+
     context.subscriptions.push(
         outputChannel,
+        diagnosticController,
         environmentController,
+        // TODO: Support cancel the current build
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn()),
         vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut()),
         vscode.commands.registerCommand('docs.build', async (uri) => {
-            // TODO: handle build command
+            await buildController.build(uri, credentialController.credential);
         }),
+        // TODO: Add CodeActionProvider
         vscode.window.registerUriHandler(uriHandler)
     );
 

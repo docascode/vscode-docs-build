@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, BuildTriggerFailed, RepositoryInfoRetrieved, ReportGenerationFailed, BuildJobTriggered, BuildJobSucceeded, APICallStarted, APICallFailed, DocfxBuildFinished, DocfxRestoreFinished, BuildProgress, DocfxRestoreCanceled, DocfxBuildCanceled } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 
 export class DocsLoggerObserver {
@@ -20,6 +20,47 @@ export class DocsLoggerObserver {
                 break;
             case EventType.UserSignInProgress:
                 this.handleUserSignInProgress(<UserSignInProgress>event);
+                break;
+            // Build
+            case EventType.RepositoryInfoRetrieved:
+                this.handleRepositoryInfoRetrieved(<RepositoryInfoRetrieved>event);
+                break;
+            case EventType.BuildInstantAllocated:
+                this.handleBuildInstantAlloc();
+                break;
+            case EventType.BuildTriggerFailed:
+                this.handleBuildTriggerError(<BuildTriggerFailed>event);
+                break;
+            case EventType.BuildJobTriggered:
+                this.handleBuildJobTriggered(<BuildJobTriggered>event);
+                break;
+            case EventType.DocfxRestoreFinished:
+                this.handleDocfxRestoreFinished(<DocfxRestoreFinished>event);
+                break;
+            case EventType.DocfxRestoreCanceled:
+                this.handleDocfxRestoreCanceled(<DocfxRestoreCanceled>event);
+                break;
+            case EventType.DocfxBuildFinished:
+                this.handleDocfxBuildFinished(<DocfxBuildFinished>event);
+                break;
+            case EventType.DocfxBuildCanceled:
+                this.handleDocfxBuildCanceled(<DocfxBuildCanceled>event);
+                break;
+            case EventType.ReportGenerationFailed:
+                this.handlerReportGenerationFailed(<ReportGenerationFailed>event);
+                break;
+            case EventType.BuildJobSucceeded:
+                this.handleBuildJobSucceeded(<BuildJobSucceeded>event);
+                break;
+            case EventType.BuildProgress:
+                this.handleBuildProgress(<BuildProgress>event);
+                break;
+            // API
+            case EventType.APICallStarted:
+                this.handleAPICallStarted(<APICallStarted>event);
+                break;
+            case EventType.APICallFailed:
+                this.handleAPICallFailed(<APICallFailed>event);
                 break;
             // Runtime Dependency
             case EventType.DependencyInstallStarted:
@@ -92,6 +133,82 @@ export class DocsLoggerObserver {
     private handleUserSignInProgress(event: UserSignInProgress) {
         let tag = event.tag ? `[${event.tag}] ` : '';
         this.appendLine(`${tag}${event.message}`);
+    }
+
+    // Build
+    private handleRepositoryInfoRetrieved(event: RepositoryInfoRetrieved) {
+        let repositoryUrl: string;
+        if (event.sourceRepositoryUrl !== event.repositoryUrl) {
+            repositoryUrl = `${event.repositoryUrl}(original: ${event.sourceRepositoryUrl})`;
+        } else {
+            repositoryUrl = event.repositoryUrl;
+        }
+        this.appendLine(`Repository Information of current workspace folder:`);
+        this.appendLine(`  Repository URL: ${repositoryUrl}`);
+        this.appendLine(`  Repository Branch: ${event.repositoryBranch}`);
+        this.appendLine();
+    }
+
+    private handleBuildInstantAlloc() {
+        this.appendLine();
+        this.appendLine('---------------------------');
+        this.appendLine(`Preparing build context...`);
+    }
+
+    private handleBuildTriggerError(event: BuildTriggerFailed) {
+        this.appendLine(`Cannot trigger build: ${event.message}`);
+    }
+
+    private handleBuildJobTriggered(event: BuildJobTriggered) {
+        this.appendLine(`Start to build workspace folder '${event.workSpaceFolderName}'`);
+    }
+
+    private handlerReportGenerationFailed(event: ReportGenerationFailed) {
+        this.appendLine(`Error happened when visualizing the build report: '${event.message}'`);
+        this.appendLine();
+    }
+
+    private handleDocfxRestoreFinished(event: DocfxRestoreFinished) {
+        if (event.exitCode !== 0) {
+            this.appendLine(`Error: Running 'docfx restore' failed with exit code: ${event.exitCode}`);
+        } else {
+            this.appendLine(`Restore Finished, start to run 'docfx build'...`);
+        }
+        this.appendLine();
+    }
+
+    private handleDocfxRestoreCanceled(event: DocfxRestoreCanceled) {
+        this.appendLine(`'docfx restore' command has been canceled, skip running 'docfx build'`);
+    }
+
+    private handleDocfxBuildCanceled(event: DocfxBuildCanceled) {
+        this.appendLine(`'docfx build' command has been canceled`);
+    }
+
+    private handleDocfxBuildFinished(event: DocfxBuildFinished) {
+        if (event.exitCode !== 0) {
+            this.appendLine(`Error: Running 'docfx build' failed with exit code: ${event.exitCode}`);
+        } else {
+            this.appendLine(`Build Finished, Generating report...`);
+        }
+        this.appendLine();
+    }
+
+    private handleBuildJobSucceeded(event: BuildJobSucceeded) {
+        this.appendLine('Report generated, please view them in `PROBLEMS` tab');
+    }
+
+    private handleBuildProgress(event: BuildProgress) {
+        this.appendLine(`${event.message}`);
+    }
+
+    // API
+    private handleAPICallStarted(event: APICallStarted) {
+        this.appendLine(`[OPBuildAPIClient.${event.name}] Calling API '${decodeURIComponent(event.url)}'...`);
+    }
+
+    private handleAPICallFailed(event: APICallFailed) {
+        this.appendLine(`[OPBuildAPIClient.${event.name}] Call API '${decodeURIComponent(event.url)}' failed: ${event.message}`);
     }
 
     // Runtime Dependency
