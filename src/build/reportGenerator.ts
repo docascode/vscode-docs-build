@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { EventStream } from "../common/eventStream";
 import { safelyReadJsonFile } from '../utils/utils';
-import { OUTPUT_FOLDER_NAME } from '../shared';
+import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME } from '../shared';
 import { DiagnosticController } from './diagnosticController';
 import { BuildProgress, ReportGenerationFailed } from '../common/loggingEvents';
 
@@ -39,7 +39,7 @@ type LogItemType = 'system' | ' user';
 
 export function visualizeBuildReport(repositoryPath: string, diagnosticController: DiagnosticController, eventStream: EventStream): boolean {
     try {
-        let opConfigPath = path.join(repositoryPath, '.openpublishing.publish.config.json');
+        let opConfigPath = path.join(repositoryPath, OP_CONFIG_FILE_NAME);
         let opConfig = safelyReadJsonFile(opConfigPath);
         let docsets = <Docset[]>opConfig.docsets_to_publish;
         for (let docset of docsets) {

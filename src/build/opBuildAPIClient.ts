@@ -7,6 +7,8 @@ import { APICallFailed, APICallStarted, CredentialExpired } from '../common/logg
 
 const OP_BUILD_USER_TOKEN_HEADER_NAME = 'X-OP-BuildUserToken';
 
+type RequestMethod = 'POST' | 'GET';
+
 export class OPBuildAPIClient {
     constructor(private environmentController: EnvironmentController) { }
 
@@ -31,7 +33,7 @@ export class OPBuildAPIClient {
     private async sendRequest(
         name: string,
         url: string,
-        method: string,
+        method: RequestMethod,
         token: string,
         eventStream: EventStream,
         reqObj: any = {},

@@ -10,7 +10,7 @@ import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder } from '../utils/u
 import { EnvironmentController } from '../common/environmentController';
 import { BuildExecutor } from './buildExecutor';
 import { PlatformInformation } from '../common/platformInformation';
-import { OUTPUT_FOLDER_NAME } from '../shared';
+import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
 import { BuildJobSucceeded, BuildTriggerFailed, BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildJobTriggered, BuildJobFailed } from '../common/loggingEvents';
 
@@ -41,7 +41,6 @@ export class BuildController {
 
         try {
             if (!(await this.initializeWorkspaceFolderInfo(uri, credential))) {
-                this.resetAvailableFlag();
                 return;
             }
 
@@ -53,6 +52,7 @@ export class BuildController {
                 path.join(this.repositoryPath, OUTPUT_FOLDER_NAME),
                 credential.userInfo.userToken
             );
+            // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             if (buildSucceeded
                 && visualizeBuildReport(this.repositoryPath, this.diagnosticController, this.eventStream)) {
                 this.eventStream.post(new BuildJobSucceeded());
@@ -136,10 +136,10 @@ export class BuildController {
             return false;
         }
 
-        let opConfigPath = path.join(workspaceFolder.uri.fsPath, '.openpublishing.publish.config.json');
+        let opConfigPath = path.join(workspaceFolder.uri.fsPath, OP_CONFIG_FILE_NAME);
         if (!fs.existsSync(opConfigPath)) {
             this.eventStream.post(new BuildTriggerFailed(
-                'Cannot find `.openpublishing.publish.config.json` file under current workspace folder.',
+                `Cannot find '${OP_CONFIG_FILE_NAME}' file under current workspace folder.`,
                 TriggerErrorType.TriggerBuildOnNonDocsRepo
             ));
             return false;
