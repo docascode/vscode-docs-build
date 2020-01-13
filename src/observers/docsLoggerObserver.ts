@@ -139,7 +139,7 @@ export class DocsLoggerObserver {
     private handleRepositoryInfoRetrieved(event: RepositoryInfoRetrieved) {
         let repositoryUrl: string;
         if (event.sourceRepositoryUrl !== event.repositoryUrl) {
-            repositoryUrl = `${event.sourceRepositoryUrl}(original)`;
+            repositoryUrl = `${event.repositoryUrl}(original: ${event.sourceRepositoryUrl})`;
         } else {
             repositoryUrl = event.repositoryUrl;
         }
