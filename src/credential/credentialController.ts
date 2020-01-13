@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import * as template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, extensionConfig } from '../shared';
-import { parseQuery, delay, openUrl } from '../utils/utils';
+import { parseQuery, delay } from '../utils/utils';
 import { UserSigningIn, UserSignInSucceeded, UserSignedOut, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
@@ -41,6 +41,7 @@ export class CredentialController {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.EnvironmentChanged:
+            case EventType.RefreshCredential:
                 this.initialize();
                 break;
             case EventType.CredentialExpired:
@@ -139,10 +140,8 @@ export class CredentialController {
             resource: authConfig.AADAuthResource
         });
 
-        const uri = vscode.Uri.parse(signUrl);
-
         try {
-            let opened = await vscode.env.openExternal(uri);
+            let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
             if (opened) {
                 let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
                     try {
@@ -181,7 +180,7 @@ export class CredentialController {
         });
 
         try {
-            let opened = await openUrl(signUrl);
+            let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
             if (opened) {
                 let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
                     try {

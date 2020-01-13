@@ -3,10 +3,11 @@ import { PACKAGE_JSON, EXTENSION_PATH, extensionConfig } from '../shared';
 import { PlatformInformation } from '../common/PlatformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/Package';
-import { DocfxRestoreCanceled, DocfxRestoreFailed, DocfxRestoreSucceeded, DocfxBuildCanceled, DocfxBuildSucceeded, DocfxBuildFailed } from '../common/loggingEvents';
+import { DocfxRestoreCanceled, DocfxRestoreFailed, DocfxRestoreSucceeded, DocfxBuildCanceled, DocfxBuildSucceeded, DocfxBuildFailed, DocfxBuildStarted, DocfxRestoreStarted } from '../common/loggingEvents';
 import { EnvironmentController } from '../common/EnvironmentController';
 import { EventStream } from '../common/EventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
+import { basicAuth } from '../utils/utils';
 
 export class BuildExecutor {
     private cwd: string;
@@ -57,15 +58,24 @@ export class BuildExecutor {
         buildUserToken: string,
         envs: any): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            let stdinInput = JSON.stringify({
-                "http": {
-                    [`${extensionConfig.OPBuildAPIEndPoint[this.environmentController.env]}`]: {
-                        "headers": {
-                            "X-OP-BuildUserToken": buildUserToken
-                        }
+            let secrets = <any>{
+                [`${extensionConfig.OPBuildAPIEndPoint[this.environmentController.env]}`]: {
+                    "headers": {
+                        "X-OP-BuildUserToken": buildUserToken
                     }
                 }
+            };
+            if (process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) {
+                secrets["https://github.com"] = {
+                    "headers": {
+                        "authorization": `basic ${basicAuth(process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)}`
+                    }
+                };
+            }
+            let stdinInput = JSON.stringify({
+                "http": secrets
             });
+            this.eventStream.post(new DocfxRestoreStarted());
             let command = `${this.binary} restore "${repositoryPath}" --legacy --output ${outputPath} --stdin`;
             this.runningChildProcess = executeDocfx(
                 command,
@@ -94,6 +104,7 @@ export class BuildExecutor {
         outputPath: string,
         envs: any): Promise<boolean> {
         return new Promise((resolve, reject) => {
+            this.eventStream.post(new DocfxBuildStarted());
             let command = `${this.binary} build "${repositoryPath}" --legacy --output ${outputPath}`;
             this.runningChildProcess = executeDocfx(
                 command,

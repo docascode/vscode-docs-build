@@ -1,0 +1,38 @@
+trigger: none
+
+strategy:
+  matrix:
+    mac:
+      imageName: 'macOS-10.14'
+    windows:
+      imageName: 'windows-2019'
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+
+- task: NodeTool@0
+  displayName: 'Use Node 10.x'
+  inputs:
+    versionSpec: 10.x
+
+- task: Npm@1
+  displayName: 'npm install'
+  inputs:
+    verbose: false
+
+- task: Npm@1
+  displayName: 'Compile'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: run compile
+
+- bash: |
+    npm i gulp -g
+    gulp test:benchmark
+  displayName: 'Run benchmark test'
+  env:
+    VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN)
+    VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN: $(VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)

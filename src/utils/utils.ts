@@ -3,10 +3,6 @@ import * as fs from 'fs-extra';
 import * as gitUrlParse from 'git-url-parse';
 import * as simpleGit from 'simple-git/promise';
 
-export function openUrl(url: string): Thenable<boolean> {
-    return vscode.env.openExternal(vscode.Uri.parse(url));
-}
-
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {
         const queryString = current.split('=');
@@ -53,4 +49,22 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
 function normalizeRemoteUrl(url: string): string {
     const repository = gitUrlParse(url);
     return `https://${repository.resource}/${repository.full_name}`;
+}
+
+export function basicAuth(str: string) {
+    let buff = Buffer.from(str);
+    return buff.toString('base64');
+}
+
+export function formatDuration(ms: number) {
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${pad(hours, 2)}:${pad(minutes)}:${pad(seconds)}`;
+}
+
+function pad(num: number, size?: number) {
+    let s = String(num);
+    while (s.length < (size || 2)) { s = `0${s}`; }
+    return s;
 }

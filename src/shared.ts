@@ -41,3 +41,17 @@ export interface UserInfo {
 export const uriHandler = new UriEventHandler();
 
 export const extensionConfig = require('../../configs/vscode-docs-build.json');
+
+// Test only
+export interface BenchmarkReport {
+    name: string;
+    url: string;
+    commit: string;
+    items: ReportItem[];
+}
+
+export interface ReportItem {
+    restoreDuration: number;
+    buildDuration: number;
+    isInitialRun: boolean;
+}
