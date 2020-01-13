@@ -18,9 +18,6 @@ export class OPBuildAPIClient {
 
         return this.sendRequest('GetOriginalRepositoryUrl', requestUrl, 'GET', opBuildUserToken, eventStream)
             .then((response: any) => {
-                if (this.isResultEmpty(response)) {
-                    throw new Error(`Cannot the get original repository URL for current repository(The repository is not provisioned in Docs).`);
-                }
                 return response.toString();
             }, (code: any) => {
                 throw new Error(`Cannot the get original repository URL for current repository(${code})`);
@@ -71,17 +68,5 @@ export class OPBuildAPIClient {
             });
         });
         return promise;
-    }
-
-    private isResultEmpty(result: any): boolean {
-        if (Array.isArray(result)) {
-            return result.length <= 0;
-        }
-
-        if (result.constructor === Object) {
-            return Object.keys(result).length === 0;
-        }
-
-        return !result;
     }
 }

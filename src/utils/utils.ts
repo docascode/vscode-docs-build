@@ -37,11 +37,13 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
 
     let remote = (await repository.listRemote(['--get-url', 'origin'])).trim();
     if (remote === 'origin') {
+        // If origin not existed, `origin` string will be return
         throw new Error('Cannot get remote `origin` of current repository');
     }
 
     let branch = await repository.revparse(['--abbrev-ref', 'HEAD']);
     if (branch === 'HEAD') {
+        // If origin not existed, `HEAD` string will be return
         throw new Error('Please checkout to a branch');
     }
 
