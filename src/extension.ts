@@ -14,6 +14,7 @@ import ExtensionExports from './common/extensionExport';
 import { EventStream } from './common/eventStream';
 import { KeyChain } from './credential/keyChain';
 import { DocsEnvironmentController } from './common/docsEnvironmentController';
+import { CodeActionProvider } from './codeAction/codeActionProvider';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -66,7 +67,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.build', async (uri) => {
             await buildController.build(uri, credentialController.credential);
         }),
-        // TODO: Add CodeActionProvider
+        vscode.commands.registerCommand('docs.openPage', (uri: vscode.Uri) => {
+            vscode.env.openExternal(uri);
+        }),
+        vscode.languages.registerCodeActionsProvider('*', new CodeActionProvider(), {
+            providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
+        }),
         vscode.window.registerUriHandler(uriHandler)
     );
 
