@@ -33,8 +33,8 @@ export interface Credential {
 
 export class CredentialController {
     private signInStatus: DocsSignInStatus;
-    private aadInfo: string | undefined;
-    private userInfo: UserInfo | undefined;
+    private aadInfo: string;
+    private userInfo: UserInfo;
 
     constructor(private keyChain: KeyChain, private eventStream: EventStream, private environmentController: EnvironmentController) { }
 
@@ -125,7 +125,7 @@ export class CredentialController {
         }
     }
 
-    private async signInWithAAD(): Promise<string | undefined> {
+    private async signInWithAAD(): Promise<string> {
         const authConfig = extensionConfig.auth[this.environmentController.env.toString()];
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/aad-authenticate`));
         const signUrlTemplate = template.parse(`${AzureEnvironment.Azure.activeDirectoryEndpointUrl}/{tenantId}/oauth2/authorize` +

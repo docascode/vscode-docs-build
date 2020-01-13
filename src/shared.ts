@@ -20,6 +20,11 @@ export class MessageAction implements vscode.MessageItem {
     constructor(public title: string, public command?: string, public description?: string, public callback?: Function, public args?: any[]) { }
 }
 
+// Build
+export const OUTPUT_FOLDER_NAME = '_site';
+
+export const OP_CONFIG_FILE_NAME = '.openpublishing.publish.config.json';
+
 // OAuth
 export type DocsSignInStatus = 'Initializing' | 'SigningIn' | 'SignedIn' | 'SignedOut';
 
