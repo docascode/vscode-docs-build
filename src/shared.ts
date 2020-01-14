@@ -12,6 +12,8 @@ export const PACKAGE_JSON = extension.packageJSON;
 
 export const EXTENSION_PATH = extension.extensionPath;
 
+export const EXTENSION_DIAGNOSTIC_SOURCE = 'Docs Validation';
+
 // Environment
 
 export type Environment = 'PROD' | 'PPE';
