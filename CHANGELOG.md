@@ -2,6 +2,10 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 0.1.8 (January 14, 2020)
+### Fixed
+- Fix failing to build repository contains landingData. (#17)
+
 ## 0.1.7 (November 26, 2019)
 ### Changed
 - Add diagnostic source `Docs validation`.

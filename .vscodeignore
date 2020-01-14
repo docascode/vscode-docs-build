@@ -9,6 +9,7 @@ tasks/**
 .npm/**
 .nyc_output/
 coverage/
+.benchmark
 **/tsconfig.json
 **/tslint.json
 **/*.map
@@ -16,3 +17,5 @@ coverage/
 **/*.gif
 testAssets/**
 package-lock.json
+docs/
+azure-pipeline.yml

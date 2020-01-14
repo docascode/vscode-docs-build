@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "Docs Validation",
   "description": "Local build Docs repository",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "engines": {
     "vscode": "^1.40.0"
   },
