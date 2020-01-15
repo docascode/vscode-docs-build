@@ -47,6 +47,6 @@ function execGit(command: string, token?: string, options?: ExecSyncOptions): vo
         githubBasicAuth = `-c http.https://github.com.extraheader="AUTHORIZATION: basic ${basicAuth(token)}"`;
     }
     console.log();
-    console.log(`& git ${command} with option: ${JSON.stringify(optionsWithDefaultValue)}`);
+    console.log(`& git ${command}`);
     execSync(`git ${githubBasicAuth} ${command}`, optionsWithDefaultValue);
 }

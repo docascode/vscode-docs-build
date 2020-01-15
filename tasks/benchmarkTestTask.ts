@@ -16,6 +16,7 @@ interface TestRepo {
 
 const benchmarkTestRepos = <TestRepo[]>[
     { url: "https://github.com/MicrosoftDocs/azure-docs-pr", branch: "master" },
+    { url: "https://github.com/MicrosoftDocs/sql-docs-pr", branch: "master" },
     { url: "https://github.com/dotnet/docs", branch: "master" },
     { url: "https://github.com/MicrosoftDocs/edge-developer", branch: "master" }
 ];
@@ -66,9 +67,9 @@ gulp.task('test:benchmark:generateReport', async () => {
         let count = 0;
         report.items.forEach(item => {
             if (item.isInitialRun) {
-                console.log()
+                console.log(`  Initial run takes: ${formatDuration(item.totalDuration)}`)
             } else {
-                duration += item.restoreDuration + item.buildDuration;
+                duration += item.totalDuration;
                 count++;
             }
         });

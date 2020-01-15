@@ -46,11 +46,13 @@ export const extensionConfig = require('../../configs/vscode-docs-build.json');
 export interface BenchmarkReport {
     name: string;
     url: string;
+    branch: string;
     commit: string;
     items: ReportItem[];
 }
 
 export interface ReportItem {
+    totalDuration: number;
     restoreDuration: number;
     buildDuration: number;
     isInitialRun: boolean;

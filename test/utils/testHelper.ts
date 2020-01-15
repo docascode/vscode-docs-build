@@ -38,10 +38,6 @@ export function setupUnavailableMockKeyChain(sinon: SinonSandbox, keyChain: KeyC
     sinon.stub(keyChain, 'getUserInfo').resolves(undefined);
 }
 
-export function triggerBuild() {
-    triggerCommand('docs.build');
-}
-
-function triggerCommand(command: string) {
+export function triggerCommand(command: string) {
     vscode.commands.executeCommand(command);
 }

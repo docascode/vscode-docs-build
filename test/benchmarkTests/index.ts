@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { ensureExtensionActivatedAndInitializationFinished, setupAvailableMockKeyChain, triggerBuild } from "../utils/testHelper";
+import { ensureExtensionActivatedAndInitializationFinished, setupAvailableMockKeyChain, triggerCommand } from "../utils/testHelper";
 import { BaseEvent, DocfxBuildFinished, DocfxRestoreFinished, RefreshCredential } from "../../src/common/loggingEvents";
 import { createSandbox } from 'sinon';
 import { EventType } from "../../src/common/eventType";
@@ -17,13 +17,19 @@ export function run(): Promise<void> {
         let buildCount = 0;
         let sinon = createSandbox();
         let start: number;
-        let restoreDuration: number = 0;
-        let buildDuration: number = 0;
+        let restoreStart: number;
+        let buildStart: number;
+        let restoreDuration = 0;
+        let buildDuration = 0;
+        let totalDuration = 0;
         let workspace = vscode.workspace.workspaceFolders[0];
-        let [url, commit] = await getRepositoryInfoFromLocalFolder(workspace.uri.fsPath);
+        // TODO: get commit time as well
+        // TODO: upload report to CI artifacts
+        let [url, branch, commit] = await getRepositoryInfoFromLocalFolder(workspace.uri.fsPath);
         let report = <BenchmarkReport>{
             name: workspace.name,
             url,
+            branch,
             commit,
             items: []
         };
@@ -40,16 +46,20 @@ export function run(): Promise<void> {
                     handleBuildInstantReleased();
                     break;
                 case EventType.DocfxRestoreStarted:
-                    start = Date.now();
+                    restoreStart = Date.now();
                     break;
                 case EventType.DocfxRestoreFinished:
                     handleDocfxRestoreFinished(<DocfxRestoreFinished>event);
                     break;
                 case EventType.DocfxBuildStarted:
-                    start = Date.now();
+                    buildStart = Date.now();
                     break;
                 case EventType.DocfxBuildFinished:
                     handleDocfxBuildFinished(<DocfxBuildFinished>event);
+                    break;
+                case EventType.BuildJobSucceeded:
+                    totalDuration = Date.now() - start;
+                    console.log(`  Build job finished in ${formatDuration(buildDuration)}`);
                     break;
                 case EventType.BuildTriggerFailed:
                 case EventType.BuildJobFailed:
@@ -63,8 +73,18 @@ export function run(): Promise<void> {
         // Refresh the credential
         eventStream.post(new RefreshCredential());
 
+        function triggerBuild() {
+            restoreDuration = 0;
+            buildDuration = 0;
+            totalDuration = 0;
+
+            start = Date.now();
+            triggerCommand('docs.build');
+        }
+
         function handleBuildInstantReleased() {
             report.items.push(<ReportItem>{
+                totalDuration,
                 restoreDuration,
                 buildDuration,
                 isInitialRun: buildCount === 0
@@ -73,8 +93,6 @@ export function run(): Promise<void> {
                 buildCount++;
                 console.log(`Running the ${converter.toOrdinal(buildCount)} round build...`);
 
-                restoreDuration = 0;
-                buildDuration = 0;
                 triggerBuild();
             } else {
                 saveReport();
@@ -84,8 +102,8 @@ export function run(): Promise<void> {
 
         function handleDocfxRestoreFinished(event: DocfxRestoreFinished) {
             if ((<DocfxRestoreFinished>event).exitCode === 0) {
-                restoreDuration = Date.now() - start;
-                console.log(`  Restore finished in ${formatDuration(restoreDuration)}`);
+                restoreDuration = Date.now() - restoreStart;
+                console.log(`  'Docfx restore' finished in ${formatDuration(restoreDuration)}`);
             } else {
                 exitTest(1);
             }
@@ -93,8 +111,8 @@ export function run(): Promise<void> {
 
         function handleDocfxBuildFinished(event: DocfxBuildFinished) {
             if ((<DocfxBuildFinished>event).exitCode === 0) {
-                buildDuration = Date.now() - start;
-                console.log(`  Build finished in ${formatDuration(buildDuration)}`);
+                buildDuration = Date.now() - buildStart;
+                console.log(`  'Docfx build' finished in ${formatDuration(buildDuration)}`);
             } else {
                 exitTest(1);
             }

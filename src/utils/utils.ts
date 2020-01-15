@@ -43,7 +43,9 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
         throw new Error('Please checkout to a branch');
     }
 
-    return [normalizeRemoteUrl(remote), branch];
+    let commit = await repository.revparse(['HEAD']);
+
+    return [normalizeRemoteUrl(remote), branch, commit];
 }
 
 function normalizeRemoteUrl(url: string): string {
