@@ -7,7 +7,6 @@ import { DocfxRestoreCanceled, DocfxRestoreFailed, DocfxRestoreSucceeded, DocfxB
 import { EnvironmentController } from '../common/EnvironmentController';
 import { EventStream } from '../common/EventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
-import { basicAuth } from '../utils/utils';
 
 export class BuildExecutor {
     private cwd: string;
@@ -62,22 +61,14 @@ export class BuildExecutor {
         buildUserToken: string,
         envs: any): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            let secrets = <any>{
-                [`${extensionConfig.OPBuildAPIEndPoint[this.environmentController.env]}`]: {
-                    "headers": {
-                        "X-OP-BuildUserToken": buildUserToken
+            let stdinInput = JSON.stringify({
+                "http": {
+                    [`${extensionConfig.OPBuildAPIEndPoint[this.environmentController.env]}`]: {
+                        "headers": {
+                            "X-OP-BuildUserToken": buildUserToken
+                        }
                     }
                 }
-            };
-            if (process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) {
-                secrets["https://github.com"] = {
-                    "headers": {
-                        "authorization": `basic ${basicAuth(process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)}`
-                    }
-                };
-            }
-            let stdinInput = JSON.stringify({
-                "http": secrets
             });
             this.eventStream.post(new DocfxRestoreStarted());
             let command = `${this.binary} restore "${repositoryPath}" --legacy --output ${outputPath} --stdin`;
