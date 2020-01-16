@@ -25,10 +25,10 @@ VS Code extension to provide the Local build experience for docs repository.
 
 ### Windows
 
-> Device Spec(Surface Book2):
->     CPU: 1.9GHz 4 Cores Intel Core i7-8650U
->     Memory: 16GB 2400 MHz DDR4
->     Storage: SSD
+> Device Spec(Surface Book2):  
+> - CPU: 1.9GHz 4 Cores Intel Core i7-8650U  
+> - Memory: 16GB 1867 MHz DDR4  
+> - Storage: SSD  
 
 | azure-docs-pr | docs | edge-developer | sql-docs-pr |
 |  --- | --- | --- | --- |
@@ -36,10 +36,10 @@ VS Code extension to provide the Local build experience for docs repository.
 
 ### Mac
 
-> Device Spec(MacBook Pro):
->     CPU: 2.2GHz 6 Cores Intel Core i7
->     Memory: 32GB 2400 MHz DDR4
->     Disk: SSD
+> Device Spec(MacBook Pro):  
+> - CPU: 2.2GHz 6 Cores Intel Core i7  
+> - Memory: 32GB 2400 MHz DDR4  
+> - Disk: SSD  
 
 | azure-docs-pr | docs | edge-developer | sql-docs-pr |
 |  --- | --- | --- | --- |
