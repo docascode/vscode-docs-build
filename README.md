@@ -32,7 +32,7 @@ VS Code extension to provide the Local build experience for docs repository.
 
 | azure-docs-pr | docs | edge-developer | sql-docs-pr |
 |  --- | --- | --- | --- |
-| 00:01:22 | 00:00:45 | 00:00:03 | 00:01:07 |
+| 00:01:22 | 00:00:48 | 00:00:03 | 00:01:07 |
 
 ### Mac
 
