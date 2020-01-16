@@ -23,8 +23,6 @@ export function run(): Promise<void> {
         let buildDuration = 0;
         let totalDuration = 0;
         let workspace = vscode.workspace.workspaceFolders[0];
-        // TODO: get commit time as well
-        // TODO: upload report to CI artifacts
         let [url, branch, commit] = await getRepositoryInfoFromLocalFolder(workspace.uri.fsPath);
         let report = <BenchmarkReport>{
             name: workspace.name,

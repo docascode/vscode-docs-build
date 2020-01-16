@@ -31,8 +31,15 @@ steps:
 
 - bash: |
     npm i gulp -g
-    gulp test:benchmark
+    npm run benchmark
   displayName: 'Run benchmark test'
   env:
     VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN)
     VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN: $(VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: Benchmark reports'
+  inputs:
+    pathToPublish: '.benchmark\reports'
+    ArtifactName: BenchmarkReport
+  condition: succeeded()

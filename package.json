@@ -86,6 +86,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
     "test": "gulp test",
+    "prebenchmark": "npm run compile",
+    "benchmark": "gulp test:benchmark",
     "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose"
   },
   "devDependencies": {
