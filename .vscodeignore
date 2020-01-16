@@ -17,3 +17,5 @@ coverage/
 **/*.gif
 testAssets/**
 package-lock.json
+docs/
+azure-pipeline.yml

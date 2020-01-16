@@ -14,6 +14,8 @@ import ExtensionExports from './common/extensionExport';
 import { EventStream } from './common/eventStream';
 import { KeyChain } from './credential/keyChain';
 import { DocsEnvironmentController } from './common/docsEnvironmentController';
+import { BuildStatusBarObserver } from './observers/buildStatusBarObserver';
+import { CodeActionProvider } from './codeAction/codeActionProvider';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -54,11 +56,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let diagnosticController = new DiagnosticController();
     let buildController = new BuildController(environmentController, platformInformation, diagnosticController, eventStream);
 
-    // TODO: Add Build status bar
+    // Build status bar
+    let buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
+    let buildStatusBarObserver = new BuildStatusBarObserver(buildStatusBar);
+    eventStream.subscribe(buildStatusBarObserver.eventHandler);
 
     context.subscriptions.push(
         outputChannel,
         diagnosticController,
+        signStatusBar,
+        buildStatusBar,
         environmentController,
         // TODO: Support cancel the current build
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn()),
@@ -66,7 +73,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.build', async (uri) => {
             await buildController.build(uri, credentialController.credential);
         }),
-        // TODO: Add CodeActionProvider
+        vscode.commands.registerCommand('docs.openPage', (uri: vscode.Uri) => {
+            vscode.env.openExternal(uri);
+        }),
+        vscode.languages.registerCodeActionsProvider('*', new CodeActionProvider(), {
+            providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
+        }),
         vscode.window.registerUriHandler(uriHandler)
     );
 

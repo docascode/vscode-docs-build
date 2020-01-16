@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { EventStream } from "../common/eventStream";
 import { safelyReadJsonFile } from '../utils/utils';
-import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME } from '../shared';
+import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME, EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
 import { DiagnosticController } from './diagnosticController';
 import { BuildProgress, ReportGenerationFailed } from '../common/loggingEvents';
 
@@ -75,7 +75,7 @@ function visualizeBuildReportForDocset(repositoryPath: string, docset: Docset, d
             convertToZeroBased(reportItem.end_column));
         let diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
         diagnostic.code = reportItem.code;
-        diagnostic.source = 'Docs Validation';
+        diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
 
         let sourceFile = path.join(docset.build_source_folder, reportItem.file);
         if (!diagnosticsSet.has(sourceFile)) {

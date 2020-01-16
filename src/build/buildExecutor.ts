@@ -13,6 +13,7 @@ export class BuildExecutor {
     private cwd: string;
     private binary: string;
     private runningChildProcess: ChildProcess;
+    private static skipRestore: boolean;
 
     constructor(platformInfo: PlatformInformation, private environmentController: EnvironmentController, private eventStream: EventStream) {
         let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
@@ -38,9 +39,11 @@ export class BuildExecutor {
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
 
-        // TODO: Restore on VS Code restore instead of every build
-        if (!(await this.restore(repositoryPath, outputPath, buildUserToken, envs))) {
-            return false;
+        if (!BuildExecutor.skipRestore) {
+            if (!(await this.restore(repositoryPath, outputPath, buildUserToken, envs))) {
+                return false;
+            }
+            BuildExecutor.skipRestore = true;
         }
 
         return await this.build(repositoryPath, outputPath, envs);
@@ -105,7 +108,7 @@ export class BuildExecutor {
         envs: any): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this.eventStream.post(new DocfxBuildStarted());
-            let command = `${this.binary} build "${repositoryPath}" --legacy --output ${outputPath}`;
+            let command = `${this.binary} build "${repositoryPath}" --legacy --dry-run --output ${outputPath}`;
             this.runningChildProcess = executeDocfx(
                 command,
                 this.eventStream,
