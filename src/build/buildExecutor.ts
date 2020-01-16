@@ -12,7 +12,7 @@ export class BuildExecutor {
     private cwd: string;
     private binary: string;
     private runningChildProcess: ChildProcess;
-    private skipRestore: boolean;
+    private static skipRestore: boolean;
 
     constructor(platformInfo: PlatformInformation, private environmentController: EnvironmentController, private eventStream: EventStream) {
         let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
@@ -20,7 +20,6 @@ export class BuildExecutor {
         let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, EXTENSION_PATH);
         this.cwd = absolutePackage.installPath.value;
         this.binary = absolutePackage.binary;
-        this.skipRestore = false;
     }
 
     public async RunBuild(
@@ -39,11 +38,11 @@ export class BuildExecutor {
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
 
-        if (!this.skipRestore) {
+        if (!BuildExecutor.skipRestore) {
             if (!(await this.restore(repositoryPath, outputPath, buildUserToken, envs))) {
                 return false;
             }
-            this.skipRestore = true;
+            BuildExecutor.skipRestore = true;
         }
 
         return await this.build(repositoryPath, outputPath, envs);
