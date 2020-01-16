@@ -29,6 +29,7 @@ VS Code extension to provide the Local build experience for docs repository.
 > - CPU: 1.9GHz 4 Cores Intel Core i7-8650U  
 > - Memory: 16GB 1867 MHz DDR4  
 > - Storage: SSD  
+> - Battery settings: Power mode(plugged in): Best performance
 
 | azure-docs-pr | docs | edge-developer | sql-docs-pr |
 |  --- | --- | --- | --- |
