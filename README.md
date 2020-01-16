@@ -32,14 +32,14 @@ VS Code extension to provide the Local build experience for docs repository.
 
 | azure-docs-pr | docs | edge-developer | sql-docs-pr |
 |  --- | --- | --- | --- |
-| 00:01:22 | 00:00:38 | 00:00:03 | 00:01:07 |
+| 00:01:22 | 00:00:45 | 00:00:03 | 00:01:07 |
 
 ### Mac
 
 > Device Spec(MacBook Pro):  
 > - CPU: 2.2GHz 6 Cores Intel Core i7  
 > - Memory: 32GB 2400 MHz DDR4  
-> - Disk: SSD  
+> - Storage: SSD  
 
 | azure-docs-pr | docs | edge-developer | sql-docs-pr |
 |  --- | --- | --- | --- |
