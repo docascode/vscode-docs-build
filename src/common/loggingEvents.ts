@@ -92,7 +92,6 @@ export class BuildProgress implements BaseEvent {
 
 export class DocfxRestoreStarted implements BaseEvent {
     type = EventType.DocfxRestoreStarted;
-    constructor(public workSpaceFolderName: string) { }
 }
 
 export class DocfxRestoreFinished implements BaseEvent {
@@ -114,7 +113,6 @@ export class DocfxRestoreCanceled implements BaseEvent {
 
 export class DocfxBuildStarted implements BaseEvent {
     type = EventType.DocfxBuildStarted;
-    constructor(public workSpaceFolderName: string) { }
 }
 
 export class DocfxBuildFinished implements BaseEvent {
