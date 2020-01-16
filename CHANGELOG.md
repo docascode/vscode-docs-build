@@ -2,6 +2,11 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 0.1.10 (January 16, 2020)
+### Changed
+- Only restore dependencies on VS Code re-open to improve performance. (#18)
+- Run DocFx build in `--dry-run` mode to improve performance. (#18)
+
 ## 0.1.9 (January 14, 2020)
 ### Fixed
 - Fix failing to build repository contains landingData. (#17)
