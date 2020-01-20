@@ -53,8 +53,8 @@ function normalizeRemoteUrl(url: string): string {
     return `https://${repository.resource}/${repository.full_name}`;
 }
 
-export function basicAuth(str: string) {
-    let buff = Buffer.from(str);
+export function basicAuth(token: string) {
+    let buff = Buffer.from(`user:${token}`);
     return buff.toString('base64');
 }
 
@@ -62,11 +62,10 @@ export function formatDuration(ms: number) {
     const hours = Math.floor(ms / 3600000);
     const minutes = Math.floor((ms % 3600000) / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
-    return `${pad(hours, 2)}:${pad(minutes)}:${pad(seconds)}`;
+    return `${pad(hours, 2)}:${pad(minutes, 2)}:${pad(seconds, 2)}`;
 }
 
-function pad(num: number, size?: number) {
+function pad(num: number, size: number) {
     let s = String(num);
-    while (s.length < (size || 2)) { s = `0${s}`; }
-    return s;
+    return s.padStart(size, '0');
 }
