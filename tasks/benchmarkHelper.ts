@@ -29,7 +29,7 @@ export function downloadLatestTestRepo(repository: gitUrlParse.GitUrl, branch: s
             console.log(`Repository exists, start to get the latest content...`);
             execGit('clean -xfd', undefined, { cwd: dest });
             execGit('reset --hard', undefined, { cwd: dest });
-            execGit(`pull origin ${branch}`, token, { cwd: dest });
+            execGit(`pull origin ${branch} -f`, token, { cwd: dest });
         }
     } catch (err) {
         fs.removeSync(dest);

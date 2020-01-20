@@ -1,45 +1,18 @@
 trigger: none
 
-strategy:
-  matrix:
-    mac:
-      imageName: 'macOS-10.14'
-    windows:
-      imageName: 'windows-2019'
+jobs:
 
-pool:
-  vmImage: $(imageName)
+- job: Mac
+  pool:
+    name: Local-Validation-Benchmark
+    demands: Agent.OS -equals Darwin
+  steps:
+  - template: templates/benchmark-steps.yml
 
-steps:
+- job: Windows
+  pool:
+    name: Local-Validation-Benchmark
+    demands: Agent.OS -equals Windows_NT
 
-- task: NodeTool@0
-  displayName: 'Use Node 10.x'
-  inputs:
-    versionSpec: 10.x
-
-- task: Npm@1
-  displayName: 'npm install'
-  inputs:
-    verbose: false
-
-- task: Npm@1
-  displayName: 'Compile'
-  inputs:
-    command: custom
-    verbose: false
-    customCommand: run compile
-
-- bash: |
-    npm i gulp -g
-    npm run benchmark
-  displayName: 'Run benchmark test'
-  env:
-    VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN)
-    VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN: $(VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: Benchmark reports'
-  inputs:
-    pathToPublish: '.benchmark\reports'
-    ArtifactName: BenchmarkReport
-  condition: succeeded()
+  steps:
+  - template: templates/benchmark-steps.yml
