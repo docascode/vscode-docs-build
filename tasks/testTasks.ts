@@ -2,6 +2,8 @@ import * as gulp from 'gulp';
 import spawnNode from './spawnNode';
 import { nycPath, unitTestCoverageRootPath, mochaPath } from './projectPaths';
 
+require('./benchmarkTestTask');
+
 gulp.task('test:e2e', async () => {
     // TODO: add e2e test
 });

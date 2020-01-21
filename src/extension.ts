@@ -85,7 +85,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     return {
         initializationFinished: async () => {
             await credentialInitialPromise;
-        }
+        },
+        eventStream,
+        keyChain
     };
 }
 

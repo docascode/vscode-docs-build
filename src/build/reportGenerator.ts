@@ -66,7 +66,6 @@ function visualizeBuildReportForDocset(repositoryPath: string, docset: Docset, d
         let reportItem = <ReportItem>JSON.parse(item);
 
         if (!reportItem.file) {
-            console.log(`Diagnostics without source info: ${item}`);
             return;
         }
         let range = new vscode.Range(
