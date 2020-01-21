@@ -9,7 +9,7 @@ tasks/**
 .npm/**
 .nyc_output/
 coverage/
-.benchmark
+.benchmark/
 **/tsconfig.json
 **/tslint.json
 **/*.map
