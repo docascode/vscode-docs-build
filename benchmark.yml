@@ -1,0 +1,18 @@
+trigger: none
+
+jobs:
+
+- job: Mac
+  pool:
+    name: Local-Validation-Benchmark
+    demands: Agent.OS -equals Darwin
+  steps:
+  - template: templates/benchmark-steps.yml
+
+- job: Windows
+  pool:
+    name: Local-Validation-Benchmark
+    demands: Agent.OS -equals Windows_NT
+
+  steps:
+  - template: templates/benchmark-steps.yml

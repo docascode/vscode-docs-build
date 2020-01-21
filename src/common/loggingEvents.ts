@@ -212,3 +212,8 @@ export class EnvironmentChanged implements BaseEvent {
     type = EventType.EnvironmentChanged;
     constructor(public env: Environment) { }
 }
+
+// Test only
+export class RefreshCredential implements BaseEvent {
+    type = EventType.RefreshCredential;
+}

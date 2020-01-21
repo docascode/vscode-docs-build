@@ -13,3 +13,10 @@ export const nodePath = path.join(process.env.NVM_BIN
     ? `${process.env.NVM_BIN}${path.sep}`
     : '', 'node');
 
+export const testAssetsPath = path.join(rootPath, 'testAssets');
+
+const benchmarkTestPath = path.join(rootPath, '.benchmark');
+export const benchmarkTestAssetsPath = path.join(benchmarkTestPath, 'assets');
+export const benchmarkTestReportsPath = path.join(benchmarkTestPath, 'reports');
+
+
