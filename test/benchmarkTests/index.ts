@@ -68,7 +68,7 @@ export function run(): Promise<void> {
         // Prepare
         setupAvailableMockKeyChain(sinon, keyChain);
 
-        // Refresh the credential
+        // Refresh the credential, after credential refreshed, trigger the build
         eventStream.post(new RefreshCredential());
 
         function triggerBuild() {
