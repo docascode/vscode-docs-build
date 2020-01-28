@@ -79,7 +79,7 @@ export class BuildExecutor {
                 "http": secrets
             });
             this.eventStream.post(new DocfxRestoreStarted());
-            let command = `${this.binary} restore "${repositoryPath}" --legacy --output ${outputPath} --stdin`;
+            let command = `${this.binary} restore "${repositoryPath}" --legacy --output "${outputPath}" --stdin`;
             this.runningChildProcess = executeDocfx(
                 command,
                 this.eventStream,
@@ -108,7 +108,7 @@ export class BuildExecutor {
         envs: any): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this.eventStream.post(new DocfxBuildStarted());
-            let command = `${this.binary} build "${repositoryPath}" --legacy --dry-run --output ${outputPath}`;
+            let command = `${this.binary} build "${repositoryPath}" --legacy --dry-run --output "${outputPath}"`;
             this.runningChildProcess = executeDocfx(
                 command,
                 this.eventStream,
