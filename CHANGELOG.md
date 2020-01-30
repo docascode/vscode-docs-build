@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.11 (January 30, 2020)
+### Fixed
+- Fix build crashing when workspace path contains space. (#29)
+
 ## 0.1.10 (January 16, 2020)
 ### Changed
 - Only restore dependencies on VS Code re-open to improve performance. (#18)
