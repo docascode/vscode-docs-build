@@ -77,7 +77,22 @@
           "group": "navigation"
         }
       ]
-    }
+    },
+    "languages": [
+      {
+        "id": "docs-output",
+        "mimetypes": [
+          "text/x-code-output"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "docs-output",
+        "scopeName": "docs.output",
+        "path": "./resources/syntaxes/docs-output.tmLanguage"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
