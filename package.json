@@ -37,7 +37,7 @@
   },
   "preview": true,
   "publisher": "ceapex",
-  "main": "./out/src/extension.js",
+  "main": "./dist/extension",
   "contributes": {
     "configuration": {
       "title": "Docs Validation Configuration",
@@ -95,13 +95,13 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "publish": "vsce publish",
+    "vscode:prepublish": "webpack --mode production",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compileDev": "tsc -p ./ && webpack --mode development",
+    "publish": "vsce publish",
     "pretest": "npm run compile",
     "test": "gulp test",
-    "prebenchmark": "npm run compile",
+    "prebenchmark": "tsc -p ./ && webpack --mode production",
     "benchmark": "gulp test:benchmark",
     "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose"
   },
@@ -123,12 +123,15 @@
     "number-to-words": "^1.2.4",
     "nyc": "^15.0.0",
     "sinon": "^8.0.1",
+    "ts-loader": "^6.2.1",
     "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
     "tslint-microsoft-contrib": "^6.2.0",
     "typescript": "^3.3.1",
     "vsce": "^1.71.0",
-    "vscode-test": "^1.2.0"
+    "vscode-test": "^1.2.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   },
   "dependencies": {
     "@types/fs-extra": "^8.0.1",

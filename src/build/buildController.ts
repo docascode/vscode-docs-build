@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { Credential } from '../credential/CredentialController';
-import { OPBuildAPIClient } from './OPBuildAPIClient';
-import { TriggerErrorType } from './TriggerErrorType';
+import { Credential } from '../credential/credentialController';
+import { OPBuildAPIClient } from './opBuildAPIClient';
+import { TriggerErrorType } from './triggerErrorType';
 import { EventStream } from '../common/eventStream';
 import { DiagnosticController } from './diagnosticController';
 import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder } from '../utils/utils';
