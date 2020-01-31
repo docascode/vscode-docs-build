@@ -70,12 +70,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         // TODO: Support cancel the current build
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn()),
         vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut()),
-        vscode.commands.registerCommand('docs.build', async (uri) => {
-            await buildController.build(uri, credentialController.credential);
+        vscode.commands.registerCommand('docs.build', (uri) => {
+            buildController.build(uri, credentialController.credential);
         }),
         vscode.commands.registerCommand('docs.openPage', (uri: vscode.Uri) => {
             vscode.env.openExternal(uri);
         }),
+        vscode.commands.registerCommand('docs.quickPickMenu', () => createQuickPickMenu(credentialController, buildController)),
         vscode.languages.registerCodeActionsProvider('*', new CodeActionProvider(), {
             providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
         }),
@@ -89,6 +90,37 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         eventStream,
         keyChain
     };
+}
+
+function createQuickPickMenu(credentialController: CredentialController, buildController: BuildController) {
+    const quickPickMenu = vscode.window.createQuickPick();
+    quickPickMenu.items = <vscode.QuickPickItem[]>[
+        {
+            label: 'Sign Out',
+            description: 'Sign-out from Docs build system',
+            picked: true
+        },
+        {
+            label: 'Build',
+            description: 'Trigger a build'
+        }
+    ];
+    quickPickMenu.onDidChangeSelection(selection => {
+        if (selection[0]) {
+            switch (selection[0].label) {
+                case 'Sign Out':
+                    credentialController.signOut();
+                    break;
+                case 'Build':
+                    buildController.build(undefined, credentialController.credential);
+                    break;
+
+            }
+            quickPickMenu.hide();
+        }
+    });
+    quickPickMenu.onDidHide(() => quickPickMenu.dispose());
+    quickPickMenu.show();
 }
 
 export function deactivate() { }
