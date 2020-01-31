@@ -68,6 +68,19 @@
         "command": "docs.build",
         "title": "Build this workspace folder",
         "category": "Docs"
+      },
+      {
+        "command": "docs.validationQuickPick",
+        "title": "Docs: validation menu",
+        "category": "Docs"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "docs.validationQuickPick",
+        "key": "Alt+D",
+        "mac": "Alt+D",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {

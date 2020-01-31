@@ -39,6 +39,6 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
 
     private handleSignedIn(credential: Credential) {
         let icon = credential.userInfo!.signType === 'GitHub' ? '$(mark-github)' : '$(rocket)';
-        this.setAndShowStatusBar(`${this.statusBarTextPrefix} ${icon} ${credential.userInfo!.userName}(${credential.userInfo!.userEmail})`, 'docs.quickPickMenu');
+        this.setAndShowStatusBar(`${this.statusBarTextPrefix} ${icon} ${credential.userInfo!.userName}(${credential.userInfo!.userEmail})`, 'docs.validationQuickPick');
     }
 }

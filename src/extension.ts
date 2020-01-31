@@ -76,7 +76,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.openPage', (uri: vscode.Uri) => {
             vscode.env.openExternal(uri);
         }),
-        vscode.commands.registerCommand('docs.quickPickMenu', () => createQuickPickMenu(credentialController, buildController)),
+        vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(credentialController, buildController)),
         vscode.languages.registerCodeActionsProvider('*', new CodeActionProvider(), {
             providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
         }),
@@ -94,21 +94,34 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
 function createQuickPickMenu(credentialController: CredentialController, buildController: BuildController) {
     const quickPickMenu = vscode.window.createQuickPick();
-    quickPickMenu.items = <vscode.QuickPickItem[]>[
-        {
-            label: 'Sign Out',
-            description: 'Sign-out from Docs build system',
-            picked: true
-        },
-        {
-            label: 'Build',
-            description: 'Trigger a build'
-        }
-    ];
+    if (credentialController.credential.signInStatus === 'SignedOut') {
+        quickPickMenu.items = <vscode.QuickPickItem[]>[
+            {
+                label: 'Sign-in',
+                description: 'Sign-in to Docs build system',
+                picked: true
+            },
+        ];
+    } else {
+        quickPickMenu.items = <vscode.QuickPickItem[]>[
+            {
+                label: 'Sign-out',
+                description: 'Sign-out from Docs build system',
+                picked: true
+            },
+            {
+                label: 'Build',
+                description: 'Trigger a build'
+            }
+        ];
+    }
     quickPickMenu.onDidChangeSelection(selection => {
         if (selection[0]) {
             switch (selection[0].label) {
-                case 'Sign Out':
+                case 'Sign-in':
+                    credentialController.signIn();
+                    break;
+                case 'Sign-out':
                     credentialController.signOut();
                     break;
                 case 'Build':
