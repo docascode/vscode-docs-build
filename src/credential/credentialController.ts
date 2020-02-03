@@ -3,7 +3,7 @@ import { AzureEnvironment } from 'ms-rest-azure';
 import * as template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
-import { parseQuery, delay } from '../utils/utils';
+import { parseQuery, delay, trimEndSlash } from '../utils/utils';
 import { UserSigningIn, UserSignInSucceeded, UserSignedOut, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
@@ -130,7 +130,7 @@ export class CredentialController {
     private async signInWithAAD(): Promise<string> {
         const authConfig = extensionConfig.auth[this.environmentController.env];
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/aad-authenticate`));
-        const signUrlTemplate = template.parse(`${AzureEnvironment.Azure.activeDirectoryEndpointUrl}{tenantId}/oauth2/authorize` +
+        const signUrlTemplate = template.parse(`${trimEndSlash(AzureEnvironment.Azure.activeDirectoryEndpointUrl)}/{tenantId}/oauth2/authorize` +
             '?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope={scope}&state={state}&resource={resource}');
         const signUrl = signUrlTemplate.expand({
             tenantId: authConfig.AADAuthTenantId,
