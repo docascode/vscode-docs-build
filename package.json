@@ -56,12 +56,12 @@
     "commands": [
       {
         "command": "docs.signIn",
-        "title": "Sign-in to Docs build system",
+        "title": "Sign-in to Docs Build",
         "category": "Docs"
       },
       {
         "command": "docs.signOut",
-        "title": "Sign-out from Docs build system",
+        "title": "Sign-out from Docs Build",
         "category": "Docs"
       },
       {

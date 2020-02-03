@@ -94,19 +94,20 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
 function createQuickPickMenu(credentialController: CredentialController, buildController: BuildController) {
     const quickPickMenu = vscode.window.createQuickPick();
-    if (credentialController.credential.signInStatus === 'SignedOut') {
+    const currentSignInStatus = credentialController.credential.signInStatus;
+    if (currentSignInStatus === 'SignedOut') {
         quickPickMenu.items = <vscode.QuickPickItem[]>[
             {
                 label: 'Sign-in',
-                description: 'Sign-in to Docs build system',
+                description: 'Sign-in to Docs Build',
                 picked: true
             },
         ];
-    } else {
+    } else if (currentSignInStatus === 'SignedIn') {
         quickPickMenu.items = <vscode.QuickPickItem[]>[
             {
                 label: 'Sign-out',
-                description: 'Sign-out from Docs build system',
+                description: 'Sign-out from Docs Build',
                 picked: true
             },
             {
