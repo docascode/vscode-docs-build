@@ -18,7 +18,7 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ],
-            "preLaunchTask": "npm: watch"
+            "preLaunchTask": "npm: compileDev"
         },
         {
             "name": "Launch extension unit tests",
@@ -38,7 +38,7 @@
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "sourceMaps": true,
-            "preLaunchTask": "npm: watch"
+            "preLaunchTask": "npm: compile"
         },
         {
             "name": "Launch extension benchmark tests",
@@ -46,7 +46,7 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceFolder}/.benchmark/assets/docs",
+                "${workspaceFolder}/.benchmark/assets/edge-developer",
                 "--disable-extensions",
                 "--extensionDevelopmentPath=${workspaceFolder}",
                 "--extensionTestsPath=${workspaceFolder}/out/test/benchmarkTests"
@@ -58,7 +58,7 @@
                 "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}",
                 "VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN}"
             },
-            "preLaunchTask": "npm: watch",
+            "preLaunchTask": "npm: compileDev",
             "sourceMaps": true
         },
         {

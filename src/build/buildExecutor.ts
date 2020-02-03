@@ -1,11 +1,12 @@
 import * as fs from 'fs-extra';
-import { PACKAGE_JSON, EXTENSION_PATH, extensionConfig } from '../shared';
-import { PlatformInformation } from '../common/PlatformInformation';
+import { PACKAGE_JSON, EXTENSION_PATH } from '../shared';
+import extensionConfig from '../config';
+import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
-import { Package, AbsolutePathPackage } from '../dependency/Package';
+import { Package, AbsolutePathPackage } from '../dependency/package';
 import { DocfxRestoreCanceled, DocfxRestoreFailed, DocfxRestoreSucceeded, DocfxBuildCanceled, DocfxBuildSucceeded, DocfxBuildFailed, DocfxBuildStarted, DocfxRestoreStarted } from '../common/loggingEvents';
-import { EnvironmentController } from '../common/EnvironmentController';
-import { EventStream } from '../common/EventStream';
+import { EnvironmentController } from '../common/environmentController';
+import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
 import { basicAuth } from '../utils/utils';
 

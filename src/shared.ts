@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { UriEventHandler } from './common/UriEventHandler';
+import { UriEventHandler } from './common/uriEventHandler';
 
 // Extension
 export const EXTENSION_NAME = 'docs-build';
@@ -41,8 +41,6 @@ export interface UserInfo {
 
 // Global variables
 export const uriHandler = new UriEventHandler();
-
-export const extensionConfig = require('../../configs/vscode-docs-build.json');
 
 // Test only
 export interface BenchmarkReport {

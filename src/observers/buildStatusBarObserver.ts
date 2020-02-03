@@ -1,5 +1,5 @@
-import { BaseStatusBarObserver } from "./BaseStatusBarObserver";
-import { EventType } from "../common/EventType";
+import { BaseStatusBarObserver } from "./baseStatusBarObserver";
+import { EventType } from "../common/eventType";
 import { BaseEvent } from "../common/loggingEvents";
 
 export class BuildStatusBarObserver extends BaseStatusBarObserver {
