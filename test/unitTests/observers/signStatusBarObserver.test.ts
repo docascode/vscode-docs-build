@@ -59,7 +59,7 @@ describe('SignStatusBarObserver', () => {
         observer.eventHandler(event);
         expect(showCalled).to.be.true;
         expect(statusBarItem.text).to.equal(`Docs: $(mark-github) Fake User(fake@microsoft.com)`);
-        expect(statusBarItem.command).to.be.undefined;
+        expect(statusBarItem.command).to.equal('docs.validationQuickPick');
         expect(statusBarItem.tooltip).to.be.undefined;
     });
 
@@ -77,7 +77,7 @@ describe('SignStatusBarObserver', () => {
         observer.eventHandler(event);
         expect(showCalled).to.be.true;
         expect(statusBarItem.text).to.equal(`Docs: $(mark-github) Fake User(fake@microsoft.com)`);
-        expect(statusBarItem.command).to.be.undefined;
+        expect(statusBarItem.command).to.equal('docs.validationQuickPick');
         expect(statusBarItem.tooltip).to.be.undefined;
     });
 
