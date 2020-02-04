@@ -112,7 +112,7 @@ export class DocsLoggerObserver {
 
     // Sign
     private handleUserSignInSucceeded(event: UserSignInSucceeded) {
-        this.appendLine(`Successfully sign-in to Docs build system:`);
+        this.appendLine(`Successfully sign-in to Docs Build:`);
         this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
         this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
@@ -126,7 +126,7 @@ export class DocsLoggerObserver {
     }
 
     private handleUserSignedOut() {
-        this.appendLine(`Successfully sign-out from Docs build system!`);
+        this.appendLine(`Successfully sign-out from Docs Build!`);
         this.appendLine();
     }
 

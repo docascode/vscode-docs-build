@@ -56,18 +56,30 @@
     "commands": [
       {
         "command": "docs.signIn",
-        "title": "Sign-in to Docs portal",
+        "title": "Sign-in to Docs Build",
         "category": "Docs"
       },
       {
         "command": "docs.signOut",
-        "title": "Sign-out from Docs portal",
+        "title": "Sign-out from Docs Build",
         "category": "Docs"
       },
       {
         "command": "docs.build",
         "title": "Build this workspace folder",
         "category": "Docs"
+      },
+      {
+        "command": "docs.validationQuickPick",
+        "title": "Docs Validation menu"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "docs.validationQuickPick",
+        "key": "Alt+D",
+        "mac": "Alt+D",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {
