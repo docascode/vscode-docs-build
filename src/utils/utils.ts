@@ -69,3 +69,7 @@ function pad(num: number, size: number) {
     let s = String(num);
     return s.padStart(size, '0');
 }
+
+export function trimEndSlash(str: string) {
+    return str.replace(/\/*$/g, '');
+}
