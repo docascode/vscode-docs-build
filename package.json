@@ -71,8 +71,7 @@
       },
       {
         "command": "docs.validationQuickPick",
-        "title": "Docs: validation menu",
-        "category": "Docs"
+        "title": "Docs Validation menu"
       }
     ],
     "keybindings": [
