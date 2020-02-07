@@ -13,6 +13,7 @@ import { PlatformInformation } from '../common/platformInformation';
 import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
 import { BuildJobSucceeded, BuildTriggerFailed, BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildJobTriggered, BuildJobFailed } from '../common/loggingEvents';
+import { ExtensionContext } from '../extensionContext';
 
 export class BuildController {
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
@@ -23,6 +24,7 @@ export class BuildController {
     private buildExecutor: BuildExecutor;
 
     constructor(
+        context: ExtensionContext,
         environmentController: EnvironmentController,
         platformInformation: PlatformInformation,
         private diagnosticController: DiagnosticController,
@@ -31,7 +33,7 @@ export class BuildController {
         this.instantAvailable = true;
 
         this.opBuildAPIClient = new OPBuildAPIClient(environmentController);
-        this.buildExecutor = new BuildExecutor(platformInformation, environmentController, eventStream);
+        this.buildExecutor = new BuildExecutor(context, platformInformation, environmentController, eventStream);
     }
 
     public async build(uri: vscode.Uri, credential: Credential): Promise<void> {

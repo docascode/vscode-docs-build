@@ -8,23 +8,58 @@ export interface BaseEvent {
     type: EventType;
 }
 
-// Sign in
-export class UserSignInSucceeded implements BaseEvent {
-    type = EventType.UserSignInSucceeded;
-    constructor(public credential: Credential) { }
+export enum SignResult {
+    Succeeded,
+    Failed
 }
 
-export class UserSignedOut implements BaseEvent {
-    type = EventType.UserSignedOut;
+// Sign in
+export class UserSignInTriggered implements BaseEvent {
+    type = EventType.UserSignInTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class UserSignInCompleted implements BaseEvent {
+    type = EventType.UserSignInCompleted;
+    constructor(public result: SignResult, public correlationId: string) { }
+}
+
+export class UserSignInSucceeded extends UserSignInCompleted {
+    constructor(public correlationId: string, public credential: Credential) {
+        super(SignResult.Succeeded, correlationId);
+    }
+}
+
+export class UserSignInFailed extends UserSignInCompleted {
+    constructor(public correlationId: string, public err: Error) {
+        super(SignResult.Failed, correlationId);
+    }
+}
+
+export class UserSignOutTriggered implements BaseEvent {
+    type = EventType.UserSignOutTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class UserSignOutCompleted implements BaseEvent {
+    type = EventType.UserSignOutCompleted;
+    constructor(public result: SignResult, public correlationId: string) { }
+}
+
+export class UserSignOutSucceeded extends UserSignOutCompleted {
+    constructor(public correlationId: string) {
+        super(SignResult.Succeeded, correlationId);
+    }
+}
+
+export class UserSignOutFailed extends UserSignOutCompleted {
+    constructor(public correlationId: string, public err: Error) {
+        super(SignResult.Failed, correlationId);
+    }
 }
 
 export class UserSigningIn implements BaseEvent {
     type = EventType.UserSigningIn;
-}
-
-export class UserSignInFailed implements BaseEvent {
-    type = EventType.UserSignInFailed;
-    constructor(public message: string) { }
 }
 
 export class UserSignInProgress implements BaseEvent {

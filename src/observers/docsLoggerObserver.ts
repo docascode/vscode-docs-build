@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, BuildTriggerFailed, RepositoryInfoRetrieved, ReportGenerationFailed, BuildJobTriggered, BuildJobSucceeded, APICallStarted, APICallFailed, DocfxBuildFinished, DocfxRestoreFinished, BuildProgress, DocfxRestoreCanceled, DocfxBuildCanceled } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, BuildTriggerFailed, RepositoryInfoRetrieved, ReportGenerationFailed, BuildJobTriggered, BuildJobSucceeded, APICallStarted, APICallFailed, DocfxBuildFinished, DocfxRestoreFinished, BuildProgress, DocfxRestoreCanceled, DocfxBuildCanceled, UserSignInCompleted, SignResult, UserSignInFailed, UserSignOutCompleted, UserSignOutFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 
 export class DocsLoggerObserver {
@@ -9,14 +9,14 @@ export class DocsLoggerObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             // Sign
-            case EventType.UserSignInSucceeded:
-                this.handleUserSignInSucceeded(<UserSignInSucceeded>event);
+            case EventType.UserSignInCompleted:
+                this.handleUserSignInCompleted(<UserSignInCompleted>event);
                 break;
             case EventType.CredentialRetrieveFromLocalCredentialManager:
                 this.handleCredentialRetrieveFromLocalCredentialManager(<CredentialRetrieveFromLocalCredentialManager>event);
                 break;
-            case EventType.UserSignedOut:
-                this.handleUserSignedOut();
+            case EventType.UserSignOutCompleted:
+                this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
                 break;
             case EventType.UserSignInProgress:
                 this.handleUserSignInProgress(<UserSignInProgress>event);
@@ -111,10 +111,15 @@ export class DocsLoggerObserver {
     }
 
     // Sign
-    private handleUserSignInSucceeded(event: UserSignInSucceeded) {
-        this.appendLine(`Successfully sign-in to Docs Build:`);
-        this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
-        this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
+    private handleUserSignInCompleted(event: UserSignInCompleted) {
+        if (event.result === SignResult.Succeeded) {
+            let asUserSignInSucceeded = <UserSignInSucceeded>event;
+            this.appendLine(`Successfully sign-in to Docs Build:`);
+            this.appendLine(`    - GitHub Account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
+            this.appendLine(`    - User email   : ${asUserSignInSucceeded.credential.userInfo.userEmail}`);
+        } else if (event.result === SignResult.Failed) {
+            this.appendLine(`Failed to sign-in to Docs Build: ${(<UserSignInFailed>event).err.message}`);
+        }
         this.appendLine();
     }
 
@@ -125,8 +130,12 @@ export class DocsLoggerObserver {
         this.appendLine();
     }
 
-    private handleUserSignedOut() {
-        this.appendLine(`Successfully sign-out from Docs Build!`);
+    private handleUserSignOutCompleted(event: UserSignOutCompleted) {
+        if (event.result === SignResult.Succeeded) {
+            this.appendLine(`Successfully sign-out from Docs Build!`);
+        } else if (event.result === SignResult.Failed) {
+            this.appendLine(`Failed to sign-out from Docs Build: ${(<UserSignOutFailed>event).err.message}`);
+        }
         this.appendLine();
     }
 
