@@ -1,0 +1,36 @@
+steps:
+- task: NodeTool@0
+  displayName: 'Use Node 10.x'
+  inputs:
+    versionSpec: 10.x
+
+- task: Npm@1
+  displayName: 'npm install'
+  inputs:
+    verbose: false
+
+- bash: |
+    VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN=$(VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN=$(VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) npm run benchmark
+  displayName: Run benchmark(Mac)
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+
+- powershell: |
+    $env:VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN="$(VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)"
+    $env:VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN="$(VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN)"
+    npm run benchmark
+  displayName: Run benchmark(Windows)
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: Benchmark reports(Mac)'
+  inputs:
+    pathToPublish: '.benchmark/reports'
+    ArtifactName: BenchmarkReportForMac
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: Benchmark reports(Windows)'
+  inputs:
+    pathToPublish: '.benchmark/reports'
+    ArtifactName: BenchmarkReportForWindows
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))

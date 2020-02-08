@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "Docs Validation",
   "description": "Local build Docs repository",
-  "version": "0.1.7",
+  "version": "0.1.11",
   "engines": {
     "vscode": "^1.40.0"
   },
@@ -37,7 +37,7 @@
   },
   "preview": true,
   "publisher": "ceapex",
-  "main": "./out/src/extension.js",
+  "main": "./dist/extension",
   "contributes": {
     "configuration": {
       "title": "Docs Validation Configuration",
@@ -56,18 +56,30 @@
     "commands": [
       {
         "command": "docs.signIn",
-        "title": "Sign-in to Docs portal",
+        "title": "Sign-in to Docs Build",
         "category": "Docs"
       },
       {
         "command": "docs.signOut",
-        "title": "Sign-out from Docs portal",
+        "title": "Sign-out from Docs Build",
         "category": "Docs"
       },
       {
         "command": "docs.build",
         "title": "Build this workspace folder",
         "category": "Docs"
+      },
+      {
+        "command": "docs.validationQuickPick",
+        "title": "Docs Validation menu"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "docs.validationQuickPick",
+        "key": "Alt+D",
+        "mac": "Alt+D",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {
@@ -95,12 +107,14 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "publish": "vsce publish",
+    "vscode:prepublish": "webpack --mode production",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compileDev": "tsc -p ./ && webpack --mode development",
+    "publish": "vsce publish",
     "pretest": "npm run compile",
     "test": "gulp test",
+    "prebenchmark": "tsc -p ./ && webpack --mode production",
+    "benchmark": "gulp test:benchmark",
     "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose"
   },
   "devDependencies": {
@@ -110,6 +124,7 @@
     "@types/gulp": "^4.0.6",
     "@types/mocha": "^5.2.7",
     "@types/node": "^10.17.13",
+    "@types/number-to-words": "^1.2.0",
     "@types/sinon": "^7.5.1",
     "@types/vscode": "^1.40.0",
     "async-child-process": "^1.1.1",
@@ -121,14 +136,18 @@
     "mocha": "^6.2.2",
     "mocha-typescript": "^1.1.17",
     "mock-http-server": "^1.4.1",
+    "number-to-words": "^1.2.4",
     "nyc": "^15.0.0",
     "sinon": "^8.0.1",
+    "ts-loader": "^6.2.1",
     "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
     "tslint-microsoft-contrib": "^6.2.0",
     "typescript": "^3.3.1",
     "vsce": "^1.71.0",
-    "vscode-test": "^1.2.0"
+    "vscode-test": "^1.2.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   },
   "dependencies": {
     "@types/fs-extra": "^8.0.1",
@@ -155,21 +174,21 @@
       "id": "docfx-win7-x64",
       "name": "docfx",
       "description": "DocFX for Windows (x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta-01463-4607924fc.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta-01487-772de0b4d.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
       "rid": "win7-x64",
-      "integrity": "B671DA82552F60D214BB4EEA4EA1870FF9AA21D5A8793B59DA9E28E9DD98D9CB"
+      "integrity": "3DF318D726A7CBC9F2E97D3113B4E3EF23202C9B7F0CFFC7100069572B520FAC"
     },
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
       "description": "DocFX for OSX(x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta-01463-4607924fc.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta-01487-772de0b4d.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
       "rid": "osx-x64",
-      "integrity": "C228EC192D00BC1A763AA37DE18D34B7826C487E6375B79E870DB1B24E724356"
+      "integrity": "9386A6515E8D30466815D1C457A2DA9E90734E60F07CBEF06DE60A3780049643"
     }
   ]
 }

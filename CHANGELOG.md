@@ -1,6 +1,26 @@
 # Change Log
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## 0.1.11 (January 30, 2020)
+### Fixed
+- Fix build crashing when workspace path contains space. (#29)
+
+## 0.1.10 (January 16, 2020)
+### Changed
+- Only restore dependencies on VS Code re-open to improve performance. (#18)
+- Run DocFx build in `--dry-run` mode to improve performance. (#18)
+
+## 0.1.9 (January 14, 2020)
+### Fixed
+- Fix failing to build repository contains landingData. (#17)
+
+## 0.1.8 (December 31, 2019)
+### Changed
+- Cross-platform support(Windows & Mac OS)
+- Remove Dependency dotnet and Nodejs
+- Install runtime dependencies according the current platform automatically once the extension activated.
+- Use latest DocFX(3.0.0-beta-01460-4f008e94d)
+  - Drop docfx.yml and consume docfx.json + op.config + op.redirection directly
+  - Support external Xref
 
 ## 0.1.7 (November 26, 2019)
 ### Changed

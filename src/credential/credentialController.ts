@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import * as template from 'url-template';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, extensionConfig } from '../shared';
-import { parseQuery, delay, openUrl } from '../utils/utils';
+import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
+import extensionConfig from '../config';
+import { parseQuery, delay, trimEndSlash } from '../utils/utils';
 import { UserSigningIn, UserSignInSucceeded, UserSignedOut, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
@@ -33,14 +34,15 @@ export interface Credential {
 
 export class CredentialController {
     private signInStatus: DocsSignInStatus;
-    private aadInfo: string | undefined;
-    private userInfo: UserInfo | undefined;
+    private aadInfo: string;
+    private userInfo: UserInfo;
 
     constructor(private keyChain: KeyChain, private eventStream: EventStream, private environmentController: EnvironmentController) { }
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.EnvironmentChanged:
+            case EventType.RefreshCredential:
                 this.initialize();
                 break;
             case EventType.CredentialExpired:
@@ -125,10 +127,10 @@ export class CredentialController {
         }
     }
 
-    private async signInWithAAD(): Promise<string | undefined> {
-        const authConfig = extensionConfig.auth[this.environmentController.env.toString()];
+    private async signInWithAAD(): Promise<string> {
+        const authConfig = extensionConfig.auth[this.environmentController.env];
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/aad-authenticate`));
-        const signUrlTemplate = template.parse(`${AzureEnvironment.Azure.activeDirectoryEndpointUrl}/{tenantId}/oauth2/authorize` +
+        const signUrlTemplate = template.parse(`${trimEndSlash(AzureEnvironment.Azure.activeDirectoryEndpointUrl)}/{tenantId}/oauth2/authorize` +
             '?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope={scope}&state={state}&resource={resource}');
         const signUrl = signUrlTemplate.expand({
             tenantId: authConfig.AADAuthTenantId,
@@ -139,10 +141,8 @@ export class CredentialController {
             resource: authConfig.AADAuthResource
         });
 
-        const uri = vscode.Uri.parse(signUrl);
-
         try {
-            let opened = await vscode.env.openExternal(uri);
+            let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
             if (opened) {
                 let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
                     try {
@@ -169,7 +169,7 @@ export class CredentialController {
     }
 
     private async signInWithGitHub(): Promise<UserInfo | null> {
-        const authConfig = extensionConfig.auth[this.environmentController.env.toString()];
+        const authConfig = extensionConfig.auth[this.environmentController.env];
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/github-authenticate`));
         const state = callbackUri.with({ query: '' }).toString();
         const signUrlTemplate = template.parse(`https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirect_uri}&scope={scope}&state={state}`);
@@ -181,7 +181,7 @@ export class CredentialController {
         });
 
         try {
-            let opened = await openUrl(signUrl);
+            let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
             if (opened) {
                 let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
                     try {

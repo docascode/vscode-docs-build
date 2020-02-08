@@ -1,18 +1,9 @@
-.vscode/**
-.vscode-test/**
-out/test/**
-test/**
-src/**
-tasks/**
-.gitignore
-.docfx/**
-.npm/**
-.nyc_output/
-coverage/
-**/tsconfig.json
-**/tslint.json
-**/*.map
-**/*.ts
-**/*.gif
-testAssets/**
-package-lock.json
+**/*
+
+# Whitelist
+!dist/extension.js
+!resources/syntaxes/docs-output.tmLanguage
+!resources/favicon.ico
+!CHANGELOG.md
+!package.json
+!README.md
