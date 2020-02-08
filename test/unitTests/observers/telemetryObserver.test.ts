@@ -6,7 +6,7 @@ import { Credential } from '../../../src/credential/credentialController';
 import { DocsError } from '../../../src/Errors/DocsError';
 import { ErrorCode } from '../../../src/Errors/ErrorCode';
 
-describe.only('TelemetryObserver', () => {
+describe('TelemetryObserver', () => {
     let observer: TelemetryObserver;
 
     let sentEventName: string;
