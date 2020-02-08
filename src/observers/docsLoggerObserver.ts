@@ -6,6 +6,16 @@ export class DocsLoggerObserver {
     private downloadProgressDot: number;
     constructor(private logger: OutputChannel) { }
 
+    // Just for Test
+    public get downloadProgressDotValue() {
+        return this.downloadProgressDot;
+    }
+
+    // Just for Test
+    public set downloadProgressDotValue(value: number) {
+        this.downloadProgressDot = value;
+    }
+
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             // Sign
@@ -26,10 +36,10 @@ export class DocsLoggerObserver {
                 this.handleRepositoryInfoRetrieved(<RepositoryInfoRetrieved>event);
                 break;
             case EventType.BuildInstantAllocated:
-                this.handleBuildInstantAlloc();
+                this.handleBuildInstantAllocated();
                 break;
             case EventType.BuildTriggerFailed:
-                this.handleBuildTriggerError(<BuildTriggerFailed>event);
+                this.handleBuildTriggerFailed(<BuildTriggerFailed>event);
                 break;
             case EventType.BuildJobTriggered:
                 this.handleBuildJobTriggered(<BuildJobTriggered>event);
@@ -114,14 +124,14 @@ export class DocsLoggerObserver {
     private handleUserSignInSucceeded(event: UserSignInSucceeded) {
         this.appendLine(`Successfully sign-in to Docs Build:`);
         this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
-        this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
+        this.appendLine(`    - User email    : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
     }
 
     private handleCredentialRetrieveFromLocalCredentialManager(event: CredentialRetrieveFromLocalCredentialManager) {
         this.appendLine(`Successfully retrieved user credential from Local Credential Manager:`);
         this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
-        this.appendLine(`    - User email   : ${event.credential.userInfo.userEmail}`);
+        this.appendLine(`    - User email    : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
     }
 
@@ -138,24 +148,24 @@ export class DocsLoggerObserver {
     // Build
     private handleRepositoryInfoRetrieved(event: RepositoryInfoRetrieved) {
         let repositoryUrl: string;
-        if (event.sourceRepositoryUrl !== event.repositoryUrl) {
-            repositoryUrl = `${event.repositoryUrl}(original: ${event.sourceRepositoryUrl})`;
+        if (event.originalRepositoryUrl !== event.localRepositoryUrl) {
+            repositoryUrl = `${event.localRepositoryUrl}(original: ${event.originalRepositoryUrl})`;
         } else {
-            repositoryUrl = event.repositoryUrl;
+            repositoryUrl = event.localRepositoryUrl;
         }
         this.appendLine(`Repository Information of current workspace folder:`);
-        this.appendLine(`  Repository URL: ${repositoryUrl}`);
-        this.appendLine(`  Repository Branch: ${event.repositoryBranch}`);
+        this.appendLine(`  Local Repository URL: ${repositoryUrl}`);
+        this.appendLine(`  Local Repository Branch: ${event.repositoryBranch}`);
         this.appendLine();
     }
 
-    private handleBuildInstantAlloc() {
+    private handleBuildInstantAllocated() {
         this.appendLine();
         this.appendLine('---------------------------');
         this.appendLine(`Preparing build context...`);
     }
 
-    private handleBuildTriggerError(event: BuildTriggerFailed) {
+    private handleBuildTriggerFailed(event: BuildTriggerFailed) {
         this.appendLine(`Cannot trigger build: ${event.message}`);
     }
 
@@ -195,7 +205,7 @@ export class DocsLoggerObserver {
     }
 
     private handleBuildJobSucceeded(event: BuildJobSucceeded) {
-        this.appendLine('Report generated, please view them in `PROBLEMS` tab');
+        this.appendLine(`Report generated, please view them in 'PROBLEMS' tab`);
     }
 
     private handleBuildProgress(event: BuildProgress) {
@@ -251,10 +261,11 @@ export class DocsLoggerObserver {
     private handleDownloadProgress(event: DownloadProgress) {
         if (event.downloadPercentage === 100) {
             this.appendLine(` Done!`);
+        } else {
+            let newDownloadProgressDot = Math.ceil(event.downloadPercentage / 5);
+            this.append('.'.repeat(newDownloadProgressDot - this.downloadProgressDot));
+            this.downloadProgressDot = newDownloadProgressDot;
         }
-        let newDownloadProgressDot = Math.ceil(event.downloadPercentage / 5);
-        this.append('.'.repeat(newDownloadProgressDot - this.downloadProgressDot));
-        this.downloadProgressDot = newDownloadProgressDot;
     }
 
     private handleDownloadValidating(event: DownloadValidating) {
@@ -262,7 +273,7 @@ export class DocsLoggerObserver {
     }
 
     private handleDownloadIntegrityCheckFailed(event: DownloadIntegrityCheckFailed) {
-        this.appendLine(`Package ${event.pkgDescription} download failed integrity check.`);
+        this.appendLine(`Package '${event.pkgDescription}' download failed integrity check.`);
     }
 
     private handleZipFileInstalling(event: ZipFileInstalling) {
