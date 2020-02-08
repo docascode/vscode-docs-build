@@ -6,7 +6,7 @@ import { Credential } from '../../../src/credential/credentialController';
 import { TriggerErrorType } from '../../../src/build/triggerErrorType';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 
-describe.only('DocsLoggerObserver', () => {
+describe('DocsLoggerObserver', () => {
     let loggerText: string;
     let observer: DocsLoggerObserver;
 
