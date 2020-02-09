@@ -3,7 +3,7 @@ import { AzureEnvironment } from 'ms-rest-azure';
 import * as template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
-import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
+import { parseQuery, delay, trimEndSlash } from '../utils/utils';
 import { UserSigningIn, UserSignInSucceeded, UserSignOutSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignOutFailed, UserSignInTriggered, UserSignOutTriggered } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
@@ -66,8 +66,7 @@ export class CredentialController {
         };
     }
 
-    public async signIn(): Promise<void> {
-        let correlationId = getCorrelationId();
+    public async signIn(correlationId: string): Promise<void> {
         try {
             this.eventStream.post(new UserSignInTriggered(correlationId));
             this.resetCredential();
@@ -97,8 +96,7 @@ export class CredentialController {
         }
     }
 
-    public signOut() {
-        let correlationId = getCorrelationId();
+    public signOut(correlationId: string) {
         this.eventStream.post(new UserSignOutTriggered(correlationId));
         try {
             this.resetCredential();
