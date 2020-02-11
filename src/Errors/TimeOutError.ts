@@ -1,3 +1,3 @@
 export class TimeOutError extends Error {
-    constructor() { super(); }
+    constructor(message: string) { super(message); }
 }

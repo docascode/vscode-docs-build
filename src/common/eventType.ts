@@ -6,7 +6,6 @@ export enum EventType {
     CredentialReset,
     UserSignInTriggered,
     UserSignInProgress,
-    UserSigningIn,
     UserSignInCompleted,
     UserSignOutTriggered,
     UserSignOutCompleted,

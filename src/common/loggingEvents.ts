@@ -58,10 +58,6 @@ export class UserSignOutFailed extends UserSignOutCompleted {
     }
 }
 
-export class UserSigningIn implements BaseEvent {
-    type = EventType.UserSigningIn;
-}
-
 export class UserSignInProgress implements BaseEvent {
     type = EventType.UserSignInProgress;
     constructor(public message: string, public tag?: string) { }

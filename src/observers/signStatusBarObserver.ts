@@ -15,7 +15,7 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
             case EventType.CredentialInitializing:
                 this.setAndShowStatusBar(`${this.statusBarTextPrefix} Initializing`, undefined);
                 break;
-            case EventType.UserSigningIn:
+            case EventType.UserSignInTriggered:
                 this.setAndShowStatusBar(`${this.statusBarTextPrefix} Signing-in`, undefined);
                 break;
             case EventType.UserSignInCompleted:

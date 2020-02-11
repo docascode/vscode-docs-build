@@ -4,7 +4,7 @@ import * as template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash } from '../utils/utils';
-import { UserSigningIn, UserSignInSucceeded, UserSignOutSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignOutFailed, UserSignInTriggered, UserSignOutTriggered } from '../common/loggingEvents';
+import { UserSignInSucceeded, UserSignOutSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignOutFailed, UserSignInTriggered, UserSignOutTriggered } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -16,7 +16,7 @@ import { TimeOutError } from '../Errors/TimeOutError';
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
     let uriEventListener: vscode.Disposable;
     return Promise.race([
-        delay(extensionConfig.SignInTimeOut, new TimeOutError()),
+        delay(extensionConfig.SignInTimeOut, new TimeOutError('Time out')),
         new Promise((resolve: (result: any) => void, reject: (reason: any) => void) => {
             uriEventListener = uriHandler.event((uri) => callback(uri, resolve, reject));
         }).then(result => {
@@ -71,7 +71,6 @@ export class CredentialController {
             this.eventStream.post(new UserSignInTriggered(correlationId));
             this.resetCredential();
             this.signInStatus = 'SigningIn';
-            this.eventStream.post(new UserSigningIn());
 
             // Step-1: AAD sign-in
             if (!this.aadInfo) {
@@ -202,10 +201,8 @@ export class CredentialController {
             }
         });
         if (result instanceof Error) {
-            if (result instanceof TimeOutError) {
-                throw new DocsError(`Sign-in with GitHub Failed: Time out`, ErrorCode.GitHubSignInTimeOut, result);
-            }
-            throw new DocsError(`Sign-in with GitHub Failed: ${result.message}`, ErrorCode.GitHubSignInFailed, result);
+            let errorCode = result instanceof TimeOutError ? ErrorCode.GitHubSignInTimeOut : ErrorCode.GitHubSignInFailed;
+            throw new DocsError(`Sign-in with GitHub Failed: ${result.message}`, errorCode, result);
         }
         return result;
     }

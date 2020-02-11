@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
-import { CredentialInitializing, UserSigningIn, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, CredentialReset } from '../../../src/common/loggingEvents';
+import { CredentialInitializing, UserSignInTriggered, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, CredentialReset } from '../../../src/common/loggingEvents';
 import { Credential } from '../../../src/credential/credentialController';
 import { getFakeEnvironmentController, setEnvToPPE } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
@@ -37,7 +37,7 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`User Signing in: Status bar is shown with 'Signing In' text`, () => {
-        let event = new UserSigningIn();
+        let event = new UserSignInTriggered('FakedCorrelationId');
         observer.eventHandler(event);
         expect(showCalled).to.be.true;
         expect(statusBarItem.text).to.equal(`Docs: Signing-in`);
