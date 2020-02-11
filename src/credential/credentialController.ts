@@ -68,9 +68,9 @@ export class CredentialController {
 
     public async signIn(correlationId: string): Promise<void> {
         try {
-            this.eventStream.post(new UserSignInTriggered(correlationId));
             this.resetCredential();
             this.signInStatus = 'SigningIn';
+            this.eventStream.post(new UserSignInTriggered(correlationId));
 
             // Step-1: AAD sign-in
             if (!this.aadInfo) {
