@@ -47,7 +47,7 @@ steps:
     command: custom
     verbose: false
     customCommand: run lint
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
 
 - task: Npm@1
   displayName: 'Run test'
@@ -58,7 +58,7 @@ steps:
 
 - bash: ./node_modules/.bin/codecov -f coverage/unit/lcov.info -F unit
   displayName: 'Report unit test coverage'
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
   env:
     CODECOV_TOKEN: $(CODECOV_TOKEN)
 
