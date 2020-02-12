@@ -160,10 +160,8 @@ export class CredentialController {
         });
 
         if (result instanceof Error) {
-            if (result instanceof TimeOutError) {
-                throw new DocsError(`Sign-in with AAD Failed: Time out`, ErrorCode.AADSignInTimeOut, result);
-            }
-            throw new DocsError(`Sign-in with AAD Failed: ${result.message}`, ErrorCode.AADSignInFailed, result);
+            let errorCode = result instanceof TimeOutError ? ErrorCode.AADSignInTimeOut : ErrorCode.AADSignInFailed;
+            throw new DocsError(`Sign-in with AAD Failed: ${result.message}`, errorCode, result);
         }
         return result;
     }
