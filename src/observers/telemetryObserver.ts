@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInFailed, UserSignInTriggered, UserSignOutTriggered, UserSignOutCompleted, SignResult, UserSignInCompleted, UserSignInSucceeded } from '../common/loggingEvents';
+import { BaseEvent, UserSignInFailed, UserSignInTriggered, UserSignOutTriggered, UserSignOutCompleted, UserSignInCompleted, UserSignInSucceeded } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { ErrorCode } from '../Errors/ErrorCode';
@@ -37,17 +37,17 @@ export class TelemetryObserver {
 
     private handleUserSignInCompleted(event: UserSignInCompleted) {
         let correlationId = event.correlationId;
-        let result = SignResult[event.result];
+        let result = event.succeeded ? 'Succeeded' : 'Failed';
         let signInType: DocsSignInType;
         let userName: string;
         let userEmail: string;
         let errorCode: string;
-        if (event.result === SignResult.Succeeded) {
+        if (event.succeeded) {
             let userInfo = (<UserSignInSucceeded>event).credential.userInfo;
             signInType = userInfo.signType;
             userName = userInfo.userName;
             userEmail = userInfo.userEmail;
-        } else if (event.result === SignResult.Failed) {
+        } else {
             errorCode = this.getErrorCode((<UserSignInFailed>event).err);
         }
         this.reporter.sendTelemetryEvent(
@@ -77,7 +77,7 @@ export class TelemetryObserver {
             'SignOut.Completed',
             {
                 correlationId: event.correlationId,
-                result: SignResult[event.result],
+                result: event.succeeded ? 'Succeeded' : 'Failed',
             }
         );
     }

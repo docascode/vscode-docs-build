@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, BuildTriggerFailed, RepositoryInfoRetrieved, ReportGenerationFailed, BuildJobTriggered, BuildJobSucceeded, APICallStarted, APICallFailed, DocfxBuildFinished, DocfxRestoreFinished, BuildProgress, DocfxRestoreCanceled, DocfxBuildCanceled, UserSignInCompleted, SignResult, UserSignInFailed, UserSignOutCompleted, UserSignOutFailed } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, BuildTriggerFailed, RepositoryInfoRetrieved, ReportGenerationFailed, BuildJobTriggered, BuildJobSucceeded, APICallStarted, APICallFailed, DocfxBuildFinished, DocfxRestoreFinished, BuildProgress, DocfxRestoreCanceled, DocfxBuildCanceled, UserSignInCompleted, UserSignInFailed, UserSignOutCompleted, UserSignOutFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 
 export class DocsLoggerObserver {
@@ -112,12 +112,12 @@ export class DocsLoggerObserver {
 
     // Sign
     private handleUserSignInCompleted(event: UserSignInCompleted) {
-        if (event.result === SignResult.Succeeded) {
+        if (event.succeeded) {
             let asUserSignInSucceeded = <UserSignInSucceeded>event;
             this.appendLine(`Successfully sign-in to Docs Build:`);
             this.appendLine(`    - GitHub Account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
             this.appendLine(`    - User email   : ${asUserSignInSucceeded.credential.userInfo.userEmail}`);
-        } else if (event.result === SignResult.Failed) {
+        } else {
             this.appendLine(`Failed to sign-in to Docs Build: ${(<UserSignInFailed>event).err.message}`);
         }
         this.appendLine();
@@ -131,9 +131,9 @@ export class DocsLoggerObserver {
     }
 
     private handleUserSignOutCompleted(event: UserSignOutCompleted) {
-        if (event.result === SignResult.Succeeded) {
+        if (event.succeeded) {
             this.appendLine(`Successfully sign-out from Docs Build!`);
-        } else if (event.result === SignResult.Failed) {
+        } else {
             this.appendLine(`Failed to sign-out from Docs Build: ${(<UserSignOutFailed>event).err.message}`);
         }
         this.appendLine();

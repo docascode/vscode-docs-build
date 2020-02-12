@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
-import { BaseEvent, UserSignInCompleted, SignResult, UserSignOutCompleted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInCompleted, UserSignOutCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { MessageAction } from '../shared';
 export class InfoMessageObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.UserSignInCompleted:
-                if ((<UserSignInCompleted>event).result === SignResult.Succeeded) {
+                if ((<UserSignInCompleted>event).succeeded) {
                     this.showInfoMessage('Successfully Sign-in!', new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
                 }
                 break;
             case EventType.UserSignOutCompleted:
-                if ((<UserSignOutCompleted>event).result === SignResult.Succeeded) {
+                if ((<UserSignOutCompleted>event).succeeded) {
                     this.showInfoMessage('Successfully Sign-Out!');
                 }
                 break;

@@ -8,11 +8,6 @@ export interface BaseEvent {
     type: EventType;
 }
 
-export enum SignResult {
-    Succeeded,
-    Failed
-}
-
 // Sign in
 export class UserSignInTriggered implements BaseEvent {
     type = EventType.UserSignInTriggered;
@@ -21,18 +16,18 @@ export class UserSignInTriggered implements BaseEvent {
 
 export class UserSignInCompleted implements BaseEvent {
     type = EventType.UserSignInCompleted;
-    constructor(public result: SignResult, public correlationId: string) { }
+    constructor(public correlationId: string, public succeeded: boolean) { }
 }
 
 export class UserSignInSucceeded extends UserSignInCompleted {
     constructor(public correlationId: string, public credential: Credential) {
-        super(SignResult.Succeeded, correlationId);
+        super(correlationId, true);
     }
 }
 
 export class UserSignInFailed extends UserSignInCompleted {
     constructor(public correlationId: string, public err: Error) {
-        super(SignResult.Failed, correlationId);
+        super(correlationId, false);
     }
 }
 
@@ -43,18 +38,18 @@ export class UserSignOutTriggered implements BaseEvent {
 
 export class UserSignOutCompleted implements BaseEvent {
     type = EventType.UserSignOutCompleted;
-    constructor(public result: SignResult, public correlationId: string) { }
+    constructor(public correlationId: string, public succeeded: boolean) { }
 }
 
 export class UserSignOutSucceeded extends UserSignOutCompleted {
     constructor(public correlationId: string) {
-        super(SignResult.Succeeded, correlationId);
+        super(correlationId, true);
     }
 }
 
 export class UserSignOutFailed extends UserSignOutCompleted {
     constructor(public correlationId: string, public err: Error) {
-        super(SignResult.Failed, correlationId);
+        super(correlationId, false);
     }
 }
 
