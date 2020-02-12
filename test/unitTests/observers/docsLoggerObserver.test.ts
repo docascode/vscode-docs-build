@@ -327,10 +327,10 @@ describe('DocsLoggerObserver', () => {
     });
 
     it(`DownloadIntegrityCheckFailed`, () => {
-        let event = new DownloadIntegrityCheckFailed('Faked package description');
+        let event = new DownloadIntegrityCheckFailed();
         observer.eventHandler(event);
 
-        let expectedOutput = `Package 'Faked package description' download failed integrity check.\n`;
+        let expectedOutput = `Package download failed integrity check.\n`;
         expect(loggerText).to.equal(expectedOutput);
     });
 
