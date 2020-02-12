@@ -11,7 +11,3 @@ gulp.task('updateRuntimeDependencies', async (): Promise<void> => {
     await packageDependencyUpdater.updateRuntimeDependencies();
     return;
 });
-
-
-
-
