@@ -7,13 +7,13 @@ import gitUrlParse = require('git-url-parse');
 
 export function convertBenchmarkResultToMarkdown(result: any): string {
     let header = '|';
-    let separator = '| '
+    let separator = '| ';
     let data = '|';
     Object.entries(result).forEach(([key, value]) => {
         header += ` ${key} |`;
         separator += ` --- |`;
         data += ` ${value} |`;
-    })
+    });
     return `${header}\n${separator}\n${data}`;
 }
 
