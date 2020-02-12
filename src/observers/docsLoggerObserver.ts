@@ -273,7 +273,7 @@ export class DocsLoggerObserver {
     }
 
     private handleDownloadIntegrityCheckFailed(event: DownloadIntegrityCheckFailed) {
-        this.appendLine(`Package '${event.pkgDescription}' download failed integrity check.`);
+        this.appendLine(`Package download failed integrity check.`);
     }
 
     private handleZipFileInstalling(event: ZipFileInstalling) {
