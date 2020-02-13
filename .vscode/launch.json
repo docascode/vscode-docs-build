@@ -64,7 +64,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Update runtime dependencies",
+            "name": "Launch runtime dependencies update script",
             "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
             "args": [
                 "updateRuntimeDependencies"
