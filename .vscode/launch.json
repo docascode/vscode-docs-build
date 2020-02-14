@@ -16,9 +16,9 @@
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ],
             "outFiles": [
-                "${workspaceFolder}/out/**/*.js"
+                "${workspaceFolder}/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: compileDev"
+            "preLaunchTask": "npm: webpackDev"
         },
         {
             "name": "Launch extension unit tests",
