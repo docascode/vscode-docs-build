@@ -109,6 +109,7 @@
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
     "compile": "tsc -p ./",
+    "webpackDev": "webpack --mode development",
     "compileDev": "tsc -p ./ && webpack --mode development",
     "publish": "vsce publish",
     "pretest": "npm run compile",
