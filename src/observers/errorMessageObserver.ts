@@ -1,10 +1,11 @@
 import * as fs from 'fs-extra';
 import * as vscode from 'vscode';
 import { EventType } from '../common/eventType';
-import { BaseEvent, UserSignInFailed, BuildTriggerFailed, RepositoryEnabledV3 } from '../common/loggingEvents';
+import { BaseEvent, UserSignInFailed, RepositoryEnabledV3, BuildCompleted, BuildFailed } from '../common/loggingEvents';
 import { MessageAction } from '../shared';
-import { TriggerErrorType } from '../build/triggerErrorType';
 import { safelyReadJsonFile } from '../utils/utils';
+import { ErrorCode } from '../errors/ErrorCode';
+import { DocsError } from '../errors/DocsError';
 
 export class ErrorMessageObserver {
     public eventHandler = (event: BaseEvent) => {
@@ -13,11 +14,10 @@ export class ErrorMessageObserver {
                 let asUserSignInFailed = <UserSignInFailed>event;
                 this.showErrorMessage(`Sign-In failed: ${asUserSignInFailed.message}`);
                 break;
-            case EventType.BuildTriggerFailed:
-                this.handleBuildTriggerFailed(<BuildTriggerFailed>event);
-                break;
-            case EventType.BuildJobFailed:
-                this.showErrorMessage(`Build current workspace failed, please check the channel output for detail`);
+            case EventType.BuildCompleted:
+                if ((<BuildCompleted>event).result === 'Failed') {
+                    this.handleBuildFailed(<BuildFailed>event);
+                }
                 break;
             case EventType.CredentialExpired:
                 this.handleCredentialExpired();
@@ -40,10 +40,11 @@ export class ErrorMessageObserver {
         }
     }
 
-    private handleBuildTriggerFailed(event: BuildTriggerFailed) {
+    private handleBuildFailed(event: BuildFailed) {
         let action: MessageAction;
-        switch (event.triggerErrorType) {
-            case TriggerErrorType.TriggerBuildOnV2Repo:
+        let error = <DocsError>event.err;
+        switch (error.code) {
+            case ErrorCode.TriggerBuildOnV2Repo:
                 action = new MessageAction(
                     'Enable DocFX v3',
                     undefined,
@@ -56,13 +57,13 @@ export class ErrorMessageObserver {
                         fs.writeJSONSync(opConfigPath, opConfig, { spaces: 2 });
                         eventStream.post(new RepositoryEnabledV3());
                     },
-                    event.extensionData);
+                    error.extensionData);
                 break;
-            case TriggerErrorType.TriggerBuildBeforeSignedIn:
+            case ErrorCode.TriggerBuildBeforeSignedIn:
                 action = new MessageAction('Sign-in', 'docs.signIn');
                 break;
         }
-        this.showErrorMessage(`Trigger Build Failed: ${event.message}`, action);
+        this.showErrorMessage(`Build current workspace failed(${event.err.message}), please check the channel output for detail`, action);
     }
 
     private handleCredentialExpired() {

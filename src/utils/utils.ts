@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs-extra';
 import * as gitUrlParse from 'git-url-parse';
 import * as simpleGit from 'simple-git/promise';
+import * as uuid from 'uuid/v1';
 
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {
@@ -65,6 +66,10 @@ export function formatDuration(ms: number) {
     return `${pad(hours, 2)}:${pad(minutes, 2)}:${pad(seconds, 2)}`;
 }
 
+export function getDurationInSeconds(ms: number) {
+    return Math.floor(ms / 1000);
+}
+
 function pad(num: number, size: number) {
     let s = String(num);
     return s.padStart(size, '0');
@@ -72,4 +77,8 @@ function pad(num: number, size: number) {
 
 export function trimEndSlash(str: string) {
     return str.replace(/\/*$/g, '');
+}
+
+export function getCorrelationId(): string {
+    return uuid();
 }

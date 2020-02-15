@@ -21,6 +21,7 @@ import { ExtensionContext } from './extensionContext';
 import config from './config';
 import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
+import { getCorrelationId } from './utils/utils';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -83,7 +84,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn()),
         vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut()),
         vscode.commands.registerCommand('docs.build', (uri) => {
-            buildController.build(uri, credentialController.credential);
+            buildController.build(getCorrelationId(), uri, credentialController.credential);
         }),
         vscode.commands.registerCommand('docs.openPage', (uri: vscode.Uri) => {
             vscode.env.openExternal(uri);
@@ -143,7 +144,7 @@ function createQuickPickMenu(credentialController: CredentialController, buildCo
                     credentialController.signOut();
                     break;
                 case 'Build':
-                    buildController.build(undefined, credentialController.credential);
+                    buildController.build(getCorrelationId(), undefined, credentialController.credential);
                     break;
 
             }
