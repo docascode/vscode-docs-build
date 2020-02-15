@@ -25,6 +25,10 @@ const config = {
         PROD: 'https://op-build-prod.azurewebsites.net',
         PPE: 'https://op-build-sandbox2.azurewebsites.net'
     },
+    AIKey: {
+        PROD: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
+        PPE: '91c4866b-a41e-4dd1-beaa-d8eba4477219'
+    },
     SignInTimeOut: 120000
 };
 

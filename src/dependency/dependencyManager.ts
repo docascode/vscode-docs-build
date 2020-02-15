@@ -1,16 +1,16 @@
 import * as fs from 'fs-extra';
 import { AbsolutePathPackage, Package } from './package';
-import { PACKAGE_JSON, EXTENSION_PATH } from '../shared';
 import { PlatformInformation } from '../common/platformInformation';
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
 import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallFinished, PackageInstallFailed, PackageInstallSucceeded, PackageInstallStarted } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';
+import { ExtensionContext } from '../extensionContext';
 
-export async function ensureRuntimeDependencies(platformInfo: PlatformInformation, eventStream: EventStream) {
-    let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
-    let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, EXTENSION_PATH);
+export async function ensureRuntimeDependencies(context: ExtensionContext, platformInfo: PlatformInformation, eventStream: EventStream) {
+    let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
+    let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, context.extensionPath);
     if (packagesToInstall && packagesToInstall.length > 0) {
         eventStream.post(new DependencyInstallStarted());
         eventStream.post(new PlatformInfoRetrieved(platformInfo));

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
+import TelemetryReporter from 'vscode-extension-telemetry';
 import { CredentialController } from './credential/credentialController';
-import { uriHandler } from './shared';
+import { uriHandler, EXTENSION_ID } from './shared';
 import { PlatformInformation } from './common/platformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
 import { SignStatusBarObserver } from './observers/signStatusBarObserver';
@@ -16,11 +17,21 @@ import { KeyChain } from './credential/keyChain';
 import { DocsEnvironmentController } from './common/docsEnvironmentController';
 import { BuildStatusBarObserver } from './observers/buildStatusBarObserver';
 import { CodeActionProvider } from './codeAction/codeActionProvider';
+import { ExtensionContext } from './extensionContext';
+import config from './config';
+import { EnvironmentController } from './common/environmentController';
+import { TelemetryObserver } from './observers/telemetryObserver';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
+    const extensionContext = new ExtensionContext(context);
     const environmentController = new DocsEnvironmentController(eventStream);
     const platformInformation = await PlatformInformation.getCurrent();
+
+    // Telemetry
+    const telemetryReporter = getTelemetryReporter(extensionContext, environmentController);
+    const telemetryObserver = new TelemetryObserver(telemetryReporter);
+    eventStream.subscribe(telemetryObserver.eventHandler);
 
     // Output Channel
     const outputChannel = vscode.window.createOutputChannel('Docs Validation');
@@ -29,7 +40,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     eventStream.subscribe(docsLoggerObserver.eventHandler);
     eventStream.subscribe(docsOutputChannelObserver.eventHandler);
 
-    let runtimeDependenciesInstalled = await ensureRuntimeDependencies(platformInformation, eventStream);
+    let runtimeDependenciesInstalled = await ensureRuntimeDependencies(extensionContext, platformInformation, eventStream);
     if (!runtimeDependenciesInstalled) {
         throw new Error('Install runtime dependencies failed, Please restart Visual Studio Code to re-trigger the download.');
     }
@@ -54,7 +65,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     // Build component initialize
     let diagnosticController = new DiagnosticController();
-    let buildController = new BuildController(environmentController, platformInformation, diagnosticController, eventStream);
+    let buildController = new BuildController(extensionContext, environmentController, platformInformation, diagnosticController, eventStream);
 
     // Build status bar
     let buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
@@ -63,6 +74,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     context.subscriptions.push(
         outputChannel,
+        telemetryReporter,
         diagnosticController,
         signStatusBar,
         buildStatusBar,
@@ -90,6 +102,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         eventStream,
         keyChain
     };
+}
+
+function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController) {
+    let key = config.AIKey[environmentController.env];
+    return new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
 }
 
 function createQuickPickMenu(credentialController: CredentialController, buildController: BuildController) {
