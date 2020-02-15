@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, BuildTriggerFailed, RepositoryInfoRetrieved, ReportGenerationFailed, BuildJobTriggered, BuildJobSucceeded, APICallStarted, APICallFailed, DocfxBuildFinished, DocfxRestoreFinished, BuildProgress, DocfxRestoreCanceled, DocfxBuildCanceled } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, BuildTriggerFailed, RepositoryInfoRetrieved, ReportGenerationFailed, BuildJobTriggered, BuildJobSucceeded, APICallStarted, APICallFailed, DocfxBuildFinished, DocfxRestoreFinished, BuildProgress, DocfxRestoreCanceled, DocfxBuildCanceled, UserSignOutCompleted, UserSignOutFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 
 export class DocsLoggerObserver {
@@ -25,8 +25,8 @@ export class DocsLoggerObserver {
             case EventType.CredentialRetrieveFromLocalCredentialManager:
                 this.handleCredentialRetrieveFromLocalCredentialManager(<CredentialRetrieveFromLocalCredentialManager>event);
                 break;
-            case EventType.UserSignedOut:
-                this.handleUserSignedOut();
+            case EventType.UserSignOutCompleted:
+                this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
                 break;
             case EventType.UserSignInProgress:
                 this.handleUserSignInProgress(<UserSignInProgress>event);
@@ -135,8 +135,12 @@ export class DocsLoggerObserver {
         this.appendLine();
     }
 
-    private handleUserSignedOut() {
-        this.appendLine(`Successfully sign-out from Docs Build!`);
+    private handleUserSignOutCompleted(event: UserSignOutCompleted) {
+        if (event.succeeded) {
+            this.appendLine(`Successfully sign-out from Docs Build!`);
+        } else {
+            this.appendLine(`Failed to sign-out from Docs Build: ${(<UserSignOutFailed>event).err.message}`);
+        }
         this.appendLine();
     }
 

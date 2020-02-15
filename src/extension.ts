@@ -21,6 +21,7 @@ import { ExtensionContext } from './extensionContext';
 import config from './config';
 import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
+import { getCorrelationId } from './utils/utils';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -81,7 +82,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         environmentController,
         // TODO: Support cancel the current build
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn()),
-        vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut()),
+        vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut(getCorrelationId())),
         vscode.commands.registerCommand('docs.build', (uri) => {
             buildController.build(uri, credentialController.credential);
         }),
@@ -140,7 +141,7 @@ function createQuickPickMenu(credentialController: CredentialController, buildCo
                     credentialController.signIn();
                     break;
                 case 'Sign-out':
-                    credentialController.signOut();
+                    credentialController.signOut(getCorrelationId());
                     break;
                 case 'Build':
                     buildController.build(undefined, credentialController.credential);

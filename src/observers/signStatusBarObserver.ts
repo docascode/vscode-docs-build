@@ -26,7 +26,6 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
                 let asCredentialRetrieveFromLocalCredentialManager = <CredentialRetrieveFromLocalCredentialManager>event;
                 this.handleSignedIn(asCredentialRetrieveFromLocalCredentialManager.credential);
                 break;
-            case EventType.UserSignedOut:
             case EventType.CredentialReset:
                 this.setAndShowStatusBar(`${this.statusBarTextPrefix} Sign-in to Docs`, 'docs.signIn');
                 break;

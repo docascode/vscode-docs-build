@@ -14,10 +14,6 @@ export class UserSignInSucceeded implements BaseEvent {
     constructor(public credential: Credential) { }
 }
 
-export class UserSignedOut implements BaseEvent {
-    type = EventType.UserSignedOut;
-}
-
 export class UserSigningIn implements BaseEvent {
     type = EventType.UserSigningIn;
 }
@@ -25,6 +21,28 @@ export class UserSigningIn implements BaseEvent {
 export class UserSignInFailed implements BaseEvent {
     type = EventType.UserSignInFailed;
     constructor(public message: string) { }
+}
+
+export class UserSignOutTriggered implements BaseEvent {
+    type = EventType.UserSignOutTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class UserSignOutCompleted implements BaseEvent {
+    type = EventType.UserSignOutCompleted;
+    constructor(public correlationId: string, public succeeded: boolean) { }
+}
+
+export class UserSignOutSucceeded extends UserSignOutCompleted {
+    constructor(public correlationId: string) {
+        super(correlationId, true);
+    }
+}
+
+export class UserSignOutFailed extends UserSignOutCompleted {
+    constructor(public correlationId: string, public err: Error) {
+        super(correlationId, false);
+    }
 }
 
 export class UserSignInProgress implements BaseEvent {

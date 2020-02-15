@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { BaseEvent } from '../common/loggingEvents';
+import { BaseEvent, UserSignOutCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { MessageAction } from '../shared';
 export class InfoMessageObserver {
@@ -7,6 +7,11 @@ export class InfoMessageObserver {
         switch (event.type) {
             case EventType.UserSignInSucceeded:
                 this.showInfoMessage('Sign-in Successfully!', new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
+                break;
+            case EventType.UserSignOutCompleted:
+                if ((<UserSignOutCompleted>event).succeeded) {
+                    this.showInfoMessage('Successfully Sign-Out!');
+                }
                 break;
             case EventType.RepositoryEnabledV3:
                 this.handleRepositoryEnabledV3();

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
-import { CredentialInitializing, UserSigningIn, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, CredentialReset } from '../../../src/common/loggingEvents';
+import { CredentialInitializing, UserSigningIn, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, CredentialReset } from '../../../src/common/loggingEvents';
 import { Credential } from '../../../src/credential/credentialController';
 import { getFakeEnvironmentController, setEnvToPPE } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
@@ -78,15 +78,6 @@ describe('SignStatusBarObserver', () => {
         expect(showCalled).to.be.true;
         expect(statusBarItem.text).to.equal(`Docs: $(mark-github) Fake User(fake@microsoft.com)`);
         expect(statusBarItem.command).to.equal('docs.validationQuickPick');
-        expect(statusBarItem.tooltip).to.be.undefined;
-    });
-
-    it(`User Sign-out: Status bar is shown with 'Sign-in to Docs' text`, () => {
-        let event = new UserSignedOut();
-        observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: Sign-in to Docs`);
-        expect(statusBarItem.command).to.equal('docs.signIn');
         expect(statusBarItem.tooltip).to.be.undefined;
     });
 

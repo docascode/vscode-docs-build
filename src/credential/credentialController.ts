@@ -4,7 +4,7 @@ import * as template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash } from '../utils/utils';
-import { UserSigningIn, UserSignInSucceeded, UserSignedOut, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
+import { UserSigningIn, UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -100,9 +100,14 @@ export class CredentialController {
         }
     }
 
-    public signOut() {
-        this.resetCredential();
-        this.eventStream.post(new UserSignedOut());
+    public signOut(correlationId: string) {
+        this.eventStream.post(new UserSignOutTriggered(correlationId));
+        try {
+            this.resetCredential();
+            this.eventStream.post(new UserSignOutSucceeded(correlationId));
+        } catch (err) {
+            this.eventStream.post(new UserSignOutFailed(correlationId, err));
+        }
     }
 
     private resetCredential() {
