@@ -37,7 +37,7 @@
   },
   "preview": true,
   "publisher": "ceapex",
-  "main": "./dist/extension",
+  "main": "./out/src/extension",
   "contributes": {
     "configuration": {
       "title": "Docs Validation Configuration",
@@ -109,12 +109,11 @@
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
     "compile": "tsc -p ./",
-    "webpackDev": "webpack --mode development",
-    "compileDev": "tsc -p ./ && webpack --mode development",
+    "watch": "tsc -watch -p ./",
     "publish": "vsce publish",
     "pretest": "npm run compile",
     "test": "gulp test",
-    "prebenchmark": "tsc -p ./ && webpack --mode production",
+    "prebenchmark": "webpack --mode production",
     "benchmark": "gulp test:benchmark",
     "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose"
   },
