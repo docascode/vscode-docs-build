@@ -1,5 +1,4 @@
 import * as fs from 'fs-extra';
-import { PACKAGE_JSON, EXTENSION_PATH } from '../shared';
 import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
@@ -9,6 +8,7 @@ import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
 import { basicAuth } from '../utils/utils';
+import { ExtensionContext } from '../extensionContext';
 
 export class BuildExecutor {
     private cwd: string;
@@ -16,10 +16,10 @@ export class BuildExecutor {
     private runningChildProcess: ChildProcess;
     private static skipRestore: boolean;
 
-    constructor(platformInfo: PlatformInformation, private environmentController: EnvironmentController, private eventStream: EventStream) {
-        let runtimeDependencies = <Package[]>PACKAGE_JSON.runtimeDependencies;
+    constructor(context: ExtensionContext, platformInfo: PlatformInformation, private environmentController: EnvironmentController, private eventStream: EventStream) {
+        let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
         let buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === platformInfo.rid);
-        let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, EXTENSION_PATH);
+        let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
         this.cwd = absolutePackage.installPath.value;
         this.binary = absolutePackage.binary;
     }
