@@ -166,15 +166,16 @@ export class BuildController {
 
         let localRepositoryUrl: string;
         let localRepositoryBranch: string;
+        let commit: string;
         try {
-            [localRepositoryUrl, localRepositoryBranch] = await getRepositoryInfoFromLocalFolder(this.repositoryPath);
+            [localRepositoryUrl, localRepositoryBranch, commit] = await getRepositoryInfoFromLocalFolder(this.repositoryPath);
         } catch (err) {
             throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
         }
 
         let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
 
-        this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl, localRepositoryBranch));
+        this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl, localRepositoryBranch, commit));
         return [originalRepositoryUrl, localRepositoryBranch];
     }
 }

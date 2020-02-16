@@ -38,10 +38,6 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
     }
 
     let branch = await repository.revparse(['--abbrev-ref', 'HEAD']);
-    if (branch === 'HEAD') {
-        // If origin not existed, `HEAD` string will be return
-        throw new Error('Please checkout to a branch');
-    }
 
     let commit = await repository.revparse(['HEAD']);
 

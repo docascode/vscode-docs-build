@@ -56,7 +56,7 @@ export class RepositoryEnabledV3 implements BaseEvent {
 
 export class RepositoryInfoRetrieved implements BaseEvent {
     type = EventType.RepositoryInfoRetrieved;
-    constructor(public localRepositoryUrl: string, public originalRepositoryUrl: string, public repositoryBranch: string) { }
+    constructor(public localRepositoryUrl: string, public originalRepositoryUrl: string, public repositoryBranch: string, public commit: string) { }
 }
 
 export class BuildInstantAllocated implements BaseEvent {

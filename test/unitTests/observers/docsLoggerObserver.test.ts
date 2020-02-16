@@ -81,7 +81,7 @@ describe('DocsLoggerObserver', () => {
 
     describe(`RepositoryInfoRetrieved`, () => {
         it(`Same original repository url with local repository url`, () => {
-            let event = new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.repository', 'fakedBranch');
+            let event = new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.repository', 'fakedBranch', undefined);
             observer.eventHandler(event);
 
             let expectedOutput = `Repository Information of current workspace folder:\n`
@@ -92,12 +92,23 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Different original repository url with local repository url`, () => {
-            let event = new RepositoryInfoRetrieved('https://faked.local.repository', 'https://faked.original.repository', 'fakedBranch');
+            let event = new RepositoryInfoRetrieved('https://faked.local.repository', 'https://faked.original.repository', 'fakedBranch', undefined);
             observer.eventHandler(event);
 
             let expectedOutput = `Repository Information of current workspace folder:\n`
                 + `  Local Repository URL: https://faked.local.repository(original: https://faked.original.repository)\n`
                 + `  Local Repository Branch: fakedBranch\n`
+                + `\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+
+        it(`Repository is not on a branch but a commit`, () => {
+            let event = new RepositoryInfoRetrieved('https://faked.local.repository', 'https://faked.original.repository', 'HEAD', 'xxxxxxxxxx');
+            observer.eventHandler(event);
+
+            let expectedOutput = `Repository Information of current workspace folder:\n`
+                + `  Local Repository URL: https://faked.local.repository(original: https://faked.original.repository)\n`
+                + `  Local Repository Branch: HEAD(Commit: xxxxxx)\n`
                 + `\n`;
             expect(loggerText).to.equal(expectedOutput);
         });
