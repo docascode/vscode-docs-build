@@ -153,13 +153,8 @@ export class DocsLoggerObserver {
         } else {
             repositoryUrl = event.localRepositoryUrl;
         }
-        let branch = event.repositoryBranch;
-        if (branch === 'HEAD') {
-            branch += `(Commit: ${event.commit.substr(0, 6)})`;
-        }
         this.appendLine(`Repository Information of current workspace folder:`);
         this.appendLine(`  Local Repository URL: ${repositoryUrl}`);
-        this.appendLine(`  Local Repository Branch: ${branch}`);
         this.appendLine();
     }
 

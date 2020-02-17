@@ -19,7 +19,6 @@ export class BuildController {
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
     private instantAvailable: boolean;
     private repositoryUrl: string;
-    private repositoryBranch: string;
     private opBuildAPIClient: OPBuildAPIClient;
     private buildExecutor: BuildExecutor;
 
@@ -50,7 +49,6 @@ export class BuildController {
             let buildSucceeded = await this.buildExecutor.RunBuild(
                 this.repositoryPath,
                 this.repositoryUrl,
-                this.repositoryBranch,
                 path.join(this.repositoryPath, OUTPUT_FOLDER_NAME),
                 credential.userInfo.userToken
             );
@@ -120,7 +118,7 @@ export class BuildController {
         }
 
         try {
-            [this.repositoryUrl, this.repositoryBranch] = await this.retrieveRepositoryInfo(credential.userInfo.userToken);
+            this.repositoryUrl = await this.retrieveRepositoryInfo(credential.userInfo.userToken);
         } catch (err) {
             this.eventStream.post(new BuildTriggerFailed(
                 err.message,
@@ -161,21 +159,19 @@ export class BuildController {
         return true;
     }
 
-    private async retrieveRepositoryInfo(buildUserToken: string): Promise<string[]> {
+    private async retrieveRepositoryInfo(buildUserToken: string): Promise<string> {
         this.eventStream.post(new BuildProgress('Retrieving repository information for the current workspace folder...'));
 
         let localRepositoryUrl: string;
-        let localRepositoryBranch: string;
-        let commit: string;
         try {
-            [localRepositoryUrl, localRepositoryBranch, commit] = await getRepositoryInfoFromLocalFolder(this.repositoryPath);
+            [localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(this.repositoryPath);
         } catch (err) {
             throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
         }
 
         let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
 
-        this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl, localRepositoryBranch, commit));
-        return [originalRepositoryUrl, localRepositoryBranch];
+        this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
+        return originalRepositoryUrl;
     }
 }
