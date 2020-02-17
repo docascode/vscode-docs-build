@@ -24,7 +24,7 @@ async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: 
             return result;
         }).catch(err => {
             uriEventListener.dispose();
-            return err;
+            throw err;
         })
     ]);
 }
@@ -143,22 +143,21 @@ export class CredentialController {
             throw new DocsError(`Sign-in with AAD Failed: Please Allow Code to open `, ErrorCode.AADSignInExternalUrlDeclined);
         }
 
-        let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
-            try {
-                // TODO: Adjust OP `Authorizations/aad` API to return the code.
-                const code = 'aad-code';
+        try {
+            return await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
+                try {
+                    // TODO: Adjust OP `Authorizations/aad` API to return the code.
+                    const code = 'aad-code';
 
-                resolve(code);
-            } catch (err) {
-                reject(err);
-            }
-        });
-
-        if (result instanceof Error) {
-            let errorCode = result instanceof TimeOutError ? ErrorCode.AADSignInTimeOut : ErrorCode.AADSignInFailed;
-            throw new DocsError(`Sign-in with AAD Failed: ${result.message}`, errorCode, result);
+                    resolve(code);
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        } catch (err) {
+            let errorCode = err instanceof TimeOutError ? ErrorCode.AADSignInTimeOut : ErrorCode.AADSignInFailed;
+            throw new DocsError(`Sign-in with AAD Failed: ${err.message}`, errorCode, err);
         }
-        return result;
     }
 
     private async signInWithGitHub(): Promise<UserInfo | null> {
@@ -179,24 +178,24 @@ export class CredentialController {
             throw new DocsError(`Sign-in with GitHub Failed: Please Allow Code to open `, ErrorCode.GitHubSignInExternalUrlDeclined);
         }
 
-        let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
-            try {
-                const query = parseQuery(uri);
+        try {
+            return await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
+                try {
+                    const query = parseQuery(uri);
 
-                resolve({
-                    userName: query.name,
-                    userEmail: query.email,
-                    userToken: query['X-OP-BuildUserToken'],
-                    signType: 'GitHub'
-                });
-            } catch (err) {
-                reject(err);
-            }
-        });
-        if (result instanceof Error) {
-            let errorCode = result instanceof TimeOutError ? ErrorCode.GitHubSignInTimeOut : ErrorCode.GitHubSignInFailed;
-            throw new DocsError(`Sign-in with GitHub Failed: ${result.message}`, errorCode, result);
+                    resolve({
+                        userName: query.name,
+                        userEmail: query.email,
+                        userToken: query['X-OP-BuildUserToken'],
+                        signType: 'GitHub'
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        } catch (err) {
+            let errorCode = err instanceof TimeOutError ? ErrorCode.GitHubSignInTimeOut : ErrorCode.GitHubSignInFailed;
+            throw new DocsError(`Sign-in with GitHub Failed: ${err.message}`, errorCode, err);
         }
-        return result;
     }
 }

@@ -42,7 +42,6 @@ describe('TelemetryObserver', () => {
         expect(sentEventProperties).to.deep.equal({
             correlationId: 'fakedCorrelationId'
         });
-        expect(sentEventMeasurements).to.be.undefined;
     });
 
     describe(`UserSignInCompleted: 'SignIn.Completed' event should be sent`, () => {
@@ -67,7 +66,6 @@ describe('TelemetryObserver', () => {
                 userEmail: 'fake@microsoft.com',
                 errorCode: undefined,
             });
-            expect(sentEventMeasurements).to.be.undefined;
         });
 
         it('UserSignInFailed', () => {
@@ -82,7 +80,6 @@ describe('TelemetryObserver', () => {
                 userEmail: undefined,
                 errorCode: 'AADSignInFailed',
             });
-            expect(sentEventMeasurements).to.be.undefined;
         });
     });
 });
