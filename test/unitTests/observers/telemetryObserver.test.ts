@@ -11,7 +11,6 @@ describe('TelemetryObserver', () => {
 
     let sentEventName: string;
     let sentEventProperties: any;
-    let sentEventMeasurements: any;
 
     let telemetryReporter = <TelemetryReporter>{
         sendTelemetryEvent(eventName: string, properties?: {
@@ -21,7 +20,6 @@ describe('TelemetryObserver', () => {
         }): void {
             sentEventName = eventName;
             sentEventProperties = properties;
-            sentEventMeasurements = measurements;
         }
     };
 
@@ -32,7 +30,6 @@ describe('TelemetryObserver', () => {
     beforeEach(() => {
         sentEventName = undefined;
         sentEventProperties = undefined;
-        sentEventMeasurements = undefined;
     });
 
     it(`UserSignInTriggered: 'SignIn.Triggered' event should be sent`, () => {
