@@ -212,6 +212,11 @@ export class EnvironmentChanged implements BaseEvent {
     constructor(public env: Environment) { }
 }
 
+export class LearnMoreClicked implements BaseEvent {
+    type = EventType.LearnMoreClicked;
+    constructor(public correlationId: string, public code: string) { }
+}
+
 // Test only
 export class RefreshCredential implements BaseEvent {
     type = EventType.RefreshCredential;

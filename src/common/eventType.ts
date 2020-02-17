@@ -51,6 +51,7 @@ export enum EventType {
 
     // Others
     EnvironmentChanged,
+    LearnMoreClicked,
 
     // Test only
     RefreshCredential,

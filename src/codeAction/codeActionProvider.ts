@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
+import { EventStream } from '../common/eventStream';
+import { LearnMoreClicked } from '../common/loggingEvents';
 
 export class CodeActionProvider implements vscode.CodeActionProvider {
 
@@ -13,13 +15,19 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
             .map(diagnostic => this.createCommandCodeAction(diagnostic));
     }
 
+    public static learnMoreAboutCode(eventStream: EventStream, correlationId: string, code: string) {
+        eventStream.post(new LearnMoreClicked(correlationId, code));
+        vscode.env.openExternal(vscode.Uri.parse(`https://aka.ms/${code}`));
+    }
+
     private createCommandCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
         const action = new vscode.CodeAction('Learn more...', vscode.CodeActionKind.QuickFix);
         action.command = {
-            command: 'docs.openPage',
+            command: 'learnMore',
             title: 'Learn more about this error code',
             tooltip: 'This will open the error code detail page.',
-            arguments: [vscode.Uri.parse(`https://aka.ms/${diagnostic.code}`)]
+            arguments: [diagnostic.code]
+            // arguments: [vscode.Uri.parse(`https://aka.ms/${diagnostic.code}`)]
         };
         action.diagnostics = [diagnostic];
         action.isPreferred = true;
