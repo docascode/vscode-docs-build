@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "Docs Validation",
   "description": "Local build Docs repository",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "engines": {
     "vscode": "^1.40.0"
   },
@@ -177,21 +177,21 @@
       "id": "docfx-win7-x64",
       "name": "docfx",
       "description": "DocFX for Windows (x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta-01487-772de0b4d.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta-01503-e770acccf.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
       "rid": "win7-x64",
-      "integrity": "3DF318D726A7CBC9F2E97D3113B4E3EF23202C9B7F0CFFC7100069572B520FAC"
+      "integrity": "5987BDB6C9238358A03387766613F4009A82615B38607763602CB7EE3DFC7418"
     },
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
       "description": "DocFX for OSX(x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta-01487-772de0b4d.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta-01503-e770acccf.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
       "rid": "osx-x64",
-      "integrity": "9386A6515E8D30466815D1C457A2DA9E90734E60F07CBEF06DE60A3780049643"
+      "integrity": "EB30932ECA75D4D0A3E5439C588D2048523C2325A945F9145536B67DEEFDE4E5"
     }
   ]
 }
