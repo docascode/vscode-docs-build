@@ -7,7 +7,8 @@ export enum EventType {
     UserSignInTriggered,
     UserSignInProgress,
     UserSignInCompleted,
-    UserSignedOut,
+    UserSignOutTriggered,
+    UserSignOutCompleted,
 
     // Build
     RepositoryEnabledV3,

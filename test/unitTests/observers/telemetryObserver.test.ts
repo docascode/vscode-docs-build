@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { Credential } from '../../../src/credential/credentialController';
@@ -76,6 +76,37 @@ describe('TelemetryObserver', () => {
                 userName: undefined,
                 userEmail: undefined,
                 errorCode: 'AADSignInFailed',
+            });
+        });
+    });
+
+    it(`UserSignOutTriggered: 'SignOut.Triggered' event should be sent`, () => {
+        let event = new UserSignOutTriggered('fakedCorrelationId');
+        observer.eventHandler(event);
+        expect(sentEventName).to.equal('SignOut.Triggered');
+        expect(sentEventProperties).to.deep.equal({
+            correlationId: 'fakedCorrelationId'
+        });
+    });
+
+    describe(`UserSignOutCompleted: 'SignOut.Completed' event should be sent`, () => {
+        it('UserSignOutSucceeded', () => {
+            let event = new UserSignOutSucceeded('fakedCorrelationId');
+            observer.eventHandler(event);
+            expect(sentEventName).to.equal('SignOut.Completed');
+            expect(sentEventProperties).to.deep.equal({
+                correlationId: 'fakedCorrelationId',
+                result: 'Succeeded',
+            });
+        });
+
+        it('UserSignOutFailed', () => {
+            let event = new UserSignOutFailed('fakedCorrelationId', new Error('Faked error message'));
+            observer.eventHandler(event);
+            expect(sentEventName).to.equal('SignOut.Completed');
+            expect(sentEventProperties).to.deep.equal({
+                correlationId: 'fakedCorrelationId',
+                result: 'Failed',
             });
         });
     });
