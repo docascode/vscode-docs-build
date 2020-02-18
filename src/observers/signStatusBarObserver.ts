@@ -1,5 +1,5 @@
 import { BaseStatusBarObserver } from './baseStatusBarObserver';
-import { BaseEvent, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
+import { BaseEvent, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { Credential } from '../credential/credentialController';
 import { StatusBarItem } from 'vscode';
@@ -15,12 +15,14 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
             case EventType.CredentialInitializing:
                 this.setAndShowStatusBar(`${this.statusBarTextPrefix} Initializing`, undefined);
                 break;
-            case EventType.UserSigningIn:
+            case EventType.UserSignInTriggered:
                 this.setAndShowStatusBar(`${this.statusBarTextPrefix} Signing-in`, undefined);
                 break;
-            case EventType.UserSignInSucceeded:
-                let asUserSignIn = <UserSignInSucceeded>event;
-                this.handleSignedIn(asUserSignIn.credential);
+            case EventType.UserSignInCompleted:
+                if ((<UserSignInCompleted>event).succeeded) {
+                    let asUserSignIn = <UserSignInSucceeded>event;
+                    this.handleSignedIn(asUserSignIn.credential);
+                }
                 break;
             case EventType.CredentialRetrieveFromLocalCredentialManager:
                 let asCredentialRetrieveFromLocalCredentialManager = <CredentialRetrieveFromLocalCredentialManager>event;

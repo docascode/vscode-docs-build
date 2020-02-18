@@ -1,9 +1,10 @@
 import { expect } from 'chai';
-import { BuildTriggered, BuildSucceeded, BuildFailed, BuildCanceled } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, BuildTriggered, BuildSucceeded, BuildFailed, BuildCanceled, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from 'vscode-extension-telemetry';
-import { DocsError } from '../../../src/errors/DocsError';
-import { ErrorCode } from '../../../src/errors/ErrorCode';
+import { Credential } from '../../../src/credential/credentialController';
+import { DocsError } from '../../../src/error/docsError';
+import { ErrorCode } from '../../../src/error/errorCode';
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
 
@@ -34,6 +35,54 @@ describe('TelemetryObserver', () => {
         sentEventName = undefined;
         sentEventProperties = undefined;
         sentEventMeasurements = undefined;
+    });
+
+    it(`UserSignInTriggered: 'SignIn.Triggered' event should be sent`, () => {
+        let event = new UserSignInTriggered('fakedCorrelationId');
+        observer.eventHandler(event);
+        expect(sentEventName).to.equal('SignIn.Triggered');
+        expect(sentEventProperties).to.deep.equal({
+            correlationId: 'fakedCorrelationId'
+        });
+    });
+
+    describe(`UserSignInCompleted: 'SignIn.Completed' event should be sent`, () => {
+        it('UserSignInSucceeded', () => {
+            let event = new UserSignInSucceeded('fakedCorrelationId', <Credential>{
+                signInStatus: 'SignedIn',
+                aadInfo: 'faked-aad',
+                userInfo: {
+                    signType: 'GitHub',
+                    userEmail: 'fake@microsoft.com',
+                    userName: 'Faked User',
+                    userToken: 'faked-token'
+                }
+            });
+            observer.eventHandler(event);
+            expect(sentEventName).to.equal('SignIn.Completed');
+            expect(sentEventProperties).to.deep.equal({
+                correlationId: 'fakedCorrelationId',
+                result: 'Succeeded',
+                signInType: "GitHub",
+                userName: 'Faked User',
+                userEmail: 'fake@microsoft.com',
+                errorCode: undefined,
+            });
+        });
+
+        it('UserSignInFailed', () => {
+            let event = new UserSignInFailed('fakedCorrelationId', new DocsError('Faked error message', ErrorCode.AADSignInFailed));
+            observer.eventHandler(event);
+            expect(sentEventName).to.equal('SignIn.Completed');
+            expect(sentEventProperties).to.deep.equal({
+                correlationId: 'fakedCorrelationId',
+                result: 'Failed',
+                signInType: undefined,
+                userName: undefined,
+                userEmail: undefined,
+                errorCode: 'AADSignInFailed',
+            });
+        });
     });
 
     it(`BuildTriggered: 'Build.Triggered' event should be sent`, () => {

@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, BuildStarted, BuildCompleted, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 
 export class DocsLoggerObserver {
@@ -19,8 +19,8 @@ export class DocsLoggerObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             // Sign
-            case EventType.UserSignInSucceeded:
-                this.handleUserSignInSucceeded(<UserSignInSucceeded>event);
+            case EventType.UserSignInCompleted:
+                this.handleUserSignInCompleted(<UserSignInCompleted>event);
                 break;
             case EventType.CredentialRetrieveFromLocalCredentialManager:
                 this.handleCredentialRetrieveFromLocalCredentialManager(<CredentialRetrieveFromLocalCredentialManager>event);
@@ -109,10 +109,15 @@ export class DocsLoggerObserver {
     }
 
     // Sign
-    private handleUserSignInSucceeded(event: UserSignInSucceeded) {
-        this.appendLine(`Successfully sign-in to Docs Build:`);
-        this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
-        this.appendLine(`    - User email    : ${event.credential.userInfo.userEmail}`);
+    private handleUserSignInCompleted(event: UserSignInCompleted) {
+        if (event.succeeded) {
+            let asUserSignInSucceeded = <UserSignInSucceeded>event;
+            this.appendLine(`Successfully sign-in to Docs Build:`);
+            this.appendLine(`    - GitHub Account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
+            this.appendLine(`    - User email    : ${asUserSignInSucceeded.credential.userInfo.userEmail}`);
+        } else {
+            this.appendLine(`Failed to sign-in to Docs Build: ${(<UserSignInFailed>event).err.message}`);
+        }
         this.appendLine();
     }
 

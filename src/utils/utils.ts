@@ -13,7 +13,13 @@ export function parseQuery(uri: vscode.Uri) {
 }
 
 export async function delay<T = void>(ms: number, result?: T) {
-    return new Promise<T>(resolve => setTimeout(() => resolve(result), ms));
+    return new Promise<T>((resolve, reject) => setTimeout(() => {
+        if (result instanceof Error) {
+            reject(result);
+        } else {
+            resolve(result);
+        }
+    }, ms));
 }
 
 export function safelyReadJsonFile(filePath: string) {

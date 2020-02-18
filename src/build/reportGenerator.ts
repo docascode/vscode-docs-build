@@ -6,8 +6,8 @@ import { safelyReadJsonFile } from '../utils/utils';
 import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME, EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
 import { DiagnosticController } from './diagnosticController';
 import { BuildProgress } from '../common/loggingEvents';
-import { DocsError } from '../errors/DocsError';
-import { ErrorCode } from '../errors/ErrorCode';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
 
 interface Docset {
     docset_name: string;

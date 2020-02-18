@@ -1,18 +1,20 @@
 import * as fs from 'fs-extra';
 import * as vscode from 'vscode';
 import { EventType } from '../common/eventType';
-import { BaseEvent, UserSignInFailed, RepositoryEnabledV3, BuildCompleted, BuildFailed } from '../common/loggingEvents';
+import { BaseEvent, UserSignInFailed, RepositoryEnabledV3, UserSignInCompleted, BuildCompleted, BuildFailed } from '../common/loggingEvents';
 import { MessageAction } from '../shared';
 import { safelyReadJsonFile } from '../utils/utils';
-import { ErrorCode } from '../errors/ErrorCode';
-import { DocsError } from '../errors/DocsError';
+import { ErrorCode } from '../error/errorCode';
+import { DocsError } from '../error/docsError';
 
 export class ErrorMessageObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
-            case EventType.UserSignInFailed:
-                let asUserSignInFailed = <UserSignInFailed>event;
-                this.showErrorMessage(`Sign-In failed: ${asUserSignInFailed.message}`);
+            case EventType.UserSignInCompleted:
+                if (!(<UserSignInCompleted>event).succeeded) {
+                    let asUserSignInFailed = <UserSignInFailed>event;
+                    this.showErrorMessage(`Sign-In failed: ${asUserSignInFailed.err.message}`);
+                }
                 break;
             case EventType.BuildCompleted:
                 if ((<BuildCompleted>event).result === 'Failed') {

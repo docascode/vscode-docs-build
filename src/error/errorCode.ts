@@ -1,4 +1,12 @@
 export enum ErrorCode {
+    // Sign
+    AADSignInTimeOut,
+    GitHubSignInTimeOut,
+    AADSignInExternalUrlDeclined,
+    GitHubSignInExternalUrlDeclined,
+    AADSignInFailed,
+    GitHubSignInFailed,
+
     // Build
     TriggerBuildWhenInstantNotAvailable,
     TriggerBuildBeforeSignedIn,

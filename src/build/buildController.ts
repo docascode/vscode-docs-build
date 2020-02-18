@@ -13,8 +13,8 @@ import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
 import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled } from '../common/loggingEvents';
 import { ExtensionContext } from '../extensionContext';
-import { DocsError } from '../errors/DocsError';
-import { ErrorCode } from '../errors/ErrorCode';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
 import { BuildInput } from './buildInput';
 
 export class BuildController {
