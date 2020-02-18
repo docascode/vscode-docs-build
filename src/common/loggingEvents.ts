@@ -212,6 +212,16 @@ export class EnvironmentChanged implements BaseEvent {
     constructor(public env: Environment) { }
 }
 
+export class QuickPickTriggered implements BaseEvent {
+    type = EventType.QuickPickTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class QuickPickCommandSelected implements BaseEvent {
+    type = EventType.QuickPickCommandSelected;
+    constructor(public correlationId: string, public command: string) { }
+}
+
 // Test only
 export class RefreshCredential implements BaseEvent {
     type = EventType.RefreshCredential;

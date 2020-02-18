@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs-extra';
 import * as gitUrlParse from 'git-url-parse';
 import * as simpleGit from 'simple-git/promise';
+import * as uuid from 'uuid/v1';
 
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {
@@ -72,4 +73,8 @@ function pad(num: number, size: number) {
 
 export function trimEndSlash(str: string) {
     return str.replace(/\/*$/g, '');
+}
+
+export function getCorrelationId(): string {
+    return uuid();
 }

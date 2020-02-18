@@ -51,6 +51,8 @@ export enum EventType {
 
     // Others
     EnvironmentChanged,
+    QuickPickTriggered,
+    QuickPickCommandSelected,
 
     // Test only
     RefreshCredential,
