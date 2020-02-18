@@ -4,16 +4,19 @@ import * as template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash } from '../utils/utils';
-import { UserSigningIn, UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
 import { EnvironmentController } from '../common/environmentController';
+import { TimeOutError } from '../error/timeOutError';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
 
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
     let uriEventListener: vscode.Disposable;
     return Promise.race([
-        delay(extensionConfig.SignInTimeOut, new Error(`Timeout`)),
+        delay(extensionConfig.SignInTimeOut, new TimeOutError('Time out')),
         new Promise((resolve: (result: any) => void, reject: (reason: any) => void) => {
             uriEventListener = uriHandler.event((uri) => callback(uri, resolve, reject));
         }).then(result => {
@@ -63,40 +66,32 @@ export class CredentialController {
         };
     }
 
-    public async signIn(): Promise<void> {
+    public async signIn(correlationId: string): Promise<void> {
         try {
             this.resetCredential();
             this.signInStatus = 'SigningIn';
-            this.eventStream.post(new UserSigningIn());
+            this.eventStream.post(new UserSignInTriggered(correlationId));
 
             // Step-1: AAD sign-in
             if (!this.aadInfo) {
                 this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'));
                 let aadInfo = await this.signInWithAAD();
-                if (!aadInfo) {
-                    this.resetCredential();
-                    return;
-                } else {
-                    this.aadInfo = aadInfo;
-                    this.keyChain.setAADInfo(aadInfo);
-                }
+
+                this.aadInfo = aadInfo;
+                this.keyChain.setAADInfo(aadInfo);
             }
 
             // Step-2: GitHub sign-in
             this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'));
             let userInfo = await this.signInWithGitHub();
-            if (!userInfo) {
-                this.resetCredential();
-                return;
-            }
 
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
             await this.keyChain.setUserInfo(userInfo);
-            this.eventStream.post(new UserSignInSucceeded(this.credential));
+            this.eventStream.post(new UserSignInSucceeded(correlationId, this.credential));
         } catch (err) {
             this.resetCredential();
-            this.eventStream.post(new UserSignInFailed(err));
+            this.eventStream.post(new UserSignInFailed(correlationId, err));
         }
     }
 
@@ -146,30 +141,27 @@ export class CredentialController {
             resource: authConfig.AADAuthResource
         });
 
+
+        let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
+        if (!opened) {
+            // User decline to open external URL to sign in
+            throw new DocsError(`Sign-in with AAD Failed: Please Allow Code to open `, ErrorCode.AADSignInExternalUrlDeclined);
+        }
+
         try {
-            let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
-            if (opened) {
-                let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
-                    try {
-                        // TODO: Adjust OP `Authorizations/aad` API to return the code.
-                        const code = 'aad-code';
+            return await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
+                try {
+                    // TODO: Adjust OP `Authorizations/aad` API to return the code.
+                    const code = 'aad-code';
 
-                        resolve(code);
-                    } catch (err) {
-                        reject(err);
-                    }
-                });
-
-                if (result instanceof Error) {
-                    throw result;
+                    resolve(code);
+                } catch (err) {
+                    reject(err);
                 }
-                return result;
-            }
-            this.eventStream.post(new UserSignInFailed(`Sign-in with AAD Failed`));
-            return undefined;
+            });
         } catch (err) {
-            this.eventStream.post(new UserSignInFailed(`Sign-in with AAD Failed: ${err.message}`));
-            return undefined;
+            let errorCode = err instanceof TimeOutError ? ErrorCode.AADSignInTimeOut : ErrorCode.AADSignInFailed;
+            throw new DocsError(`Sign-in with AAD Failed: ${err.message}`, errorCode, err);
         }
     }
 
@@ -185,33 +177,30 @@ export class CredentialController {
             state,
         });
 
-        try {
-            let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
-            if (opened) {
-                let result = await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
-                    try {
-                        const query = parseQuery(uri);
+        let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
+        if (!opened) {
+            // User decline to open external URL to sign in
+            throw new DocsError(`Sign-in with GitHub Failed: Please Allow Code to open `, ErrorCode.GitHubSignInExternalUrlDeclined);
+        }
 
-                        resolve({
-                            userName: query.name,
-                            userEmail: query.email,
-                            userToken: query['X-OP-BuildUserToken'],
-                            signType: 'GitHub'
-                        });
-                    } catch (err) {
-                        reject(err);
-                    }
-                });
-                if (result instanceof Error) {
-                    throw result;
+        try {
+            return await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
+                try {
+                    const query = parseQuery(uri);
+
+                    resolve({
+                        userName: query.name,
+                        userEmail: query.email,
+                        userToken: query['X-OP-BuildUserToken'],
+                        signType: 'GitHub'
+                    });
+                } catch (err) {
+                    reject(err);
                 }
-                return result;
-            }
-            this.eventStream.post(new UserSignInFailed(`Sign-in with GitHub Failed`));
-            return undefined;
+            });
         } catch (err) {
-            this.eventStream.post(new UserSignInFailed(`Sign-in with GitHub Failed: ${err.message}`));
-            return undefined;
+            let errorCode = err instanceof TimeOutError ? ErrorCode.GitHubSignInTimeOut : ErrorCode.GitHubSignInFailed;
+            throw new DocsError(`Sign-in with GitHub Failed: ${err.message}`, errorCode, err);
         }
     }
 }

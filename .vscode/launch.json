@@ -16,9 +16,9 @@
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ],
             "outFiles": [
-                "${workspaceFolder}/dist/**/*.js"
+                "${workspaceFolder}/out/**/*.js"
             ],
-            "preLaunchTask": "npm: webpackDev"
+            "preLaunchTask": "npm: watch"
         },
         {
             "name": "Launch extension unit tests",
@@ -58,7 +58,7 @@
                 "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}",
                 "VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN}"
             },
-            "preLaunchTask": "npm: compileDev",
+            "preLaunchTask": "npm: watch",
             "sourceMaps": true
         },
         {
