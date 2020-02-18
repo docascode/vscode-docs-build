@@ -143,7 +143,6 @@ export class DocsLoggerObserver {
         }
         this.appendLine(`Repository Information of current workspace folder:`);
         this.appendLine(`  Local Repository URL: ${repositoryUrl}`);
-        this.appendLine(`  Local Repository Branch: ${event.repositoryBranch}`);
         this.appendLine();
     }
 

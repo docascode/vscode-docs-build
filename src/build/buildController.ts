@@ -120,13 +120,12 @@ export class BuildController {
         }
 
         try {
-            let [localRepositoryUrl, originalRepositoryUrl, localRepositoryBranch] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
+            let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
             return <BuildInput>{
                 buildType: 'FullBuild',
                 localRepositoryPath,
                 localRepositoryUrl,
                 originalRepositoryUrl,
-                localRepositoryBranch,
             };
         } catch (err) {
             throw new DocsError(
@@ -169,16 +168,15 @@ export class BuildController {
         this.eventStream.post(new BuildProgress('Retrieving repository information for the current workspace folder...'));
 
         let localRepositoryUrl: string;
-        let localRepositoryBranch: string;
         try {
-            [localRepositoryUrl, localRepositoryBranch] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
+            [localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
         } catch (err) {
             throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
         }
 
         let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
 
-        this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl, localRepositoryBranch));
-        return [localRepositoryUrl, originalRepositoryUrl, localRepositoryBranch];
+        this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
+        return [localRepositoryUrl, originalRepositoryUrl];
     }
 }

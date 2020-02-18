@@ -1,7 +1,7 @@
 **/*
 
 # Whitelist
-!dist/extension.js
+!out/src/extension.js
 !resources/syntaxes/docs-output.tmLanguage
 !resources/favicon.ico
 !CHANGELOG.md

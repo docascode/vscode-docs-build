@@ -39,7 +39,6 @@ export class BuildExecutor {
 
         let envs = {
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
-            'DOCFX_REPOSITORY_BRANCH': input.localRepositoryBranch,
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
 
