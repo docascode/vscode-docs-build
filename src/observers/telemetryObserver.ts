@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted } from '../common/loggingEvents';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
@@ -15,6 +15,12 @@ export class TelemetryObserver {
                 break;
             case EventType.UserSignInCompleted:
                 this.handleUserSignInCompleted(<UserSignInCompleted>event);
+                break;
+            case EventType.UserSignOutTriggered:
+                this.handleUserSignOutTriggered(<UserSignOutTriggered>event);
+                break;
+            case EventType.UserSignOutCompleted:
+                this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
                 break;
         }
     }
@@ -53,6 +59,25 @@ export class TelemetryObserver {
                 userName,
                 userEmail,
                 errorCode
+            }
+        );
+    }
+
+    private handleUserSignOutTriggered(event: UserSignOutTriggered) {
+        this.reporter.sendTelemetryEvent(
+            'SignOut.Triggered',
+            {
+                correlationId: event.correlationId
+            }
+        );
+    }
+
+    private handleUserSignOutCompleted(event: UserSignOutCompleted) {
+        this.reporter.sendTelemetryEvent(
+            'SignOut.Completed',
+            {
+                correlationId: event.correlationId,
+                result: event.succeeded ? 'Succeeded' : 'Failed',
             }
         );
     }
