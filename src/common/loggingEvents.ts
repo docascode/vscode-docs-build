@@ -9,22 +9,30 @@ export interface BaseEvent {
 }
 
 // Sign in
-export class UserSignInSucceeded implements BaseEvent {
-    type = EventType.UserSignInSucceeded;
-    constructor(public credential: Credential) { }
+export class UserSignInTriggered implements BaseEvent {
+    type = EventType.UserSignInTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class UserSignInCompleted implements BaseEvent {
+    type = EventType.UserSignInCompleted;
+    constructor(public correlationId: string, public succeeded: boolean) { }
+}
+
+export class UserSignInSucceeded extends UserSignInCompleted {
+    constructor(public correlationId: string, public credential: Credential) {
+        super(correlationId, true);
+    }
 }
 
 export class UserSignedOut implements BaseEvent {
     type = EventType.UserSignedOut;
 }
 
-export class UserSigningIn implements BaseEvent {
-    type = EventType.UserSigningIn;
-}
-
-export class UserSignInFailed implements BaseEvent {
-    type = EventType.UserSignInFailed;
-    constructor(public message: string) { }
+export class UserSignInFailed extends UserSignInCompleted {
+    constructor(public correlationId: string, public err: Error) {
+        super(correlationId, false);
+    }
 }
 
 export class UserSignInProgress implements BaseEvent {
@@ -56,7 +64,7 @@ export class RepositoryEnabledV3 implements BaseEvent {
 
 export class RepositoryInfoRetrieved implements BaseEvent {
     type = EventType.RepositoryInfoRetrieved;
-    constructor(public localRepositoryUrl: string, public originalRepositoryUrl: string, public repositoryBranch: string) { }
+    constructor(public localRepositoryUrl: string, public originalRepositoryUrl: string) { }
 }
 
 export class BuildInstantAllocated implements BaseEvent {

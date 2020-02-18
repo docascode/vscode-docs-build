@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildTriggerFailed, BuildJobTriggered, ReportGenerationFailed, DocfxRestoreSucceeded, DocfxRestoreFailed, DocfxRestoreCanceled, DocfxBuildCanceled, DocfxBuildSucceeded, DocfxBuildFailed, BuildJobSucceeded, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, DependencyInstallFinished, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, PlatformInfoRetrieved } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildTriggerFailed, BuildJobTriggered, ReportGenerationFailed, DocfxRestoreSucceeded, DocfxRestoreFailed, DocfxRestoreCanceled, DocfxBuildCanceled, DocfxBuildSucceeded, DocfxBuildFailed, BuildJobSucceeded, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, DependencyInstallFinished, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { Credential } from '../../../src/credential/credentialController';
 import { TriggerErrorType } from '../../../src/build/triggerErrorType';
@@ -23,24 +23,34 @@ describe('DocsLoggerObserver', () => {
         loggerText = '';
     });
 
-    it(`UserSignInSucceeded`, () => {
-        let event = new UserSignInSucceeded(<Credential>{
-            signInStatus: 'SignedIn',
-            aadInfo: 'faked-aad',
-            userInfo: {
-                signType: 'GitHub',
-                userEmail: 'fake@microsoft.com',
-                userName: 'Faked User',
-                userToken: 'faked-token'
-            }
-        });
-        observer.eventHandler(event);
+    describe('UserSignInCompleted', () => {
+        it(`UserSignInSucceeded`, () => {
+            let event = new UserSignInSucceeded('FakedCorrelationId', <Credential>{
+                signInStatus: 'SignedIn',
+                aadInfo: 'faked-aad',
+                userInfo: {
+                    signType: 'GitHub',
+                    userEmail: 'fake@microsoft.com',
+                    userName: 'Faked User',
+                    userToken: 'faked-token'
+                }
+            });
+            observer.eventHandler(event);
 
-        let expectedOutput = `Successfully sign-in to Docs Build:\n`
-            + `    - GitHub Account: Faked User\n`
-            + `    - User email    : fake@microsoft.com\n`
-            + `\n`;
-        expect(loggerText).to.equal(expectedOutput);
+            let expectedOutput = `Successfully sign-in to Docs Build:\n`
+                + `    - GitHub Account: Faked User\n`
+                + `    - User email    : fake@microsoft.com\n`
+                + `\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+
+        it('UserSignInFailed', () => {
+            let event = new UserSignInFailed('FakedCorrelationId', new Error('Faked error msg'));
+            observer.eventHandler(event);
+
+            let expectedOutput = `Failed to sign-in to Docs Build: Faked error msg\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
     });
 
     it(`CredentialRetrieveFromLocalCredentialManager`, () => {
@@ -81,23 +91,21 @@ describe('DocsLoggerObserver', () => {
 
     describe(`RepositoryInfoRetrieved`, () => {
         it(`Same original repository url with local repository url`, () => {
-            let event = new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.repository', 'fakedBranch');
+            let event = new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.repository');
             observer.eventHandler(event);
 
             let expectedOutput = `Repository Information of current workspace folder:\n`
                 + `  Local Repository URL: https://faked.repository\n`
-                + `  Local Repository Branch: fakedBranch\n`
                 + `\n`;
             expect(loggerText).to.equal(expectedOutput);
         });
 
         it(`Different original repository url with local repository url`, () => {
-            let event = new RepositoryInfoRetrieved('https://faked.local.repository', 'https://faked.original.repository', 'fakedBranch');
+            let event = new RepositoryInfoRetrieved('https://faked.local.repository', 'https://faked.original.repository');
             observer.eventHandler(event);
 
             let expectedOutput = `Repository Information of current workspace folder:\n`
                 + `  Local Repository URL: https://faked.local.repository(original: https://faked.original.repository)\n`
-                + `  Local Repository Branch: fakedBranch\n`
                 + `\n`;
             expect(loggerText).to.equal(expectedOutput);
         });

@@ -13,7 +13,13 @@ export function parseQuery(uri: vscode.Uri) {
 }
 
 export async function delay<T = void>(ms: number, result?: T) {
-    return new Promise<T>(resolve => setTimeout(() => resolve(result), ms));
+    return new Promise<T>((resolve, reject) => setTimeout(() => {
+        if (result instanceof Error) {
+            reject(result);
+        } else {
+            resolve(result);
+        }
+    }, ms));
 }
 
 export function safelyReadJsonFile(filePath: string) {
@@ -39,10 +45,6 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
     }
 
     let branch = await repository.revparse(['--abbrev-ref', 'HEAD']);
-    if (branch === 'HEAD') {
-        // If origin not existed, `HEAD` string will be return
-        throw new Error('Please checkout to a branch');
-    }
 
     let commit = await repository.revparse(['HEAD']);
 
