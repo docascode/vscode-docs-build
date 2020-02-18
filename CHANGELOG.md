@@ -3,7 +3,7 @@
 ## 0.1.12 (February 18, 2020)
 ### Add
 - Bundle extension to improve loading performance. (#32)
-- Add quick quick menu. (#33)
+- Add quick pick menu. (#33)
 
 ## 0.1.11 (January 30, 2020)
 ### Fixed
