@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { OutputChannel } from 'vscode';
-import { UserSigningIn, BaseEvent, DependencyInstallStarted, BuildInstantAllocated } from '../../../src/common/loggingEvents';
+import { BaseEvent, DependencyInstallStarted, BuildInstantAllocated, UserSignInTriggered } from '../../../src/common/loggingEvents';
 import { DocsOutputChannelObserver } from '../../../src/observers/docsOutputChannelObserver';
 
 describe('DocsOutputChannelObserver', () => {
@@ -18,7 +18,7 @@ describe('DocsOutputChannelObserver', () => {
 
     [
         new BuildInstantAllocated(),
-        new UserSigningIn(),
+        new UserSignInTriggered('FakedCorrelationId'),
         new DependencyInstallStarted()
     ].forEach((event: BaseEvent) => {
         it(`${event.constructor.name}: Channel is shown and focused `, () => {
