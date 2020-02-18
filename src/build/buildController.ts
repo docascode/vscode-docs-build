@@ -184,7 +184,6 @@ export class BuildController {
 
     private isLocalizedRepositoryUrl(repositoryUrl: string): boolean {
         // https://host/owner/repo.lo-lc or https://host/owner/repo.lo-loca-lo
-        if (/^.*?\.([A-z]{2})(-([A-z]{2}){1,2})?(-[A-z]{2})$/.test(repositoryUrl)) return true;
-        return false;
+        return /^.*?\.([A-z]{2})(-([A-z]{2}){1,2})?(-[A-z]{2})$/.test(repositoryUrl);
     }
 }
