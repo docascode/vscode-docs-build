@@ -81,23 +81,21 @@ describe('DocsLoggerObserver', () => {
 
     describe(`RepositoryInfoRetrieved`, () => {
         it(`Same original repository url with local repository url`, () => {
-            let event = new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.repository', 'fakedBranch');
+            let event = new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.repository');
             observer.eventHandler(event);
 
             let expectedOutput = `Repository Information of current workspace folder:\n`
                 + `  Local Repository URL: https://faked.repository\n`
-                + `  Local Repository Branch: fakedBranch\n`
                 + `\n`;
             expect(loggerText).to.equal(expectedOutput);
         });
 
         it(`Different original repository url with local repository url`, () => {
-            let event = new RepositoryInfoRetrieved('https://faked.local.repository', 'https://faked.original.repository', 'fakedBranch');
+            let event = new RepositoryInfoRetrieved('https://faked.local.repository', 'https://faked.original.repository');
             observer.eventHandler(event);
 
             let expectedOutput = `Repository Information of current workspace folder:\n`
                 + `  Local Repository URL: https://faked.local.repository(original: https://faked.original.repository)\n`
-                + `  Local Repository Branch: fakedBranch\n`
                 + `\n`;
             expect(loggerText).to.equal(expectedOutput);
         });

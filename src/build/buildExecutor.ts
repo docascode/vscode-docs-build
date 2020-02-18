@@ -27,7 +27,6 @@ export class BuildExecutor {
     public async RunBuild(
         repositoryPath: string,
         repositoryUrl: string,
-        repositoryBranch: string,
         outputPath: string,
         buildUserToken: string
     ): Promise<boolean> {
@@ -36,7 +35,6 @@ export class BuildExecutor {
 
         let envs = {
             'DOCFX_REPOSITORY_URL': repositoryUrl,
-            'DOCFX_REPOSITORY_BRANCH': repositoryBranch,
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
 
