@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, DependencyInstallFinished, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, DependencyInstallFinished, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { Credential } from '../../../src/credential/credentialController';
 import { PlatformInformation } from '../../../src/common/platformInformation';
@@ -72,12 +72,22 @@ describe('DocsLoggerObserver', () => {
         expect(loggerText).to.equal(expectedOutput);
     });
 
-    it(`UserSignedOut`, () => {
-        let event = new UserSignedOut();
-        observer.eventHandler(event);
+    describe('UserSignOutCompleted', () => {
+        it(`UserSignOutSucceeded`, () => {
+            let event = new UserSignOutSucceeded('FakedCorrelationId');
+            observer.eventHandler(event);
 
-        let expectedOutput = `Successfully sign-out from Docs Build!\n\n`;
-        expect(loggerText).to.equal(expectedOutput);
+            let expectedOutput = `Successfully sign-out from Docs Build!\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+
+        it(`UserSignOutFailed`, () => {
+            let event = new UserSignOutFailed('FakedCorrelationId', new Error('Faked error msg'));
+            observer.eventHandler(event);
+
+            let expectedOutput = `Failed to sign-out from Docs Build: Faked error msg\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
     });
 
     it(`UserSignInProgress`, () => {

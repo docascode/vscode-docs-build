@@ -26,11 +26,29 @@ export class UserSignInSucceeded extends UserSignInCompleted {
     }
 }
 
-export class UserSignedOut implements BaseEvent {
-    type = EventType.UserSignedOut;
+export class UserSignInFailed extends UserSignInCompleted {
+    constructor(public correlationId: string, public err: Error) {
+        super(correlationId, false);
+    }
 }
 
-export class UserSignInFailed extends UserSignInCompleted {
+export class UserSignOutTriggered implements BaseEvent {
+    type = EventType.UserSignOutTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class UserSignOutCompleted implements BaseEvent {
+    type = EventType.UserSignOutCompleted;
+    constructor(public correlationId: string, public succeeded: boolean) { }
+}
+
+export class UserSignOutSucceeded extends UserSignOutCompleted {
+    constructor(public correlationId: string) {
+        super(correlationId, true);
+    }
+}
+
+export class UserSignOutFailed extends UserSignOutCompleted {
     constructor(public correlationId: string, public err: Error) {
         super(correlationId, false);
     }
