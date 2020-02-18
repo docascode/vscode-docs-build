@@ -172,9 +172,19 @@ export class BuildController {
             throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
         }
 
+        if (this.isLocalizedRepositoryUrl(localRepositoryUrl)) {
+            throw new Error('Localization repository is not supported');
+        }
+
         let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
 
         this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl, localRepositoryBranch));
         return [originalRepositoryUrl, localRepositoryBranch];
+    }
+
+    private isLocalizedRepositoryUrl(repositoryUrl: string): boolean {
+        // https://host/owner/repo.lo-lc or https://host/owner/repo.lo-loca-lo
+        if (/^.*?\.([A-z]{2})(-([A-z]{2}){1,2})?(-[A-z]{2})$/.test(repositoryUrl)) return true;
+        return false;
     }
 }
