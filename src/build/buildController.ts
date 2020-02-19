@@ -3,22 +3,24 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { Credential } from '../credential/credentialController';
 import { OPBuildAPIClient } from './opBuildAPIClient';
-import { TriggerErrorType } from './triggerErrorType';
 import { EventStream } from '../common/eventStream';
 import { DiagnosticController } from './diagnosticController';
-import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder } from '../utils/utils';
+import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds } from '../utils/utils';
 import { EnvironmentController } from '../common/environmentController';
 import { BuildExecutor } from './buildExecutor';
 import { PlatformInformation } from '../common/platformInformation';
-import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME } from '../shared';
+import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
-import { BuildJobSucceeded, BuildTriggerFailed, BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildJobTriggered, BuildJobFailed } from '../common/loggingEvents';
+import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled } from '../common/loggingEvents';
 import { ExtensionContext } from '../extensionContext';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
+import { BuildInput, BuildType } from './buildInput';
+import { DocfxExecutionResult } from './buildResult';
 
 export class BuildController {
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
     private instantAvailable: boolean;
-    private repositoryUrl: string;
     private opBuildAPIClient: OPBuildAPIClient;
     private buildExecutor: BuildExecutor;
 
@@ -35,51 +37,54 @@ export class BuildController {
         this.buildExecutor = new BuildExecutor(context, platformInformation, environmentController, eventStream);
     }
 
-    public async build(uri: vscode.Uri, credential: Credential): Promise<void> {
-        if (!this.trySetAvailableFlag()) {
+    public async build(correlationId: string, uri: vscode.Uri, credential: Credential): Promise<void> {
+        let buildInput: BuildInput;
+        this.eventStream.post(new BuildTriggered(correlationId));
+        let start = Date.now();
+
+        try {
+            this.setAvailableFlag();
+        } catch (err) {
+            this.eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
             return;
         }
 
         try {
-            if (!(await this.initializeWorkspaceFolderInfo(uri, credential))) {
-                return;
-            }
+            buildInput = await this.getBuildInput(uri, credential);
 
-            this.eventStream.post(new BuildJobTriggered(this.activeWorkSpaceFolder.name));
-            let buildSucceeded = await this.buildExecutor.RunBuild(
-                this.repositoryPath,
-                this.repositoryUrl,
-                path.join(this.repositoryPath, OUTPUT_FOLDER_NAME),
-                credential.userInfo.userToken
-            );
+            this.eventStream.post(new BuildStarted(this.activeWorkSpaceFolder.name));
+            let buildResult = await this.buildExecutor.RunBuild(buildInput, credential.userInfo.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
-            if (buildSucceeded
-                && visualizeBuildReport(this.repositoryPath, this.diagnosticController, this.eventStream)) {
-                this.eventStream.post(new BuildJobSucceeded());
-            } else {
-                this.eventStream.post(new BuildJobFailed());
+            switch (buildResult.result) {
+                case DocfxExecutionResult.Succeeded:
+                    visualizeBuildReport(buildInput.localRepositoryPath, this.diagnosticController, this.eventStream);
+                    this.eventStream.post(new BuildSucceeded(correlationId, buildInput, getTotalTimeInSeconds(), buildResult));
+                    break;
+                case DocfxExecutionResult.Canceled:
+                    this.eventStream.post(new BuildCanceled(correlationId, buildInput, getTotalTimeInSeconds()));
+                    break;
+                case DocfxExecutionResult.Failed:
+                    throw new DocsError('Running docfx failed', ErrorCode.RunDocfxFailed);
             }
+        }
+        catch (err) {
+            this.eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
         }
         finally {
             this.resetAvailableFlag();
         }
+
+        function getTotalTimeInSeconds() {
+            return getDurationInSeconds(Date.now() - start);
+        }
     }
 
-    private trySetAvailableFlag(): boolean {
+    private setAvailableFlag() {
         if (!this.instantAvailable) {
-            this.eventStream.post(new BuildTriggerFailed('Last build has not finished.', TriggerErrorType.TriggerBuildWhenInstantNotAvailable));
-            return false;
+            throw new DocsError('Last build has not finished.', ErrorCode.TriggerBuildWhenInstantNotAvailable);
         }
         this.instantAvailable = false;
         this.eventStream.post(new BuildInstantAllocated());
-        return true;
-    }
-
-    private get repositoryPath(): string {
-        if (this.activeWorkSpaceFolder) {
-            return this.activeWorkSpaceFolder.uri.fsPath;
-        }
-        return undefined;
     }
 
     private resetAvailableFlag() {
@@ -87,7 +92,7 @@ export class BuildController {
         this.eventStream.post(new BuildInstantReleased());
     }
 
-    private async initializeWorkspaceFolderInfo(uri: vscode.Uri, credential: Credential): Promise<boolean> {
+    private async getBuildInput(uri: vscode.Uri, credential: Credential): Promise<BuildInput> {
         if (uri) {
             // Trigger build from the right click the workspace file.
             this.activeWorkSpaceFolder = vscode.workspace.getWorkspaceFolder(uri);
@@ -97,74 +102,75 @@ export class BuildController {
             if (workspaceFolders) {
                 if (workspaceFolders.length > 1) {
                     // TODO: Display a command palette to let user select the target workspace folder.
-                    this.eventStream.post(new BuildTriggerFailed(
+                    throw new DocsError(
                         'Multiple workspace folders are opened. Please right click any file inside the target workspace folder to trigger the build',
-                        TriggerErrorType.TriggerBuildWithoutSpecificWorkspace));
-                    return false;
+                        ErrorCode.TriggerBuildWithoutSpecificWorkspace
+                    );
                 }
                 this.activeWorkSpaceFolder = workspaceFolders[0];
             }
         }
 
         // Check the workspace is a valid Docs repository
-        if (!(await this.validateWorkSpaceFolder(this.activeWorkSpaceFolder))) {
-            return false;
-        }
+        await this.validateWorkSpaceFolder(this.activeWorkSpaceFolder);
+        let localRepositoryPath = this.activeWorkSpaceFolder.uri.fsPath;
 
         // Check user sign in status
         if (credential.signInStatus !== 'SignedIn') {
-            this.eventStream.post(new BuildTriggerFailed('You have to sign-in firstly', TriggerErrorType.TriggerBuildBeforeSignedIn));
-            return false;
+            throw new DocsError('You have to sign-in firstly', ErrorCode.TriggerBuildBeforeSignedIn);
         }
 
         try {
-            this.repositoryUrl = await this.retrieveRepositoryInfo(credential.userInfo.userToken);
+            let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
+            return <BuildInput>{
+                buildType: BuildType.FullBuild,
+                localRepositoryPath,
+                localRepositoryUrl,
+                originalRepositoryUrl,
+            };
         } catch (err) {
-            this.eventStream.post(new BuildTriggerFailed(
+            throw new DocsError(
                 err.message,
-                TriggerErrorType.TriggerBuildOnInvalidDocsRepo
-            ));
-            return false;
+                ErrorCode.TriggerBuildOnInvalidDocsRepo
+            );
         }
-
-        return true;
     }
 
-    private async validateWorkSpaceFolder(workspaceFolder: vscode.WorkspaceFolder): Promise<boolean> {
+    private async validateWorkSpaceFolder(workspaceFolder: vscode.WorkspaceFolder) {
         if (!workspaceFolder) {
-            this.eventStream.post(new BuildTriggerFailed('You can only trigger the build on a workspace folder.', TriggerErrorType.TriggerBuildOnNonWorkspace));
-            return false;
+            throw new DocsError(
+                'You can only trigger the build on a workspace folder.',
+                ErrorCode.TriggerBuildOnNonWorkspace
+            );
         }
 
         let opConfigPath = path.join(workspaceFolder.uri.fsPath, OP_CONFIG_FILE_NAME);
         if (!fs.existsSync(opConfigPath)) {
-            this.eventStream.post(new BuildTriggerFailed(
+            throw new DocsError(
                 `Cannot find '${OP_CONFIG_FILE_NAME}' file under current workspace folder.`,
-                TriggerErrorType.TriggerBuildOnNonDocsRepo
-            ));
-            return false;
+                ErrorCode.TriggerBuildOnNonDocsRepo
+            );
         }
 
         let opConfig = safelyReadJsonFile(opConfigPath);
         if (!opConfig.docs_build_engine || opConfig.docs_build_engine.name !== 'docfx_v3') {
-            this.eventStream.post(new BuildTriggerFailed(
+            throw new DocsError(
                 'Docs Build requires the repository enable DocFX v3',
-                TriggerErrorType.TriggerBuildOnV2Repo,
+                ErrorCode.TriggerBuildOnV2Repo,
+                undefined,
                 [opConfigPath]
-            ));
-
-            return false;
+            );
         }
 
         return true;
     }
 
-    private async retrieveRepositoryInfo(buildUserToken: string): Promise<string> {
+    private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {
         this.eventStream.post(new BuildProgress('Retrieving repository information for the current workspace folder...'));
 
         let localRepositoryUrl: string;
         try {
-            [localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(this.repositoryPath);
+            [localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
         } catch (err) {
             throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
         }
@@ -172,6 +178,6 @@ export class BuildController {
         let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
 
         this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
-        return originalRepositoryUrl;
+        return [localRepositoryUrl, originalRepositoryUrl];
     }
 }
