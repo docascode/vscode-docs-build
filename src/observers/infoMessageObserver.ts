@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { BaseEvent, UserSignInCompleted, UserSignOutCompleted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { MessageAction } from '../shared';
 export class InfoMessageObserver {
@@ -18,8 +18,10 @@ export class InfoMessageObserver {
             case EventType.RepositoryEnabledV3:
                 this.handleRepositoryEnabledV3();
                 break;
-            case EventType.BuildJobSucceeded:
-                this.handleBuildJobSucceeded();
+            case EventType.BuildCompleted:
+                if ((<BuildCompleted>event).result === 'Succeeded') {
+                    this.handleBuildJobSucceeded();
+                }
                 break;
         }
     }

@@ -68,6 +68,10 @@ export function formatDuration(ms: number) {
     return `${pad(hours, 2)}:${pad(minutes, 2)}:${pad(seconds, 2)}`;
 }
 
+export function getDurationInSeconds(ms: number) {
+    return Math.floor(ms / 1000);
+}
+
 function pad(num: number, size: number) {
     let s = String(num);
     return s.padStart(size, '0');

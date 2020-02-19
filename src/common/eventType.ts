@@ -16,20 +16,16 @@ export enum EventType {
 
     BuildInstantReleased,
     BuildInstantAllocated,
-    BuildTriggerFailed,
-    BuildJobTriggered,
-    BuildJobSucceeded,
-    BuildJobFailed,
+
+    BuildTriggered,
+    BuildStarted,
     BuildProgress,
+    BuildCompleted,
 
     DocfxRestoreStarted,
-    DocfxRestoreFinished,
-    DocfxRestoreCanceled,
+    DocfxRestoreCompleted,
     DocfxBuildStarted,
-    DocfxBuildFinished,
-    DocfxBuildCanceled,
-
-    ReportGenerationFailed,
+    DocfxBuildCompleted,
 
     // API
     APICallStarted,
