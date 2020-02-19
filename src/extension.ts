@@ -84,9 +84,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         environmentController,
         // TODO: Support cancel the current build
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn(getCorrelationId())),
-        vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut()),
+        vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut(getCorrelationId())),
         vscode.commands.registerCommand('docs.build', (uri) => {
-            buildController.build(uri, credentialController.credential);
+            buildController.build(getCorrelationId(), uri, credentialController.credential);
         }),
         vscode.commands.registerCommand('learnMore', (code: string) => {
             CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), code);
@@ -143,10 +143,10 @@ function createQuickPickMenu(credentialController: CredentialController, buildCo
                     credentialController.signIn(getCorrelationId());
                     break;
                 case 'Sign-out':
-                    credentialController.signOut();
+                    credentialController.signOut(getCorrelationId());
                     break;
                 case 'Build':
-                    buildController.build(undefined, credentialController.credential);
+                    buildController.build(getCorrelationId(), undefined, credentialController.credential);
                     break;
 
             }

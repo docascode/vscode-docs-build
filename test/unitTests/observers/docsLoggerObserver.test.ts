@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildTriggerFailed, BuildJobTriggered, ReportGenerationFailed, DocfxRestoreSucceeded, DocfxRestoreFailed, DocfxRestoreCanceled, DocfxBuildCanceled, DocfxBuildSucceeded, DocfxBuildFailed, BuildJobSucceeded, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, DependencyInstallFinished, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, DependencyInstallFinished, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { Credential } from '../../../src/credential/credentialController';
-import { TriggerErrorType } from '../../../src/build/triggerErrorType';
 import { PlatformInformation } from '../../../src/common/platformInformation';
+import { DocfxExecutionResult } from '../../../src/build/buildResult';
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;
@@ -73,12 +73,22 @@ describe('DocsLoggerObserver', () => {
         expect(loggerText).to.equal(expectedOutput);
     });
 
-    it(`UserSignedOut`, () => {
-        let event = new UserSignedOut();
-        observer.eventHandler(event);
+    describe('UserSignOutCompleted', () => {
+        it(`UserSignOutSucceeded`, () => {
+            let event = new UserSignOutSucceeded('FakedCorrelationId');
+            observer.eventHandler(event);
 
-        let expectedOutput = `Successfully sign-out from Docs Build!\n\n`;
-        expect(loggerText).to.equal(expectedOutput);
+            let expectedOutput = `Successfully sign-out from Docs Build!\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+
+        it(`UserSignOutFailed`, () => {
+            let event = new UserSignOutFailed('FakedCorrelationId', new Error('Faked error msg'));
+            observer.eventHandler(event);
+
+            let expectedOutput = `Failed to sign-out from Docs Build: Faked error msg\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
     });
 
     it(`UserSignInProgress`, () => {
@@ -89,6 +99,7 @@ describe('DocsLoggerObserver', () => {
         expect(loggerText).to.equal(expectedOutput);
     });
 
+    // Build
     describe(`RepositoryInfoRetrieved`, () => {
         it(`Same original repository url with local repository url`, () => {
             let event = new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.repository');
@@ -120,88 +131,38 @@ describe('DocsLoggerObserver', () => {
         expect(loggerText).to.equal(expectedOutput);
     });
 
-    it(`BuildTriggerFailed`, () => {
-        let event = new BuildTriggerFailed('Faked msg', TriggerErrorType.TriggerBuildBeforeSignedIn);
-        observer.eventHandler(event);
-
-        let expectedOutput = `Cannot trigger build: Faked msg\n`;
-        expect(loggerText).to.equal(expectedOutput);
-    });
-
-    it(`BuildJobTriggered`, () => {
-        let event = new BuildJobTriggered('FakedWorkspaceFolderName');
+    it(`BuildStarted`, () => {
+        let event = new BuildStarted('FakedWorkspaceFolderName');
         observer.eventHandler(event);
 
         let expectedOutput = `Start to build workspace folder 'FakedWorkspaceFolderName'\n`;
         expect(loggerText).to.equal(expectedOutput);
     });
 
-    it(`ReportGenerationFailed`, () => {
-        let event = new ReportGenerationFailed('Faked msg');
-        observer.eventHandler(event);
-
-        let expectedOutput = `Error happened when visualizing the build report: 'Faked msg'\n\n`;
-        expect(loggerText).to.equal(expectedOutput);
-    });
-
-    describe('DocfxRestoreFinished', () => {
-        it(`Restore succeeded`, () => {
-            let event = new DocfxRestoreSucceeded();
+    describe('BuildCompleted', () => {
+        it('BuildSucceeded', () => {
+            let event = new BuildSucceeded('FakedCorrelationId', undefined, 10, undefined);
             observer.eventHandler(event);
 
-            let expectedOutput = `Restore Finished, start to run 'docfx build'...\n\n`;
+            let expectedOutput = `Report generated, please view them in 'PROBLEMS' tab\n\n`;
             expect(loggerText).to.equal(expectedOutput);
         });
 
-        it(`Restore failed`, () => {
-            let event = new DocfxRestoreFailed(1);
+        it('BuildCanceled', () => {
+            let event = new BuildCanceled('FakedCorrelationId', undefined, 10);
             observer.eventHandler(event);
 
-            let expectedOutput = `Error: Running 'docfx restore' failed with exit code: 1\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
-        });
-    });
-
-    it(`DocfxRestoreCanceled`, () => {
-        let event = new DocfxRestoreCanceled();
-        observer.eventHandler(event);
-
-        let expectedOutput = `'docfx restore' command has been canceled, skip running 'docfx build'\n`;
-        expect(loggerText).to.equal(expectedOutput);
-    });
-
-    it(`DocfxBuildCanceled`, () => {
-        let event = new DocfxBuildCanceled();
-        observer.eventHandler(event);
-
-        let expectedOutput = `'docfx build' command has been canceled\n`;
-        expect(loggerText).to.equal(expectedOutput);
-    });
-
-    describe('DocfxBuildFinished', () => {
-        it(`Build succeeded`, () => {
-            let event = new DocfxBuildSucceeded();
-            observer.eventHandler(event);
-
-            let expectedOutput = `Build Finished, Generating report...\n\n`;
+            let expectedOutput = `Build has been canceled\n\n`;
             expect(loggerText).to.equal(expectedOutput);
         });
 
-        it(`Build failed`, () => {
-            let event = new DocfxBuildFailed(1);
+        it('BuildFailed', () => {
+            let event = new BuildFailed('FakedCorrelationId', undefined, 10, new Error('Faked error msg'));
             observer.eventHandler(event);
 
-            let expectedOutput = `Error: Running 'docfx build' failed with exit code: 1\n\n`;
+            let expectedOutput = `Build failed: Faked error msg\n\n`;
             expect(loggerText).to.equal(expectedOutput);
         });
-    });
-
-    it(`BuildJobSucceeded`, () => {
-        let event = new BuildJobSucceeded();
-        observer.eventHandler(event);
-
-        let expectedOutput = `Report generated, please view them in 'PROBLEMS' tab\n`;
-        expect(loggerText).to.equal(expectedOutput);
     });
 
     it(`BuildProgress`, () => {
@@ -212,6 +173,59 @@ describe('DocsLoggerObserver', () => {
         expect(loggerText).to.equal(expectedOutput);
     });
 
+    describe('DocfxRestoreCompleted', () => {
+        it(`Docfx Restore succeeded`, () => {
+            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Succeeded);
+            observer.eventHandler(event);
+
+            let expectedOutput = `Restore Finished, start to run 'docfx build'...\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+
+        it(`Docfx Restore failed`, () => {
+            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Failed, 1);
+            observer.eventHandler(event);
+
+            let expectedOutput = `Error: Running 'docfx restore' failed with exit code: 1\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+
+        it(`Docfx Restore canceled`, () => {
+            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Canceled);
+            observer.eventHandler(event);
+    
+            let expectedOutput = `'docfx restore' command has been canceled, skip running 'docfx build'\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+    });
+
+    describe('DocfxBuildFinished', () => {
+        it(`Docfx Build succeeded`, () => {
+            let event = new DocfxBuildCompleted(DocfxExecutionResult.Succeeded);
+            observer.eventHandler(event);
+
+            let expectedOutput = `Build Finished, Generating report...\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+
+        it(`Docfx Build failed`, () => {
+            let event = new DocfxBuildCompleted(DocfxExecutionResult.Failed, 1);
+            observer.eventHandler(event);
+
+            let expectedOutput = `Error: Running 'docfx build' failed with exit code: 1\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+
+        it(`Docfx Build canceled`, () => {
+            let event = new DocfxBuildCompleted(DocfxExecutionResult.Canceled);
+            observer.eventHandler(event);
+    
+            let expectedOutput = `'docfx build' command has been canceled\n\n`;
+            expect(loggerText).to.equal(expectedOutput);
+        });
+    });
+
+    // API
     it(`APICallStarted`, () => {
         let event = new APICallStarted('FakedAPIName', 'https://faked.api');
         observer.eventHandler(event);
@@ -228,6 +242,7 @@ describe('DocsLoggerObserver', () => {
         expect(loggerText).to.equal(expectedOutput);
     });
 
+    // Runtime Dependency
     it(`DependencyInstallStarted`, () => {
         let event = new DependencyInstallStarted();
         observer.eventHandler(event);

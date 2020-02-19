@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { ensureExtensionActivatedAndInitializationFinished, setupAvailableMockKeyChain, triggerCommand } from "../utils/testHelper";
-import { BaseEvent, DocfxBuildFinished, DocfxRestoreFinished, RefreshCredential } from "../../src/common/loggingEvents";
+import { BaseEvent, RefreshCredential, DocfxRestoreCompleted, DocfxBuildCompleted, BuildCompleted } from "../../src/common/loggingEvents";
 import { createSandbox } from 'sinon';
 import { EventType } from "../../src/common/eventType";
 import * as converter from 'number-to-words';
@@ -46,22 +46,18 @@ export function run(): Promise<void> {
                 case EventType.DocfxRestoreStarted:
                     restoreStart = Date.now();
                     break;
-                case EventType.DocfxRestoreFinished:
-                    handleDocfxRestoreFinished(<DocfxRestoreFinished>event);
+                case EventType.DocfxRestoreCompleted:
+                    handleDocfxRestoreCompleted(<DocfxRestoreCompleted>event);
                     break;
                 case EventType.DocfxBuildStarted:
                     buildStart = Date.now();
                     break;
-                case EventType.DocfxBuildFinished:
-                    handleDocfxBuildFinished(<DocfxBuildFinished>event);
+                case EventType.DocfxBuildCompleted:
+                    handleDocfxBuildCompleted(<DocfxBuildCompleted>event);
                     break;
-                case EventType.BuildJobSucceeded:
-                    totalDuration = Date.now() - start;
-                    console.log(`  Build job finished in ${formatDuration(buildDuration)}`);
+                case EventType.BuildCompleted:
+                    handleBuildCompleted(<BuildCompleted>event);
                     break;
-                case EventType.BuildTriggerFailed:
-                case EventType.BuildJobFailed:
-                    exitTest(1);
             }
         });
 
@@ -98,8 +94,8 @@ export function run(): Promise<void> {
             }
         }
 
-        function handleDocfxRestoreFinished(event: DocfxRestoreFinished) {
-            if ((<DocfxRestoreFinished>event).exitCode === 0) {
+        function handleDocfxRestoreCompleted(event: DocfxRestoreCompleted) {
+            if (event.result === 'Succeeded') {
                 restoreDuration = Date.now() - restoreStart;
                 console.log(`  'Docfx restore' finished in ${formatDuration(restoreDuration)}`);
             } else {
@@ -107,10 +103,19 @@ export function run(): Promise<void> {
             }
         }
 
-        function handleDocfxBuildFinished(event: DocfxBuildFinished) {
-            if ((<DocfxBuildFinished>event).exitCode === 0) {
+        function handleDocfxBuildCompleted(event: DocfxBuildCompleted) {
+            if (event.result === 'Succeeded') {
                 buildDuration = Date.now() - buildStart;
                 console.log(`  'Docfx build' finished in ${formatDuration(buildDuration)}`);
+            } else {
+                exitTest(1);
+            }
+        }
+
+        function handleBuildCompleted(event: BuildCompleted) {
+            if (event.result === 'Succeeded') {
+                totalDuration = Date.now() - start;
+                console.log(`  Build job finished in ${formatDuration(buildDuration)}`);
             } else {
                 exitTest(1);
             }

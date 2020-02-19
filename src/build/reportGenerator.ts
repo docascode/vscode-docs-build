@@ -5,7 +5,9 @@ import { EventStream } from "../common/eventStream";
 import { safelyReadJsonFile } from '../utils/utils';
 import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME, EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
 import { DiagnosticController } from './diagnosticController';
-import { BuildProgress, ReportGenerationFailed } from '../common/loggingEvents';
+import { BuildProgress } from '../common/loggingEvents';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
 
 interface Docset {
     docset_name: string;
@@ -37,7 +39,7 @@ const REPORT_FILENAME = '.errors.log';
 type MessageSeverity = "error" | "warning" | "info" | "suggestion";
 type LogItemType = 'system' | ' user';
 
-export function visualizeBuildReport(repositoryPath: string, diagnosticController: DiagnosticController, eventStream: EventStream): boolean {
+export function visualizeBuildReport(repositoryPath: string, diagnosticController: DiagnosticController, eventStream: EventStream) {
     try {
         let opConfigPath = path.join(repositoryPath, OP_CONFIG_FILE_NAME);
         let opConfig = safelyReadJsonFile(opConfigPath);
@@ -45,10 +47,8 @@ export function visualizeBuildReport(repositoryPath: string, diagnosticControlle
         for (let docset of docsets) {
             visualizeBuildReportForDocset(repositoryPath, docset, diagnosticController, eventStream);
         }
-        return true;
     } catch (err) {
-        eventStream.post(new ReportGenerationFailed(err.message));
-        return false;
+        throw new DocsError('Generate report failed', ErrorCode.GenerateReportFailed);
     }
 }
 
