@@ -161,6 +161,7 @@
     "@types/uuid": "^3.4.7",
     "@types/yauzl": "^2.9.1",
     "arch": "^2.1.1",
+    "du": "^1.0.0",
     "fs-extra": "^8.1.0",
     "git-url-parse": "^11.1.2",
     "mkdirp": "^0.5.1",
