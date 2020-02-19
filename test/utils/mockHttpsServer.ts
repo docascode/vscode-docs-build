@@ -1,6 +1,7 @@
 
 import * as getPort from 'get-port';
 import * as fs from 'fs-extra';
+import * as path from 'path';
 
 // tslint:disable-next-line: variable-name
 const ServerMock = require('mock-http-server');
@@ -34,8 +35,8 @@ export class MockHttpsServer {
         let server = new ServerMock(undefined, {
             host: "localhost",
             port: port,
-            key: fs.readFileSync("test/unitTests/testAssets/key.pem"),
-            cert: fs.readFileSync("test/unitTests/testAssets/cert.pem")
+            key: fs.readFileSync(path.resolve(__dirname, "../../../testAssets/key.pem")),
+            cert: fs.readFileSync(path.resolve(__dirname, "../../../testAssets/cert.pem"))
         });
 
         return new MockHttpsServer(server, `https://localhost:${port}`);

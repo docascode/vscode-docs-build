@@ -1,15 +1,18 @@
 import * as vscode from 'vscode';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, CredentialRetrieveFromLocalCredentialManager, UserSignedOut, UserSignInProgress, UserSigningIn, UserSignInSucceeded, UserSignInFailed } from '../../src/common/loggingEvents';
-import { EventStream } from '../../src/common/eventStream';
-import { CredentialController, Credential } from '../../src/credential/credentialController';
-import { KeyChain } from '../../src/credential/keyChain';
-import { EnvironmentController } from '../../src/common/environmentController';
+import * as assert from 'assert';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered } from '../../../src/common/loggingEvents';
+import { EventStream } from '../../../src/common/eventStream';
+import { CredentialController, Credential } from '../../../src/credential/credentialController';
+import { KeyChain } from '../../../src/credential/keyChain';
+import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
-import { expect } from 'chai';
-import TestEventBus from '../utils/testEventBus';
-import { UserInfo, uriHandler } from '../../src/shared';
-import { getFakeEnvironmentController } from '../utils/faker';
-import extensionConfig from '../../src/config';
+import TestEventBus from '../../utils/testEventBus';
+import { UserInfo, uriHandler } from '../../../src/shared';
+import { getFakeEnvironmentController } from '../../utils/faker';
+import extensionConfig from '../../../src/config';
+import { DocsError } from '../../../src/error/docsError';
+import { ErrorCode } from '../../../src/error/errorCode';
+import { TimeOutError } from '../../../src/error/timeOutError';
 
 const fakedAADCallbackURL = <vscode.Uri>{
     authority: 'ceapex.docs-build',
@@ -110,9 +113,9 @@ describe('CredentialController', () => {
     }
 
     function AssertCredentialReset(credential: Credential) {
-        expect(isResetAADInfoCalled).to.be.true;
-        expect(isResetUserInfoCalled).to.be.true;
-        expect(credential).to.deep.equal(<Credential>{
+        assert.equal(isResetAADInfoCalled, true);
+        assert.equal(isResetUserInfoCalled, true);
+        assert.deepStrictEqual(credential, <Credential>{
             signInStatus: 'SignedOut',
             aadInfo: undefined,
             userInfo: undefined
@@ -135,7 +138,7 @@ describe('CredentialController', () => {
             it(`CredentialController Initialize should be Called`, () => {
                 credentialController.eventHandler(event);
 
-                expect(isCredentialControllerInitializeCalled).to.be.true;
+                assert.equal(isCredentialControllerInitializeCalled, true);
             });
         });
     });
@@ -146,7 +149,7 @@ describe('CredentialController', () => {
 
         let credential = credentialController.credential;
         AssertCredentialReset(credential);
-        expect(testEventBus.getEvents()).to.deep.equal([new CredentialReset()]);
+        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
     });
 
     describe(`Initialize`, () => {
@@ -169,8 +172,8 @@ describe('CredentialController', () => {
                     userToken: 'fake-token'
                 }
             };
-            expect(credential).to.deep.equal(expectedCredential);
-            expect(testEventBus.getEvents()).to.deep.equal([new CredentialRetrieveFromLocalCredentialManager(expectedCredential)]);
+            assert.deepStrictEqual(credential, expectedCredential);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRetrieveFromLocalCredentialManager(expectedCredential)]);
         });
 
         it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
@@ -183,7 +186,7 @@ describe('CredentialController', () => {
             // Assert
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
-            expect(testEventBus.getEvents()).to.deep.equal([new CredentialReset()]);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
         });
     });
 
@@ -209,7 +212,7 @@ describe('CredentialController', () => {
             );
 
             // act
-            await credentialController.signIn();
+            await credentialController.signIn('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
@@ -224,17 +227,17 @@ describe('CredentialController', () => {
                 aadInfo: 'aad-code',
                 userInfo: expectedUserInfo
             };
-            expect(credential).to.deep.equal(expectedCredential);
-            expect(isSetAADInfoCalled).to.be.true;
-            expect(setAADInfo).to.equal('aad-code');
-            expect(isSetUserInfoCalled).to.be.true;
-            expect(setUserInfo).to.deep.equal(expectedUserInfo);
-            expect(testEventBus.getEvents()).to.deep.equal([
+            assert.deepStrictEqual(credential, expectedCredential);
+            assert.equal(isSetAADInfoCalled, true);
+            assert.equal(setAADInfo, 'aad-code');
+            assert.equal(isSetUserInfoCalled, true);
+            assert.deepStrictEqual(setUserInfo, expectedUserInfo);
+            assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSigningIn(),
+                new UserSignInTriggered('fakedCorrelationId'),
                 new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
                 new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
-                new UserSignInSucceeded(expectedCredential)
+                new UserSignInSucceeded('fakedCorrelationId', expectedCredential)
             ]);
         });
 
@@ -243,17 +246,17 @@ describe('CredentialController', () => {
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(false);
 
             // Act
-            await credentialController.signIn();
+            await credentialController.signIn('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
-            expect(testEventBus.getEvents()).to.deep.equal([
+            assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSigningIn(),
+                new UserSignInTriggered('fakedCorrelationId'),
                 new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new UserSignInFailed(`Sign-in with AAD Failed`),
-                new CredentialReset()
+                new CredentialReset(),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with AAD Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AADSignInExternalUrlDeclined)),
             ]);
         });
 
@@ -274,18 +277,18 @@ describe('CredentialController', () => {
             );
 
             // Act
-            await credentialController.signIn();
+            await credentialController.signIn('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
-            expect(testEventBus.getEvents()).to.deep.equal([
+            assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSigningIn(),
+                new UserSignInTriggered('fakedCorrelationId'),
                 new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
                 new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
-                new UserSignInFailed(`Sign-in with GitHub Failed`),
-                new CredentialReset()
+                new CredentialReset(),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with GitHub Failed: Please Allow to open external URL to Sign-In`, ErrorCode.GitHubSignInExternalUrlDeclined)),
             ]);
         });
 
@@ -298,17 +301,17 @@ describe('CredentialController', () => {
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(true);
 
             // Act
-            await credentialController.signIn();
+            await credentialController.signIn('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
-            expect(testEventBus.getEvents()).to.deep.equal([
+            assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSigningIn(),
+                new UserSignInTriggered('fakedCorrelationId'),
                 new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new UserSignInFailed(`Sign-in with AAD Failed: Timeout`),
-                new CredentialReset()
+                new CredentialReset(),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with AAD Failed: Time out`, ErrorCode.AADSignInTimeOut, new TimeOutError('Time out'))),
             ]);
         });
 
@@ -332,18 +335,18 @@ describe('CredentialController', () => {
             );
 
             // Act
-            await credentialController.signIn();
+            await credentialController.signIn('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
-            expect(testEventBus.getEvents()).to.deep.equal([
+            assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSigningIn(),
+                new UserSignInTriggered('fakedCorrelationId'),
                 new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
                 new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
-                new UserSignInFailed(`Sign-in with GitHub Failed: Timeout`),
-                new CredentialReset()
+                new CredentialReset(),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with GitHub Failed: Time out`, ErrorCode.GitHubSignInTimeOut, new TimeOutError('Time out'))),
             ]);
         });
     });
@@ -354,11 +357,15 @@ describe('CredentialController', () => {
         credentialController.initialize();
 
         // Act - Sign-out
-        credentialController.signOut();
+        credentialController.signOut('fakedCorrelationId');
 
         // Assert
         let credential = credentialController.credential;
         AssertCredentialReset(credential);
-        expect(testEventBus.getEvents()).to.deep.equal([new CredentialReset(), new UserSignedOut()]);
+        assert.deepStrictEqual(testEventBus.getEvents(), [
+            new UserSignOutTriggered('fakedCorrelationId'),
+            new CredentialReset(),
+            new UserSignOutSucceeded('fakedCorrelationId')
+        ]);
     });
 });

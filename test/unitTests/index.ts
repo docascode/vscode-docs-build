@@ -1,9 +1,6 @@
-import { use } from 'chai';
 import * as path from 'path';
 import * as Mocha from 'mocha';
 import * as glob from 'glob';
-
-use(require('chai-subset'));
 
 export async function run(): Promise<void> {
     const nyc = process.env.COVERAGE ? setupCoverage() : undefined;
@@ -46,7 +43,7 @@ function setupCoverage() {
         cwd: path.join(__dirname, '..', '..', '..'),
         exclude: ['**/test/**', '.vscode-test/**'],
         reporter: ['lcovonly'],
-        reportDir: 'coverage/component',
+        reportDir: 'coverage/unit',
         all: true,
         instrument: true,
         hookRequire: true,
