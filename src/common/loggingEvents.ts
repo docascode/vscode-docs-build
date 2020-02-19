@@ -110,15 +110,15 @@ export class BuildCompleted implements BaseEvent {
 }
 
 export class BuildSucceeded extends BuildCompleted {
-    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number, public buildResult: BuildResult) { super(correlationId, 'Succeeded', buildInput, totalTimeInSeconds); }
+    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number, public buildResult: BuildResult) { super(correlationId, DocfxExecutionResult.Succeeded, buildInput, totalTimeInSeconds); }
 }
 
 export class BuildFailed extends BuildCompleted {
-    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number, public err: Error) { super(correlationId, 'Failed', buildInput, totalTimeInSeconds); }
+    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number, public err: Error) { super(correlationId, DocfxExecutionResult.Failed, buildInput, totalTimeInSeconds); }
 }
 
 export class BuildCanceled extends BuildCompleted {
-    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number) { super(correlationId, 'Canceled', buildInput, totalTimeInSeconds); }
+    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number) { super(correlationId, DocfxExecutionResult.Canceled, buildInput, totalTimeInSeconds); }
 }
 
 export class BuildProgress implements BaseEvent {

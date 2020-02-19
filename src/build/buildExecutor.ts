@@ -30,7 +30,7 @@ export class BuildExecutor {
 
     public async RunBuild(input: BuildInput, buildUserToken: string): Promise<BuildResult> {
         let buildResult = <BuildResult>{
-            result: 'Succeeded',
+            result: DocfxExecutionResult.Succeeded,
             isRestoreSkipped: BuildExecutor.skipRestore
         };
 
@@ -95,14 +95,14 @@ export class BuildExecutor {
                 this.eventStream,
                 (code: number, signal: string) => {
                     if (signal === 'SIGKILL') {
-                        this.eventStream.post(new DocfxRestoreCompleted('Canceled'));
-                        resolve('Canceled');
+                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Canceled));
+                        resolve(DocfxExecutionResult.Canceled);
                     } else if (code === 0) {
-                        this.eventStream.post(new DocfxRestoreCompleted('Succeeded', 0));
-                        resolve('Succeeded');
+                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Succeeded, 0));
+                        resolve(DocfxExecutionResult.Succeeded);
                     } else {
-                        this.eventStream.post(new DocfxRestoreCompleted('Failed', code));
-                        resolve('Failed');
+                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Failed, code));
+                        resolve(DocfxExecutionResult.Failed);
                     }
                 },
                 { env: envs, cwd: this.cwd },
@@ -123,14 +123,14 @@ export class BuildExecutor {
                 this.eventStream,
                 (code: number, signal: string) => {
                     if (signal === 'SIGKILL') {
-                        this.eventStream.post(new DocfxBuildCompleted('Canceled'));
-                        resolve('Canceled');
+                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Canceled));
+                        resolve(DocfxExecutionResult.Canceled);
                     } else if (code === 0) {
-                        this.eventStream.post(new DocfxBuildCompleted('Succeeded', 0));
-                        resolve('Succeeded');
+                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Succeeded, 0));
+                        resolve(DocfxExecutionResult.Succeeded);
                     } else {
-                        this.eventStream.post(new DocfxBuildCompleted('Failed', code));
-                        resolve('Failed');
+                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Failed, code));
+                        resolve(DocfxExecutionResult.Failed);
                     }
                 },
                 { env: envs, cwd: this.cwd }

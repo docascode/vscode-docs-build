@@ -5,4 +5,8 @@ export interface BuildResult {
     buildTimeInSeconds?: number;
 }
 
-export type DocfxExecutionResult = 'Succeeded' | 'Failed' | 'Canceled';
+export enum DocfxExecutionResult {
+    Succeeded = 'Succeeded',
+    Failed = 'Failed',
+    Canceled = 'Canceled'
+}

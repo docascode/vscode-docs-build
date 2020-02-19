@@ -3,8 +3,8 @@ import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
 import { DocsError } from '../error/docsError';
-import { ErrorCode } from '../error/errorCode';
 import { BuildType } from '../build/buildInput';
+import { DocfxExecutionResult } from '../build/buildResult';
 
 export class TelemetryObserver {
     constructor(private reporter: TelemetryReporter) { }
@@ -43,7 +43,6 @@ export class TelemetryObserver {
     }
 
     private handleUserSignInCompleted(event: UserSignInCompleted) {
-        let correlationId = event.correlationId;
         let result = event.succeeded ? 'Succeeded' : 'Failed';
         let signInType: DocsSignInType;
         let userName: string;
@@ -60,7 +59,7 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'SignIn.Completed',
             {
-                correlationId,
+                correlationId: event.correlationId,
                 result,
                 signInType,
                 userName,
@@ -100,9 +99,7 @@ export class TelemetryObserver {
     }
 
     private handleBuildCompleted(event: BuildCompleted) {
-        let correlationId = event.correlationId;
         let result = event.result;
-        let totalTimeInSeconds = event.totalTimeInSeconds;
         let errorCode: string;
         let buildType: BuildType;
         let localRepositoryUrl: string;
@@ -120,18 +117,18 @@ export class TelemetryObserver {
             originalRepositoryUrl = buildInput.originalRepositoryUrl;
             localRepositoryBranch = buildInput.localRepositoryBranch;
         }
-        if (event.result === 'Succeeded') {
+        if (event.result === DocfxExecutionResult.Succeeded) {
             let buildResult = (<BuildSucceeded>event).buildResult;
             isRestoreSkipped = buildResult.isRestoreSkipped;
             restoreTimeInSeconds = buildResult.restoreTimeInSeconds;
             buildTimeInSeconds = buildResult.buildTimeInSeconds;
-        } else if (event.result === 'Failed') {
+        } else if (event.result === DocfxExecutionResult.Failed) {
             errorCode = this.getErrorCode((<BuildFailed>event).err);
         }
         this.reporter.sendTelemetryEvent(
             'Build.Completed',
             {
-                correlationId,
+                correlationId: event.correlationId,
                 result,
                 errorCode,
                 isRestoreSkipped: isRestoreSkipped.toString(),
@@ -141,7 +138,7 @@ export class TelemetryObserver {
                 localRepositoryBranch
             },
             {
-                totalTimeInSeconds,
+                totalTimeInSeconds: event.totalTimeInSeconds,
                 restoreTimeInSeconds,
                 buildTimeInSeconds
             }
@@ -151,7 +148,7 @@ export class TelemetryObserver {
     private getErrorCode(err: Error): string {
         let errorCode = undefined;
         if (err instanceof DocsError) {
-            errorCode = ErrorCode[err.code];
+            errorCode = err.code;
         }
         return errorCode;
     }

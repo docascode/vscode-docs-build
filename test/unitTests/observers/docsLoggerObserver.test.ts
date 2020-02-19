@@ -4,6 +4,7 @@ import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, User
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { Credential } from '../../../src/credential/credentialController';
 import { PlatformInformation } from '../../../src/common/platformInformation';
+import { DocfxExecutionResult } from '../../../src/build/buildResult';
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;
@@ -174,7 +175,7 @@ describe('DocsLoggerObserver', () => {
 
     describe('DocfxRestoreCompleted', () => {
         it(`Docfx Restore succeeded`, () => {
-            let event = new DocfxRestoreCompleted('Succeeded');
+            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Succeeded);
             observer.eventHandler(event);
 
             let expectedOutput = `Restore Finished, start to run 'docfx build'...\n\n`;
@@ -182,7 +183,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Docfx Restore failed`, () => {
-            let event = new DocfxRestoreCompleted('Failed', 1);
+            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Failed, 1);
             observer.eventHandler(event);
 
             let expectedOutput = `Error: Running 'docfx restore' failed with exit code: 1\n\n`;
@@ -190,7 +191,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Docfx Restore canceled`, () => {
-            let event = new DocfxRestoreCompleted('Canceled');
+            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Canceled);
             observer.eventHandler(event);
     
             let expectedOutput = `'docfx restore' command has been canceled, skip running 'docfx build'\n\n`;
@@ -200,7 +201,7 @@ describe('DocsLoggerObserver', () => {
 
     describe('DocfxBuildFinished', () => {
         it(`Docfx Build succeeded`, () => {
-            let event = new DocfxBuildCompleted('Succeeded');
+            let event = new DocfxBuildCompleted(DocfxExecutionResult.Succeeded);
             observer.eventHandler(event);
 
             let expectedOutput = `Build Finished, Generating report...\n\n`;
@@ -208,7 +209,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Docfx Build failed`, () => {
-            let event = new DocfxBuildCompleted('Failed', 1);
+            let event = new DocfxBuildCompleted(DocfxExecutionResult.Failed, 1);
             observer.eventHandler(event);
 
             let expectedOutput = `Error: Running 'docfx build' failed with exit code: 1\n\n`;
@@ -216,7 +217,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Docfx Build canceled`, () => {
-            let event = new DocfxBuildCompleted('Canceled');
+            let event = new DocfxBuildCompleted(DocfxExecutionResult.Canceled);
             observer.eventHandler(event);
     
             let expectedOutput = `'docfx build' command has been canceled\n\n`;

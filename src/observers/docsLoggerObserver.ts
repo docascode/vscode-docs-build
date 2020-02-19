@@ -1,6 +1,7 @@
 import { OutputChannel } from 'vscode';
 import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
+import { DocfxExecutionResult } from '../build/buildResult';
 
 export class DocsLoggerObserver {
     private downloadProgressDot: number;
@@ -167,13 +168,13 @@ export class DocsLoggerObserver {
 
     private handleBuildCompleted(event: BuildCompleted) {
         switch (event.result) {
-            case 'Succeeded':
+            case DocfxExecutionResult.Succeeded:
                 this.appendLine(`Report generated, please view them in 'PROBLEMS' tab`);
                 break;
-            case 'Canceled':
+            case DocfxExecutionResult.Canceled:
                 this.appendLine('Build has been canceled');
                 break;
-            case 'Failed':
+            case DocfxExecutionResult.Failed:
                 this.appendLine(`Build failed: ${(<BuildFailed>event).err.message}`);
                 break;
         }
@@ -186,13 +187,13 @@ export class DocsLoggerObserver {
 
     private handleDocfxRestoreCompleted(event: DocfxRestoreCompleted) {
         switch (event.result) {
-            case 'Succeeded':
+            case DocfxExecutionResult.Succeeded:
                 this.appendLine(`Restore Finished, start to run 'docfx build'...`);
                 break;
-            case 'Failed':
+            case DocfxExecutionResult.Failed:
                 this.appendLine(`Error: Running 'docfx restore' failed with exit code: ${event.exitCode}`);
                 break;
-            case 'Canceled':
+            case DocfxExecutionResult.Canceled:
                 this.appendLine(`'docfx restore' command has been canceled, skip running 'docfx build'`);
                 break;
         }
@@ -201,13 +202,13 @@ export class DocsLoggerObserver {
 
     private handleDocfxBuildCompleted(event: DocfxBuildCompleted) {
         switch (event.result) {
-            case 'Succeeded':
+            case DocfxExecutionResult.Succeeded:
                 this.appendLine(`Build Finished, Generating report...`);
                 break;
-            case 'Failed':
+            case DocfxExecutionResult.Failed:
                 this.appendLine(`Error: Running 'docfx build' failed with exit code: ${event.exitCode}`);
                 break;
-            case 'Canceled':
+            case DocfxExecutionResult.Canceled:
                 this.appendLine(`'docfx build' command has been canceled`);
                 break;
         }

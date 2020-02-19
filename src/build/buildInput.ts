@@ -6,4 +6,7 @@ export interface BuildInput {
     readonly localRepositoryBranch: string;
 }
 
-export type BuildType = 'FullBuild' | 'ChangedFileBuild';
+export enum BuildType {
+    FullBuild = 'FullBuild',
+    ChangedFileBuild = 'ChangedFileBuild'
+}

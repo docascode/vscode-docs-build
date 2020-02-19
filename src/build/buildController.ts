@@ -15,7 +15,8 @@ import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryI
 import { ExtensionContext } from '../extensionContext';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
-import { BuildInput } from './buildInput';
+import { BuildInput, BuildType } from './buildInput';
+import { DocfxExecutionResult } from './buildResult';
 
 export class BuildController {
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
@@ -55,14 +56,14 @@ export class BuildController {
             let buildResult = await this.buildExecutor.RunBuild(buildInput, credential.userInfo.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             switch (buildResult.result) {
-                case 'Succeeded':
+                case DocfxExecutionResult.Succeeded:
                     visualizeBuildReport(buildInput.localRepositoryPath, this.diagnosticController, this.eventStream);
                     this.eventStream.post(new BuildSucceeded(correlationId, buildInput, getTotalTimeInSeconds(), buildResult));
                     break;
-                case 'Canceled':
+                case DocfxExecutionResult.Canceled:
                     this.eventStream.post(new BuildCanceled(correlationId, buildInput, getTotalTimeInSeconds()));
                     break;
-                case 'Failed':
+                case DocfxExecutionResult.Failed:
                     throw new DocsError('Running docfx failed', ErrorCode.RunDocfxFailed);
             }
         }
@@ -122,7 +123,7 @@ export class BuildController {
         try {
             let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
             return <BuildInput>{
-                buildType: 'FullBuild',
+                buildType: BuildType.FullBuild,
                 localRepositoryPath,
                 localRepositoryUrl,
                 originalRepositoryUrl,

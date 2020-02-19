@@ -6,6 +6,7 @@ import { MessageAction } from '../shared';
 import { safelyReadJsonFile } from '../utils/utils';
 import { ErrorCode } from '../error/errorCode';
 import { DocsError } from '../error/docsError';
+import { DocfxExecutionResult } from '../build/buildResult';
 
 export class ErrorMessageObserver {
     public eventHandler = (event: BaseEvent) => {
@@ -23,7 +24,7 @@ export class ErrorMessageObserver {
                 }
                 break;
             case EventType.BuildCompleted:
-                if ((<BuildCompleted>event).result === 'Failed') {
+                if ((<BuildCompleted>event).result === DocfxExecutionResult.Failed) {
                     this.handleBuildFailed(<BuildFailed>event);
                 }
                 break;
