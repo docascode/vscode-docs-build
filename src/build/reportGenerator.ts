@@ -54,6 +54,8 @@ export function visualizeBuildReport(repositoryPath: string, diagnosticControlle
 
 function visualizeBuildReportForDocset(repositoryPath: string, docset: Docset, diagnosticController: DiagnosticController, eventStream: EventStream) {
     eventStream.post(new BuildProgress(`Generating report for docset ${docset.docset_name}...`));
+    diagnosticController.reset();
+    
     let reportFilePath = path.join(repositoryPath, OUTPUT_FOLDER_NAME, docset.build_source_folder, REPORT_FILENAME);
     if (!fs.existsSync(reportFilePath)) {
         eventStream.post(new BuildProgress(`Log file (.error.log) not found. Skip generating report for current docset '${docset.docset_name}'`));
@@ -92,7 +94,6 @@ function visualizeBuildReportForDocset(repositoryPath: string, docset: Docset, d
         }
     });
 
-    diagnosticController.reset();
     diagnosticsSet.forEach((value) => {
         diagnosticController.setDiagnostic(value.uri, value.diagnostics);
     });
