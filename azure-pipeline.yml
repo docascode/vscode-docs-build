@@ -62,6 +62,12 @@ steps:
   env:
     CODECOV_TOKEN: $(CODECOV_TOKEN)
 
+- bash: ./node_modules/.bin/codecov -f coverage/component/lcov.info -F component
+  displayName: 'Report component test coverage'
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+  env:
+    CODECOV_TOKEN: $(CODECOV_TOKEN)
+
 - bash: |
     npm run publish -- -p $(VSCODE_MARKETPLACE_TOKEN)
   displayName: 'Publish'
