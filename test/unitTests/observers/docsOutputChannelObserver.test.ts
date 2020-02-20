@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import * as assert from 'assert';
 import { OutputChannel } from 'vscode';
 import { BaseEvent, DependencyInstallStarted, BuildInstantAllocated, UserSignInTriggered } from '../../../src/common/loggingEvents';
 import { DocsOutputChannelObserver } from '../../../src/observers/docsOutputChannelObserver';
@@ -23,7 +23,7 @@ describe('DocsOutputChannelObserver', () => {
     ].forEach((event: BaseEvent) => {
         it(`${event.constructor.name}: Channel is shown and focused `, () => {
             observer.eventHandler(event);
-            expect(showCalled).to.be.true;
+            assert.equal(showCalled, true);
         });
     });
 });
