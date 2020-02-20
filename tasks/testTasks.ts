@@ -1,5 +1,5 @@
-import * as gulp from 'gulp';
-import * as path from 'path';
+import gulp from 'gulp';
+import path from 'path';
 import { rootPath } from './projectPaths';
 import { runTests } from 'vscode-test';
 

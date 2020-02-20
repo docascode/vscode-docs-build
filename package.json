@@ -126,7 +126,7 @@
     "@types/sinon": "^7.5.1",
     "@types/vscode": "^1.40.0",
     "async-child-process": "^1.1.1",
-    "codecov": "^3.6.1",
+    "codecov": "^3.6.5",
     "get-port": "^5.1.0",
     "gulp": "^4.0.2",
     "mocha": "^6.2.2",

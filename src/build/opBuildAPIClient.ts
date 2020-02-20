@@ -1,5 +1,5 @@
-import * as request from 'request';
-import * as querystring from 'querystring';
+import request from 'request';
+import querystring from 'querystring';
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import extensionConfig from '../config';

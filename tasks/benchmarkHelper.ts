@@ -1,5 +1,5 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import fs from 'fs-extra';
+import path from 'path';
 import { execSync, ExecSyncOptions } from 'child_process';
 import { rootPath, benchmarkTestAssetsPath } from './projectPaths';
 import { basicAuth } from '../src/utils/utils';

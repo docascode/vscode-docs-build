@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import { StatusBarItem } from 'vscode';
 import { BuildStatusBarObserver } from '../../../src/observers/buildStatusBarObserver';
 import { BuildInstantAllocated, BuildInstantReleased } from '../../../src/common/loggingEvents';

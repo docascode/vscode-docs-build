@@ -1,5 +1,5 @@
-import * as fs from 'fs-extra';
-import * as vscode from 'vscode';
+import fs from 'fs-extra';
+import vscode from 'vscode';
 import { EventType } from '../common/eventType';
 import { BaseEvent, UserSignInFailed, RepositoryEnabledV3, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed } from '../common/loggingEvents';
 import { MessageAction } from '../shared';
