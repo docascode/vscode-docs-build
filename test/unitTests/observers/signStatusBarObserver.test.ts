@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
 import { CredentialInitializing, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';

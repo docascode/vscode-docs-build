@@ -1,6 +1,6 @@
 'use strict';
 
-import * as gulp from 'gulp';
+import gulp from 'gulp';
 import * as packageDependencyUpdater from './src/tools/UpdateRuntimeDependencies';
 
 require('./tasks/testTasks');

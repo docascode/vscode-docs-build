@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { CredentialController } from './credential/credentialController';
 import { uriHandler, EXTENSION_ID } from './shared';

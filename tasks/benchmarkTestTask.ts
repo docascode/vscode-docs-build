@@ -1,7 +1,7 @@
-import * as fs from 'fs-extra';
-import * as gulp from 'gulp';
-import * as path from 'path';
-import * as glob from 'glob';
+import fs from 'fs-extra';
+import gulp from 'gulp';
+import path from 'path';
+import glob from 'glob';
 import { runTests } from "vscode-test";
 import gitUrlParse = require('git-url-parse');
 import { rootPath, benchmarkTestAssetsPath, benchmarkTestReportsPath } from './projectPaths';

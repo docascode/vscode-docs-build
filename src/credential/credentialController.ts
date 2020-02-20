@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
-import * as template from 'url-template';
+import template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash } from '../utils/utils';

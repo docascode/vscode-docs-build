@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import { MockHttpsServer } from "../../utils/mockHttpsServer";
 import { downloadFile } from "../../../src/dependency/fileDownloader";
 import { EventStream } from "../../../src/common/eventStream";
