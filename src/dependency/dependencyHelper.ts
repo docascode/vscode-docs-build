@@ -1,6 +1,6 @@
-import * as path from 'path';
+import path from 'path';
 import { AbsolutePath } from '../common/absolutePath';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 
 export enum InstallFileType {
     Begin,

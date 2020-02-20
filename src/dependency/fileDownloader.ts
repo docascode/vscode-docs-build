@@ -1,5 +1,5 @@
-import * as crypto from 'crypto';
-import * as https from 'https';
+import crypto from 'crypto';
+import https from 'https';
 import { parse as parseUrl } from 'url';
 import { DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';

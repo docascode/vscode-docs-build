@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 import { SinonSandbox } from 'sinon';
 import ExtensionExports from '../../src/common/extensionExport';
 import { EXTENSION_ID, UserInfo } from '../../src/shared';

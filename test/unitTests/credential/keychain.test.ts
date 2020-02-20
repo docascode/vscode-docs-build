@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import { KeyChain, Keytar } from '../../../src/credential/keyChain';
 import { UserInfo } from '../../../src/shared';
 import { getFakeEnvironmentController, setEnvToPROD, setEnvToPPE } from '../../utils/faker';

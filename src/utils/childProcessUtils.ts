@@ -1,4 +1,4 @@
-import * as cp from 'child_process';
+import cp from 'child_process';
 import { BuildProgress } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';
 
