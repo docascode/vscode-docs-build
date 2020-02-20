@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import * as assert from 'assert';
 import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from 'vscode-extension-telemetry';
@@ -40,8 +40,8 @@ describe('TelemetryObserver', () => {
     it(`UserSignInTriggered: 'SignIn.Triggered' event should be sent`, () => {
         let event = new UserSignInTriggered('fakedCorrelationId');
         observer.eventHandler(event);
-        expect(sentEventName).to.equal('SignIn.Triggered');
-        expect(sentEventProperties).to.deep.equal({
+        assert.equal(sentEventName, 'SignIn.Triggered');
+        assert.deepStrictEqual(sentEventProperties, {
             correlationId: 'fakedCorrelationId'
         });
     });
@@ -59,8 +59,8 @@ describe('TelemetryObserver', () => {
                 }
             });
             observer.eventHandler(event);
-            expect(sentEventName).to.equal('SignIn.Completed');
-            expect(sentEventProperties).to.deep.equal({
+            assert.equal(sentEventName, 'SignIn.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
                 correlationId: 'fakedCorrelationId',
                 result: 'Succeeded',
                 signInType: "GitHub",
@@ -73,8 +73,8 @@ describe('TelemetryObserver', () => {
         it('UserSignInFailed', () => {
             let event = new UserSignInFailed('fakedCorrelationId', new DocsError('Faked error message', ErrorCode.AADSignInFailed));
             observer.eventHandler(event);
-            expect(sentEventName).to.equal('SignIn.Completed');
-            expect(sentEventProperties).to.deep.equal({
+            assert.equal(sentEventName, 'SignIn.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
                 correlationId: 'fakedCorrelationId',
                 result: 'Failed',
                 signInType: undefined,
@@ -88,8 +88,8 @@ describe('TelemetryObserver', () => {
     it(`UserSignOutTriggered: 'SignOut.Triggered' event should be sent`, () => {
         let event = new UserSignOutTriggered('fakedCorrelationId');
         observer.eventHandler(event);
-        expect(sentEventName).to.equal('SignOut.Triggered');
-        expect(sentEventProperties).to.deep.equal({
+        assert.equal(sentEventName, 'SignOut.Triggered');
+        assert.deepStrictEqual(sentEventProperties, {
             correlationId: 'fakedCorrelationId'
         });
     });
@@ -98,8 +98,8 @@ describe('TelemetryObserver', () => {
         it('UserSignOutSucceeded', () => {
             let event = new UserSignOutSucceeded('fakedCorrelationId');
             observer.eventHandler(event);
-            expect(sentEventName).to.equal('SignOut.Completed');
-            expect(sentEventProperties).to.deep.equal({
+            assert.equal(sentEventName, 'SignOut.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
                 correlationId: 'fakedCorrelationId',
                 result: 'Succeeded',
             });
@@ -108,8 +108,8 @@ describe('TelemetryObserver', () => {
         it('UserSignOutFailed', () => {
             let event = new UserSignOutFailed('fakedCorrelationId', new Error('Faked error message'));
             observer.eventHandler(event);
-            expect(sentEventName).to.equal('SignOut.Completed');
-            expect(sentEventProperties).to.deep.equal({
+            assert.equal(sentEventName, 'SignOut.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
                 correlationId: 'fakedCorrelationId',
                 result: 'Failed',
             });
@@ -119,8 +119,8 @@ describe('TelemetryObserver', () => {
     it(`BuildTriggered: 'Build.Triggered' event should be sent`, () => {
         let event = new BuildTriggered('fakedCorrelationId');
         observer.eventHandler(event);
-        expect(sentEventName).to.equal('Build.Triggered');
-        expect(sentEventProperties).to.deep.equal({
+        assert.equal(sentEventName, 'Build.Triggered');
+        assert.deepStrictEqual(sentEventProperties, {
             correlationId: 'fakedCorrelationId'
         });
     });
@@ -145,8 +145,8 @@ describe('TelemetryObserver', () => {
                 });
             observer.eventHandler(event);
 
-            expect(sentEventName).to.equal('Build.Completed');
-            expect(sentEventProperties).to.deep.equal({
+            assert.equal(sentEventName, 'Build.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
                 correlationId: 'FakedCorrelationId',
                 result: 'Succeeded',
                 errorCode: undefined,
@@ -156,7 +156,7 @@ describe('TelemetryObserver', () => {
                 originalRepositoryUrl: 'https://faked.original-repository.com',
                 localRepositoryBranch: 'master'
             });
-            expect(sentEventMeasurements).to.deep.equal({
+            assert.deepStrictEqual(sentEventMeasurements, {
                 totalTimeInSeconds: 10,
                 restoreTimeInSeconds: 4,
                 buildTimeInSeconds: 5
@@ -177,8 +177,8 @@ describe('TelemetryObserver', () => {
                 new DocsError('Faked error msg', ErrorCode.GenerateReportFailed));
             observer.eventHandler(event);
 
-            expect(sentEventName).to.equal('Build.Completed');
-            expect(sentEventProperties).to.deep.equal({
+            assert.equal(sentEventName, 'Build.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
                 correlationId: 'FakedCorrelationId',
                 result: 'Failed',
                 errorCode: 'GenerateReportFailed',
@@ -188,7 +188,7 @@ describe('TelemetryObserver', () => {
                 originalRepositoryUrl: 'https://faked.original-repository.com',
                 localRepositoryBranch: 'master'
             });
-            expect(sentEventMeasurements).to.deep.equal({
+            assert.deepStrictEqual(sentEventMeasurements, {
                 totalTimeInSeconds: 10,
                 restoreTimeInSeconds: undefined,
                 buildTimeInSeconds: undefined
@@ -208,8 +208,8 @@ describe('TelemetryObserver', () => {
                 10);
             observer.eventHandler(event);
 
-            expect(sentEventName).to.equal('Build.Completed');
-            expect(sentEventProperties).to.deep.equal({
+            assert.equal(sentEventName, 'Build.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
                 correlationId: 'FakedCorrelationId',
                 result: 'Canceled',
                 errorCode: undefined,
@@ -219,7 +219,7 @@ describe('TelemetryObserver', () => {
                 originalRepositoryUrl: 'https://faked.original-repository.com',
                 localRepositoryBranch: 'master'
             });
-            expect(sentEventMeasurements).to.deep.equal({
+            assert.deepStrictEqual(sentEventMeasurements, {
                 totalTimeInSeconds: 10,
                 restoreTimeInSeconds: undefined,
                 buildTimeInSeconds: undefined

@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import * as assert from 'assert';
 import { OutputChannel } from 'vscode';
 import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, DependencyInstallFinished, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
@@ -41,7 +41,7 @@ describe('DocsLoggerObserver', () => {
                 + `    - GitHub Account: Faked User\n`
                 + `    - User email    : fake@microsoft.com\n`
                 + `\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it('UserSignInFailed', () => {
@@ -49,7 +49,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Failed to sign-in to Docs Build: Faked error msg\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
     });
 
@@ -70,7 +70,7 @@ describe('DocsLoggerObserver', () => {
             + `    - GitHub Account: Faked User\n`
             + `    - User email    : fake@microsoft.com\n`
             + `\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     describe('UserSignOutCompleted', () => {
@@ -79,7 +79,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Successfully sign-out from Docs Build!\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it(`UserSignOutFailed`, () => {
@@ -87,7 +87,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Failed to sign-out from Docs Build: Faked error msg\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
     });
 
@@ -96,7 +96,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `[Faked Tag] Faked process msg\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     // Build
@@ -108,7 +108,7 @@ describe('DocsLoggerObserver', () => {
             let expectedOutput = `Repository Information of current workspace folder:\n`
                 + `  Local Repository URL: https://faked.repository\n`
                 + `\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it(`Different original repository url with local repository url`, () => {
@@ -118,7 +118,7 @@ describe('DocsLoggerObserver', () => {
             let expectedOutput = `Repository Information of current workspace folder:\n`
                 + `  Local Repository URL: https://faked.local.repository(original: https://faked.original.repository)\n`
                 + `\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
     });
 
@@ -128,7 +128,7 @@ describe('DocsLoggerObserver', () => {
 
         let expectedOutput = `\n---------------------------\n`
             + `Preparing build context...\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     it(`BuildStarted`, () => {
@@ -136,7 +136,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Start to build workspace folder 'FakedWorkspaceFolderName'\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     describe('BuildCompleted', () => {
@@ -145,7 +145,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Report generated, please view them in 'PROBLEMS' tab\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it('BuildCanceled', () => {
@@ -153,7 +153,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Build has been canceled\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it('BuildFailed', () => {
@@ -161,7 +161,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Build failed: Faked error msg\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
     });
 
@@ -170,7 +170,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `faked msg\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     describe('DocfxRestoreCompleted', () => {
@@ -179,7 +179,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Restore Finished, start to run 'docfx build'...\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it(`Docfx Restore failed`, () => {
@@ -187,7 +187,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Error: Running 'docfx restore' failed with exit code: 1\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it(`Docfx Restore canceled`, () => {
@@ -195,7 +195,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
     
             let expectedOutput = `'docfx restore' command has been canceled, skip running 'docfx build'\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
     });
 
@@ -205,7 +205,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Build Finished, Generating report...\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it(`Docfx Build failed`, () => {
@@ -213,7 +213,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Error: Running 'docfx build' failed with exit code: 1\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it(`Docfx Build canceled`, () => {
@@ -221,7 +221,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
     
             let expectedOutput = `'docfx build' command has been canceled\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
     });
 
@@ -231,7 +231,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `[OPBuildAPIClient.FakedAPIName] Calling API 'https://faked.api'...\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     it(`APICallFailed`, () => {
@@ -239,7 +239,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `[OPBuildAPIClient.FakedAPIName] Call API 'https://faked.api' failed: Faked msg\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     // Runtime Dependency
@@ -248,7 +248,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Installing runtime dependencies...\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     it(`DependencyInstallFinished`, () => {
@@ -256,7 +256,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Runtime dependencies installation finished!\n\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     it(`PackageInstallStarted`, () => {
@@ -264,7 +264,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Installing package 'Faked package description'...\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     it(`PackageInstallSucceeded`, () => {
@@ -272,7 +272,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Package 'Faked package description' installed!\n\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     describe('PackageInstallFailed', () => {
@@ -281,7 +281,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Failed to install package 'Faked package description': Faked error msg. Retrying..\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it(`Will not Retry`, () => {
@@ -289,7 +289,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Failed to install package 'Faked package description': Faked error msg. Some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.\n\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
     });
 
@@ -299,8 +299,8 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Downloading package '${event.pkgDescription}' `;
-        expect(loggerText).to.equal(expectedOutput);
-        expect(observer.downloadProgressDotValue).to.equal(0);
+        assert.equal(loggerText, expectedOutput);
+        assert.equal(observer.downloadProgressDotValue, 0);
     });
 
     it(`DownloadSizeObtained`, () => {
@@ -308,7 +308,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `(2 KB)`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     describe('DownloadProgress', () => {
@@ -317,7 +317,7 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = ` Done!\n`;
-            expect(loggerText).to.equal(expectedOutput);
+            assert.equal(loggerText, expectedOutput);
         });
 
         it('5%', () => {
@@ -326,8 +326,8 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `.`;
-            expect(loggerText).to.equal(expectedOutput);
-            expect(observer.downloadProgressDotValue).to.equal(1);
+            assert.equal(loggerText, expectedOutput);
+            assert.equal(observer.downloadProgressDotValue, 1);
         });
 
         it('6%', () => {
@@ -336,8 +336,8 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `..`;
-            expect(loggerText).to.equal(expectedOutput);
-            expect(observer.downloadProgressDotValue).to.equal(2);
+            assert.equal(loggerText, expectedOutput);
+            assert.equal(observer.downloadProgressDotValue, 2);
         });
     });
 
@@ -346,7 +346,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Validating download...\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     it(`DownloadIntegrityCheckFailed`, () => {
@@ -354,7 +354,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Package download failed integrity check.\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     it(`ZipFileInstalling`, () => {
@@ -362,7 +362,7 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Installing zip file...\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 
     it(`PlatformInfoRetrieved`, () => {
@@ -370,6 +370,6 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Platform: faked-platform, faked-arch\n\n`;
-        expect(loggerText).to.equal(expectedOutput);
+        assert.equal(loggerText, expectedOutput);
     });
 });
