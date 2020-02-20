@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import * as assert from 'assert';
 import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
 import { CredentialInitializing, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
@@ -30,19 +30,19 @@ describe('SignStatusBarObserver', () => {
     it(`Initialization: Status bar is shown with 'Initializing' text`, () => {
         let event = new CredentialInitializing();
         observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: Initializing`);
-        expect(statusBarItem.command).to.be.undefined;
-        expect(statusBarItem.tooltip).to.be.undefined;
+        assert.equal(showCalled, true);
+        assert.equal(statusBarItem.text, `Docs: Initializing`);
+        assert.equal(statusBarItem.command, undefined);
+        assert.equal(statusBarItem.tooltip, undefined);
     });
 
     it(`User Signing in: Status bar is shown with 'Signing In' text`, () => {
         let event = new UserSignInTriggered('FakedCorrelationId');
         observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: Signing-in`);
-        expect(statusBarItem.command).to.be.undefined;
-        expect(statusBarItem.tooltip).to.be.undefined;
+        assert.equal(showCalled, true);
+        assert.equal(statusBarItem.text, `Docs: Signing-in`);
+        assert.equal(statusBarItem.command, undefined);
+        assert.equal(statusBarItem.tooltip, undefined);
     });
 
     it(`User Signed In: Status bar is shown with user info`, () => {
@@ -57,10 +57,10 @@ describe('SignStatusBarObserver', () => {
             },
         });
         observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: $(mark-github) Fake User(fake@microsoft.com)`);
-        expect(statusBarItem.command).to.equal('docs.validationQuickPick');
-        expect(statusBarItem.tooltip).to.be.undefined;
+        assert.equal(showCalled, true);
+        assert.equal(statusBarItem.text, `Docs: $(mark-github) Fake User(fake@microsoft.com)`);
+        assert.equal(statusBarItem.command, 'docs.validationQuickPick');
+        assert.equal(statusBarItem.tooltip, undefined);
     });
 
     it(`Fetch From Local Credential Manager: Status bar is shown with user info`, () => {
@@ -75,19 +75,19 @@ describe('SignStatusBarObserver', () => {
             },
         });
         observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: $(mark-github) Fake User(fake@microsoft.com)`);
-        expect(statusBarItem.command).to.equal('docs.validationQuickPick');
-        expect(statusBarItem.tooltip).to.be.undefined;
+        assert.equal(showCalled, true);
+        assert.equal(statusBarItem.text, `Docs: $(mark-github) Fake User(fake@microsoft.com)`);
+        assert.equal(statusBarItem.command, 'docs.validationQuickPick');
+        assert.equal(statusBarItem.tooltip, undefined);
     });
 
     it(`Reset User Info: Status bar is shown with 'Sign-in to Docs' text`, () => {
         let event = new CredentialReset();
         observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs: Sign-in to Docs`);
-        expect(statusBarItem.command).to.equal('docs.signIn');
-        expect(statusBarItem.tooltip).to.be.undefined;
+        assert.equal(showCalled, true);
+        assert.equal(statusBarItem.text, `Docs: Sign-in to Docs`);
+        assert.equal(statusBarItem.command, 'docs.signIn');
+        assert.equal(statusBarItem.tooltip, undefined);
     });
 
     it(`PPE Environment: Status bar is shown with 'Docs(Sandbox):'`, () => {
@@ -97,9 +97,9 @@ describe('SignStatusBarObserver', () => {
         // Test
         let event = new CredentialInitializing();
         observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`Docs(Sandbox): Initializing`);
-        expect(statusBarItem.command).to.be.undefined;
-        expect(statusBarItem.tooltip).to.be.undefined;
+        assert.equal(showCalled, true);
+        assert.equal(statusBarItem.text, `Docs(Sandbox): Initializing`);
+        assert.equal(statusBarItem.command, undefined);
+        assert.equal(statusBarItem.tooltip, undefined);
     });
 });
