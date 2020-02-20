@@ -27,6 +27,8 @@ export enum EventType {
     DocfxBuildStarted,
     DocfxBuildCompleted,
 
+    BuildCacheSizeCalculated,
+
     // API
     APICallStarted,
     APICallFailed,

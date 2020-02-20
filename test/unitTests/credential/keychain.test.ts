@@ -1,5 +1,5 @@
+import assert from 'assert';
 import { KeyChain, Keytar } from '../../../src/credential/keyChain';
-import { expect } from 'chai';
 import { UserInfo } from '../../../src/shared';
 import { getFakeEnvironmentController, setEnvToPROD, setEnvToPPE } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
@@ -36,14 +36,14 @@ describe('KeyChain', () => {
         setEnvToPROD(environmentController);
         await keyChain.setAADInfo('fake-aad');
         let aadInfo = await keyChain.getAADInfo();
-        expect(aadInfo).to.equal('fake-aad');
+        assert.equal(aadInfo, 'fake-aad');
 
         // Mock PPE environment
         setEnvToPPE(environmentController);
 
         // Test
         aadInfo = await keyChain.getAADInfo();
-        expect(aadInfo).to.be.undefined;
+        assert.equal(aadInfo, undefined);
     });
 
     it('setUserInfo gets tokens set by setToken with the same environment', async () => {
@@ -56,24 +56,24 @@ describe('KeyChain', () => {
         };
         await keyChain.setUserInfo(expectedUserInfo);
         let userInfo = await keyChain.getUserInfo();
-        expect(userInfo).to.deep.equal(expectedUserInfo);
+        assert.deepStrictEqual(userInfo, expectedUserInfo);
 
         // Mock PPE environment
         setEnvToPPE(environmentController);
 
         // Test
         userInfo = await keyChain.getUserInfo();
-        expect(userInfo).to.be.undefined;
+        assert.equal(userInfo, undefined);
     });
 
     it('getAADInfo no longer returns removed tokens', async () => {
         await keyChain.setAADInfo('fake-aad');
         let aadInfo = await keyChain.getAADInfo();
-        expect(aadInfo).to.equal('fake-aad');
+        assert.equal(aadInfo, 'fake-aad');
 
         await keyChain.resetAADInfo();
         aadInfo = await keyChain.getAADInfo();
-        expect(aadInfo).to.be.undefined;
+        assert.equal(aadInfo, undefined);
     });
 
     it('setUserInfo no longer returns removed tokens', async () => {
@@ -85,10 +85,10 @@ describe('KeyChain', () => {
         };
         await keyChain.setUserInfo(expectedUserInfo);
         let userInfo = await keyChain.getUserInfo();
-        expect(userInfo).to.deep.equal(expectedUserInfo);
+        assert.deepStrictEqual(userInfo, expectedUserInfo);
 
         await keyChain.resetUserInfo();
         userInfo = await keyChain.getUserInfo();
-        expect(userInfo).to.be.undefined;
+        assert.equal(userInfo, undefined);
     });
 });

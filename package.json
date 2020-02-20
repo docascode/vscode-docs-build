@@ -118,8 +118,6 @@
     "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.7",
-    "@types/chai-as-promised": "^7.1.2",
     "@types/glob": "^7.1.1",
     "@types/gulp": "^4.0.6",
     "@types/mocha": "^5.2.7",
@@ -128,9 +126,7 @@
     "@types/sinon": "^7.5.1",
     "@types/vscode": "^1.40.0",
     "async-child-process": "^1.1.1",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "codecov": "^3.6.1",
+    "codecov": "^3.6.5",
     "get-port": "^5.1.0",
     "gulp": "^4.0.2",
     "mocha": "^6.2.2",
@@ -150,6 +146,7 @@
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
+    "@types/du": "^1.0.0",
     "@types/fs-extra": "^8.0.1",
     "@types/git-url-parse": "^9.0.0",
     "@types/keytar": "^4.4.0",
@@ -159,6 +156,7 @@
     "@types/uuid": "^3.4.7",
     "@types/yauzl": "^2.9.1",
     "arch": "^2.1.1",
+    "du": "^1.0.0",
     "fs-extra": "^8.1.0",
     "git-url-parse": "^11.1.2",
     "mkdirp": "^0.5.1",

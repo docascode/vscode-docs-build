@@ -1,11 +1,11 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as vscode from 'vscode';
+import fs from 'fs-extra';
+import path from 'path';
+import vscode from 'vscode';
 import { ensureExtensionActivatedAndInitializationFinished, setupAvailableMockKeyChain, triggerCommand } from "../utils/testHelper";
 import { BaseEvent, RefreshCredential, DocfxRestoreCompleted, DocfxBuildCompleted, BuildCompleted } from "../../src/common/loggingEvents";
 import { createSandbox } from 'sinon';
 import { EventType } from "../../src/common/eventType";
-import * as converter from 'number-to-words';
+import converter from 'number-to-words';
 import { formatDuration, getRepositoryInfoFromLocalFolder } from "../../src/utils/utils";
 import { ReportItem, BenchmarkReport } from "../../src/shared";
 

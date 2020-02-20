@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import assert from 'assert';
 import { StatusBarItem } from 'vscode';
 import { BuildStatusBarObserver } from '../../../src/observers/buildStatusBarObserver';
 import { BuildInstantAllocated, BuildInstantReleased } from '../../../src/common/loggingEvents';
@@ -25,18 +25,18 @@ describe('BuildStatusBarObserver', () => {
     it(`BuildInstantAllocated: Status bar is shown with '$(sync~spin)' text`, () => {
         let event = new BuildInstantAllocated();
         observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`$(sync~spin)`);
-        expect(statusBarItem.command).to.be.undefined;
-        expect(statusBarItem.tooltip).to.equal('Building the current workspace folder');
+        assert.equal(showCalled, true);
+        assert.equal(statusBarItem.text, `$(sync~spin)`);
+        assert.equal(statusBarItem.command, undefined);
+        assert.equal(statusBarItem.tooltip, 'Building the current workspace folder');
     });
 
     it(`BuildInstantReleased: Status bar is shown with '$(sync)' text`, () => {
         let event = new BuildInstantReleased();
         observer.eventHandler(event);
-        expect(showCalled).to.be.true;
-        expect(statusBarItem.text).to.equal(`$(sync)`);
-        expect(statusBarItem.command).to.be.undefined;
-        expect(statusBarItem.tooltip).to.equal('Ready to Build');
+        assert.equal(showCalled, true);
+        assert.equal(statusBarItem.text, `$(sync)`);
+        assert.equal(statusBarItem.command, undefined);
+        assert.equal(statusBarItem.tooltip, 'Ready to Build');
     });
 });

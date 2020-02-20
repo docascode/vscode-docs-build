@@ -1,14 +1,15 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import fs from 'fs-extra';
+import path from 'path';
+import os from 'os';
 import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/package';
-import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted } from '../common/loggingEvents';
+import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted, BuildCacheSizeCalculated } from '../common/loggingEvents';
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
-import { basicAuth, getDurationInSeconds } from '../utils/utils';
+import { basicAuth, getDurationInSeconds, getFolderSizeInMB } from '../utils/utils';
 import { ExtensionContext } from '../extensionContext';
 import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
@@ -28,7 +29,7 @@ export class BuildExecutor {
         this.binary = absolutePackage.binary;
     }
 
-    public async RunBuild(input: BuildInput, buildUserToken: string): Promise<BuildResult> {
+    public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> {
         let buildResult = <BuildResult>{
             result: DocfxExecutionResult.Succeeded,
             isRestoreSkipped: BuildExecutor.skipRestore
@@ -45,6 +46,10 @@ export class BuildExecutor {
         if (!BuildExecutor.skipRestore) {
             let restoreStart = Date.now();
             let result = await this.restore(input.localRepositoryPath, outputPath, buildUserToken, envs);
+            
+            let cacheSize = await getFolderSizeInMB(path.join(os.homedir(), '.docfx'));
+            this.eventStream.post(new BuildCacheSizeCalculated(correlationId, cacheSize));
+
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;

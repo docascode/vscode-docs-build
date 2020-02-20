@@ -1,12 +1,9 @@
-import { MockHttpsServer } from "../../utils/MockHttpsServer";
+import assert from 'assert';
+import { MockHttpsServer } from "../../utils/mockHttpsServer";
 import { downloadFile } from "../../../src/dependency/fileDownloader";
-import { EventStream } from "../../../src/common/EventStream";
-import TestEventBus from "../../utils/TestEventBus";
-import * as chai from "chai";
+import { EventStream } from "../../../src/common/eventStream";
+import TestEventBus from "../../utils/testEventBus";
 import { DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed } from "../../../src/common/loggingEvents";
-
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 
 describe(`fileDownloader`, () => {
     const downloadDescription = 'Test FileDownloader';
@@ -56,8 +53,8 @@ describe(`fileDownloader`, () => {
                 let buffer = await downloadFile(downloadDescription, getUrl(elem.urlPath), eventStream, correctResourceIntegrity, false);
                 let text = buffer.toString();
 
-                expect(text).to.equal(correctResourceContent, 'File is downloaded');
-                expect(eventBus.getEvents()).to.deep.equal([
+                assert.equal(text, correctResourceContent, 'File is downloaded');
+                assert.deepStrictEqual(eventBus.getEvents(), [
                     new DownloadStarted(downloadDescription),
                     new DownloadSizeObtained(12),
                     new DownloadProgress(100),
@@ -71,9 +68,9 @@ describe(`fileDownloader`, () => {
                     await downloadFile(downloadDescription, getUrl(elem.urlPath), eventStream, errorResourceIntegrity, false);
                 } catch (err) {
                     errorThrown = true;
-                    expect(err).to.has.property('message').that.equal('Failed integrity check.');
+                    assert.deepStrictEqual(err, new Error('Failed integrity check.'));
 
-                    expect(eventBus.getEvents()).to.deep.equal([
+                    assert.deepStrictEqual(eventBus.getEvents(), [
                         new DownloadStarted(downloadDescription),
                         new DownloadSizeObtained(12),
                         new DownloadProgress(100),
@@ -81,15 +78,15 @@ describe(`fileDownloader`, () => {
                         new DownloadIntegrityCheckFailed(),
                     ], 'Events are created in the correct order');
                 }
-                expect(errorThrown).to.equal(true, 'Error is thrown');
+                assert.equal(errorThrown, true, 'Error is thrown');
             });
 
             it(`Download succeeds if no integrity provided`, async () => {
                 let buffer = await downloadFile(downloadDescription, getUrl(elem.urlPath), eventStream, undefined, false);
                 let text = buffer.toString();
 
-                expect(text).to.equal(correctResourceContent, 'File is downloaded');
-                expect(eventBus.getEvents()).to.deep.equal([
+                assert.equal(text, correctResourceContent, 'File is downloaded');
+                assert.deepStrictEqual(eventBus.getEvents(), [
                     new DownloadStarted(downloadDescription),
                     new DownloadSizeObtained(12),
                     new DownloadProgress(100),
@@ -106,13 +103,13 @@ describe(`fileDownloader`, () => {
             await downloadFile(downloadDescription, errorUrl, eventStream, undefined, false);
         } catch (err) {
             errorThrown = true;
-            expect(err).to.has.property('message').that.equal(`Failed to download from ${errorUrl}. Error code '404'`);
+            assert.deepStrictEqual(err, new Error(`Failed to download from ${errorUrl}. Error code '404'`));
 
-            expect(eventBus.getEvents()).to.deep.equal([
+            assert.deepStrictEqual(eventBus.getEvents(), [
                 new DownloadStarted(downloadDescription)
             ], 'Events are created in the correct order');
         }
-        expect(errorThrown).to.equal(true, 'Error is thrown');
+        assert.equal(errorThrown, true, 'Error is thrown');
     });
 
     function getUrl(path: string) {
