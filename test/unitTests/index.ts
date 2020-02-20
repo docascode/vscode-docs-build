@@ -43,7 +43,7 @@ function setupCoverage() {
         cwd: path.join(__dirname, '..', '..', '..'),
         exclude: ['**/test/**', '.vscode-test/**'],
         reporter: ['lcovonly'],
-        reportDir: 'coverage/component',
+        reportDir: 'coverage/unit',
         all: true,
         instrument: true,
         hookRequire: true,

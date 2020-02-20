@@ -22,23 +22,19 @@
         },
         {
             "name": "Launch extension unit tests",
-            "type": "node",
+            "type": "extensionHost",
             "request": "launch",
-            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "runtimeExecutable": "${execPath}",
             "args": [
-                "--ui",
-                "bdd",
-                "--timeout",
-                "999999",
-                "--colors",
-                "${workspaceFolder}/out/test/unitTests/**/*.test.js"
+                "--disable-extensions",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/out/test/unitTests"
             ],
             "outFiles": [
                 "${workspaceFolder}/out/test/**/*.js"
             ],
-            "internalConsoleOptions": "openOnSessionStart",
-            "sourceMaps": true,
-            "preLaunchTask": "npm: compile"
+            "preLaunchTask": "npm: watch",
+            "sourceMaps": true
         },
         {
             "name": "Launch extension benchmark tests",

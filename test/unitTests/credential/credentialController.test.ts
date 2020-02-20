@@ -1,18 +1,18 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered } from '../../src/common/loggingEvents';
-import { EventStream } from '../../src/common/eventStream';
-import { CredentialController, Credential } from '../../src/credential/credentialController';
-import { KeyChain } from '../../src/credential/keyChain';
-import { EnvironmentController } from '../../src/common/environmentController';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered } from '../../../src/common/loggingEvents';
+import { EventStream } from '../../../src/common/eventStream';
+import { CredentialController, Credential } from '../../../src/credential/credentialController';
+import { KeyChain } from '../../../src/credential/keyChain';
+import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
-import TestEventBus from '../utils/testEventBus';
-import { UserInfo, uriHandler } from '../../src/shared';
-import { getFakeEnvironmentController } from '../utils/faker';
-import extensionConfig from '../../src/config';
-import { DocsError } from '../../src/error/docsError';
-import { ErrorCode } from '../../src/error/errorCode';
-import { TimeOutError } from '../../src/error/timeOutError';
+import TestEventBus from '../../utils/testEventBus';
+import { UserInfo, uriHandler } from '../../../src/shared';
+import { getFakeEnvironmentController } from '../../utils/faker';
+import extensionConfig from '../../../src/config';
+import { DocsError } from '../../../src/error/docsError';
+import { ErrorCode } from '../../../src/error/errorCode';
+import { TimeOutError } from '../../../src/error/timeOutError';
 
 const fakedAADCallbackURL = <vscode.Uri>{
     authority: 'ceapex.docs-build',
