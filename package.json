@@ -1,6 +1,7 @@
 {
-  "name": "docs-build",
-  "description": "Docs Local Build Extension",
+  "name": "docs-validation",
+  "displayName": "docs-validation",
+  "description": "Docs Validation Extension",
   "version": "0.1.12",
   "engines": {
     "vscode": "^1.40.0"
