@@ -87,7 +87,7 @@ export function getCorrelationId(): string {
 }
 
 export async function getFolderSizeInMB(folderPath: string): Promise<number> {
-    if (fs.existsSync(folderPath)) {
+    if (!fs.existsSync(folderPath)) {
         return 0;
     }
 

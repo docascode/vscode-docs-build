@@ -44,11 +44,12 @@ export class BuildExecutor {
         };
 
         if (!BuildExecutor.skipRestore) {
+            let restoreStart = Date.now();
+            let result = await this.restore(input.localRepositoryPath, outputPath, buildUserToken, envs);
+            
             let cacheSize = await getFolderSizeInMB(path.join(os.homedir(), '.docfx'));
             this.eventStream.post(new BuildCacheSizeCalculated(correlationId, cacheSize));
 
-            let restoreStart = Date.now();
-            let result = await this.restore(input.localRepositoryPath, outputPath, buildUserToken, envs);
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;
