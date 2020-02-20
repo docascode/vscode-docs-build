@@ -53,7 +53,7 @@ export class BuildController {
             buildInput = await this.getBuildInput(uri, credential);
 
             this.eventStream.post(new BuildStarted(this.activeWorkSpaceFolder.name));
-            let buildResult = await this.buildExecutor.RunBuild(buildInput, credential.userInfo.userToken);
+            let buildResult = await this.buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             switch (buildResult.result) {
                 case DocfxExecutionResult.Succeeded:
