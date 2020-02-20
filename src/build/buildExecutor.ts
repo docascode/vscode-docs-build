@@ -5,7 +5,7 @@ import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/package';
-import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted, BuildCacheSize } from '../common/loggingEvents';
+import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted, BuildCacheSizeCalculated } from '../common/loggingEvents';
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
@@ -45,7 +45,7 @@ export class BuildExecutor {
 
         if (!BuildExecutor.skipRestore) {
             let cacheSize = await getFolderSizeInMB(path.join(os.homedir(), '.docfx'));
-            this.eventStream.post(new BuildCacheSize(correlationId, cacheSize));
+            this.eventStream.post(new BuildCacheSizeCalculated(correlationId, cacheSize));
 
             let restoreStart = Date.now();
             let result = await this.restore(input.localRepositoryPath, outputPath, buildUserToken, envs);
