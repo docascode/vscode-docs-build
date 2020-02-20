@@ -1,10 +1,20 @@
 import assert from 'assert';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, DependencyInstallFinished, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallError } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { Credential } from '../../../src/credential/credentialController';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
+import { AbsolutePathPackage } from '../../../src/dependency/package';
+
+const fakedPackage = new AbsolutePathPackage(
+    'faked-id',
+    'fakedName',
+    'Faked package description',
+    'https://faked.url',
+    'faked.binary',
+    'faked-rid',
+    'faked-integrity');
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;
@@ -193,7 +203,7 @@ describe('DocsLoggerObserver', () => {
         it(`Docfx Restore canceled`, () => {
             let event = new DocfxRestoreCompleted(DocfxExecutionResult.Canceled);
             observer.eventHandler(event);
-    
+
             let expectedOutput = `'docfx restore' command has been canceled, skip running 'docfx build'\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
@@ -219,7 +229,7 @@ describe('DocsLoggerObserver', () => {
         it(`Docfx Build canceled`, () => {
             let event = new DocfxBuildCompleted(DocfxExecutionResult.Canceled);
             observer.eventHandler(event);
-    
+
             let expectedOutput = `'docfx build' command has been canceled\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
@@ -244,19 +254,29 @@ describe('DocsLoggerObserver', () => {
 
     // Runtime Dependency
     it(`DependencyInstallStarted`, () => {
-        let event = new DependencyInstallStarted();
+        let event = new DependencyInstallStarted('fakedCorrelationId');
         observer.eventHandler(event);
 
         let expectedOutput = `Installing runtime dependencies...\n`;
         assert.equal(loggerText, expectedOutput);
     });
 
-    it(`DependencyInstallFinished`, () => {
-        let event = new DependencyInstallFinished();
-        observer.eventHandler(event);
+    describe('DependencyInstallCompleted', () => {
+        it(`Succeeded`, () => {
+            let event = new DependencyInstallCompleted('fakedCorrelationId', true, 10);
+            observer.eventHandler(event);
 
-        let expectedOutput = `Runtime dependencies installation finished!\n\n`;
-        assert.equal(loggerText, expectedOutput);
+            let expectedOutput = `Runtime dependencies installation finished!\n\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
+
+        it(`Failed`, () => {
+            let event = new DependencyInstallCompleted('fakedCorrelationId', false, 10);
+            observer.eventHandler(event);
+
+            let expectedOutput = `Install runtime dependencies failed, some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.\n\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
     });
 
     it(`PackageInstallStarted`, () => {
@@ -267,17 +287,27 @@ describe('DocsLoggerObserver', () => {
         assert.equal(loggerText, expectedOutput);
     });
 
-    it(`PackageInstallSucceeded`, () => {
-        let event = new PackageInstallSucceeded('Faked package description');
-        observer.eventHandler(event);
+    describe('PackageInstallCompleted', () => {
+        it(`Succeeded`, () => {
+            let event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, true, 0, 10);
+            observer.eventHandler(event);
 
-        let expectedOutput = `Package 'Faked package description' installed!\n\n`;
-        assert.equal(loggerText, expectedOutput);
+            let expectedOutput = `Package 'Faked package description' installed!\n\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
+
+        it(`Failed`, () => {
+            let event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, false, 3, 10);
+            observer.eventHandler(event);
+
+            let expectedOutput = `Package 'Faked package description' install failed after 3 times try!\n\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
     });
 
-    describe('PackageInstallFailed', () => {
+    describe('PackageInstallError', () => {
         it(`Will Retry`, () => {
-            let event = new PackageInstallFailed('Faked package description', 'Faked error msg', true);
+            let event = new PackageInstallError('FakedCorrelationId', fakedPackage, 1, new Error('Faked error msg.'));
             observer.eventHandler(event);
 
             let expectedOutput = `Failed to install package 'Faked package description': Faked error msg. Retrying..\n\n`;
@@ -285,10 +315,10 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Will not Retry`, () => {
-            let event = new PackageInstallFailed('Faked package description', 'Faked error msg', false);
+            let event = new PackageInstallError('FakedCorrelationId', fakedPackage, 3, new Error('Faked error msg.'));
             observer.eventHandler(event);
 
-            let expectedOutput = `Failed to install package 'Faked package description': Faked error msg. Some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.\n\n`;
+            let expectedOutput = `Failed to install package 'Faked package description': Faked error msg.\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
     });
@@ -346,14 +376,6 @@ describe('DocsLoggerObserver', () => {
         observer.eventHandler(event);
 
         let expectedOutput = `Validating download...\n`;
-        assert.equal(loggerText, expectedOutput);
-    });
-
-    it(`DownloadIntegrityCheckFailed`, () => {
-        let event = new DownloadIntegrityCheckFailed();
-        observer.eventHandler(event);
-
-        let expectedOutput = `Package download failed integrity check.\n`;
         assert.equal(loggerText, expectedOutput);
     });
 

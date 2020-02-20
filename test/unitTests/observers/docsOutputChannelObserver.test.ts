@@ -19,7 +19,7 @@ describe('DocsOutputChannelObserver', () => {
     [
         new BuildInstantAllocated(),
         new UserSignInTriggered('FakedCorrelationId'),
-        new DependencyInstallStarted()
+        new DependencyInstallStarted('FakedCorrelationId')
     ].forEach((event: BaseEvent) => {
         it(`${event.constructor.name}: Channel is shown and focused `, () => {
             observer.eventHandler(event);

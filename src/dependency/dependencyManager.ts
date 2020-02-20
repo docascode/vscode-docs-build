@@ -4,22 +4,23 @@ import { PlatformInformation } from '../common/platformInformation';
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
-import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallFinished, PackageInstallFailed, PackageInstallSucceeded, PackageInstallStarted } from '../common/loggingEvents';
+import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallStarted, PackageInstallCompleted, PackageInstallError } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';
 import { ExtensionContext } from '../extensionContext';
+import { getDurationInSeconds } from '../utils/utils';
+import { validateDownload } from './downloadValidator';
 
-export async function ensureRuntimeDependencies(context: ExtensionContext, platformInfo: PlatformInformation, eventStream: EventStream) {
+export async function ensureRuntimeDependencies(context: ExtensionContext, correlationId: string, platformInfo: PlatformInformation, eventStream: EventStream) {
     let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
     let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, context.extensionPath);
     if (packagesToInstall && packagesToInstall.length > 0) {
-        eventStream.post(new DependencyInstallStarted());
+        let start = Date.now();
+        eventStream.post(new DependencyInstallStarted(correlationId));
         eventStream.post(new PlatformInfoRetrieved(platformInfo));
 
-        if (await installDependencies(packagesToInstall, eventStream)) {
-            eventStream.post(new DependencyInstallFinished());
-            return true;
-        }
-        return false;
+        let installDependencySucceeded = await installDependencies(correlationId, packagesToInstall, eventStream);
+        eventStream.post(new DependencyInstallCompleted(correlationId, installDependencySucceeded, getDurationInSeconds(Date.now() - start)));
+        return installDependencySucceeded;
     }
 
     return true;
@@ -33,22 +34,25 @@ function getAbsolutePathPackagesToInstall(packages: Package[], platformInfo: Pla
     return [];
 }
 
-async function installDependencies(packages: AbsolutePathPackage[], eventStream: EventStream): Promise<boolean> {
+async function installDependencies(correlationId: string, packages: AbsolutePathPackage[], eventStream: EventStream): Promise<boolean> {
     if (packages) {
         for (let pkg of packages) {
             eventStream.post(new PackageInstallStarted(pkg.description));
             fs.mkdirpSync(pkg.installPath.value);
 
-            let count = 1;
-            while (count <= 3) {
-                count++;
-
+            let retryCount = 0;
+            let start = Date.now();
+            while (retryCount < 3) {
+                retryCount++;
                 try {
                     // Create begin lock file
                     await createInstallLockFile(pkg.installPath, InstallFileType.Begin);
 
                     // Download file
-                    let buffer = await downloadFile(pkg.description, pkg.url, eventStream, pkg.integrity);
+                    let buffer = await downloadFile(pkg.description, pkg.url, eventStream);
+
+                    // Check Integrity
+                    await validateDownload(eventStream, buffer, pkg.integrity);
 
                     // Install zip file
                     await InstallZip(buffer, pkg.installPath, eventStream);
@@ -58,7 +62,7 @@ async function installDependencies(packages: AbsolutePathPackage[], eventStream:
 
                     break;
                 } catch (error) {
-                    eventStream.post(new PackageInstallFailed(pkg.description, error.message, count <= 3));
+                    eventStream.post(new PackageInstallError(correlationId, pkg, retryCount, error));
                 } finally {
                     // Remove download begin lock file 
                     if (installFileExists(pkg.installPath, InstallFileType.Begin)) {
@@ -67,9 +71,9 @@ async function installDependencies(packages: AbsolutePathPackage[], eventStream:
                 }
             }
 
-            if (installFileExists(pkg.installPath, InstallFileType.Finish)) {
-                eventStream.post(new PackageInstallSucceeded(pkg.description));
-            } else {
+            let packageInstallSucceeded = installFileExists(pkg.installPath, InstallFileType.Finish);
+            eventStream.post(new PackageInstallCompleted(correlationId, pkg, packageInstallSucceeded, retryCount - 1, getDurationInSeconds(Date.now() - start)));
+            if (!packageInstallSucceeded) {
                 return false;
             }
         }

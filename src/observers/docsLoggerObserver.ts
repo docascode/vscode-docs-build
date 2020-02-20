@@ -1,7 +1,8 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, PackageInstallSucceeded, PackageInstallFailed, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, DownloadIntegrityCheckFailed, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallError } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocfxExecutionResult } from '../build/buildResult';
+import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
 
 export class DocsLoggerObserver {
     private downloadProgressDot: number;
@@ -65,17 +66,17 @@ export class DocsLoggerObserver {
             case EventType.DependencyInstallStarted:
                 this.handleDependencyInstallStarted();
                 break;
-            case EventType.DependencyInstallFinished:
-                this.handleDependencyInstallFinished();
+            case EventType.DependencyInstallCompleted:
+                this.handleDependencyInstallCompleted(<DependencyInstallCompleted>event);
                 break;
             case EventType.PackageInstallStarted:
                 this.handlePackageInstallStarted(<PackageInstallStarted>event);
                 break;
-            case EventType.PackageInstallSucceeded:
-                this.handlePackageInstallSucceeded(<PackageInstallSucceeded>event);
+            case EventType.PackageInstallCompleted:
+                this.handlePackageInstallCompleted(<PackageInstallCompleted>event);
                 break;
-            case EventType.PackageInstallFailed:
-                this.handlePackageInstallFailed(<PackageInstallFailed>event);
+            case EventType.PackageInstallError:
+                this.handlePackageInstallError(<PackageInstallError>event);
                 break;
             case EventType.DownloadStarted:
                 this.handleDownloadStarted(<DownloadStarted>event);
@@ -88,9 +89,6 @@ export class DocsLoggerObserver {
                 break;
             case EventType.DownloadValidating:
                 this.handleDownloadValidating(<DownloadValidating>event);
-                break;
-            case EventType.DownloadIntegrityCheckFailed:
-                this.handleDownloadIntegrityCheckFailed(<DownloadIntegrityCheckFailed>event);
                 break;
             case EventType.ZipFileInstalling:
                 this.handleZipFileInstalling(<ZipFileInstalling>event);
@@ -229,8 +227,12 @@ export class DocsLoggerObserver {
         this.appendLine(`Installing runtime dependencies...`);
     }
 
-    private handleDependencyInstallFinished() {
-        this.appendLine('Runtime dependencies installation finished!');
+    private handleDependencyInstallCompleted(event: DependencyInstallCompleted) {
+        if (event.succeeded) {
+            this.appendLine('Runtime dependencies installation finished!');
+        } else {
+            this.appendLine('Install runtime dependencies failed, some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.');
+        }
         this.appendLine();
     }
 
@@ -238,17 +240,21 @@ export class DocsLoggerObserver {
         this.appendLine(`Installing package '${event.pkgDescription}'...`);
     }
 
-    private handlePackageInstallSucceeded(event: PackageInstallSucceeded) {
-        this.appendLine(`Package '${event.pkgDescription}' installed!`);
+    private handlePackageInstallCompleted(event: PackageInstallCompleted) {
+        if (event.succeeded) {
+            this.appendLine(`Package '${event.installedPackage.description}' installed!`);
+        } else {
+            this.appendLine(`Package '${event.installedPackage.description}' install failed after ${INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME} times try!`);
+        }
         this.appendLine();
     }
 
-    private handlePackageInstallFailed(event: PackageInstallFailed) {
-        if (event.willRetry) {
-            this.appendLine(`Failed to install package '${event.pkgDescription}': ${event.message}. Retrying..`);
-        } else {
-            this.appendLine(`Failed to install package '${event.pkgDescription}': ${event.message}. Some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.`);
+    private handlePackageInstallError(event: PackageInstallError) {
+        let msg = `Failed to install package '${event.installedPackage.description}': ${event.err.message}`;
+        if (event.retryCount < INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME) {
+            msg += ` Retrying..`;
         }
+        this.appendLine(msg);
         this.appendLine();
     }
 
@@ -273,10 +279,6 @@ export class DocsLoggerObserver {
 
     private handleDownloadValidating(event: DownloadValidating) {
         this.appendLine('Validating download...');
-    }
-
-    private handleDownloadIntegrityCheckFailed(event: DownloadIntegrityCheckFailed) {
-        this.appendLine(`Package download failed integrity check.`);
     }
 
     private handleZipFileInstalling(event: ZipFileInstalling) {

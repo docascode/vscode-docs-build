@@ -4,6 +4,7 @@ import { PlatformInformation } from './platformInformation';
 import { Environment } from '../shared';
 import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { BuildInput } from '../build/buildInput';
+import { AbsolutePathPackage } from '../dependency/package';
 
 export interface BaseEvent {
     type: EventType;
@@ -163,10 +164,12 @@ export class APICallFailed implements BaseEvent {
 // Runtime Dependency
 export class DependencyInstallStarted implements BaseEvent {
     type = EventType.DependencyInstallStarted;
+    constructor(public correlationId: string) { }
 }
 
-export class DependencyInstallFinished implements BaseEvent {
-    type = EventType.DependencyInstallFinished;
+export class DependencyInstallCompleted implements BaseEvent {
+    type = EventType.DependencyInstallCompleted;
+    constructor(public correlationId: string, public succeeded: boolean, public elapsedTimeInSeconds: number) { }
 }
 
 export class PackageInstallStarted implements BaseEvent {
@@ -174,14 +177,14 @@ export class PackageInstallStarted implements BaseEvent {
     constructor(public pkgDescription: string) { }
 }
 
-export class PackageInstallSucceeded implements BaseEvent {
-    type = EventType.PackageInstallSucceeded;
-    constructor(public pkgDescription: string) { }
+export class PackageInstallCompleted implements BaseEvent {
+    type = EventType.PackageInstallCompleted;
+    constructor(public correlationId: string, public installedPackage: AbsolutePathPackage, public succeeded: boolean, public retryCount: number, public elapsedTimeInSeconds: number) { }
 }
 
-export class PackageInstallFailed implements BaseEvent {
-    type = EventType.PackageInstallFailed;
-    constructor(public pkgDescription: string, public message: string, public willRetry: boolean) { }
+export class PackageInstallError implements BaseEvent {
+    type = EventType.PackageInstallError;
+    constructor(public correlationId: string, public installedPackage: AbsolutePathPackage, public retryCount: number, public err: Error) { }
 }
 
 export class DownloadStarted implements BaseEvent {
@@ -202,10 +205,6 @@ export class DownloadSizeObtained implements BaseEvent {
 export class DownloadValidating implements BaseEvent {
     type = EventType.DownloadValidating;
     constructor() { }
-}
-
-export class DownloadIntegrityCheckFailed implements BaseEvent {
-    type = EventType.DownloadIntegrityCheckFailed;
 }
 
 export class ZipFileInstalling implements BaseEvent {
