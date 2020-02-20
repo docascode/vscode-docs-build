@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import vscode from 'vscode';
+import fs from 'fs-extra';
+import path from 'path';
 import { Credential } from '../credential/credentialController';
 import { OPBuildAPIClient } from './opBuildAPIClient';
 import { EventStream } from '../common/eventStream';

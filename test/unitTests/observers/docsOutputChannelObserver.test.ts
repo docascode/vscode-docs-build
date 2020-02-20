@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import { OutputChannel } from 'vscode';
 import { BaseEvent, DependencyInstallStarted, BuildInstantAllocated, UserSignInTriggered } from '../../../src/common/loggingEvents';
 import { DocsOutputChannelObserver } from '../../../src/observers/docsOutputChannelObserver';

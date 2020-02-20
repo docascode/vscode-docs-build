@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
 
 export class CodeActionProvider implements vscode.CodeActionProvider {

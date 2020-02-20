@@ -1,6 +1,6 @@
 
-import * as getPort from 'get-port';
-import * as fs from 'fs-extra';
+import getPort from 'get-port';
+import fs from 'fs-extra';
 
 // tslint:disable-next-line: variable-name
 const ServerMock = require('mock-http-server');
