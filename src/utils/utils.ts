@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
-import * as fs from 'fs-extra';
-import * as gitUrlParse from 'git-url-parse';
-import * as simpleGit from 'simple-git/promise';
-import * as uuid from 'uuid/v1';
+import vscode from 'vscode';
+import fs from 'fs-extra';
+import gitUrlParse from 'git-url-parse';
+import simpleGit from 'simple-git/promise';
+import uuid from 'uuid/v1';
 
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {

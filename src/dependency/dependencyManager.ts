@@ -1,4 +1,4 @@
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import { AbsolutePathPackage, Package } from './package';
 import { PlatformInformation } from '../common/platformInformation';
 import { downloadFile } from './fileDownloader';

@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as https from 'https';
+import fs from 'fs';
+import https from 'https';
 import { Package } from '../dependency/package';
 
 interface PackageJSONFile {

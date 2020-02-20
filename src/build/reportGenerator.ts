@@ -1,6 +1,6 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as vscode from 'vscode';
+import fs from 'fs-extra';
+import path from 'path';
+import vscode from 'vscode';
 import { EventStream } from "../common/eventStream";
 import { safelyReadJsonFile } from '../utils/utils';
 import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME, EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
