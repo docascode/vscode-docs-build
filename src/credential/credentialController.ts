@@ -145,7 +145,7 @@ export class CredentialController {
         let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
         if (!opened) {
             // User decline to open external URL to sign in
-            throw new DocsError(`Sign-in with AAD Failed: Please Allow Code to open `, ErrorCode.AADSignInExternalUrlDeclined);
+            throw new DocsError(`Sign-in with AAD Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AADSignInExternalUrlDeclined);
         }
 
         try {
@@ -180,7 +180,7 @@ export class CredentialController {
         let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
         if (!opened) {
             // User decline to open external URL to sign in
-            throw new DocsError(`Sign-in with GitHub Failed: Please Allow Code to open `, ErrorCode.GitHubSignInExternalUrlDeclined);
+            throw new DocsError(`Sign-in with GitHub Failed: Please Allow to open external URL to Sign-In`, ErrorCode.GitHubSignInExternalUrlDeclined);
         }
 
         try {
