@@ -156,7 +156,7 @@ export class TelemetryObserver {
                 correlationId: event.correlationId,
                 sizeInMB: event.sizeInMB.toString(),
             }
-        )
+        );
     }
 
     private getErrorCode(err: Error): string {
