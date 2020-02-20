@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as gitUrlParse from 'git-url-parse';
 import * as simpleGit from 'simple-git/promise';
 import * as uuid from 'uuid/v1';
-import * as du from 'du';
+const du =  require('du');
 
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {
