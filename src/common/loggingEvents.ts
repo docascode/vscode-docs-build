@@ -144,6 +144,11 @@ export class DocfxBuildCompleted implements BaseEvent {
     constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
 }
 
+export class BuildCacheSizeCalculated implements BaseEvent {
+    type = EventType.BuildCacheSizeCalculated;
+    constructor(public correlationId: string, public sizeInMB: number) {}
+}
+
 // API
 export class APICallStarted implements BaseEvent {
     type = EventType.APICallStarted;

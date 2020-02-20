@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import gitUrlParse from 'git-url-parse';
 import simpleGit from 'simple-git/promise';
 import uuid from 'uuid/v1';
+import du from 'du';
 
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {
@@ -83,4 +84,13 @@ export function trimEndSlash(str: string) {
 
 export function getCorrelationId(): string {
     return uuid();
+}
+
+export async function getFolderSizeInMB(folderPath: string): Promise<number> {
+    if (!fs.existsSync(folderPath)) {
+        return 0;
+    }
+
+    let size = Math.floor(await du(folderPath) / 1024 / 1024);
+    return size;
 }

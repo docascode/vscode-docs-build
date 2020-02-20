@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated } from '../common/loggingEvents';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
@@ -28,6 +28,10 @@ export class TelemetryObserver {
                 break;
             case EventType.BuildCompleted:
                 this.handleBuildCompleted(<BuildCompleted>event);
+                break;
+            case EventType.BuildCacheSizeCalculated:
+                this.handleBuildCacheSize(<BuildCacheSizeCalculated>event);
+                break;
         }
     }
 
@@ -141,6 +145,16 @@ export class TelemetryObserver {
                 totalTimeInSeconds: event.totalTimeInSeconds,
                 restoreTimeInSeconds,
                 buildTimeInSeconds
+            }
+        );
+    }
+
+    private handleBuildCacheSize(event: BuildCacheSizeCalculated) {
+        this.reporter.sendTelemetryEvent(
+            'BuildCacheSize',
+            {
+                correlationId: event.correlationId,
+                sizeInMB: event.sizeInMB.toString(),
             }
         );
     }
