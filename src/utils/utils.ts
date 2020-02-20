@@ -91,6 +91,6 @@ export async function getFolderSizeInMB(folderPath: string): Promise<number> {
         return 0;
     }
 
-    let size = await du(folderPath) / 1024 / 1024;
+    let size = Math.floor(await du(folderPath) / 1024 / 1024);
     return size;
 }
