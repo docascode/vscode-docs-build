@@ -3,7 +3,7 @@
 # Whitelist
 !out/src/extension.js
 !resources/syntaxes/docs-output.tmLanguage
-!resources/favicon.ico
+!resources/docs-logo-ms.png
 !CHANGELOG.md
 !package.json
 !README.md
