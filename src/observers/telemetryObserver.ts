@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted } from '../common/loggingEvents';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
@@ -32,6 +32,17 @@ export class TelemetryObserver {
             case EventType.BuildCacheSizeCalculated:
                 this.handleBuildCacheSize(<BuildCacheSizeCalculated>event);
                 break;
+            case EventType.DependencyInstallStarted:
+                this.handleDependencyInstallStarted(<DependencyInstallStarted>event);
+                break;
+            case EventType.DependencyInstallCompleted:
+                this.handleDependencyInstallCompleted(<DependencyInstallCompleted>event);
+                break;
+            case EventType.PackageInstallCompleted:
+                this.handlePackageInstallCompleted(<PackageInstallCompleted>event);
+                break;  
+            // TODO: Send Metric for event PackageInstallAttemptFailed
+            // Depends on this PR: https://github.com/microsoft/vscode-extension-telemetry/pull/42
             case EventType.QuickPickTriggered:
                 this.handleQuickPickTriggered(<QuickPickTriggered>event);
                 break;
@@ -163,6 +174,44 @@ export class TelemetryObserver {
             {
                 correlationId: event.correlationId,
                 sizeInMB: event.sizeInMB.toString(),
+            }
+        );
+    }
+
+    // Install Dependencies
+    private handleDependencyInstallStarted(event: DependencyInstallStarted) {
+        this.reporter.sendTelemetryEvent(
+            'InstallDependency.Started',
+            {
+                correlationId: event.correlationId
+            }
+        );
+    }
+
+    private handleDependencyInstallCompleted(event: DependencyInstallCompleted) {
+        this.reporter.sendTelemetryEvent(
+            'InstallDependency.Completed',
+            {
+                correlationId: event.correlationId,
+                result: event.succeeded ? 'Succeeded' : 'Failed'
+            },
+            {
+                elapsedTimeInSeconds: event.elapsedTimeInSeconds
+            }
+        );
+    }
+
+    private handlePackageInstallCompleted(event: PackageInstallCompleted) {
+        this.reporter.sendTelemetryEvent(
+            'InstallDependency.Package.Completed',
+            {
+                correlationId: event.correlationId,
+                result: event.succeeded ? 'Succeeded' : 'Failed',
+                packageId: event.installedPackage.id,
+            },
+            {
+                retryCount: event.retryCount,
+                elapsedTimeInSeconds: event.elapsedTimeInSeconds
             }
         );
     }
