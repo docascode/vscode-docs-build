@@ -1,20 +1,25 @@
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
+import path from 'path';
+import os from 'os';
 import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/package';
-import { DocfxRestoreCanceled, DocfxRestoreFailed, DocfxRestoreSucceeded, DocfxBuildCanceled, DocfxBuildSucceeded, DocfxBuildFailed, DocfxBuildStarted, DocfxRestoreStarted } from '../common/loggingEvents';
+import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted, BuildCacheSizeCalculated } from '../common/loggingEvents';
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
-import { basicAuth } from '../utils/utils';
+import { basicAuth, getDurationInSeconds, getFolderSizeInMB } from '../utils/utils';
 import { ExtensionContext } from '../extensionContext';
+import { DocfxExecutionResult, BuildResult } from './buildResult';
+import { BuildInput } from './buildInput';
+import { OUTPUT_FOLDER_NAME } from '../shared';
 
 export class BuildExecutor {
     private cwd: string;
     private binary: string;
     private runningChildProcess: ChildProcess;
-    private static skipRestore: boolean;
+    private static skipRestore: boolean = false;
 
     constructor(context: ExtensionContext, platformInfo: PlatformInformation, private environmentController: EnvironmentController, private eventStream: EventStream) {
         let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
@@ -24,28 +29,39 @@ export class BuildExecutor {
         this.binary = absolutePackage.binary;
     }
 
-    public async RunBuild(
-        repositoryPath: string,
-        repositoryUrl: string,
-        outputPath: string,
-        buildUserToken: string
-    ): Promise<boolean> {
+    public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> {
+        let buildResult = <BuildResult>{
+            result: DocfxExecutionResult.Succeeded,
+            isRestoreSkipped: BuildExecutor.skipRestore
+        };
 
+        let outputPath = path.join(input.localRepositoryPath, OUTPUT_FOLDER_NAME);
         fs.emptyDirSync(outputPath);
 
         let envs = {
-            'DOCFX_REPOSITORY_URL': repositoryUrl,
+            'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
 
         if (!BuildExecutor.skipRestore) {
-            if (!(await this.restore(repositoryPath, outputPath, buildUserToken, envs))) {
-                return false;
+            let restoreStart = Date.now();
+            let result = await this.restore(input.localRepositoryPath, outputPath, buildUserToken, envs);
+            
+            let cacheSize = await getFolderSizeInMB(path.join(os.homedir(), '.docfx'));
+            this.eventStream.post(new BuildCacheSizeCalculated(correlationId, cacheSize));
+
+            if (result !== 'Succeeded') {
+                buildResult.result = result;
+                return buildResult;
             }
             BuildExecutor.skipRestore = true;
+            buildResult.restoreTimeInSeconds = getDurationInSeconds(Date.now() - restoreStart);
         }
 
-        return await this.build(repositoryPath, outputPath, envs);
+        let buildStart = Date.now();
+        buildResult.result = await this.build(input.localRepositoryPath, outputPath, envs);
+        buildResult.buildTimeInSeconds = getDurationInSeconds(Date.now() - buildStart);
+        return buildResult;
     }
 
     public cancelBuild(): void {
@@ -58,7 +74,7 @@ export class BuildExecutor {
         repositoryPath: string,
         outputPath: string,
         buildUserToken: string,
-        envs: any): Promise<boolean> {
+        envs: any): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             let secrets = <any>{
                 [`${extensionConfig.OPBuildAPIEndPoint[this.environmentController.env]}`]: {
@@ -84,15 +100,14 @@ export class BuildExecutor {
                 this.eventStream,
                 (code: number, signal: string) => {
                     if (signal === 'SIGKILL') {
-                        this.eventStream.post(new DocfxRestoreCanceled());
-                        resolve(false);
-                    }
-                    if (code === 0) {
-                        this.eventStream.post(new DocfxRestoreSucceeded());
-                        resolve(true);
+                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Canceled));
+                        resolve(DocfxExecutionResult.Canceled);
+                    } else if (code === 0) {
+                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Succeeded, 0));
+                        resolve(DocfxExecutionResult.Succeeded);
                     } else {
-                        this.eventStream.post(new DocfxRestoreFailed(code));
-                        resolve(false);
+                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Failed, code));
+                        resolve(DocfxExecutionResult.Failed);
                     }
                 },
                 { env: envs, cwd: this.cwd },
@@ -104,7 +119,7 @@ export class BuildExecutor {
     private async build(
         repositoryPath: string,
         outputPath: string,
-        envs: any): Promise<boolean> {
+        envs: any): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this.eventStream.post(new DocfxBuildStarted());
             let command = `${this.binary} build "${repositoryPath}" --legacy --dry-run --output "${outputPath}"`;
@@ -113,15 +128,14 @@ export class BuildExecutor {
                 this.eventStream,
                 (code: number, signal: string) => {
                     if (signal === 'SIGKILL') {
-                        this.eventStream.post(new DocfxBuildCanceled());
-                        resolve(false);
-                    }
-                    if (code === 0) {
-                        this.eventStream.post(new DocfxBuildSucceeded());
-                        resolve(true);
+                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Canceled));
+                        resolve(DocfxExecutionResult.Canceled);
+                    } else if (code === 0) {
+                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Succeeded, 0));
+                        resolve(DocfxExecutionResult.Succeeded);
                     } else {
-                        this.eventStream.post(new DocfxBuildFailed(code));
-                        resolve(false);
+                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Failed, code));
+                        resolve(DocfxExecutionResult.Failed);
                     }
                 },
                 { env: envs, cwd: this.cwd }

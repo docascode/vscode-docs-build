@@ -1,6 +1,7 @@
-import * as gulp from 'gulp';
-import spawnNode from './spawnNode';
-import { nycPath, unitTestCoverageRootPath, mochaPath } from './projectPaths';
+import gulp from 'gulp';
+import path from 'path';
+import { rootPath } from './projectPaths';
+import { runTests } from 'vscode-test';
 
 require('./benchmarkTestTask');
 
@@ -8,30 +9,19 @@ gulp.task('test:e2e', async () => {
     // TODO: add e2e test
 });
 
-gulp.task('test:component', async () => {
-    // TODO: add component test
-});
-
 gulp.task('test:unit', async () => {
-    return spawnNode([
-        nycPath,
-        '-r',
-        'lcovonly',
-        '--report-dir',
-        unitTestCoverageRootPath,
-        mochaPath,
-        '--require',
-        'ts-node/register',
-        '--color',
-        '--ui',
-        'bdd',
-        '--',
-        'test/unitTests/**/*.test.ts'
-    ]);
+    const extensionDevelopmentPath = rootPath;
+    const extensionTestsPath = path.resolve(rootPath, './out/test/unitTests/index');
+
+    // Download VS Code, unzip it and run the integration test
+    await runTests({
+        extensionDevelopmentPath,
+        extensionTestsPath,
+        launchArgs: ['--disable-extensions']
+    });
 });
 
 gulp.task('test', gulp.series(
     'test:e2e',
-    'test:component',
     'test:unit'
 ));

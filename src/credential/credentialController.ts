@@ -1,10 +1,10 @@
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
-import * as template from 'url-template';
+import template from 'url-template';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash } from '../utils/utils';
-import { UserSignInSucceeded, UserSignedOut, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignInTriggered } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -95,9 +95,14 @@ export class CredentialController {
         }
     }
 
-    public signOut() {
-        this.resetCredential();
-        this.eventStream.post(new UserSignedOut());
+    public signOut(correlationId: string) {
+        this.eventStream.post(new UserSignOutTriggered(correlationId));
+        try {
+            this.resetCredential();
+            this.eventStream.post(new UserSignOutSucceeded(correlationId));
+        } catch (err) {
+            this.eventStream.post(new UserSignOutFailed(correlationId, err));
+        }
     }
 
     private resetCredential() {
@@ -140,7 +145,7 @@ export class CredentialController {
         let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
         if (!opened) {
             // User decline to open external URL to sign in
-            throw new DocsError(`Sign-in with AAD Failed: Please Allow Code to open `, ErrorCode.AADSignInExternalUrlDeclined);
+            throw new DocsError(`Sign-in with AAD Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AADSignInExternalUrlDeclined);
         }
 
         try {
@@ -175,7 +180,7 @@ export class CredentialController {
         let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
         if (!opened) {
             // User decline to open external URL to sign in
-            throw new DocsError(`Sign-in with GitHub Failed: Please Allow Code to open `, ErrorCode.GitHubSignInExternalUrlDeclined);
+            throw new DocsError(`Sign-in with GitHub Failed: Please Allow to open external URL to Sign-In`, ErrorCode.GitHubSignInExternalUrlDeclined);
         }
 
         try {

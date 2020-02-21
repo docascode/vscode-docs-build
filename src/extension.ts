@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { CredentialController } from './credential/credentialController';
 import { uriHandler, EXTENSION_ID } from './shared';
@@ -74,6 +74,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let buildStatusBarObserver = new BuildStatusBarObserver(buildStatusBar);
     eventStream.subscribe(buildStatusBarObserver.eventHandler);
 
+    let codeActionProvider = new CodeActionProvider();
+
     context.subscriptions.push(
         outputChannel,
         telemetryReporter,
@@ -83,15 +85,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         environmentController,
         // TODO: Support cancel the current build
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn(getCorrelationId())),
-        vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut()),
+        vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut(getCorrelationId())),
         vscode.commands.registerCommand('docs.build', (uri) => {
-            buildController.build(uri, credentialController.credential);
+            buildController.build(getCorrelationId(), uri, credentialController.credential);
         }),
-        vscode.commands.registerCommand('docs.openPage', (uri: vscode.Uri) => {
-            vscode.env.openExternal(uri);
+        vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
+            CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
         vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController)),
-        vscode.languages.registerCodeActionsProvider('*', new CodeActionProvider(), {
+        vscode.languages.registerCodeActionsProvider('*', codeActionProvider, {
             providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
         }),
         vscode.window.registerUriHandler(uriHandler)
@@ -144,10 +146,10 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                     credentialController.signIn(getCorrelationId());
                     break;
                 case 'Sign-out':
-                    credentialController.signOut();
+                    credentialController.signOut(getCorrelationId());
                     break;
                 case 'Build':
-                    buildController.build(undefined, credentialController.credential);
+                    buildController.build(getCorrelationId(), undefined, credentialController.credential);
                     break;
             }
             quickPickMenu.hide();

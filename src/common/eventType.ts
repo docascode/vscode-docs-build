@@ -7,7 +7,8 @@ export enum EventType {
     UserSignInTriggered,
     UserSignInProgress,
     UserSignInCompleted,
-    UserSignedOut,
+    UserSignOutTriggered,
+    UserSignOutCompleted,
 
     // Build
     RepositoryEnabledV3,
@@ -15,20 +16,18 @@ export enum EventType {
 
     BuildInstantReleased,
     BuildInstantAllocated,
-    BuildTriggerFailed,
-    BuildJobTriggered,
-    BuildJobSucceeded,
-    BuildJobFailed,
+
+    BuildTriggered,
+    BuildStarted,
     BuildProgress,
+    BuildCompleted,
 
     DocfxRestoreStarted,
-    DocfxRestoreFinished,
-    DocfxRestoreCanceled,
+    DocfxRestoreCompleted,
     DocfxBuildStarted,
-    DocfxBuildFinished,
-    DocfxBuildCanceled,
+    DocfxBuildCompleted,
 
-    ReportGenerationFailed,
+    BuildCacheSizeCalculated,
 
     // API
     APICallStarted,
@@ -52,6 +51,7 @@ export enum EventType {
     EnvironmentChanged,
     QuickPickTriggered,
     QuickPickCommandSelected,
+    LearnMoreClicked,
 
     // Test only
     RefreshCredential,

@@ -1,11 +1,13 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as vscode from 'vscode';
+import fs from 'fs-extra';
+import path from 'path';
+import vscode from 'vscode';
 import { EventStream } from "../common/eventStream";
 import { safelyReadJsonFile } from '../utils/utils';
 import { OUTPUT_FOLDER_NAME, OP_CONFIG_FILE_NAME, EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
 import { DiagnosticController } from './diagnosticController';
-import { BuildProgress, ReportGenerationFailed } from '../common/loggingEvents';
+import { BuildProgress } from '../common/loggingEvents';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
 
 interface Docset {
     docset_name: string;
@@ -37,7 +39,7 @@ const REPORT_FILENAME = '.errors.log';
 type MessageSeverity = "error" | "warning" | "info" | "suggestion";
 type LogItemType = 'system' | ' user';
 
-export function visualizeBuildReport(repositoryPath: string, diagnosticController: DiagnosticController, eventStream: EventStream): boolean {
+export function visualizeBuildReport(repositoryPath: string, diagnosticController: DiagnosticController, eventStream: EventStream) {
     try {
         let opConfigPath = path.join(repositoryPath, OP_CONFIG_FILE_NAME);
         let opConfig = safelyReadJsonFile(opConfigPath);
@@ -45,15 +47,15 @@ export function visualizeBuildReport(repositoryPath: string, diagnosticControlle
         for (let docset of docsets) {
             visualizeBuildReportForDocset(repositoryPath, docset, diagnosticController, eventStream);
         }
-        return true;
     } catch (err) {
-        eventStream.post(new ReportGenerationFailed(err.message));
-        return false;
+        throw new DocsError('Generate report failed', ErrorCode.GenerateReportFailed);
     }
 }
 
 function visualizeBuildReportForDocset(repositoryPath: string, docset: Docset, diagnosticController: DiagnosticController, eventStream: EventStream) {
     eventStream.post(new BuildProgress(`Generating report for docset ${docset.docset_name}...`));
+    diagnosticController.reset();
+    
     let reportFilePath = path.join(repositoryPath, OUTPUT_FOLDER_NAME, docset.build_source_folder, REPORT_FILENAME);
     if (!fs.existsSync(reportFilePath)) {
         eventStream.post(new BuildProgress(`Log file (.error.log) not found. Skip generating report for current docset '${docset.docset_name}'`));
@@ -92,7 +94,6 @@ function visualizeBuildReportForDocset(repositoryPath: string, docset: Docset, d
         }
     });
 
-    diagnosticController.reset();
     diagnosticsSet.forEach((value) => {
         diagnosticController.setDiagnostic(value.uri, value.diagnostics);
     });

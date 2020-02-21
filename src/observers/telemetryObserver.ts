@@ -1,9 +1,10 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, QuickPickTriggered, QuickPickCommandSelected } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected } from '../common/loggingEvents';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
 import { DocsError } from '../error/docsError';
-import { ErrorCode } from '../error/errorCode';
+import { BuildType } from '../build/buildInput';
+import { DocfxExecutionResult } from '../build/buildResult';
 
 export class TelemetryObserver {
     constructor(private reporter: TelemetryReporter) { }
@@ -16,11 +17,29 @@ export class TelemetryObserver {
             case EventType.UserSignInCompleted:
                 this.handleUserSignInCompleted(<UserSignInCompleted>event);
                 break;
+            case EventType.UserSignOutTriggered:
+                this.handleUserSignOutTriggered(<UserSignOutTriggered>event);
+                break;
+            case EventType.UserSignOutCompleted:
+                this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
+                break;
+            case EventType.BuildTriggered:
+                this.handleBuildTriggered(<BuildTriggered>event);
+                break;
+            case EventType.BuildCompleted:
+                this.handleBuildCompleted(<BuildCompleted>event);
+                break;
+            case EventType.BuildCacheSizeCalculated:
+                this.handleBuildCacheSize(<BuildCacheSizeCalculated>event);
+                break;
             case EventType.QuickPickTriggered:
                 this.handleQuickPickTriggered(<QuickPickTriggered>event);
                 break;
             case EventType.QuickPickCommandSelected:
                 this.handleQuickPickCommandSelected(<QuickPickCommandSelected>event);
+                break;
+            case EventType.LearnMoreClicked:
+                this.handleLearnMoreClicked(<LearnMoreClicked>event);
                 break;
         }
     }
@@ -29,6 +48,7 @@ export class TelemetryObserver {
     private handleUserSignInTriggered(event: UserSignInTriggered) {
         this.reporter.sendTelemetryEvent(
             'SignIn.Triggered',
+
             {
                 correlationId: event.correlationId
             }
@@ -36,7 +56,6 @@ export class TelemetryObserver {
     }
 
     private handleUserSignInCompleted(event: UserSignInCompleted) {
-        let correlationId = event.correlationId;
         let result = event.succeeded ? 'Succeeded' : 'Failed';
         let signInType: DocsSignInType;
         let userName: string;
@@ -53,12 +72,97 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'SignIn.Completed',
             {
-                correlationId,
+                correlationId: event.correlationId,
                 result,
                 signInType,
                 userName,
                 userEmail,
                 errorCode
+            }
+        );
+    }
+    private handleUserSignOutTriggered(event: UserSignOutTriggered) {
+        this.reporter.sendTelemetryEvent(
+            'SignOut.Triggered',
+            {
+                correlationId: event.correlationId
+            }
+        );
+    }
+
+    private handleUserSignOutCompleted(event: UserSignOutCompleted) {
+        this.reporter.sendTelemetryEvent(
+            'SignOut.Completed',
+            {
+                correlationId: event.correlationId,
+                result: event.succeeded ? 'Succeeded' : 'Failed',
+            }
+        );
+    }
+
+    // Build
+    private handleBuildTriggered(event: BuildTriggered) {
+        this.reporter.sendTelemetryEvent(
+            'Build.Triggered',
+            {
+                correlationId: event.correlationId
+            }
+        );
+    }
+
+    private handleBuildCompleted(event: BuildCompleted) {
+        let result = event.result;
+        let errorCode: string;
+        let buildType: BuildType;
+        let localRepositoryUrl: string;
+        let originalRepositoryUrl: string;
+        let localRepositoryBranch: string;
+
+        let isRestoreSkipped = false;
+        let restoreTimeInSeconds: number;
+        let buildTimeInSeconds: number;
+
+        let buildInput = event.buildInput;
+        if (buildInput) {
+            buildType = buildInput.buildType;
+            localRepositoryUrl = buildInput.localRepositoryUrl;
+            originalRepositoryUrl = buildInput.originalRepositoryUrl;
+            localRepositoryBranch = buildInput.localRepositoryBranch;
+        }
+        if (event.result === DocfxExecutionResult.Succeeded) {
+            let buildResult = (<BuildSucceeded>event).buildResult;
+            isRestoreSkipped = buildResult.isRestoreSkipped;
+            restoreTimeInSeconds = buildResult.restoreTimeInSeconds;
+            buildTimeInSeconds = buildResult.buildTimeInSeconds;
+        } else if (event.result === DocfxExecutionResult.Failed) {
+            errorCode = this.getErrorCode((<BuildFailed>event).err);
+        }
+        this.reporter.sendTelemetryEvent(
+            'Build.Completed',
+            {
+                correlationId: event.correlationId,
+                result,
+                errorCode,
+                isRestoreSkipped: isRestoreSkipped.toString(),
+                buildType,
+                localRepositoryUrl,
+                originalRepositoryUrl,
+                localRepositoryBranch
+            },
+            {
+                totalTimeInSeconds: event.totalTimeInSeconds,
+                restoreTimeInSeconds,
+                buildTimeInSeconds
+            }
+        );
+    }
+
+    private handleBuildCacheSize(event: BuildCacheSizeCalculated) {
+        this.reporter.sendTelemetryEvent(
+            'BuildCacheSize',
+            {
+                correlationId: event.correlationId,
+                sizeInMB: event.sizeInMB.toString(),
             }
         );
     }
@@ -82,10 +186,21 @@ export class TelemetryObserver {
         );
     }
 
+    private handleLearnMoreClicked(event: LearnMoreClicked) {
+        let errorCode = event.diagnosticErrorCode;
+        this.reporter.sendTelemetryEvent(
+            'LearnMore.Clicked',
+            {
+                correlationId: event.correlationId,
+                errorCode
+            }
+        );
+    }
+
     private getErrorCode(err: Error): string {
         let errorCode = undefined;
         if (err instanceof DocsError) {
-            errorCode = ErrorCode[err.code];
+            errorCode = err.code;
         }
         return errorCode;
     }

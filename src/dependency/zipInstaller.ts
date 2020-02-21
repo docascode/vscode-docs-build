@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import * as mkdirp from 'mkdirp';
-import * as path from 'path';
-import * as yauzl from 'yauzl';
+import fs from 'fs';
+import mkdirp from 'mkdirp';
+import path from 'path';
+import yauzl from 'yauzl';
 import { AbsolutePath } from '../common/absolutePath';
 import { ZipFileInstalling } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';

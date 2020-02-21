@@ -2,7 +2,8 @@ import { EventType } from './eventType';
 import { Credential } from '../credential/credentialController';
 import { PlatformInformation } from './platformInformation';
 import { Environment } from '../shared';
-import { TriggerErrorType } from '../build/triggerErrorType';
+import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
+import { BuildInput } from '../build/buildInput';
 
 export interface BaseEvent {
     type: EventType;
@@ -25,11 +26,29 @@ export class UserSignInSucceeded extends UserSignInCompleted {
     }
 }
 
-export class UserSignedOut implements BaseEvent {
-    type = EventType.UserSignedOut;
+export class UserSignInFailed extends UserSignInCompleted {
+    constructor(public correlationId: string, public err: Error) {
+        super(correlationId, false);
+    }
 }
 
-export class UserSignInFailed extends UserSignInCompleted {
+export class UserSignOutTriggered implements BaseEvent {
+    type = EventType.UserSignOutTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class UserSignOutCompleted implements BaseEvent {
+    type = EventType.UserSignOutCompleted;
+    constructor(public correlationId: string, public succeeded: boolean) { }
+}
+
+export class UserSignOutSucceeded extends UserSignOutCompleted {
+    constructor(public correlationId: string) {
+        super(correlationId, true);
+    }
+}
+
+export class UserSignOutFailed extends UserSignOutCompleted {
     constructor(public correlationId: string, public err: Error) {
         super(correlationId, false);
     }
@@ -75,22 +94,31 @@ export class BuildInstantReleased implements BaseEvent {
     type = EventType.BuildInstantReleased;
 }
 
-export class BuildTriggerFailed implements BaseEvent {
-    type = EventType.BuildTriggerFailed;
-    constructor(public message: string, public triggerErrorType?: TriggerErrorType, public extensionData?: any[]) { }
+export class BuildTriggered implements BaseEvent {
+    type = EventType.BuildTriggered;
+    constructor(public correlationId: string) { }
 }
 
-export class BuildJobTriggered implements BaseEvent {
-    type = EventType.BuildJobTriggered;
+export class BuildStarted implements BaseEvent {
+    type = EventType.BuildStarted;
     constructor(public workSpaceFolderName: string) { }
 }
 
-export class BuildJobSucceeded implements BaseEvent {
-    type = EventType.BuildJobSucceeded;
+export class BuildCompleted implements BaseEvent {
+    type = EventType.BuildCompleted;
+    constructor(public correlationId: string, public result: DocfxExecutionResult, public buildInput: BuildInput, public totalTimeInSeconds: number) { }
 }
 
-export class BuildJobFailed implements BaseEvent {
-    type = EventType.BuildJobFailed;
+export class BuildSucceeded extends BuildCompleted {
+    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number, public buildResult: BuildResult) { super(correlationId, DocfxExecutionResult.Succeeded, buildInput, totalTimeInSeconds); }
+}
+
+export class BuildFailed extends BuildCompleted {
+    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number, public err: Error) { super(correlationId, DocfxExecutionResult.Failed, buildInput, totalTimeInSeconds); }
+}
+
+export class BuildCanceled extends BuildCompleted {
+    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number) { super(correlationId, DocfxExecutionResult.Canceled, buildInput, totalTimeInSeconds); }
 }
 
 export class BuildProgress implements BaseEvent {
@@ -102,48 +130,23 @@ export class DocfxRestoreStarted implements BaseEvent {
     type = EventType.DocfxRestoreStarted;
 }
 
-export class DocfxRestoreFinished implements BaseEvent {
-    type = EventType.DocfxRestoreFinished;
-    public exitCode: number;
-}
-
-export class DocfxRestoreSucceeded extends DocfxRestoreFinished {
-    exitCode = 0;
-}
-
-export class DocfxRestoreFailed extends DocfxRestoreFinished {
-    constructor(public exitCode: number) { super(); }
-}
-
-export class DocfxRestoreCanceled implements BaseEvent {
-    type = EventType.DocfxRestoreCanceled;
+export class DocfxRestoreCompleted implements BaseEvent {
+    type = EventType.DocfxRestoreCompleted;
+    constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
 }
 
 export class DocfxBuildStarted implements BaseEvent {
     type = EventType.DocfxBuildStarted;
 }
 
-export class DocfxBuildFinished implements BaseEvent {
-    type = EventType.DocfxBuildFinished;
-    public exitCode: number;
+export class DocfxBuildCompleted implements BaseEvent {
+    type = EventType.DocfxBuildCompleted;
+    constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
 }
 
-export class DocfxBuildSucceeded extends DocfxBuildFinished {
-    exitCode = 0;
-}
-
-export class DocfxBuildFailed extends DocfxBuildFinished {
-    constructor(public exitCode: number) { super(); }
-}
-
-export class DocfxBuildCanceled implements BaseEvent {
-    type = EventType.DocfxBuildCanceled;
-}
-
-export class ReportGenerationFailed implements BaseEvent {
-    type = EventType.ReportGenerationFailed;
-
-    constructor(public message: string) { }
+export class BuildCacheSizeCalculated implements BaseEvent {
+    type = EventType.BuildCacheSizeCalculated;
+    constructor(public correlationId: string, public sizeInMB: number) { }
 }
 
 // API
@@ -228,6 +231,11 @@ export class QuickPickTriggered implements BaseEvent {
 export class QuickPickCommandSelected implements BaseEvent {
     type = EventType.QuickPickCommandSelected;
     constructor(public correlationId: string, public command: string) { }
+}
+
+export class LearnMoreClicked implements BaseEvent {
+    type = EventType.LearnMoreClicked;
+    constructor(public correlationId: string, public diagnosticErrorCode: string) { }
 }
 
 // Test only
