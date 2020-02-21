@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.14 (February 21, 2020)
+### Fixed
+- Update telemetry. (#65 #66)
+
 ## 0.1.13 (February 21, 2020)
 ### Added
 - Add telemetry.
