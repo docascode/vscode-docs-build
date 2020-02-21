@@ -38,7 +38,7 @@ export enum EventType {
     DependencyInstallCompleted,
     PackageInstallStarted,
     PackageInstallCompleted,
-    PackageInstallError,
+    PackageInstallAttemptFailed,
     DownloadStarted,
     DownloadProgress,
     DownloadSizeObtained,

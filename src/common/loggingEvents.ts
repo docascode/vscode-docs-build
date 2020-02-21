@@ -182,8 +182,8 @@ export class PackageInstallCompleted implements BaseEvent {
     constructor(public correlationId: string, public installedPackage: AbsolutePathPackage, public succeeded: boolean, public retryCount: number, public elapsedTimeInSeconds: number) { }
 }
 
-export class PackageInstallError implements BaseEvent {
-    type = EventType.PackageInstallError;
+export class PackageInstallAttemptFailed implements BaseEvent {
+    type = EventType.PackageInstallAttemptFailed;
     constructor(public correlationId: string, public installedPackage: AbsolutePathPackage, public retryCount: number, public err: Error) { }
 }
 

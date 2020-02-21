@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallError } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { Credential } from '../../../src/credential/credentialController';
 import { PlatformInformation } from '../../../src/common/platformInformation';
@@ -305,9 +305,9 @@ describe('DocsLoggerObserver', () => {
         });
     });
 
-    describe('PackageInstallError', () => {
+    describe('PackageInstallAttemptFailed', () => {
         it(`Will Retry`, () => {
-            let event = new PackageInstallError('FakedCorrelationId', fakedPackage, 1, new Error('Faked error msg.'));
+            let event = new PackageInstallAttemptFailed('FakedCorrelationId', fakedPackage, 1, new Error('Faked error msg.'));
             observer.eventHandler(event);
 
             let expectedOutput = `Failed to install package 'Faked package description': Faked error msg. Retrying..\n\n`;
@@ -315,7 +315,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Will not Retry`, () => {
-            let event = new PackageInstallError('FakedCorrelationId', fakedPackage, 3, new Error('Faked error msg.'));
+            let event = new PackageInstallAttemptFailed('FakedCorrelationId', fakedPackage, 3, new Error('Faked error msg.'));
             observer.eventHandler(event);
 
             let expectedOutput = `Failed to install package 'Faked package description': Faked error msg.\n\n`;

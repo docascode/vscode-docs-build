@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallError } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocfxExecutionResult } from '../build/buildResult';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
@@ -75,8 +75,8 @@ export class DocsLoggerObserver {
             case EventType.PackageInstallCompleted:
                 this.handlePackageInstallCompleted(<PackageInstallCompleted>event);
                 break;
-            case EventType.PackageInstallError:
-                this.handlePackageInstallError(<PackageInstallError>event);
+            case EventType.PackageInstallAttemptFailed:
+                this.handlePackageInstallAttemptFailed(<PackageInstallAttemptFailed>event);
                 break;
             case EventType.DownloadStarted:
                 this.handleDownloadStarted(<DownloadStarted>event);
@@ -249,7 +249,7 @@ export class DocsLoggerObserver {
         this.appendLine();
     }
 
-    private handlePackageInstallError(event: PackageInstallError) {
+    private handlePackageInstallAttemptFailed(event: PackageInstallAttemptFailed) {
         let msg = `Failed to install package '${event.installedPackage.description}': ${event.err.message}`;
         if (event.retryCount < INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME) {
             msg += ` Retrying..`;

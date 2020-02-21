@@ -4,11 +4,12 @@ import { PlatformInformation } from '../common/platformInformation';
 import { downloadFile } from './fileDownloader';
 import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
-import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallStarted, PackageInstallCompleted, PackageInstallError } from '../common/loggingEvents';
+import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallStarted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';
 import { ExtensionContext } from '../extensionContext';
 import { getDurationInSeconds } from '../utils/utils';
 import { validateDownload } from './downloadValidator';
+import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
 
 export async function ensureRuntimeDependencies(context: ExtensionContext, correlationId: string, platformInfo: PlatformInformation, eventStream: EventStream) {
     let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
@@ -42,7 +43,7 @@ async function installDependencies(correlationId: string, packages: AbsolutePath
 
             let retryCount = 0;
             let start = Date.now();
-            while (retryCount < 3) {
+            while (retryCount < INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME) {
                 retryCount++;
                 try {
                     // Create begin lock file
@@ -62,7 +63,7 @@ async function installDependencies(correlationId: string, packages: AbsolutePath
 
                     break;
                 } catch (error) {
-                    eventStream.post(new PackageInstallError(correlationId, pkg, retryCount, error));
+                    eventStream.post(new PackageInstallAttemptFailed(correlationId, pkg, retryCount, error));
                 } finally {
                     // Remove download begin lock file 
                     if (installFileExists(pkg.installPath, InstallFileType.Begin)) {
