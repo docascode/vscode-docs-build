@@ -17,4 +17,10 @@ export enum ErrorCode {
     TriggerBuildWithoutSpecificWorkspace = 'TriggerBuildWithoutSpecificWorkspace',
     RunDocfxFailed = 'RunDocfxFailed',
     GenerateReportFailed = 'GenerateReportFailed',
+
+    // Install Dependency
+    CreateInstallLockFileFailed = 'CreateInstallLockFileFailed',
+    DownloadFileFailed = 'DownloadFileFailed',
+    CheckIntegrityFailed = 'CheckIntegrityFailed',
+    InstallZipFileFailed = 'InstallZipFileFailed',
 }
