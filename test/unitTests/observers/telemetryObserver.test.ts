@@ -44,7 +44,7 @@ describe('TelemetryObserver', () => {
         observer.eventHandler(event);
         assert.equal(sentEventName, 'SignIn.Triggered');
         assert.deepStrictEqual(sentEventProperties, {
-            correlationId: 'fakedCorrelationId'
+            CorrelationId: 'fakedCorrelationId'
         });
     });
 
@@ -63,12 +63,12 @@ describe('TelemetryObserver', () => {
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignIn.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'fakedCorrelationId',
-                result: 'Succeeded',
-                signInType: "GitHub",
-                userName: 'Faked User',
-                userEmail: 'fake@microsoft.com',
-                errorCode: undefined,
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Succeeded',
+                SignInType: "GitHub",
+                UserName: 'Faked User',
+                UserEmail: 'fake@microsoft.com',
+                ErrorCode: undefined,
             });
         });
 
@@ -77,12 +77,12 @@ describe('TelemetryObserver', () => {
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignIn.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'fakedCorrelationId',
-                result: 'Failed',
-                signInType: undefined,
-                userName: undefined,
-                userEmail: undefined,
-                errorCode: 'AADSignInFailed',
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Failed',
+                SignInType: undefined,
+                UserName: undefined,
+                UserEmail: undefined,
+                ErrorCode: 'AADSignInFailed',
             });
         });
     });
@@ -92,7 +92,7 @@ describe('TelemetryObserver', () => {
         observer.eventHandler(event);
         assert.equal(sentEventName, 'SignOut.Triggered');
         assert.deepStrictEqual(sentEventProperties, {
-            correlationId: 'fakedCorrelationId'
+            CorrelationId: 'fakedCorrelationId'
         });
     });
 
@@ -102,8 +102,8 @@ describe('TelemetryObserver', () => {
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignOut.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'fakedCorrelationId',
-                result: 'Succeeded',
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Succeeded',
             });
         });
 
@@ -112,8 +112,8 @@ describe('TelemetryObserver', () => {
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignOut.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'fakedCorrelationId',
-                result: 'Failed',
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Failed',
             });
         });
     });
@@ -123,7 +123,7 @@ describe('TelemetryObserver', () => {
         observer.eventHandler(event);
         assert.equal(sentEventName, 'Build.Triggered');
         assert.deepStrictEqual(sentEventProperties, {
-            correlationId: 'fakedCorrelationId'
+            CorrelationId: 'fakedCorrelationId'
         });
     });
 
@@ -149,19 +149,19 @@ describe('TelemetryObserver', () => {
 
             assert.equal(sentEventName, 'Build.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'FakedCorrelationId',
-                result: 'Succeeded',
-                errorCode: undefined,
-                isRestoreSkipped: 'false',
-                buildType: 'FullBuild',
-                localRepositoryUrl: 'https://faked.local-repository.com',
-                originalRepositoryUrl: 'https://faked.original-repository.com',
-                localRepositoryBranch: 'master'
+                CorrelationId: 'FakedCorrelationId',
+                Result: 'Succeeded',
+                ErrorCode: undefined,
+                IsRestoreSkipped: 'false',
+                BuildType: 'FullBuild',
+                LocalRepositoryUrl: 'https://faked.local-repository.com',
+                OriginalRepositoryUrl: 'https://faked.original-repository.com',
+                LocalRepositoryBranch: 'master'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
-                totalTimeInSeconds: 10,
-                restoreTimeInSeconds: 4,
-                buildTimeInSeconds: 5
+                TotalTimeInSeconds: 10,
+                RestoreTimeInSeconds: 4,
+                BuildTimeInSeconds: 5
             });
         });
 
@@ -181,19 +181,19 @@ describe('TelemetryObserver', () => {
 
             assert.equal(sentEventName, 'Build.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'FakedCorrelationId',
-                result: 'Failed',
-                errorCode: 'GenerateReportFailed',
-                isRestoreSkipped: 'false',
-                buildType: 'FullBuild',
-                localRepositoryUrl: 'https://faked.local-repository.com',
-                originalRepositoryUrl: 'https://faked.original-repository.com',
-                localRepositoryBranch: 'master'
+                CorrelationId: 'FakedCorrelationId',
+                Result: 'Failed',
+                ErrorCode: 'GenerateReportFailed',
+                IsRestoreSkipped: 'false',
+                BuildType: 'FullBuild',
+                LocalRepositoryUrl: 'https://faked.local-repository.com',
+                OriginalRepositoryUrl: 'https://faked.original-repository.com',
+                LocalRepositoryBranch: 'master'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
-                totalTimeInSeconds: 10,
-                restoreTimeInSeconds: undefined,
-                buildTimeInSeconds: undefined
+                TotalTimeInSeconds: 10,
+                RestoreTimeInSeconds: undefined,
+                BuildTimeInSeconds: undefined
             });
         });
 
@@ -212,19 +212,19 @@ describe('TelemetryObserver', () => {
 
             assert.equal(sentEventName, 'Build.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'FakedCorrelationId',
-                result: 'Canceled',
-                errorCode: undefined,
-                isRestoreSkipped: 'false',
-                buildType: 'FullBuild',
-                localRepositoryUrl: 'https://faked.local-repository.com',
-                originalRepositoryUrl: 'https://faked.original-repository.com',
-                localRepositoryBranch: 'master'
+                CorrelationId: 'FakedCorrelationId',
+                Result: 'Canceled',
+                ErrorCode: undefined,
+                IsRestoreSkipped: 'false',
+                BuildType: 'FullBuild',
+                LocalRepositoryUrl: 'https://faked.local-repository.com',
+                OriginalRepositoryUrl: 'https://faked.original-repository.com',
+                LocalRepositoryBranch: 'master'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
-                totalTimeInSeconds: 10,
-                restoreTimeInSeconds: undefined,
-                buildTimeInSeconds: undefined
+                TotalTimeInSeconds: 10,
+                RestoreTimeInSeconds: undefined,
+                BuildTimeInSeconds: undefined
             });
         });
     });
@@ -234,7 +234,7 @@ describe('TelemetryObserver', () => {
         observer.eventHandler(event);
         assert.equal(sentEventName, 'InstallDependency.Started');
         assert.deepStrictEqual(sentEventProperties, {
-            correlationId: 'fakedCorrelationId'
+            CorrelationId: 'fakedCorrelationId'
         });
     });
 
@@ -244,11 +244,11 @@ describe('TelemetryObserver', () => {
             observer.eventHandler(event);
             assert.equal(sentEventName, 'InstallDependency.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'fakedCorrelationId',
-                result: 'Succeeded'
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Succeeded'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
-                elapsedTimeInSeconds: 10
+                ElapsedTimeInSeconds: 10
             });
         });
 
@@ -257,11 +257,11 @@ describe('TelemetryObserver', () => {
             observer.eventHandler(event);
             assert.equal(sentEventName, 'InstallDependency.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'fakedCorrelationId',
-                result: 'Failed'
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Failed'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
-                elapsedTimeInSeconds: 10
+                ElapsedTimeInSeconds: 10
             });
         });
     });
@@ -272,13 +272,13 @@ describe('TelemetryObserver', () => {
             observer.eventHandler(event);
             assert.equal(sentEventName, 'InstallDependency.Package.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'fakedCorrelationId',
-                result: 'Succeeded',
-                packageId: 'faked-id'
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Succeeded',
+                PackageId: 'faked-id'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
-                retryCount: 1,
-                elapsedTimeInSeconds: 10
+                RetryCount: 1,
+                ElapsedTimeInSeconds: 10
             });
         });
 
@@ -287,13 +287,13 @@ describe('TelemetryObserver', () => {
             observer.eventHandler(event);
             assert.equal(sentEventName, 'InstallDependency.Package.Completed');
             assert.deepStrictEqual(sentEventProperties, {
-                correlationId: 'fakedCorrelationId',
-                result: 'Failed',
-                packageId: 'faked-id'
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Failed',
+                PackageId: 'faked-id'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
-                retryCount: 2,
-                elapsedTimeInSeconds: 10
+                RetryCount: 2,
+                ElapsedTimeInSeconds: 10
             });
         });
     });
@@ -303,7 +303,7 @@ describe('TelemetryObserver', () => {
         observer.eventHandler(event);
         assert.equal(sentEventName, 'QuickPick.Triggered');
         assert.deepStrictEqual(sentEventProperties, {
-            correlationId: 'fakedCorrelationId'
+            CorrelationId: 'fakedCorrelationId'
         });
     });
 
@@ -312,8 +312,8 @@ describe('TelemetryObserver', () => {
         observer.eventHandler(event);
         assert.equal(sentEventName, 'QuickPick.CommandSelected');
         assert.deepStrictEqual(sentEventProperties, {
-            correlationId: 'fakedCorrelationId',
-            command: 'fakedCommand'
+            CorrelationId: 'fakedCorrelationId',
+            Command: 'fakedCommand'
         });
     });
 
@@ -322,8 +322,8 @@ describe('TelemetryObserver', () => {
         observer.eventHandler(event);
         assert.equal(sentEventName, 'LearnMore.Clicked');
         assert.deepStrictEqual(sentEventProperties, {
-            correlationId: 'fakedCorrelationId',
-            errorCode: 'fakedErrorCode'
+            CorrelationId: 'fakedCorrelationId',
+            ErrorCode: 'fakedErrorCode'
         });
     });
 });

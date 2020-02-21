@@ -61,13 +61,12 @@ export class TelemetryObserver {
             'SignIn.Triggered',
 
             {
-                correlationId: event.correlationId
+                CorrelationId: event.correlationId
             }
         );
     }
 
     private handleUserSignInCompleted(event: UserSignInCompleted) {
-        let result = event.succeeded ? 'Succeeded' : 'Failed';
         let signInType: DocsSignInType;
         let userName: string;
         let userEmail: string;
@@ -83,12 +82,12 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'SignIn.Completed',
             {
-                correlationId: event.correlationId,
-                result,
-                signInType,
-                userName,
-                userEmail,
-                errorCode
+                CorrelationId: event.correlationId,
+                Result: event.succeeded ? 'Succeeded' : 'Failed',
+                SignInType: signInType,
+                UserName: userName,
+                UserEmail: userEmail,
+                ErrorCode: errorCode
             }
         );
     }
@@ -96,7 +95,7 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'SignOut.Triggered',
             {
-                correlationId: event.correlationId
+                CorrelationId: event.correlationId
             }
         );
     }
@@ -105,8 +104,8 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'SignOut.Completed',
             {
-                correlationId: event.correlationId,
-                result: event.succeeded ? 'Succeeded' : 'Failed',
+                CorrelationId: event.correlationId,
+                Result: event.succeeded ? 'Succeeded' : 'Failed',
             }
         );
     }
@@ -116,13 +115,12 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'Build.Triggered',
             {
-                correlationId: event.correlationId
+                CorrelationId: event.correlationId
             }
         );
     }
 
     private handleBuildCompleted(event: BuildCompleted) {
-        let result = event.result;
         let errorCode: string;
         let buildType: BuildType;
         let localRepositoryUrl: string;
@@ -151,19 +149,19 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'Build.Completed',
             {
-                correlationId: event.correlationId,
-                result,
-                errorCode,
-                isRestoreSkipped: isRestoreSkipped.toString(),
-                buildType,
-                localRepositoryUrl,
-                originalRepositoryUrl,
-                localRepositoryBranch
+                CorrelationId: event.correlationId,
+                Result: event.result,
+                ErrorCode: errorCode,
+                IsRestoreSkipped: isRestoreSkipped.toString(),
+                BuildType: buildType,
+                LocalRepositoryUrl: localRepositoryUrl,
+                OriginalRepositoryUrl: originalRepositoryUrl,
+                LocalRepositoryBranch: localRepositoryBranch
             },
             {
-                totalTimeInSeconds: event.totalTimeInSeconds,
-                restoreTimeInSeconds,
-                buildTimeInSeconds
+                TotalTimeInSeconds: event.totalTimeInSeconds,
+                RestoreTimeInSeconds: restoreTimeInSeconds,
+                BuildTimeInSeconds: buildTimeInSeconds
             }
         );
     }
@@ -172,8 +170,8 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'BuildCacheSize',
             {
-                correlationId: event.correlationId,
-                sizeInMB: event.sizeInMB.toString(),
+                CorrelationId: event.correlationId,
+                SizeInMB: event.sizeInMB.toString(),
             }
         );
     }
@@ -183,7 +181,7 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'InstallDependency.Started',
             {
-                correlationId: event.correlationId
+                CorrelationId: event.correlationId
             }
         );
     }
@@ -192,11 +190,11 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'InstallDependency.Completed',
             {
-                correlationId: event.correlationId,
-                result: event.succeeded ? 'Succeeded' : 'Failed'
+                CorrelationId: event.correlationId,
+                Result: event.succeeded ? 'Succeeded' : 'Failed'
             },
             {
-                elapsedTimeInSeconds: event.elapsedTimeInSeconds
+                ElapsedTimeInSeconds: event.elapsedTimeInSeconds
             }
         );
     }
@@ -205,13 +203,13 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'InstallDependency.Package.Completed',
             {
-                correlationId: event.correlationId,
-                result: event.succeeded ? 'Succeeded' : 'Failed',
-                packageId: event.installedPackage.id,
+                CorrelationId: event.correlationId,
+                Result: event.succeeded ? 'Succeeded' : 'Failed',
+                PackageId: event.installedPackage.id,
             },
             {
-                retryCount: event.retryCount,
-                elapsedTimeInSeconds: event.elapsedTimeInSeconds
+                RetryCount: event.retryCount,
+                ElapsedTimeInSeconds: event.elapsedTimeInSeconds
             }
         );
     }
@@ -220,7 +218,7 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'QuickPick.Triggered',
             {
-                correlationId: event.correlationId
+                CorrelationId: event.correlationId
             }
         );
     }
@@ -229,19 +227,18 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'QuickPick.CommandSelected',
             {
-                correlationId: event.correlationId,
-                command: event.command
+                CorrelationId: event.correlationId,
+                Command: event.command
             }
         );
     }
 
     private handleLearnMoreClicked(event: LearnMoreClicked) {
-        let errorCode = event.diagnosticErrorCode;
         this.reporter.sendTelemetryEvent(
             'LearnMore.Clicked',
             {
-                correlationId: event.correlationId,
-                errorCode
+                CorrelationId: event.correlationId,
+                ErrorCode: event.diagnosticErrorCode
             }
         );
     }
