@@ -49,6 +49,8 @@ export enum EventType {
 
     // Others
     EnvironmentChanged,
+    QuickPickTriggered,
+    QuickPickCommandSelected,
     LearnMoreClicked,
 
     // Test only
