@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { Credential } from '../../../src/credential/credentialController';
@@ -162,6 +162,21 @@ describe('TelemetryObserver', () => {
                 TotalTimeInSeconds: 10,
                 RestoreTimeInSeconds: 4,
                 BuildTimeInSeconds: 5
+            });
+        });
+
+        it('BuildCacheCalculated', () => {
+            let event = new BuildCacheSizeCalculated(
+                'FakedCorrelationId',
+                20);
+            observer.eventHandler(event);
+
+            assert.equal(sentEventName, 'BuildCacheSize');
+            assert.deepStrictEqual(sentEventProperties, {
+                CorrelationId: 'FakedCorrelationId',
+                });
+            assert.deepEqual(sentEventMeasurements, {
+                SizeInMB: 20,
             });
         });
 
