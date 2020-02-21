@@ -27,7 +27,6 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
             title: 'Learn more about this error code',
             tooltip: 'This will open the error code detail page.',
             arguments: [diagnostic.code]
-            // arguments: [vscode.Uri.parse(`https://aka.ms/${diagnostic.code}`)]
         };
         action.diagnostics = [diagnostic];
         action.isPreferred = true;
