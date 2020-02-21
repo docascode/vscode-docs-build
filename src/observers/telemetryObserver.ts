@@ -125,7 +125,6 @@ export class TelemetryObserver {
         let buildType: BuildType;
         let localRepositoryUrl: string;
         let originalRepositoryUrl: string;
-        let localRepositoryBranch: string;
 
         let isRestoreSkipped = false;
         let restoreTimeInSeconds: number;
@@ -136,7 +135,6 @@ export class TelemetryObserver {
             buildType = buildInput.buildType;
             localRepositoryUrl = buildInput.localRepositoryUrl;
             originalRepositoryUrl = buildInput.originalRepositoryUrl;
-            localRepositoryBranch = buildInput.localRepositoryBranch;
         }
         if (event.result === DocfxExecutionResult.Succeeded) {
             let buildResult = (<BuildSucceeded>event).buildResult;
@@ -156,7 +154,6 @@ export class TelemetryObserver {
                 BuildType: buildType,
                 LocalRepositoryUrl: localRepositoryUrl,
                 OriginalRepositoryUrl: originalRepositoryUrl,
-                LocalRepositoryBranch: localRepositoryBranch
             },
             {
                 TotalTimeInSeconds: event.totalTimeInSeconds,

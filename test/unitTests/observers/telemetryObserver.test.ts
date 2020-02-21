@@ -136,7 +136,6 @@ describe('TelemetryObserver', () => {
                     localRepositoryPath: '/fakedPath/',
                     localRepositoryUrl: 'https://faked.local-repository.com',
                     originalRepositoryUrl: 'https://faked.original-repository.com',
-                    localRepositoryBranch: 'master'
                 },
                 10,
                 <BuildResult>{
@@ -156,7 +155,6 @@ describe('TelemetryObserver', () => {
                 BuildType: 'FullBuild',
                 LocalRepositoryUrl: 'https://faked.local-repository.com',
                 OriginalRepositoryUrl: 'https://faked.original-repository.com',
-                LocalRepositoryBranch: 'master'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
                 TotalTimeInSeconds: 10,
@@ -188,7 +186,6 @@ describe('TelemetryObserver', () => {
                     localRepositoryPath: '/fakedPath/',
                     localRepositoryUrl: 'https://faked.local-repository.com',
                     originalRepositoryUrl: 'https://faked.original-repository.com',
-                    localRepositoryBranch: 'master'
                 },
                 10,
                 new DocsError('Faked error msg', ErrorCode.GenerateReportFailed));
@@ -203,7 +200,6 @@ describe('TelemetryObserver', () => {
                 BuildType: 'FullBuild',
                 LocalRepositoryUrl: 'https://faked.local-repository.com',
                 OriginalRepositoryUrl: 'https://faked.original-repository.com',
-                LocalRepositoryBranch: 'master'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
                 TotalTimeInSeconds: 10,
@@ -220,7 +216,6 @@ describe('TelemetryObserver', () => {
                     localRepositoryPath: '/fakedPath/',
                     localRepositoryUrl: 'https://faked.local-repository.com',
                     originalRepositoryUrl: 'https://faked.original-repository.com',
-                    localRepositoryBranch: 'master'
                 },
                 10);
             observer.eventHandler(event);
@@ -234,7 +229,6 @@ describe('TelemetryObserver', () => {
                 BuildType: 'FullBuild',
                 LocalRepositoryUrl: 'https://faked.local-repository.com',
                 OriginalRepositoryUrl: 'https://faked.original-repository.com',
-                LocalRepositoryBranch: 'master'
             });
             assert.deepStrictEqual(sentEventMeasurements, {
                 TotalTimeInSeconds: 10,
