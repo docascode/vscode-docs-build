@@ -171,7 +171,9 @@ export class TelemetryObserver {
             'BuildCacheSize',
             {
                 CorrelationId: event.correlationId,
-                SizeInMB: event.sizeInMB.toString(),
+            },
+            {
+                SizeInMB: event.sizeInMB,
             }
         );
     }
