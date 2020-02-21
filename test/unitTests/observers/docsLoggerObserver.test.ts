@@ -5,16 +5,7 @@ import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { Credential } from '../../../src/credential/credentialController';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
-import { AbsolutePathPackage } from '../../../src/dependency/package';
-
-const fakedPackage = new AbsolutePathPackage(
-    'faked-id',
-    'fakedName',
-    'Faked package description',
-    'https://faked.url',
-    'faked.binary',
-    'faked-rid',
-    'faked-integrity');
+import { fakedPackage } from '../../utils/faker';
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;
