@@ -146,7 +146,7 @@ export class DocfxBuildCompleted implements BaseEvent {
 
 export class BuildCacheSizeCalculated implements BaseEvent {
     type = EventType.BuildCacheSizeCalculated;
-    constructor(public correlationId: string, public sizeInMB: number) {}
+    constructor(public correlationId: string, public sizeInMB: number) { }
 }
 
 // API
@@ -221,6 +221,16 @@ export class PlatformInfoRetrieved implements BaseEvent {
 export class EnvironmentChanged implements BaseEvent {
     type = EventType.EnvironmentChanged;
     constructor(public env: Environment) { }
+}
+
+export class QuickPickTriggered implements BaseEvent {
+    type = EventType.QuickPickTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class QuickPickCommandSelected implements BaseEvent {
+    type = EventType.QuickPickCommandSelected;
+    constructor(public correlationId: string, public command: string) { }
 }
 
 export class LearnMoreClicked implements BaseEvent {

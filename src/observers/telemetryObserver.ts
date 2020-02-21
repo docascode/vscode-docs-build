@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected } from '../common/loggingEvents';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
@@ -31,6 +31,12 @@ export class TelemetryObserver {
                 break;
             case EventType.BuildCacheSizeCalculated:
                 this.handleBuildCacheSize(<BuildCacheSizeCalculated>event);
+                break;
+            case EventType.QuickPickTriggered:
+                this.handleQuickPickTriggered(<QuickPickTriggered>event);
+                break;
+            case EventType.QuickPickCommandSelected:
+                this.handleQuickPickCommandSelected(<QuickPickCommandSelected>event);
                 break;
             case EventType.LearnMoreClicked:
                 this.handleLearnMoreClicked(<LearnMoreClicked>event);
@@ -157,6 +163,25 @@ export class TelemetryObserver {
             {
                 correlationId: event.correlationId,
                 sizeInMB: event.sizeInMB.toString(),
+            }
+        );
+    }
+
+    private handleQuickPickTriggered(event: QuickPickTriggered) {
+        this.reporter.sendTelemetryEvent(
+            'QuickPick.Triggered',
+            {
+                correlationId: event.correlationId
+            }
+        );
+    }
+
+    private handleQuickPickCommandSelected(event: QuickPickCommandSelected) {
+        this.reporter.sendTelemetryEvent(
+            'QuickPick.CommandSelected',
+            {
+                correlationId: event.correlationId,
+                command: event.command
             }
         );
     }
