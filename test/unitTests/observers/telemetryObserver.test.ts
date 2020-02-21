@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { Credential } from '../../../src/credential/credentialController';
@@ -37,6 +37,7 @@ describe('TelemetryObserver', () => {
         sentEventMeasurements = undefined;
     });
 
+    // Sign
     it(`UserSignInTriggered: 'SignIn.Triggered' event should be sent`, () => {
         let event = new UserSignInTriggered('fakedCorrelationId');
         observer.eventHandler(event);
@@ -224,6 +225,35 @@ describe('TelemetryObserver', () => {
                 restoreTimeInSeconds: undefined,
                 buildTimeInSeconds: undefined
             });
+        });
+    });
+
+    it(`QuickPickTriggered: 'QuickPick.Triggered' event should be sent`, () => {
+        let event = new QuickPickTriggered('fakedCorrelationId');
+        observer.eventHandler(event);
+        assert.equal(sentEventName, 'QuickPick.Triggered');
+        assert.deepStrictEqual(sentEventProperties, {
+            correlationId: 'fakedCorrelationId'
+        });
+    });
+
+    it(`QuickPickCommandSelected: 'QuickPick.CommandSelected' event should be sent`, () => {
+        let event = new QuickPickCommandSelected('fakedCorrelationId', 'fakedCommand');
+        observer.eventHandler(event);
+        assert.equal(sentEventName, 'QuickPick.CommandSelected');
+        assert.deepStrictEqual(sentEventProperties, {
+            correlationId: 'fakedCorrelationId',
+            command: 'fakedCommand'
+        });
+    });
+
+    it(`LearnMoreClick: 'LearnMore.Click' event should be sent`, () => {
+        let event = new LearnMoreClicked('fakedCorrelationId', 'fakedErrorCode');
+        observer.eventHandler(event);
+        assert.equal(sentEventName, 'LearnMore.Clicked');
+        assert.deepStrictEqual(sentEventProperties, {
+            correlationId: 'fakedCorrelationId',
+            errorCode: 'fakedErrorCode'
         });
     });
 });

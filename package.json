@@ -1,7 +1,7 @@
 {
   "name": "docs-build",
-  "displayName": "Docs Validation",
-  "description": "Local build Docs repository",
+  "displayName": "docs-validation",
+  "description": "Docs Validation Extension",
   "version": "0.1.12",
   "engines": {
     "vscode": "^1.40.0"
@@ -23,7 +23,7 @@
     "url": "https://github.com/docascode/vscode-docs-build"
   },
   "homepage": "https://github.com/docascode/vscode-docs-build",
-  "icon": "resources/favicon.ico",
+  "icon": "resources/docs-logo-ms.png",
   "galleryBanner": {
     "color": "#FFFFFF",
     "theme": "light"

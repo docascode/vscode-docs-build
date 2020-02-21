@@ -22,6 +22,7 @@ import config from './config';
 import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
+import { QuickPickTriggered, QuickPickCommandSelected } from './common/loggingEvents';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -73,6 +74,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let buildStatusBarObserver = new BuildStatusBarObserver(buildStatusBar);
     eventStream.subscribe(buildStatusBarObserver.eventHandler);
 
+    let codeActionProvider = new CodeActionProvider();
+
     context.subscriptions.push(
         outputChannel,
         telemetryReporter,
@@ -86,11 +89,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.build', (uri) => {
             buildController.build(getCorrelationId(), uri, credentialController.credential);
         }),
-        vscode.commands.registerCommand('docs.openPage', (uri: vscode.Uri) => {
-            vscode.env.openExternal(uri);
+        vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
+            CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
-        vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(credentialController, buildController)),
-        vscode.languages.registerCodeActionsProvider('*', new CodeActionProvider(), {
+        vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController)),
+        vscode.languages.registerCodeActionsProvider('*', codeActionProvider, {
             providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
         }),
         vscode.window.registerUriHandler(uriHandler)
@@ -110,7 +113,8 @@ function getTelemetryReporter(context: ExtensionContext, environmentController: 
     return new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
 }
 
-function createQuickPickMenu(credentialController: CredentialController, buildController: BuildController) {
+function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController) {
+    eventStream.post(new QuickPickTriggered(correlationId));
     const quickPickMenu = vscode.window.createQuickPick();
     const currentSignInStatus = credentialController.credential.signInStatus;
     if (currentSignInStatus === 'SignedOut') {
@@ -136,6 +140,7 @@ function createQuickPickMenu(credentialController: CredentialController, buildCo
     }
     quickPickMenu.onDidChangeSelection(selection => {
         if (selection[0]) {
+            eventStream.post(new QuickPickCommandSelected(correlationId, selection[0].label));
             switch (selection[0].label) {
                 case 'Sign-in':
                     credentialController.signIn(getCorrelationId());
@@ -146,7 +151,6 @@ function createQuickPickMenu(credentialController: CredentialController, buildCo
                 case 'Build':
                     buildController.build(getCorrelationId(), undefined, credentialController.credential);
                     break;
-
             }
             quickPickMenu.hide();
         }
