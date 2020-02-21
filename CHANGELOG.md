@@ -1,7 +1,13 @@
 # Change Log
 
+## 0.1.13 (February 21, 2020)
+### Added
+- Add telemetry.
+### Fixed
+- Fix diagnostics not clear up after rebuild. (#52)
+
 ## 0.1.12 (February 18, 2020)
-### Add
+### Added
 - Bundle extension to improve loading performance. (#32)
 - Add quick pick menu. (#33)
 
