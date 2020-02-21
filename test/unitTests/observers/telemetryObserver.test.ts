@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { Credential } from '../../../src/credential/credentialController';
@@ -224,6 +224,16 @@ describe('TelemetryObserver', () => {
                 restoreTimeInSeconds: undefined,
                 buildTimeInSeconds: undefined
             });
+        });
+    });
+
+    it(`LearnMoreClick: 'LearnMore.Click' event should be sent`, () => {
+        let event = new LearnMoreClicked('fakedCorrelationId', 'fakedErrorCode');
+        observer.eventHandler(event);
+        assert.equal(sentEventName, 'LearnMore.Clicked');
+        assert.deepStrictEqual(sentEventProperties, {
+            correlationId: 'fakedCorrelationId',
+            errorCode: 'fakedErrorCode'
         });
     });
 });
