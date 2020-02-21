@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { Credential } from '../../../src/credential/credentialController';
@@ -7,6 +7,7 @@ import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
+import { fakedPackage } from '../../utils/faker';
 
 describe('TelemetryObserver', () => {
     let observer: TelemetryObserver;
@@ -224,6 +225,75 @@ describe('TelemetryObserver', () => {
                 totalTimeInSeconds: 10,
                 restoreTimeInSeconds: undefined,
                 buildTimeInSeconds: undefined
+            });
+        });
+    });
+
+    it(`DependencyInstallStarted: 'InstallDependency.Started' event should be sent`, () => {
+        let event = new DependencyInstallStarted('fakedCorrelationId');
+        observer.eventHandler(event);
+        assert.equal(sentEventName, 'InstallDependency.Started');
+        assert.deepStrictEqual(sentEventProperties, {
+            correlationId: 'fakedCorrelationId'
+        });
+    });
+
+    describe(`DependencyInstallCompleted: 'InstallDependency.Completed' event should be sent`, () => {
+        it(`Succeeded`, () => {
+            let event = new DependencyInstallCompleted('fakedCorrelationId', true, 10);
+            observer.eventHandler(event);
+            assert.equal(sentEventName, 'InstallDependency.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
+                correlationId: 'fakedCorrelationId',
+                result: 'Succeeded'
+            });
+            assert.deepStrictEqual(sentEventMeasurements, {
+                elapsedTimeInSeconds: 10
+            });
+        });
+
+        it(`Failed`, () => {
+            let event = new DependencyInstallCompleted('fakedCorrelationId', false, 10);
+            observer.eventHandler(event);
+            assert.equal(sentEventName, 'InstallDependency.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
+                correlationId: 'fakedCorrelationId',
+                result: 'Failed'
+            });
+            assert.deepStrictEqual(sentEventMeasurements, {
+                elapsedTimeInSeconds: 10
+            });
+        });
+    });
+
+    describe(`PackageInstallCompleted: 'InstallDependency.Package.Completed' event should be sent`, () => {
+        it(`Succeeded`, () => {
+            let event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, true, 1, 10);
+            observer.eventHandler(event);
+            assert.equal(sentEventName, 'InstallDependency.Package.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
+                correlationId: 'fakedCorrelationId',
+                result: 'Succeeded',
+                packageId: 'faked-id'
+            });
+            assert.deepStrictEqual(sentEventMeasurements, {
+                retryCount: 1,
+                elapsedTimeInSeconds: 10
+            });
+        });
+
+        it(`Failed`, () => {
+            let event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, false, 2, 10);
+            observer.eventHandler(event);
+            assert.equal(sentEventName, 'InstallDependency.Package.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
+                correlationId: 'fakedCorrelationId',
+                result: 'Failed',
+                packageId: 'faked-id'
+            });
+            assert.deepStrictEqual(sentEventMeasurements, {
+                retryCount: 2,
+                elapsedTimeInSeconds: 10
             });
         });
     });
