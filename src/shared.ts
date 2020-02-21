@@ -8,6 +8,8 @@ export const EXTENSION_ID = `ceapex.${EXTENSION_NAME}`;
 
 export const EXTENSION_DIAGNOSTIC_SOURCE = 'Docs Validation';
 
+export const INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME = 3;
+
 // Environment
 
 export type Environment = 'PROD' | 'PPE';

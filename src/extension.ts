@@ -42,7 +42,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     eventStream.subscribe(docsLoggerObserver.eventHandler);
     eventStream.subscribe(docsOutputChannelObserver.eventHandler);
 
-    let runtimeDependenciesInstalled = await ensureRuntimeDependencies(extensionContext, platformInformation, eventStream);
+    let runtimeDependenciesInstalled = await ensureRuntimeDependencies(extensionContext, getCorrelationId(), platformInformation, eventStream);
     if (!runtimeDependenciesInstalled) {
         throw new Error('Install runtime dependencies failed, Please restart Visual Studio Code to re-trigger the download.');
     }

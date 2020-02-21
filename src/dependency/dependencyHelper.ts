@@ -1,14 +1,16 @@
+import fs from 'fs-extra';
 import path from 'path';
 import { AbsolutePath } from '../common/absolutePath';
-import fs from 'fs-extra';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
 
 export enum InstallFileType {
-    Begin,
-    Finish
+    Begin = 'Begin',
+    Finish = 'Finished'
 }
 
 export function getInstallLockFilePath(installFolderPath: AbsolutePath, installFileType: InstallFileType): string {
-    let lockFileName = `install.lock.${InstallFileType[installFileType]}`;
+    let lockFileName = `install.lock.${installFileType}`;
     return path.resolve(installFolderPath.value, lockFileName);
 }
 
@@ -24,7 +26,7 @@ export async function createInstallLockFile(installFolderPath: AbsolutePath, ins
     return new Promise<void>((resolve, reject) => {
         fs.writeFile(getInstallLockFilePath(installFolderPath, installFileType), '', err => {
             if (err) {
-                reject(err);
+                reject(new DocsError(`Failed to create ${installFileType} install Lock File`, ErrorCode.CreateInstallLockFileFailed));
                 return;
             }
 
