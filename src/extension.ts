@@ -73,6 +73,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let buildStatusBarObserver = new BuildStatusBarObserver(buildStatusBar);
     eventStream.subscribe(buildStatusBarObserver.eventHandler);
 
+    let codeActionProvider = new CodeActionProvider();
+
     context.subscriptions.push(
         outputChannel,
         telemetryReporter,
@@ -86,11 +88,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.build', (uri) => {
             buildController.build(getCorrelationId(), uri, credentialController.credential);
         }),
-        vscode.commands.registerCommand('docs.openPage', (uri: vscode.Uri) => {
-            vscode.env.openExternal(uri);
+        vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
+            CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
         vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(credentialController, buildController)),
-        vscode.languages.registerCodeActionsProvider('*', new CodeActionProvider(), {
+        vscode.languages.registerCodeActionsProvider('*', codeActionProvider, {
             providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
         }),
         vscode.window.registerUriHandler(uriHandler)
