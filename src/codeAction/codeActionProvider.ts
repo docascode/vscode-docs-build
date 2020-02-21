@@ -15,9 +15,9 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
             .map(diagnostic => this.createCommandCodeAction(diagnostic));
     }
 
-    public static learnMoreAboutCode(eventStream: EventStream, correlationId: string, code: string) {
-        eventStream.post(new LearnMoreClicked(correlationId, code));
-        vscode.env.openExternal(vscode.Uri.parse(`https://aka.ms/${code}`));
+    public static learnMoreAboutCode(eventStream: EventStream, correlationId: string, diagnosticErrorCode: string) {
+        eventStream.post(new LearnMoreClicked(correlationId, diagnosticErrorCode));
+        vscode.env.openExternal(vscode.Uri.parse(`https://aka.ms/${diagnosticErrorCode}`));
     }
 
     private createCommandCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {

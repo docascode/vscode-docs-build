@@ -162,7 +162,7 @@ export class TelemetryObserver {
     }
 
     private handleLearnMoreClicked(event: LearnMoreClicked) {
-        let errorCode = event.code;
+        let errorCode = event.diagnosticErrorCode;
         this.reporter.sendTelemetryEvent(
             'LearnMore.Clicked',
             {

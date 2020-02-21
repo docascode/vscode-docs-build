@@ -225,7 +225,7 @@ export class EnvironmentChanged implements BaseEvent {
 
 export class LearnMoreClicked implements BaseEvent {
     type = EventType.LearnMoreClicked;
-    constructor(public correlationId: string, public code: string) { }
+    constructor(public correlationId: string, public diagnosticErrorCode: string) { }
 }
 
 // Test only

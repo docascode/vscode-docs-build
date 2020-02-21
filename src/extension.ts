@@ -88,8 +88,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.build', (uri) => {
             buildController.build(getCorrelationId(), uri, credentialController.credential);
         }),
-        vscode.commands.registerCommand('learnMore', (code: string) => {
-            CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), code);
+        vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
+            CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
         vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(credentialController, buildController)),
         vscode.languages.registerCodeActionsProvider('*', codeActionProvider, {
