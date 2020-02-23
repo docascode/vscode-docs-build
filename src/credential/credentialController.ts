@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
-import template from 'url-template';
+import querystring from 'querystring';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash } from '../utils/utils';
@@ -31,13 +31,11 @@ async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: 
 
 export interface Credential {
     readonly signInStatus: DocsSignInStatus;
-    readonly aadInfo: string;
     readonly userInfo: UserInfo;
 }
 
 export class CredentialController {
     private signInStatus: DocsSignInStatus;
-    private aadInfo: string;
     private userInfo: UserInfo;
 
     constructor(private keyChain: KeyChain, private eventStream: EventStream, private environmentController: EnvironmentController) { }
@@ -61,7 +59,6 @@ export class CredentialController {
     public get credential(): Credential {
         return {
             signInStatus: this.signInStatus,
-            aadInfo: this.aadInfo,
             userInfo: this.userInfo
         };
     }
@@ -71,17 +68,6 @@ export class CredentialController {
             this.resetCredential();
             this.signInStatus = 'SigningIn';
             this.eventStream.post(new UserSignInTriggered(correlationId));
-
-            // Step-1: AAD sign-in
-            if (!this.aadInfo) {
-                this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'));
-                let aadInfo = await this.signInWithAAD();
-
-                this.aadInfo = aadInfo;
-                this.keyChain.setAADInfo(aadInfo);
-            }
-
-            // Step-2: GitHub sign-in
             this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'));
             let userInfo = await this.signInWithGitHub();
 
@@ -109,7 +95,6 @@ export class CredentialController {
         this.keyChain.resetAADInfo();
         this.keyChain.resetUserInfo();
         this.signInStatus = 'SignedOut';
-        this.aadInfo = undefined;
         this.userInfo = undefined;
         this.eventStream.post(new CredentialReset());
     }
@@ -120,64 +105,46 @@ export class CredentialController {
         if (userInfo && aadInfo) {
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
-            this.aadInfo = aadInfo;
             this.eventStream.post(new CredentialRetrieveFromLocalCredentialManager(this.credential));
         } else {
             this.resetCredential();
         }
     }
 
-    private async signInWithAAD(): Promise<string> {
+    private async getSignInUrl(callbackUri: string): Promise<string> {
         const authConfig = extensionConfig.auth[this.environmentController.env];
-        const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/aad-authenticate`));
-        const signUrlTemplate = template.parse(`${trimEndSlash(AzureEnvironment.Azure.activeDirectoryEndpointUrl)}/{tenantId}/oauth2/authorize` +
-            '?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope={scope}&state={state}&resource={resource}');
-        const signUrl = signUrlTemplate.expand({
-            tenantId: authConfig.AADAuthTenantId,
-            clientId: authConfig.AADAuthClientId,
-            redirectUri: authConfig.AADAuthRedirectUrl,
+        const query = querystring.stringify({
+            client_id: authConfig.AADAuthClientId,
+            redirect_uri: authConfig.AADAuthRedirectUrl,
             scope: authConfig.AADAuthScope,
-            state: callbackUri.with({ query: '' }).toString(),
-            resource: authConfig.AADAuthResource
+            state: callbackUri,
+            resource: authConfig.AADAuthResource,
+            response_type: 'code',
+            response_mode: 'query'
         });
-
-
-        let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
-        if (!opened) {
-            // User decline to open external URL to sign in
-            throw new DocsError(`Sign-in with AAD Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AADSignInExternalUrlDeclined);
-        }
-
-        try {
-            return await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: string) => void, reject: (reason: any) => void) => {
-                try {
-                    // TODO: Adjust OP `Authorizations/aad` API to return the code.
-                    const code = 'aad-code';
-
-                    resolve(code);
-                } catch (err) {
-                    reject(err);
-                }
-            });
-        } catch (err) {
-            let errorCode = err instanceof TimeOutError ? ErrorCode.AADSignInTimeOut : ErrorCode.AADSignInFailed;
-            throw new DocsError(`Sign-in with AAD Failed: ${err.message}`, errorCode, err);
-        }
+        return `${trimEndSlash(AzureEnvironment.Azure.activeDirectoryEndpointUrl)}/${authConfig.AADAuthTenantId}/oauth2/authorize?${query}`;
     }
 
     private async signInWithGitHub(): Promise<UserInfo | null> {
         const authConfig = extensionConfig.auth[this.environmentController.env];
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/github-authenticate`));
-        const state = callbackUri.with({ query: '' }).toString();
-        const signUrlTemplate = template.parse(`https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirect_uri}&scope={scope}&state={state}`);
-        const signUrl = signUrlTemplate.expand({
+        const githubQuery = querystring.stringify({
+            client_id: authConfig.GitHubOauthClientId,
             redirect_uri: `${authConfig.GitHubOauthRedirectUrl}/queryresponsemode`,
-            clientId: authConfig.GitHubOauthClientId,
             scope: authConfig.GitHubOauthScope,
-            state,
-        });
 
-        let opened = await vscode.env.openExternal(vscode.Uri.parse(signUrl));
+            // TODO: OPS currently throws BadRequest.ArgumentNull error when we have a query string in state.
+            // This query string is important to determine which vscode window receives authentication callback.
+            // Remove `with({ query: '' })` to ensure successful sign in when multiple vscode windows opens.
+            state: callbackUri.with({ query: '' }).toString()
+        });
+        const githubSignInUrl = `https://github.com/login/oauth/authorize?${githubQuery}`;
+        const signInUrl = await this.getSignInUrl(githubSignInUrl);
+
+        // Note: vscode Uri is buggy when the query string value contains &
+        // https://github.com/microsoft/vscode/pull/83060/files
+        // Use <any> cast here to bypass vscode URL conversion.
+        let opened = await vscode.env.openExternal(<any>signInUrl);
         if (!opened) {
             // User decline to open external URL to sign in
             throw new DocsError(`Sign-in with GitHub Failed: Please Allow to open external URL to Sign-In`, ErrorCode.GitHubSignInExternalUrlDeclined);

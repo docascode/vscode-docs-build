@@ -152,7 +152,6 @@
     "@types/keytar": "^4.4.0",
     "@types/mkdirp": "^0.5.2",
     "@types/request": "^2.48.4",
-    "@types/url-template": "^2.0.28",
     "@types/uuid": "^3.4.7",
     "@types/yauzl": "^2.9.1",
     "arch": "^2.1.1",
@@ -165,7 +164,6 @@
     "request": "^2.88.0",
     "rxjs": "^6.5.3",
     "simple-git": "^1.129.0",
-    "url-template": "^2.0.8",
     "uuid": "^3.4.0",
     "vscode-extension-telemetry": "^0.1.2",
     "yauzl": "^2.10.0"
