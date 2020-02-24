@@ -28,7 +28,6 @@ describe('DocsLoggerObserver', () => {
         it(`UserSignInSucceeded`, () => {
             let event = new UserSignInSucceeded('FakedCorrelationId', <Credential>{
                 signInStatus: 'SignedIn',
-                aadInfo: 'faked-aad',
                 userInfo: {
                     signType: 'GitHub',
                     userEmail: 'fake@microsoft.com',
@@ -57,7 +56,6 @@ describe('DocsLoggerObserver', () => {
     it(`CredentialRetrieveFromLocalCredentialManager`, () => {
         let event = new CredentialRetrieveFromLocalCredentialManager(<Credential>{
             signInStatus: 'SignedIn',
-            aadInfo: 'faked-aad',
             userInfo: {
                 signType: 'GitHub',
                 userEmail: 'fake@microsoft.com',

@@ -1,10 +1,7 @@
 export enum ErrorCode {
     // Sign
-    AADSignInTimeOut = 'AADSignInTimeOut',
     GitHubSignInTimeOut = 'GitHubSignInTimeOut',
-    AADSignInExternalUrlDeclined = 'AADSignInExternalUrlDeclined',
     GitHubSignInExternalUrlDeclined = 'GitHubSignInExternalUrlDeclined',
-    AADSignInFailed = 'AADSignInFailed',
     GitHubSignInFailed = 'GitHubSignInFailed',
 
     // Build

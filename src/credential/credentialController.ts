@@ -92,7 +92,6 @@ export class CredentialController {
     }
 
     private resetCredential() {
-        this.keyChain.resetAADInfo();
         this.keyChain.resetUserInfo();
         this.signInStatus = 'SignedOut';
         this.userInfo = undefined;
@@ -101,8 +100,7 @@ export class CredentialController {
 
     private async refreshCredential(): Promise<void> {
         let userInfo = await this.keyChain.getUserInfo();
-        let aadInfo = await this.keyChain.getAADInfo();
-        if (userInfo && aadInfo) {
+        if (userInfo) {
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
             this.eventStream.post(new CredentialRetrieveFromLocalCredentialManager(this.credential));

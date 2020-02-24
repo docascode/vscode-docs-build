@@ -20,7 +20,6 @@ export async function ensureExtensionActivatedAndInitializationFinished(): Promi
 }
 
 export function setupAvailableMockKeyChain(sinon: SinonSandbox, keyChain: KeyChain) {
-    sinon.stub(keyChain, 'getAADInfo').resolves('fake-code');
     if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
         console.error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN" from environment variable');
     }
@@ -34,7 +33,6 @@ export function setupAvailableMockKeyChain(sinon: SinonSandbox, keyChain: KeyCha
 }
 
 export function setupUnavailableMockKeyChain(sinon: SinonSandbox, keyChain: KeyChain) {
-    sinon.stub(keyChain, 'getAADInfo').resolves(undefined);
     sinon.stub(keyChain, 'getUserInfo').resolves(undefined);
 }
 
