@@ -130,11 +130,8 @@ export class CredentialController {
             client_id: authConfig.GitHubOauthClientId,
             redirect_uri: `${authConfig.GitHubOauthRedirectUrl}/queryresponsemode`,
             scope: authConfig.GitHubOauthScope,
-
-            // TODO: OPS currently throws BadRequest.ArgumentNull error when we have a query string in state.
-            // This query string is important to determine which vscode window receives authentication callback.
-            // Remove `with({ query: '' })` to ensure successful sign in when multiple vscode windows opens.
-            state: callbackUri.with({ query: '' }).toString()
+            // Note: `vscode.Uri.toString` by default encode = into %3D, skip this encode here.
+            state: callbackUri.toString(true)
         });
         const githubSignInUrl = `https://github.com/login/oauth/authorize?${githubQuery}`;
         const signInUrl = await this.getSignInUrl(githubSignInUrl);
