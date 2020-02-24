@@ -32,20 +32,6 @@ describe('KeyChain', () => {
         keyChain = new KeyChain(environmentController, new MockKeytar());
     });
 
-    it('getAADInfo gets tokens set by setAADInfo with the same environment', async () => {
-        setEnvToPROD(environmentController);
-        await keyChain.setAADInfo('fake-aad');
-        let aadInfo = await keyChain.getAADInfo();
-        assert.equal(aadInfo, 'fake-aad');
-
-        // Mock PPE environment
-        setEnvToPPE(environmentController);
-
-        // Test
-        aadInfo = await keyChain.getAADInfo();
-        assert.equal(aadInfo, undefined);
-    });
-
     it('setUserInfo gets tokens set by setToken with the same environment', async () => {
         setEnvToPROD(environmentController);
         let expectedUserInfo = <UserInfo>{
@@ -64,16 +50,6 @@ describe('KeyChain', () => {
         // Test
         userInfo = await keyChain.getUserInfo();
         assert.equal(userInfo, undefined);
-    });
-
-    it('getAADInfo no longer returns removed tokens', async () => {
-        await keyChain.setAADInfo('fake-aad');
-        let aadInfo = await keyChain.getAADInfo();
-        assert.equal(aadInfo, 'fake-aad');
-
-        await keyChain.resetAADInfo();
-        aadInfo = await keyChain.getAADInfo();
-        assert.equal(aadInfo, undefined);
     });
 
     it('setUserInfo no longer returns removed tokens', async () => {

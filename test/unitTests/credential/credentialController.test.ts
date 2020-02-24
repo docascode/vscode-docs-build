@@ -14,11 +14,6 @@ import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { TimeOutError } from '../../../src/error/timeOutError';
 
-const fakedAADCallbackURL = <vscode.Uri>{
-    authority: 'ceapex.docs-build',
-    path: '/aad-authenticate',
-};
-
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'ceapex.docs-build',
     path: '/github-authenticate',
@@ -40,10 +35,7 @@ describe('CredentialController', () => {
     let testEventBus: TestEventBus;
 
     let setUserInfo: UserInfo;
-    let setAADInfo: string;
-    let isSetAADInfoCalled: boolean;
     let isSetUserInfoCalled: boolean;
-    let isResetAADInfoCalled: boolean;
     let isResetUserInfoCalled: boolean;
     let isCredentialControllerInitializeCalled: boolean;
 
@@ -55,18 +47,9 @@ describe('CredentialController', () => {
         testEventBus = new TestEventBus(eventStream);
 
         sinon = createSandbox();
-        sinon.stub(keyChain, 'setAADInfo').callsFake(function (aadInfo: string): Promise<void> {
-            isSetAADInfoCalled = true;
-            setAADInfo = aadInfo;
-            return;
-        });
         sinon.stub(keyChain, 'setUserInfo').callsFake(function (userInfo: UserInfo): Promise<void> {
             isSetUserInfoCalled = true;
             setUserInfo = userInfo;
-            return;
-        });
-        sinon.stub(keyChain, 'resetAADInfo').callsFake(function (): Promise<void> {
-            isResetAADInfoCalled = true;
             return;
         });
         sinon.stub(keyChain, 'resetUserInfo').callsFake(function (): Promise<void> {
@@ -76,11 +59,8 @@ describe('CredentialController', () => {
     });
 
     beforeEach(() => {
-        isSetAADInfoCalled = false;
         isSetUserInfoCalled = false;
-        isResetAADInfoCalled = false;
         isResetUserInfoCalled = false;
-        setAADInfo = undefined;
         setUserInfo = undefined;
         testEventBus.clear();
     });
@@ -98,7 +78,6 @@ describe('CredentialController', () => {
     });
 
     function mockFakeKeyChainInfo() {
-        stubGetAADInfo = sinon.stub(keyChain, 'getAADInfo').resolves('fake-aad');
         stubGetUserInfo = sinon.stub(keyChain, 'getUserInfo').resolves(<UserInfo>{
             signType: 'GitHub',
             userEmail: 'fake@microsoft.com',
@@ -108,16 +87,13 @@ describe('CredentialController', () => {
     }
 
     function mockUndefinedKeyChainInfo() {
-        stubGetAADInfo = sinon.stub(keyChain, 'getAADInfo').resolves(undefined);
         stubGetUserInfo = sinon.stub(keyChain, 'getUserInfo').resolves(undefined);
     }
 
     function AssertCredentialReset(credential: Credential) {
-        assert.equal(isResetAADInfoCalled, true);
         assert.equal(isResetUserInfoCalled, true);
         assert.deepStrictEqual(credential, <Credential>{
             signInStatus: 'SignedOut',
-            aadInfo: undefined,
             userInfo: undefined
         });
     }
@@ -164,7 +140,6 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             let expectedCredential = <Credential>{
                 signInStatus: 'SignedIn',
-                aadInfo: 'fake-aad',
                 userInfo: {
                     signType: 'GitHub',
                     userEmail: 'fake@microsoft.com',
@@ -196,16 +171,9 @@ describe('CredentialController', () => {
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
                 function (target: vscode.Uri): Thenable<boolean> {
                     return new Promise((resolve, reject) => {
-                        if (target.authority === 'login.microsoftonline.com') {
-                            setTimeout(() => {
-                                uriHandler.handleUri(fakedAADCallbackURL);
-                            }, 10);
-                        } else if (target.authority === 'github.com') {
-                            setTimeout(() => {
-                                uriHandler.handleUri(fakedGitHubCallbackURL);
-                            }, 10);
-                        }
-
+                        setTimeout(() => {
+                            uriHandler.handleUri(fakedGitHubCallbackURL);
+                        }, 10);
                         resolve(true);
                     });
                 }
@@ -224,24 +192,20 @@ describe('CredentialController', () => {
             };
             let expectedCredential = <Credential>{
                 signInStatus: 'SignedIn',
-                aadInfo: 'aad-code',
                 userInfo: expectedUserInfo
             };
             assert.deepStrictEqual(credential, expectedCredential);
-            assert.equal(isSetAADInfoCalled, true);
-            assert.equal(setAADInfo, 'aad-code');
             assert.equal(isSetUserInfoCalled, true);
             assert.deepStrictEqual(setUserInfo, expectedUserInfo);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
                 new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
                 new UserSignInSucceeded('fakedCorrelationId', expectedCredential)
             ]);
         });
 
-        it(`Sign-in with AAD failed`, async () => {
+        it(`Sign-in with GitHub failed`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(false);
 
@@ -254,45 +218,13 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with AAD Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AADSignInExternalUrlDeclined)),
-            ]);
-        });
-
-        it(`Sign-in with GitHub failed`, async () => {
-            // Prepare
-            stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
-                function (target: vscode.Uri): Thenable<boolean> {
-                    return new Promise((resolve, reject) => {
-                        if (target.authority === 'login.microsoftonline.com') {
-                            setTimeout(() => {
-                                uriHandler.handleUri(fakedAADCallbackURL);
-                            }, 10);
-                            resolve(true);
-                        }
-                        resolve(false);
-                    });
-                }
-            );
-
-            // Act
-            await credentialController.signIn('fakedCorrelationId');
-
-            // Assert
-            let credential = credentialController.credential;
-            AssertCredentialReset(credential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [
-                new CredentialReset(),
-                new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
                 new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
                 new CredentialReset(),
                 new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with GitHub Failed: Please Allow to open external URL to Sign-In`, ErrorCode.GitHubSignInExternalUrlDeclined)),
             ]);
         });
 
-        it(`Sign-in with AAD time out`, async () => {
+        it(`Sign-in with GitHub time out`, async () => {
             // Prepare
             // Mock sign-in timeout config to 200ms.
             stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
@@ -309,41 +241,6 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
-                new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with AAD Failed: Time out`, ErrorCode.AADSignInTimeOut, new TimeOutError('Time out'))),
-            ]);
-        });
-
-        it(`Sign-in with GitHub time out`, async () => {
-            // Prepare
-            // Overwrite sign-in timeout to 200ms.
-            stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
-                return 200;
-            });
-            stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
-                function (target: vscode.Uri): Thenable<boolean> {
-                    return new Promise((resolve, reject) => {
-                        if (target.authority === 'login.microsoftonline.com') {
-                            setTimeout(() => {
-                                uriHandler.handleUri(fakedAADCallbackURL);
-                            }, 10);
-                        }
-                        resolve(true);
-                    });
-                }
-            );
-
-            // Act
-            await credentialController.signIn('fakedCorrelationId');
-
-            // Assert
-            let credential = credentialController.credential;
-            AssertCredentialReset(credential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [
-                new CredentialReset(),
-                new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with AAD...`, 'Sign-in'),
                 new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
                 new CredentialReset(),
                 new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with GitHub Failed: Time out`, ErrorCode.GitHubSignInTimeOut, new TimeOutError('Time out'))),

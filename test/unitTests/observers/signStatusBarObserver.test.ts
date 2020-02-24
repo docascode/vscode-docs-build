@@ -48,7 +48,6 @@ describe('SignStatusBarObserver', () => {
     it(`User Signed In: Status bar is shown with user info`, () => {
         let event = new UserSignInSucceeded('FakedCorrelationId', <Credential>{
             signInStatus: 'SignedIn',
-            aadInfo: 'fake-add',
             userInfo: {
                 signType: 'GitHub',
                 userEmail: 'fake@microsoft.com',
@@ -66,7 +65,6 @@ describe('SignStatusBarObserver', () => {
     it(`Fetch From Local Credential Manager: Status bar is shown with user info`, () => {
         let event = new CredentialRetrieveFromLocalCredentialManager(<Credential>{
             signInStatus: 'SignedIn',
-            aadInfo: 'fake-add',
             userInfo: {
                 signType: 'GitHub',
                 userEmail: 'fake@microsoft.com',

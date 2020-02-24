@@ -52,7 +52,6 @@ describe('TelemetryObserver', () => {
         it('UserSignInSucceeded', () => {
             let event = new UserSignInSucceeded('fakedCorrelationId', <Credential>{
                 signInStatus: 'SignedIn',
-                aadInfo: 'faked-aad',
                 userInfo: {
                     signType: 'GitHub',
                     userEmail: 'fake@microsoft.com',
@@ -73,7 +72,7 @@ describe('TelemetryObserver', () => {
         });
 
         it('UserSignInFailed', () => {
-            let event = new UserSignInFailed('fakedCorrelationId', new DocsError('Faked error message', ErrorCode.AADSignInFailed));
+            let event = new UserSignInFailed('fakedCorrelationId', new DocsError('Faked error message', ErrorCode.GitHubSignInFailed));
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignIn.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -82,7 +81,7 @@ describe('TelemetryObserver', () => {
                 SignInType: undefined,
                 UserName: undefined,
                 UserEmail: undefined,
-                ErrorCode: 'AADSignInFailed',
+                ErrorCode: 'GitHubSignInFailed',
             });
         });
     });
