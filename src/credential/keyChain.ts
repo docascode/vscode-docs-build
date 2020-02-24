@@ -31,14 +31,6 @@ export class KeyChain {
         this.keytar = overwriteKeytar || getNodeModule<Keytar>('keytar') || failingKeytar;
     }
 
-    public async getAADInfo(): Promise<string> {
-        let aadInfo = await this.keytar.getPassword(SERVICE_ID, this.AADAccountId);
-        if (aadInfo) {
-            return aadInfo;
-        }
-        return undefined;
-    }
-
     public async getUserInfo(): Promise<UserInfo | null> {
         let userInfoStr = await this.keytar.getPassword(SERVICE_ID, this.userInfoAccountId);
         if (userInfoStr) {
@@ -47,24 +39,12 @@ export class KeyChain {
         return undefined;
     }
 
-    public async setAADInfo(aadInfo: string): Promise<void> {
-        await this.keytar.setPassword(SERVICE_ID, this.AADAccountId, aadInfo);
-    }
-
     public async setUserInfo(userInfo: UserInfo): Promise<void> {
         await this.keytar.setPassword(SERVICE_ID, this.userInfoAccountId, JSON.stringify(userInfo));
     }
 
     public async resetUserInfo(): Promise<void> {
         await this.keytar.deletePassword(SERVICE_ID, this.userInfoAccountId);
-    }
-
-    public async resetAADInfo(): Promise<void> {
-        await this.keytar.deletePassword(SERVICE_ID, this.AADAccountId);
-    }
-
-    private get AADAccountId(): string {
-        return `docs-build-aad-${this.environmentController.env}`;
     }
 
     private get userInfoAccountId(): string {
