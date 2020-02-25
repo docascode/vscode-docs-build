@@ -1,5 +1,6 @@
 import { EnvironmentController } from '../../src/common/environmentController';
 import { AbsolutePathPackage } from '../../src/dependency/package';
+import { Credential } from '../../src/credential/credentialController';
 
 export function getFakeEnvironmentController(): EnvironmentController {
     return {
@@ -24,3 +25,13 @@ export const fakedPackage = new AbsolutePathPackage(
     'faked-rid',
     'faked-integrity'
 );
+
+export const fakedCredential = <Credential>{
+    signInStatus: 'SignedIn',
+    userInfo: {
+        signType: 'GitHub',
+        userEmail: 'fake@microsoft.com',
+        userName: 'Faked User',
+        userToken: 'faked-token'
+    }
+}

@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
@@ -16,6 +16,9 @@ export class TelemetryObserver {
                 break;
             case EventType.UserSignInCompleted:
                 this.handleUserSignInCompleted(<UserSignInCompleted>event);
+                break;
+            case EventType.CredentialRetrieveFromLocalCredentialManager:
+                this.handleCredentialRetrieveFromLocalCredentialManager(<CredentialRetrieveFromLocalCredentialManager>event);
                 break;
             case EventType.UserSignOutTriggered:
                 this.handleUserSignOutTriggered(<UserSignOutTriggered>event);
@@ -40,7 +43,7 @@ export class TelemetryObserver {
                 break;
             case EventType.PackageInstallCompleted:
                 this.handlePackageInstallCompleted(<PackageInstallCompleted>event);
-                break;  
+                break;
             // TODO: Send Metric for event PackageInstallAttemptFailed
             // Depends on this PR: https://github.com/microsoft/vscode-extension-telemetry/pull/42
             case EventType.QuickPickTriggered:
@@ -84,6 +87,7 @@ export class TelemetryObserver {
             {
                 CorrelationId: event.correlationId,
                 Result: event.succeeded ? 'Succeeded' : 'Failed',
+                isSkipped: false.toString(),
                 SignInType: signInType,
                 UserName: userName,
                 UserEmail: userEmail,
@@ -91,6 +95,21 @@ export class TelemetryObserver {
             }
         );
     }
+
+    private handleCredentialRetrieveFromLocalCredentialManager(event: CredentialRetrieveFromLocalCredentialManager) {
+        let userInfo = event.credential.userInfo;
+        this.reporter.sendTelemetryEvent(
+            'SignIn.Completed',
+            {
+                Result: 'Succeeded',
+                IsSkipped: true.toString(),
+                SignInType: userInfo.signType,
+                UserName: userInfo.userName,
+                UserEmail: userInfo.userEmail
+            }
+        );
+    }
+
     private handleUserSignOutTriggered(event: UserSignOutTriggered) {
         this.reporter.sendTelemetryEvent(
             'SignOut.Triggered',
