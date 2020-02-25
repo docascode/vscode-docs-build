@@ -34,4 +34,4 @@ export const fakedCredential = <Credential>{
         userName: 'Faked User',
         userToken: 'faked-token'
     }
-}
+};

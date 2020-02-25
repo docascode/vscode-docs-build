@@ -55,7 +55,7 @@ describe('TelemetryObserver', () => {
             assert.deepStrictEqual(sentEventProperties, {
                 CorrelationId: 'fakedCorrelationId',
                 Result: 'Succeeded',
-                IsSkipped: 'false',
+                RetrievedFromCache: 'false',
                 SignInType: "GitHub",
                 UserName: 'Faked User',
                 UserEmail: 'fake@microsoft.com',
@@ -70,7 +70,7 @@ describe('TelemetryObserver', () => {
             assert.deepStrictEqual(sentEventProperties, {
                 CorrelationId: 'fakedCorrelationId',
                 Result: 'Failed',
-                IsSkipped: 'false',
+                RetrievedFromCache: 'false',
                 SignInType: undefined,
                 UserName: undefined,
                 UserEmail: undefined,
@@ -85,7 +85,7 @@ describe('TelemetryObserver', () => {
         assert.equal(sentEventName, 'SignIn.Completed');
         assert.deepStrictEqual(sentEventProperties, {
             Result: 'Succeeded',
-            IsSkipped: 'true',
+            RetrievedFromCache: 'true',
             SignInType: "GitHub",
             UserName: 'Faked User',
             UserEmail: 'fake@microsoft.com',

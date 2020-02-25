@@ -87,7 +87,7 @@ export class TelemetryObserver {
             {
                 CorrelationId: event.correlationId,
                 Result: event.succeeded ? 'Succeeded' : 'Failed',
-                isSkipped: false.toString(),
+                RetrievedFromCache: false.toString(),
                 SignInType: signInType,
                 UserName: userName,
                 UserEmail: userEmail,
@@ -102,7 +102,7 @@ export class TelemetryObserver {
             'SignIn.Completed',
             {
                 Result: 'Succeeded',
-                IsSkipped: true.toString(),
+                RetrievedFromCache: true.toString(),
                 SignInType: userInfo.signType,
                 UserName: userInfo.userName,
                 UserEmail: userInfo.userEmail
