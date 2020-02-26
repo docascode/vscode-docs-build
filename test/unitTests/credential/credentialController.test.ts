@@ -8,7 +8,7 @@ import { EnvironmentController } from '../../../src/common/environmentController
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
 import { UserInfo, uriHandler } from '../../../src/shared';
-import { getFakeEnvironmentController } from '../../utils/faker';
+import { getFakeEnvironmentController, setupKeyChain, fakedCredential } from '../../utils/faker';
 import extensionConfig from '../../../src/config';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
@@ -22,7 +22,6 @@ const fakedGitHubCallbackURL = <vscode.Uri>{
 
 describe('CredentialController', () => {
     let sinon: SinonSandbox;
-    let stubGetAADInfo: SinonStub;
     let stubGetUserInfo: SinonStub;
     let stubCredentialControllerInitialize: SinonStub;
     let stubOpenExternal: SinonStub;
@@ -66,7 +65,6 @@ describe('CredentialController', () => {
     });
 
     afterEach(() => {
-        stubGetAADInfo && stubGetAADInfo.restore();
         stubGetUserInfo && stubGetUserInfo.restore();
         stubConfigTimeout && stubConfigTimeout.restore();
         stubOpenExternal && stubOpenExternal.restore();
@@ -77,17 +75,12 @@ describe('CredentialController', () => {
         sinon.restore();
     });
 
-    function mockFakeKeyChainInfo() {
-        stubGetUserInfo = sinon.stub(keyChain, 'getUserInfo').resolves(<UserInfo>{
-            signType: 'GitHub',
-            userEmail: 'fake@microsoft.com',
-            userName: 'Fake-User',
-            userToken: 'fake-token'
-        });
+    function setupAvailableKeyChain() {
+        stubGetUserInfo = setupKeyChain(sinon, keyChain, fakedCredential.userInfo);
     }
 
-    function mockUndefinedKeyChainInfo() {
-        stubGetUserInfo = sinon.stub(keyChain, 'getUserInfo').resolves(undefined);
+    function setupUnavailableKeyChain() {
+        stubGetUserInfo = setupKeyChain(sinon, keyChain, undefined);
     }
 
     function AssertCredentialReset(credential: Credential) {
@@ -131,29 +124,21 @@ describe('CredentialController', () => {
     describe(`Initialize`, () => {
         it(`Should be 'SignedIn' status if the user info can be retrieved from keyChain`, async () => {
             // Prepare
-            mockFakeKeyChainInfo();
+            setupAvailableKeyChain();
 
             // Act
             await credentialController.initialize();
 
             // Assert
             let credential = credentialController.credential;
-            let expectedCredential = <Credential>{
-                signInStatus: 'SignedIn',
-                userInfo: {
-                    signType: 'GitHub',
-                    userEmail: 'fake@microsoft.com',
-                    userName: 'Fake-User',
-                    userToken: 'fake-token'
-                }
-            };
-            assert.deepStrictEqual(credential, expectedCredential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRetrievedFromLocalCredentialManager(expectedCredential)]);
+
+            assert.deepStrictEqual(credential, fakedCredential);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRetrievedFromLocalCredentialManager(fakedCredential)]);
         });
 
         it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
             // Prepare
-            mockUndefinedKeyChainInfo();
+            setupUnavailableKeyChain();
 
             // Act
             await credentialController.initialize();
@@ -250,8 +235,8 @@ describe('CredentialController', () => {
 
     it(`User sign-out`, async () => {
         // Sign-in first
-        mockFakeKeyChainInfo();
-        credentialController.initialize();
+        setupAvailableKeyChain();
+        await credentialController.initialize();
 
         // Act - Sign-out
         credentialController.signOut('fakedCorrelationId');
@@ -260,6 +245,7 @@ describe('CredentialController', () => {
         let credential = credentialController.credential;
         AssertCredentialReset(credential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
+            new CredentialRetrievedFromLocalCredentialManager(fakedCredential),
             new UserSignOutTriggered('fakedCorrelationId'),
             new CredentialReset(),
             new UserSignOutSucceeded('fakedCorrelationId')
