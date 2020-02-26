@@ -60,8 +60,8 @@ export class UserSignInProgress implements BaseEvent {
     constructor(public message: string, public tag?: string) { }
 }
 
-export class CredentialRetrieveFromLocalCredentialManager implements BaseEvent {
-    type = EventType.CredentialRetrieveFromLocalCredentialManager;
+export class CredentialRetrievedFromLocalCredentialManager implements BaseEvent {
+    type = EventType.CredentialRetrievedFromLocalCredentialManager;
     constructor(public credential: Credential) { }
 }
 
