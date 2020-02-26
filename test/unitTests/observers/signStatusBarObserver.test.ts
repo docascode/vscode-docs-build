@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
-import { CredentialInitializing, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
+import { CredentialInitializing, UserSignInSucceeded, CredentialRetrievedFromLocalCredentialManager, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
 import { Credential } from '../../../src/credential/credentialController';
 import { getFakeEnvironmentController, setEnvToPPE } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
@@ -63,7 +63,7 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`Fetch From Local Credential Manager: Status bar is shown with user info`, () => {
-        let event = new CredentialRetrieveFromLocalCredentialManager(<Credential>{
+        let event = new CredentialRetrievedFromLocalCredentialManager(<Credential>{
             signInStatus: 'SignedIn',
             userInfo: {
                 signType: 'GitHub',

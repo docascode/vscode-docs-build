@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, CredentialRetrievedFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocfxExecutionResult } from '../build/buildResult';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
@@ -24,8 +24,8 @@ export class DocsLoggerObserver {
             case EventType.UserSignInCompleted:
                 this.handleUserSignInCompleted(<UserSignInCompleted>event);
                 break;
-            case EventType.CredentialRetrieveFromLocalCredentialManager:
-                this.handleCredentialRetrieveFromLocalCredentialManager(<CredentialRetrieveFromLocalCredentialManager>event);
+            case EventType.CredentialRetrievedFromLocalCredentialManager:
+                this.handleCredentialRetrievedFromLocalCredentialManager(<CredentialRetrievedFromLocalCredentialManager>event);
                 break;
             case EventType.UserSignOutCompleted:
                 this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
@@ -120,7 +120,7 @@ export class DocsLoggerObserver {
         this.appendLine();
     }
 
-    private handleCredentialRetrieveFromLocalCredentialManager(event: CredentialRetrieveFromLocalCredentialManager) {
+    private handleCredentialRetrievedFromLocalCredentialManager(event: CredentialRetrievedFromLocalCredentialManager) {
         this.appendLine(`Successfully retrieved user credential from Local Credential Manager:`);
         this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
         this.appendLine(`    - User email    : ${event.credential.userInfo.userEmail}`);
