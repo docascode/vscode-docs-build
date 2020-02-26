@@ -1,7 +1,6 @@
 import vscode from 'vscode';
-import TelemetryReporter from 'vscode-extension-telemetry';
 import { CredentialController } from './credential/credentialController';
-import { uriHandler, EXTENSION_ID } from './shared';
+import { uriHandler } from './shared';
 import { PlatformInformation } from './common/platformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
 import { SignStatusBarObserver } from './observers/signStatusBarObserver';
@@ -18,11 +17,10 @@ import { DocsEnvironmentController } from './common/docsEnvironmentController';
 import { BuildStatusBarObserver } from './observers/buildStatusBarObserver';
 import { CodeActionProvider } from './codeAction/codeActionProvider';
 import { ExtensionContext } from './extensionContext';
-import config from './config';
-import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
 import { QuickPickTriggered, QuickPickCommandSelected } from './common/loggingEvents';
+import { DocsTelemetryReporter, docsTelemetryReporter } from './docsTelemetryReporter';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -31,7 +29,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const platformInformation = await PlatformInformation.getCurrent();
 
     // Telemetry
-    const telemetryReporter = getTelemetryReporter(extensionContext, environmentController);
+    const telemetryReporter = DocsTelemetryReporter.getTelemetryReporter(extensionContext, environmentController);
     const telemetryObserver = new TelemetryObserver(telemetryReporter);
     eventStream.subscribe(telemetryObserver.eventHandler);
 
@@ -79,6 +77,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     context.subscriptions.push(
         outputChannel,
         telemetryReporter,
+        docsTelemetryReporter,
         diagnosticController,
         signStatusBar,
         buildStatusBar,
@@ -106,11 +105,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         eventStream,
         keyChain
     };
-}
-
-function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController) {
-    let key = config.AIKey[environmentController.env];
-    return new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
 }
 
 function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController) {

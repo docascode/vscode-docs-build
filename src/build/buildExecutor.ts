@@ -14,6 +14,8 @@ import { ExtensionContext } from '../extensionContext';
 import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
 import { OUTPUT_FOLDER_NAME } from '../shared';
+import config from '../config';
+import { docsTelemetryReporter } from '../docsTelemetryReporter';
 
 export class BuildExecutor {
     private cwd: string;
@@ -38,15 +40,19 @@ export class BuildExecutor {
         let outputPath = path.join(input.localRepositoryPath, OUTPUT_FOLDER_NAME);
         fs.emptyDirSync(outputPath);
 
-        let envs = {
+        let envs: any = {
+            'DOCFX_CORRELATION_ID': correlationId,
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
+        if (docsTelemetryReporter.telemetryEnabled) {
+            envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this.environmentController.env];
+        }
 
         if (!BuildExecutor.skipRestore) {
             let restoreStart = Date.now();
             let result = await this.restore(input.localRepositoryPath, outputPath, buildUserToken, envs);
-            
+
             let cacheSize = await getFolderSizeInMB(path.join(os.homedir(), '.docfx'));
             this.eventStream.post(new BuildCacheSizeCalculated(correlationId, cacheSize));
 
