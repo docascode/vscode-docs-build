@@ -58,7 +58,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let credentialController = new CredentialController(keyChain, eventStream, environmentController);
     eventStream.subscribe(credentialController.eventHandler);
     // Initialize credential
-    let credentialInitialPromise = credentialController.initialize();
+    let credentialInitialPromise = credentialController.initialize(getCorrelationId());
 
     // Sign Status bar
     let signStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);

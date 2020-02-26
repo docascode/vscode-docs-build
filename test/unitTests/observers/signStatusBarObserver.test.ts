@@ -63,7 +63,7 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`Fetch From Local Credential Manager: Status bar is shown with user info`, () => {
-        let event = new CredentialRetrieveFromLocalCredentialManager(<Credential>{
+        let event = new CredentialRetrieveFromLocalCredentialManager('fakedCorrelationId', <Credential>{
             signInStatus: 'SignedIn',
             userInfo: {
                 signType: 'GitHub',

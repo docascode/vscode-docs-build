@@ -101,6 +101,7 @@ export class TelemetryObserver {
         this.reporter.sendTelemetryEvent(
             'SignIn.Completed',
             {
+                CorrelationId: event.correlationId,
                 Result: 'Succeeded',
                 RetrievedFromCache: true.toString(),
                 SignInType: userInfo.signType,

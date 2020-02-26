@@ -134,7 +134,7 @@ describe('CredentialController', () => {
             mockFakeKeyChainInfo();
 
             // Act
-            await credentialController.initialize();
+            await credentialController.initialize('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
@@ -148,7 +148,7 @@ describe('CredentialController', () => {
                 }
             };
             assert.deepStrictEqual(credential, expectedCredential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRetrieveFromLocalCredentialManager(expectedCredential)]);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRetrieveFromLocalCredentialManager('fakedCorrelationId', expectedCredential)]);
         });
 
         it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
@@ -156,7 +156,7 @@ describe('CredentialController', () => {
             mockUndefinedKeyChainInfo();
 
             // Act
-            await credentialController.initialize();
+            await credentialController.initialize('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
@@ -251,15 +251,25 @@ describe('CredentialController', () => {
     it(`User sign-out`, async () => {
         // Sign-in first
         mockFakeKeyChainInfo();
-        credentialController.initialize();
+        await credentialController.initialize('fakedCorrelationId');
 
         // Act - Sign-out
         credentialController.signOut('fakedCorrelationId');
 
         // Assert
         let credential = credentialController.credential;
+        let expectedCredential = <Credential>{
+            signInStatus: 'SignedIn',
+            userInfo: {
+                signType: 'GitHub',
+                userEmail: 'fake@microsoft.com',
+                userName: 'Fake-User',
+                userToken: 'fake-token'
+            }
+        };
         AssertCredentialReset(credential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
+            new CredentialRetrieveFromLocalCredentialManager('fakedCorrelationId', expectedCredential),
             new UserSignOutTriggered('fakedCorrelationId'),
             new CredentialReset(),
             new UserSignOutSucceeded('fakedCorrelationId')

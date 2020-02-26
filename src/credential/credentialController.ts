@@ -3,7 +3,7 @@ import { AzureEnvironment } from 'ms-rest-azure';
 import querystring from 'querystring';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
-import { parseQuery, delay, trimEndSlash } from '../utils/utils';
+import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
 import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrieveFromLocalCredentialManager, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
@@ -44,7 +44,7 @@ export class CredentialController {
         switch (event.type) {
             case EventType.EnvironmentChanged:
             case EventType.RefreshCredential:
-                this.initialize();
+                this.initialize(getCorrelationId());
                 break;
             case EventType.CredentialExpired:
                 this.resetCredential();
@@ -52,8 +52,8 @@ export class CredentialController {
         }
     }
 
-    public async initialize(): Promise<void> {
-        await this.refreshCredential();
+    public async initialize(correlationId: string): Promise<void> {
+        await this.refreshCredential(correlationId);
     }
 
     public get credential(): Credential {
@@ -98,12 +98,12 @@ export class CredentialController {
         this.eventStream.post(new CredentialReset());
     }
 
-    private async refreshCredential(): Promise<void> {
+    private async refreshCredential(correlationId: string): Promise<void> {
         let userInfo = await this.keyChain.getUserInfo();
         if (userInfo) {
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
-            this.eventStream.post(new CredentialRetrieveFromLocalCredentialManager(this.credential));
+            this.eventStream.post(new CredentialRetrieveFromLocalCredentialManager(correlationId, this.credential));
         } else {
             this.resetCredential();
         }

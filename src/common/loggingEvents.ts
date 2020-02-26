@@ -62,7 +62,7 @@ export class UserSignInProgress implements BaseEvent {
 
 export class CredentialRetrieveFromLocalCredentialManager implements BaseEvent {
     type = EventType.CredentialRetrieveFromLocalCredentialManager;
-    constructor(public credential: Credential) { }
+    constructor(public correlationId: string, public credential: Credential) { }
 }
 
 export class CredentialReset implements BaseEvent {

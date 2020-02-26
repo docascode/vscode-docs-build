@@ -54,7 +54,7 @@ describe('DocsLoggerObserver', () => {
     });
 
     it(`CredentialRetrieveFromLocalCredentialManager`, () => {
-        let event = new CredentialRetrieveFromLocalCredentialManager(<Credential>{
+        let event = new CredentialRetrieveFromLocalCredentialManager('fakedCorrelationId', <Credential>{
             signInStatus: 'SignedIn',
             userInfo: {
                 signType: 'GitHub',
