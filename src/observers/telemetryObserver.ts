@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, CredentialRetrievedFromLocalCredentialManager } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted } from '../common/loggingEvents';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
@@ -72,7 +72,7 @@ export class TelemetryObserver {
         let userEmail: string;
         let errorCode: string;
         if (event.succeeded) {
-            let userInfo = (<UserSignInSucceeded | CredentialRetrievedFromLocalCredentialManager>event).credential.userInfo;
+            let userInfo = (<UserSignInSucceeded>event).credential.userInfo;
             signInType = userInfo.signType;
             userName = userInfo.userName;
             userEmail = userInfo.userEmail;

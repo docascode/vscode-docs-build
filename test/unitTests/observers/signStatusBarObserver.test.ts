@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
-import { CredentialInitializing, UserSignInSucceeded, CredentialRetrievedFromLocalCredentialManager, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
+import { CredentialInitializing, UserSignInSucceeded, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
 import { getFakeEnvironmentController, setEnvToPPE, fakedCredential } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
 
@@ -46,15 +46,6 @@ describe('SignStatusBarObserver', () => {
 
     it(`User Signed In: Status bar is shown with user info`, () => {
         let event = new UserSignInSucceeded('FakedCorrelationId', fakedCredential);
-        observer.eventHandler(event);
-        assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: $(mark-github) Faked User(fake@microsoft.com)`);
-        assert.equal(statusBarItem.command, 'docs.validationQuickPick');
-        assert.equal(statusBarItem.tooltip, undefined);
-    });
-
-    it(`Fetch From Local Credential Manager: Status bar is shown with user info`, () => {
-        let event = new CredentialRetrievedFromLocalCredentialManager('fakedCorrelationId', fakedCredential);
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `Docs: $(mark-github) Faked User(fake@microsoft.com)`);

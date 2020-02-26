@@ -4,7 +4,7 @@ import querystring from 'querystring';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, CredentialRetrievedFromLocalCredentialManager, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -103,7 +103,7 @@ export class CredentialController {
         if (userInfo) {
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
-            this.eventStream.post(new CredentialRetrievedFromLocalCredentialManager(correlationId, this.credential));
+            this.eventStream.post(new UserSignInSucceeded(correlationId, this.credential, true));
         } else {
             this.resetCredential();
         }
