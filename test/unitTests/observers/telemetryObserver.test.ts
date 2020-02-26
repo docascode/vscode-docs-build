@@ -1,12 +1,12 @@
 import assert from 'assert';
 import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
-import TelemetryReporter from 'vscode-extension-telemetry';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
 import { fakedPackage, fakedCredential } from '../../utils/faker';
+import TelemetryReporter from '../../../src/telemetryReporter';
 
 describe('TelemetryObserver', () => {
     let observer: TelemetryObserver;
