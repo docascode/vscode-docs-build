@@ -133,7 +133,7 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
 
             assert.deepStrictEqual(credential, fakedCredential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRetrievedFromLocalCredentialManager(expectedCredential)]);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRetrievedFromLocalCredentialManager(fakedCredential)]);
         });
 
         it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
@@ -245,7 +245,7 @@ describe('CredentialController', () => {
         let credential = credentialController.credential;
         AssertCredentialReset(credential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new CredentialRetrieveFromLocalCredentialManager(fakedCredential),
+            new CredentialRetrievedFromLocalCredentialManager(fakedCredential),
             new UserSignOutTriggered('fakedCorrelationId'),
             new CredentialReset(),
             new UserSignOutSucceeded('fakedCorrelationId')
