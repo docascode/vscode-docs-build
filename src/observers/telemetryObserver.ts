@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, CredentialRetrieveFromLocalCredentialManager } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, CredentialRetrievedFromLocalCredentialManager } from '../common/loggingEvents';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
@@ -17,8 +17,8 @@ export class TelemetryObserver {
             case EventType.UserSignInCompleted:
                 this.handleUserSignInCompleted(<UserSignInCompleted>event);
                 break;
-            case EventType.CredentialRetrieveFromLocalCredentialManager:
-                this.handleCredentialRetrieveFromLocalCredentialManager(<CredentialRetrieveFromLocalCredentialManager>event);
+            case EventType.CredentialRetrievedFromLocalCredentialManager:
+                this.handleCredentialRetrievedFromLocalCredentialManager(<CredentialRetrievedFromLocalCredentialManager>event);
                 break;
             case EventType.UserSignOutTriggered:
                 this.handleUserSignOutTriggered(<UserSignOutTriggered>event);
@@ -96,7 +96,7 @@ export class TelemetryObserver {
         );
     }
 
-    private handleCredentialRetrieveFromLocalCredentialManager(event: CredentialRetrieveFromLocalCredentialManager) {
+    private handleCredentialRetrievedFromLocalCredentialManager(event: CredentialRetrievedFromLocalCredentialManager) {
         let userInfo = event.credential.userInfo;
         this.reporter.sendTelemetryEvent(
             'SignIn.Completed',

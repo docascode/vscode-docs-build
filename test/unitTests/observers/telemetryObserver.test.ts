@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, CredentialRetrieveFromLocalCredentialManager, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, CredentialRetrievedFromLocalCredentialManager, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from 'vscode-extension-telemetry';
 import { DocsError } from '../../../src/error/docsError';
@@ -80,7 +80,7 @@ describe('TelemetryObserver', () => {
     });
 
     it('CredentialRetrieveFromLocalCredentialManager', () => {
-        let event = new CredentialRetrieveFromLocalCredentialManager('fakedCorrelationId', fakedCredential);
+        let event = new CredentialRetrievedFromLocalCredentialManager('fakedCorrelationId', fakedCredential);
         observer.eventHandler(event);
         assert.equal(sentEventName, 'SignIn.Completed');
         assert.deepStrictEqual(sentEventProperties, {

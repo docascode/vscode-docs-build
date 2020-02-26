@@ -1,9 +1,8 @@
 import assert from 'assert';
 import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
 import { StatusBarItem } from 'vscode';
-import { CredentialInitializing, UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
-import { Credential } from '../../../src/credential/credentialController';
-import { getFakeEnvironmentController, setEnvToPPE } from '../../utils/faker';
+import { CredentialInitializing, UserSignInSucceeded, CredentialRetrievedFromLocalCredentialManager, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
+import { getFakeEnvironmentController, setEnvToPPE, fakedCredential } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
 
 describe('SignStatusBarObserver', () => {
@@ -46,35 +45,19 @@ describe('SignStatusBarObserver', () => {
     });
 
     it(`User Signed In: Status bar is shown with user info`, () => {
-        let event = new UserSignInSucceeded('FakedCorrelationId', <Credential>{
-            signInStatus: 'SignedIn',
-            userInfo: {
-                signType: 'GitHub',
-                userEmail: 'fake@microsoft.com',
-                userName: 'Fake User',
-                userToken: 'fake-token'
-            },
-        });
+        let event = new UserSignInSucceeded('FakedCorrelationId', fakedCredential);
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: $(mark-github) Fake User(fake@microsoft.com)`);
+        assert.equal(statusBarItem.text, `Docs: $(mark-github) Faked User(fake@microsoft.com)`);
         assert.equal(statusBarItem.command, 'docs.validationQuickPick');
         assert.equal(statusBarItem.tooltip, undefined);
     });
 
     it(`Fetch From Local Credential Manager: Status bar is shown with user info`, () => {
-        let event = new CredentialRetrieveFromLocalCredentialManager('fakedCorrelationId', <Credential>{
-            signInStatus: 'SignedIn',
-            userInfo: {
-                signType: 'GitHub',
-                userEmail: 'fake@microsoft.com',
-                userName: 'Fake User',
-                userToken: 'fake-token'
-            },
-        });
+        let event = new CredentialRetrievedFromLocalCredentialManager('fakedCorrelationId', fakedCredential);
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: $(mark-github) Fake User(fake@microsoft.com)`);
+        assert.equal(statusBarItem.text, `Docs: $(mark-github) Faked User(fake@microsoft.com)`);
         assert.equal(statusBarItem.command, 'docs.validationQuickPick');
         assert.equal(statusBarItem.tooltip, undefined);
     });
