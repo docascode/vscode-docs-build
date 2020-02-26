@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, CredentialRetrievedFromLocalCredentialManager, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
@@ -127,13 +127,12 @@ describe('CredentialController', () => {
             setupAvailableKeyChain();
 
             // Act
-            await credentialController.initialize();
+            await credentialController.initialize('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
-
             assert.deepStrictEqual(credential, fakedCredential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRetrievedFromLocalCredentialManager(fakedCredential)]);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true)]);
         });
 
         it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
@@ -141,7 +140,7 @@ describe('CredentialController', () => {
             setupUnavailableKeyChain();
 
             // Act
-            await credentialController.initialize();
+            await credentialController.initialize('fakedCorrelationId');
 
             // Assert
             let credential = credentialController.credential;
@@ -236,7 +235,7 @@ describe('CredentialController', () => {
     it(`User sign-out`, async () => {
         // Sign-in first
         setupAvailableKeyChain();
-        await credentialController.initialize();
+        await credentialController.initialize('fakedCorrelationId');
 
         // Act - Sign-out
         credentialController.signOut('fakedCorrelationId');
@@ -245,7 +244,7 @@ describe('CredentialController', () => {
         let credential = credentialController.credential;
         AssertCredentialReset(credential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new CredentialRetrievedFromLocalCredentialManager(fakedCredential),
+            new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true),
             new UserSignOutTriggered('fakedCorrelationId'),
             new CredentialReset(),
             new UserSignOutSucceeded('fakedCorrelationId')
