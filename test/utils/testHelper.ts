@@ -1,8 +1,6 @@
 import vscode from 'vscode';
-import { SinonSandbox } from 'sinon';
 import ExtensionExports from '../../src/common/extensionExport';
-import { EXTENSION_ID, UserInfo } from '../../src/shared';
-import { KeyChain } from '../../src/credential/keyChain';
+import { EXTENSION_ID } from '../../src/shared';
 
 export async function ensureExtensionActivatedAndInitializationFinished(): Promise<vscode.Extension<ExtensionExports>> {
     const extension = vscode.extensions.getExtension<ExtensionExports>(EXTENSION_ID);
@@ -17,23 +15,6 @@ export async function ensureExtensionActivatedAndInitializationFinished(): Promi
         return undefined;
     }
     return extension;
-}
-
-export function setupAvailableMockKeyChain(sinon: SinonSandbox, keyChain: KeyChain) {
-    if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
-        console.error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN" from environment variable');
-    }
-
-    sinon.stub(keyChain, 'getUserInfo').resolves(<UserInfo>{
-        signType: 'GitHub',
-        userName: 'VSC-Service-Account',
-        userEmail: 'vscavu@microsoft.com',
-        userToken: process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN
-    });
-}
-
-export function setupUnavailableMockKeyChain(sinon: SinonSandbox, keyChain: KeyChain) {
-    sinon.stub(keyChain, 'getUserInfo').resolves(undefined);
 }
 
 export function triggerCommand(command: string) {

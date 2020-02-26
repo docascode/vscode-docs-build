@@ -2,10 +2,9 @@ import assert from 'assert';
 import { OutputChannel } from 'vscode';
 import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
-import { Credential } from '../../../src/credential/credentialController';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
-import { fakedPackage } from '../../utils/faker';
+import { fakedPackage, fakedCredential } from '../../utils/faker';
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;
@@ -26,15 +25,7 @@ describe('DocsLoggerObserver', () => {
 
     describe('UserSignInCompleted', () => {
         it(`UserSignInSucceeded`, () => {
-            let event = new UserSignInSucceeded('FakedCorrelationId', <Credential>{
-                signInStatus: 'SignedIn',
-                userInfo: {
-                    signType: 'GitHub',
-                    userEmail: 'fake@microsoft.com',
-                    userName: 'Faked User',
-                    userToken: 'faked-token'
-                }
-            });
+            let event = new UserSignInSucceeded('FakedCorrelationId', fakedCredential);
             observer.eventHandler(event);
 
             let expectedOutput = `Successfully sign-in to Docs Build:\n`
@@ -54,15 +45,7 @@ describe('DocsLoggerObserver', () => {
     });
 
     it(`CredentialRetrieveFromLocalCredentialManager`, () => {
-        let event = new CredentialRetrieveFromLocalCredentialManager(<Credential>{
-            signInStatus: 'SignedIn',
-            userInfo: {
-                signType: 'GitHub',
-                userEmail: 'fake@microsoft.com',
-                userName: 'Faked User',
-                userToken: 'faked-token'
-            }
-        });
+        let event = new CredentialRetrieveFromLocalCredentialManager(fakedCredential);
         observer.eventHandler(event);
 
         let expectedOutput = `Successfully retrieved user credential from Local Credential Manager:\n`
