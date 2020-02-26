@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, CredentialRetrievedFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
@@ -45,7 +45,7 @@ describe('DocsLoggerObserver', () => {
     });
 
     it(`CredentialRetrieveFromLocalCredentialManager`, () => {
-        let event = new CredentialRetrieveFromLocalCredentialManager(fakedCredential);
+        let event = new CredentialRetrievedFromLocalCredentialManager(fakedCredential);
         observer.eventHandler(event);
 
         let expectedOutput = `Successfully retrieved user credential from Local Credential Manager:\n`
