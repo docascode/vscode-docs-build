@@ -37,7 +37,7 @@ export function run(): Promise<void> {
 
         let subscription = eventStream.subscribe((event: BaseEvent) => {
             switch (event.type) {
-                case EventType.CredentialRetrievedFromLocalCredentialManager:
+                case EventType.UserSignInCompleted:
                     console.log(`Trigger build to restore all the dependency...`);
                     triggerBuild();
                     break;
