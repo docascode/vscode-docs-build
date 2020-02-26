@@ -77,19 +77,20 @@ describe('TelemetryObserver', () => {
                 ErrorCode: 'GitHubSignInFailed',
             });
         });
-    });
 
-    it('CredentialRetrieveFromLocalCredentialManager', () => {
-        let event = new CredentialRetrievedFromLocalCredentialManager('fakedCorrelationId', fakedCredential);
-        observer.eventHandler(event);
-        assert.equal(sentEventName, 'SignIn.Completed');
-        assert.deepStrictEqual(sentEventProperties, {
-            CorrelationId: 'fakedCorrelationId',
-            Result: 'Succeeded',
-            RetrievedFromCache: 'true',
-            SignInType: "GitHub",
-            UserName: 'Faked User',
-            UserEmail: 'fake@microsoft.com',
+        it('CredentialRetrieveFromLocalCredentialManager', () => {
+            let event = new CredentialRetrievedFromLocalCredentialManager('fakedCorrelationId', fakedCredential);
+            observer.eventHandler(event);
+            assert.equal(sentEventName, 'SignIn.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Succeeded',
+                RetrievedFromCache: 'true',
+                SignInType: "GitHub",
+                UserName: 'Faked User',
+                UserEmail: 'fake@microsoft.com',
+                ErrorCode: undefined
+            });
         });
     });
 

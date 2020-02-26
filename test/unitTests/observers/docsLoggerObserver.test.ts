@@ -42,17 +42,17 @@ describe('DocsLoggerObserver', () => {
             let expectedOutput = `Failed to sign-in to Docs Build: Faked error msg\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
-    });
 
-    it(`CredentialRetrieveFromLocalCredentialManager`, () => {
-        let event = new CredentialRetrievedFromLocalCredentialManager('fakedCorrelationId', fakedCredential);
-        observer.eventHandler(event);
-
-        let expectedOutput = `Successfully retrieved user credential from Local Credential Manager:\n`
-            + `    - GitHub Account: Faked User\n`
-            + `    - User email    : fake@microsoft.com\n`
-            + `\n`;
-        assert.equal(loggerText, expectedOutput);
+        it(`CredentialRetrieveFromLocalCredentialManager`, () => {
+            let event = new CredentialRetrievedFromLocalCredentialManager('fakedCorrelationId', fakedCredential);
+            observer.eventHandler(event);
+    
+            let expectedOutput = `Successfully retrieved user credential from Local Credential Manager:\n`
+                + `    - GitHub Account: Faked User\n`
+                + `    - User email    : fake@microsoft.com\n`
+                + `\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
     });
 
     describe('UserSignOutCompleted', () => {

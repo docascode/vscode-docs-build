@@ -17,9 +17,6 @@ export class TelemetryObserver {
             case EventType.UserSignInCompleted:
                 this.handleUserSignInCompleted(<UserSignInCompleted>event);
                 break;
-            case EventType.CredentialRetrievedFromLocalCredentialManager:
-                this.handleCredentialRetrievedFromLocalCredentialManager(<CredentialRetrievedFromLocalCredentialManager>event);
-                break;
             case EventType.UserSignOutTriggered:
                 this.handleUserSignOutTriggered(<UserSignOutTriggered>event);
                 break;
@@ -75,7 +72,7 @@ export class TelemetryObserver {
         let userEmail: string;
         let errorCode: string;
         if (event.succeeded) {
-            let userInfo = (<UserSignInSucceeded>event).credential.userInfo;
+            let userInfo = (<UserSignInSucceeded | CredentialRetrievedFromLocalCredentialManager>event).credential.userInfo;
             signInType = userInfo.signType;
             userName = userInfo.userName;
             userEmail = userInfo.userEmail;
@@ -87,26 +84,11 @@ export class TelemetryObserver {
             {
                 CorrelationId: event.correlationId,
                 Result: event.succeeded ? 'Succeeded' : 'Failed',
-                RetrievedFromCache: false.toString(),
+                RetrievedFromCache: event.retrievedFromCache.toString(),
                 SignInType: signInType,
                 UserName: userName,
                 UserEmail: userEmail,
                 ErrorCode: errorCode
-            }
-        );
-    }
-
-    private handleCredentialRetrievedFromLocalCredentialManager(event: CredentialRetrievedFromLocalCredentialManager) {
-        let userInfo = event.credential.userInfo;
-        this.reporter.sendTelemetryEvent(
-            'SignIn.Completed',
-            {
-                CorrelationId: event.correlationId,
-                Result: 'Succeeded',
-                RetrievedFromCache: true.toString(),
-                SignInType: userInfo.signType,
-                UserName: userInfo.userName,
-                UserEmail: userInfo.userEmail
             }
         );
     }

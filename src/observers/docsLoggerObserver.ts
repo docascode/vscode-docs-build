@@ -24,9 +24,6 @@ export class DocsLoggerObserver {
             case EventType.UserSignInCompleted:
                 this.handleUserSignInCompleted(<UserSignInCompleted>event);
                 break;
-            case EventType.CredentialRetrievedFromLocalCredentialManager:
-                this.handleCredentialRetrievedFromLocalCredentialManager(<CredentialRetrievedFromLocalCredentialManager>event);
-                break;
             case EventType.UserSignOutCompleted:
                 this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
                 break;
@@ -110,20 +107,17 @@ export class DocsLoggerObserver {
     // Sign
     private handleUserSignInCompleted(event: UserSignInCompleted) {
         if (event.succeeded) {
-            let asUserSignInSucceeded = <UserSignInSucceeded>event;
-            this.appendLine(`Successfully sign-in to Docs Build:`);
-            this.appendLine(`    - GitHub Account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
-            this.appendLine(`    - User email    : ${asUserSignInSucceeded.credential.userInfo.userEmail}`);
+            let asUserSignedIn = <UserSignInSucceeded | CredentialRetrievedFromLocalCredentialManager>event;
+            if (event.retrievedFromCache) {
+                this.appendLine(`Successfully retrieved user credential from Local Credential Manager:`);
+            } else {
+                this.appendLine(`Successfully sign-in to Docs Build:`);
+            }
+            this.appendLine(`    - GitHub Account: ${asUserSignedIn.credential.userInfo.userName}`);
+            this.appendLine(`    - User email    : ${asUserSignedIn.credential.userInfo.userEmail}`);
         } else {
             this.appendLine(`Failed to sign-in to Docs Build: ${(<UserSignInFailed>event).err.message}`);
         }
-        this.appendLine();
-    }
-
-    private handleCredentialRetrievedFromLocalCredentialManager(event: CredentialRetrievedFromLocalCredentialManager) {
-        this.appendLine(`Successfully retrieved user credential from Local Credential Manager:`);
-        this.appendLine(`    - GitHub Account: ${event.credential.userInfo.userName}`);
-        this.appendLine(`    - User email    : ${event.credential.userInfo.userEmail}`);
         this.appendLine();
     }
 
