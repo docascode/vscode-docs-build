@@ -15,7 +15,7 @@ import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
 import { OUTPUT_FOLDER_NAME } from '../shared';
 import config from '../config';
-import { docsTelemetryReporter } from '../docsTelemetryReporter';
+import TelemetryReporter from '../telemetryReporter';
 
 export class BuildExecutor {
     private cwd: string;
@@ -23,7 +23,13 @@ export class BuildExecutor {
     private runningChildProcess: ChildProcess;
     private static skipRestore: boolean = false;
 
-    constructor(context: ExtensionContext, platformInfo: PlatformInformation, private environmentController: EnvironmentController, private eventStream: EventStream) {
+    constructor(
+        context: ExtensionContext,
+        platformInfo: PlatformInformation,
+        private environmentController: EnvironmentController,
+        private eventStream: EventStream,
+        private telemetryReporter: TelemetryReporter
+    ) {
         let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
         let buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === platformInfo.rid);
         let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
@@ -45,7 +51,7 @@ export class BuildExecutor {
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
-        if (docsTelemetryReporter.telemetryEnabled) {
+        if (this.telemetryReporter.getUserOptIn()) {
             envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this.environmentController.env];
         }
 

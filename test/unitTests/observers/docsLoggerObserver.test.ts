@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, CredentialRetrievedFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
@@ -42,17 +42,17 @@ describe('DocsLoggerObserver', () => {
             let expectedOutput = `Failed to sign-in to Docs Build: Faked error msg\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
-    });
 
-    it(`CredentialRetrieveFromLocalCredentialManager`, () => {
-        let event = new CredentialRetrievedFromLocalCredentialManager(fakedCredential);
-        observer.eventHandler(event);
-
-        let expectedOutput = `Successfully retrieved user credential from Local Credential Manager:\n`
-            + `    - GitHub Account: Faked User\n`
-            + `    - User email    : fake@microsoft.com\n`
-            + `\n`;
-        assert.equal(loggerText, expectedOutput);
+        it(`CredentialRetrieveFromLocalCredentialManager`, () => {
+            let event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true);
+            observer.eventHandler(event);
+    
+            let expectedOutput = `Successfully retrieved user credential from Local Credential Manager:\n`
+                + `    - GitHub Account: Faked User\n`
+                + `    - User email    : fake@microsoft.com\n`
+                + `\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
     });
 
     describe('UserSignOutCompleted', () => {

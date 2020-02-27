@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { CredentialController } from './credential/credentialController';
-import { uriHandler } from './shared';
+import { uriHandler, EXTENSION_ID } from './shared';
 import { PlatformInformation } from './common/platformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
 import { SignStatusBarObserver } from './observers/signStatusBarObserver';
@@ -17,10 +17,12 @@ import { DocsEnvironmentController } from './common/docsEnvironmentController';
 import { BuildStatusBarObserver } from './observers/buildStatusBarObserver';
 import { CodeActionProvider } from './codeAction/codeActionProvider';
 import { ExtensionContext } from './extensionContext';
+import config from './config';
+import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
 import { QuickPickTriggered, QuickPickCommandSelected } from './common/loggingEvents';
-import { DocsTelemetryReporter, docsTelemetryReporter } from './docsTelemetryReporter';
+import TelemetryReporter from './telemetryReporter';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -29,7 +31,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const platformInformation = await PlatformInformation.getCurrent();
 
     // Telemetry
-    const telemetryReporter = DocsTelemetryReporter.getTelemetryReporter(extensionContext, environmentController);
+    const telemetryReporter = getTelemetryReporter(extensionContext, environmentController);
     const telemetryObserver = new TelemetryObserver(telemetryReporter);
     eventStream.subscribe(telemetryObserver.eventHandler);
 
@@ -56,7 +58,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let credentialController = new CredentialController(keyChain, eventStream, environmentController);
     eventStream.subscribe(credentialController.eventHandler);
     // Initialize credential
-    let credentialInitialPromise = credentialController.initialize();
+    let credentialInitialPromise = credentialController.initialize(getCorrelationId());
 
     // Sign Status bar
     let signStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);
@@ -65,7 +67,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     // Build component initialize
     let diagnosticController = new DiagnosticController();
-    let buildController = new BuildController(extensionContext, environmentController, platformInformation, diagnosticController, eventStream);
+    let buildController = new BuildController(extensionContext, environmentController, platformInformation, telemetryReporter, diagnosticController, eventStream);
 
     // Build status bar
     let buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
@@ -77,7 +79,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     context.subscriptions.push(
         outputChannel,
         telemetryReporter,
-        docsTelemetryReporter,
         diagnosticController,
         signStatusBar,
         buildStatusBar,
@@ -105,6 +106,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         eventStream,
         keyChain
     };
+}
+
+function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController) {
+    let key = config.AIKey[environmentController.env];
+    return new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
 }
 
 function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController) {

@@ -154,6 +154,7 @@
     "@types/request": "^2.48.4",
     "@types/uuid": "^3.4.7",
     "@types/yauzl": "^2.9.1",
+    "applicationinsights": "^1.7.2",
     "arch": "^2.1.1",
     "du": "^1.0.0",
     "fs-extra": "^8.1.0",
@@ -165,7 +166,6 @@
     "rxjs": "^6.5.3",
     "simple-git": "^1.129.0",
     "uuid": "^3.4.0",
-    "vscode-extension-telemetry": "^0.1.2",
     "yauzl": "^2.10.0"
   },
   "runtimeDependencies": [

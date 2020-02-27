@@ -1,10 +1,10 @@
 import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted } from '../common/loggingEvents';
-import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
 import { DocsError } from '../error/docsError';
 import { BuildType } from '../build/buildInput';
 import { DocfxExecutionResult } from '../build/buildResult';
+import TelemetryReporter from '../telemetryReporter';
 
 export class TelemetryObserver {
     constructor(private reporter: TelemetryReporter) { }
@@ -40,7 +40,7 @@ export class TelemetryObserver {
                 break;
             case EventType.PackageInstallCompleted:
                 this.handlePackageInstallCompleted(<PackageInstallCompleted>event);
-                break;  
+                break;
             // TODO: Send Metric for event PackageInstallAttemptFailed
             // Depends on this PR: https://github.com/microsoft/vscode-extension-telemetry/pull/42
             case EventType.QuickPickTriggered:
@@ -84,6 +84,7 @@ export class TelemetryObserver {
             {
                 CorrelationId: event.correlationId,
                 Result: event.succeeded ? 'Succeeded' : 'Failed',
+                RetrievedFromCache: event.retrievedFromCache.toString(),
                 SignInType: signInType,
                 UserName: userName,
                 UserEmail: userEmail,
@@ -91,6 +92,7 @@ export class TelemetryObserver {
             }
         );
     }
+
     private handleUserSignOutTriggered(event: UserSignOutTriggered) {
         this.reporter.sendTelemetryEvent(
             'SignOut.Triggered',

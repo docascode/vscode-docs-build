@@ -2,7 +2,6 @@ export enum EventType {
     // Sign
     CredentialExpired,
     CredentialInitializing,
-    CredentialRetrievedFromLocalCredentialManager,
     CredentialReset,
     UserSignInTriggered,
     UserSignInProgress,
