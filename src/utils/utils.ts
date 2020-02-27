@@ -4,7 +4,7 @@ import gitUrlParse from 'git-url-parse';
 import simpleGit from 'simple-git/promise';
 import uuid from 'uuid/v1';
 import du from 'du';
-import { DocsRepoType } from '../shared'
+import { DocsRepoType } from '../shared';
 
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {
