@@ -8,6 +8,7 @@ import { Credential } from '../../src/credential/credentialController';
 export function getFakeEnvironmentController(): EnvironmentController {
     return {
         env: 'PROD',
+        docsRepoType: 'GitHub'
     };
 }
 
