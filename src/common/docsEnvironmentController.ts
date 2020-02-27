@@ -8,10 +8,11 @@ import { getRepositoryInfoFromLocalFolder } from '../utils/utils';
 const ENVIRONMENT_CONFIG_NAME = 'environment';
 
 export class DocsEnvironmentController implements EnvironmentController, vscode.Disposable {
+
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
     private environment: Environment;
-    private docsRepoType: DocsRepoType;
     private configurationChangeListener: vscode.Disposable;
+    private _docsRepoType: DocsRepoType;
 
     constructor(private eventStream: EventStream) {
     }
@@ -36,7 +37,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     public get docsRepoType(): DocsRepoType {
-        return this.docsRepoType;
+        return this._docsRepoType;
     }
 
     private getEnv(): Environment {
@@ -54,10 +55,10 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
         let newDocsRepoType = await this.getDocsRepoType();
 
         if((this.environment && this.environment !== newEnv) ||
-           (this.docsRepoType && this.docsRepoType !== newDocsRepoType)) {
+           (this._docsRepoType && this._docsRepoType !== newDocsRepoType)) {
             this.eventStream.post(new EnvironmentChanged(newEnv, newDocsRepoType));
         }
         this.environment = newEnv;
-        this.docsRepoType = newDocsRepoType;
+        this._docsRepoType = newDocsRepoType;
     }
 }
