@@ -11,9 +11,8 @@ import vscode from 'vscode';
 import * as appInsights from 'applicationinsights';
 
 export default class TelemetryReporter {
-    public userOptIn: boolean = false;
-
     private appInsightsClient: appInsights.TelemetryClient | undefined;
+    private userOptIn: boolean = false;
     private readonly configListener: vscode.Disposable;
 
     private static TELEMETRY_CONFIG_ID = 'telemetry';
@@ -99,6 +98,10 @@ export default class TelemetryReporter {
             ...commonProperties,
             ...this.customCommonProperties
         };
+    }
+
+    public getUserOptIn() {
+        return this.userOptIn;
     }
 
     public setCommonProperty(properties: { [key: string]: string }) {
