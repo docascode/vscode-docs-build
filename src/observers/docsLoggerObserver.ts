@@ -1,5 +1,5 @@
 import { OutputChannel } from 'vscode';
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, CredentialRetrieveFromLocalCredentialManager, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildCompleted, CancelBuildFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocfxExecutionResult } from '../build/buildResult';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
@@ -54,6 +54,9 @@ export class DocsLoggerObserver {
                 break;
             case EventType.DocfxBuildCompleted:
                 this.handleDocfxBuildCompleted(<DocfxBuildCompleted>event);
+                break;
+            case EventType.CancelBuildCompleted:
+                this.handleCancelBuildCompleted(<CancelBuildCompleted>event);
                 break;
             // API
             case EventType.APICallStarted:
@@ -211,6 +214,13 @@ export class DocsLoggerObserver {
                 break;
         }
         this.appendLine();
+    }
+
+    private handleCancelBuildCompleted(event: CancelBuildCompleted) {
+        if (!event.succeeded) {
+            this.appendLine(`Failed to cancel the current build: ${(<CancelBuildFailed>event).err.message}`);
+            this.appendLine();
+        }
     }
 
     // API

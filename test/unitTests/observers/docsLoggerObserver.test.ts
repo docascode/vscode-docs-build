@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, CredentialRetrieveFromLocalCredentialManager, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { Credential } from '../../../src/credential/credentialController';
 import { PlatformInformation } from '../../../src/common/platformInformation';
@@ -222,6 +222,14 @@ describe('DocsLoggerObserver', () => {
             let expectedOutput = `'docfx build' command has been canceled\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
+    });
+
+    it(`Cancel Build failed`, () => {
+        let event = new CancelBuildFailed('fakedcorrelationId', 'fakedBuildCorrealtionId', new Error('Faked error message'));
+        observer.eventHandler(event);
+
+        let expectedOutput = `Failed to cancel the current build: Faked error message\n\n`;
+        assert.equal(loggerText, expectedOutput);
     });
 
     // API

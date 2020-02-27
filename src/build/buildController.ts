@@ -11,7 +11,7 @@ import { BuildExecutor } from './buildExecutor';
 import { PlatformInformation } from '../common/platformInformation';
 import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
-import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled } from '../common/loggingEvents';
+import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed } from '../common/loggingEvents';
 import { ExtensionContext } from '../extensionContext';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
@@ -20,9 +20,11 @@ import { DocfxExecutionResult } from './buildResult';
 
 export class BuildController {
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
-    private instantAvailable: boolean;
     private opBuildAPIClient: OPBuildAPIClient;
     private buildExecutor: BuildExecutor;
+    private currentBuildCorrelationId: string;
+
+    public instantAvailable: boolean;
 
     constructor(
         context: ExtensionContext,
@@ -43,6 +45,7 @@ export class BuildController {
         let start = Date.now();
 
         try {
+            buildInput = await this.getBuildInput(uri, credential);
             this.setAvailableFlag();
         } catch (err) {
             this.eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
@@ -50,8 +53,7 @@ export class BuildController {
         }
 
         try {
-            buildInput = await this.getBuildInput(uri, credential);
-
+            this.currentBuildCorrelationId = correlationId;
             this.eventStream.post(new BuildStarted(this.activeWorkSpaceFolder.name));
             let buildResult = await this.buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
@@ -71,11 +73,24 @@ export class BuildController {
             this.eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
         }
         finally {
+            this.currentBuildCorrelationId = undefined;
             this.resetAvailableFlag();
         }
 
         function getTotalTimeInSeconds() {
             return getDurationInSeconds(Date.now() - start);
+        }
+    }
+
+    public cancelBuild(correlationId: string): void {
+        try {
+            this.eventStream.post(new CancelBuildTriggered(correlationId));
+            if (!this.instantAvailable) {
+                this.buildExecutor.cancelBuild();
+            }
+            this.eventStream.post(new CancelBuildSucceeded(correlationId, this.currentBuildCorrelationId));
+        } catch (err) {
+            this.eventStream.post(new CancelBuildFailed(correlationId, this.currentBuildCorrelationId, err));
         }
     }
 
