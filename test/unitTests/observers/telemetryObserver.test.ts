@@ -1,13 +1,12 @@
 import assert from 'assert';
 import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
-import TelemetryReporter from 'vscode-extension-telemetry';
-import { Credential } from '../../../src/credential/credentialController';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
-import { fakedPackage } from '../../utils/faker';
+import { fakedPackage, fakedCredential } from '../../utils/faker';
+import TelemetryReporter from '../../../src/telemetryReporter';
 
 describe('TelemetryObserver', () => {
     let observer: TelemetryObserver;
@@ -50,20 +49,13 @@ describe('TelemetryObserver', () => {
 
     describe(`UserSignInCompleted: 'SignIn.Completed' event should be sent`, () => {
         it('UserSignInSucceeded', () => {
-            let event = new UserSignInSucceeded('fakedCorrelationId', <Credential>{
-                signInStatus: 'SignedIn',
-                userInfo: {
-                    signType: 'GitHub',
-                    userEmail: 'fake@microsoft.com',
-                    userName: 'Faked User',
-                    userToken: 'faked-token'
-                }
-            });
+            let event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential);
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignIn.Completed');
             assert.deepStrictEqual(sentEventProperties, {
                 CorrelationId: 'fakedCorrelationId',
                 Result: 'Succeeded',
+                RetrievedFromCache: 'false',
                 SignInType: "GitHub",
                 UserName: 'Faked User',
                 UserEmail: 'fake@microsoft.com',
@@ -78,10 +70,26 @@ describe('TelemetryObserver', () => {
             assert.deepStrictEqual(sentEventProperties, {
                 CorrelationId: 'fakedCorrelationId',
                 Result: 'Failed',
+                RetrievedFromCache: 'false',
                 SignInType: undefined,
                 UserName: undefined,
                 UserEmail: undefined,
                 ErrorCode: 'GitHubSignInFailed',
+            });
+        });
+
+        it('CredentialRetrieveFromLocalCredentialManager', () => {
+            let event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true);
+            observer.eventHandler(event);
+            assert.equal(sentEventName, 'SignIn.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
+                CorrelationId: 'fakedCorrelationId',
+                Result: 'Succeeded',
+                RetrievedFromCache: 'true',
+                SignInType: "GitHub",
+                UserName: 'Faked User',
+                UserEmail: 'fake@microsoft.com',
+                ErrorCode: undefined
             });
         });
     });
@@ -171,7 +179,7 @@ describe('TelemetryObserver', () => {
             assert.equal(sentEventName, 'BuildCacheSize');
             assert.deepStrictEqual(sentEventProperties, {
                 CorrelationId: 'FakedCorrelationId',
-                });
+            });
             assert.deepEqual(sentEventMeasurements, {
                 SizeInMB: 20,
             });

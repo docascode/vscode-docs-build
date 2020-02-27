@@ -18,12 +18,12 @@ export class UserSignInTriggered implements BaseEvent {
 
 export class UserSignInCompleted implements BaseEvent {
     type = EventType.UserSignInCompleted;
-    constructor(public correlationId: string, public succeeded: boolean) { }
+    constructor(public correlationId: string, public succeeded: boolean, public retrievedFromCache: boolean = false) { }
 }
 
 export class UserSignInSucceeded extends UserSignInCompleted {
-    constructor(public correlationId: string, public credential: Credential) {
-        super(correlationId, true);
+    constructor(public correlationId: string, public credential: Credential, public retrievedFromCache: boolean = false) {
+        super(correlationId, true, retrievedFromCache);
     }
 }
 
@@ -58,11 +58,6 @@ export class UserSignOutFailed extends UserSignOutCompleted {
 export class UserSignInProgress implements BaseEvent {
     type = EventType.UserSignInProgress;
     constructor(public message: string, public tag?: string) { }
-}
-
-export class CredentialRetrieveFromLocalCredentialManager implements BaseEvent {
-    type = EventType.CredentialRetrieveFromLocalCredentialManager;
-    constructor(public credential: Credential) { }
 }
 
 export class CredentialReset implements BaseEvent {

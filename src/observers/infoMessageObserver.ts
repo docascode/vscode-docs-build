@@ -6,7 +6,8 @@ export class InfoMessageObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.UserSignInCompleted:
-                if ((<UserSignInCompleted>event).succeeded) {
+                let asUserSignInCompleted = <UserSignInCompleted>event;
+                if (asUserSignInCompleted.succeeded && !asUserSignInCompleted.retrievedFromCache) {
                     this.showInfoMessage('Successfully Sign-in!', new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
                 }
                 break;

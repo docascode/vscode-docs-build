@@ -1,5 +1,4 @@
 import vscode from 'vscode';
-import TelemetryReporter from 'vscode-extension-telemetry';
 import { CredentialController } from './credential/credentialController';
 import { uriHandler, EXTENSION_ID } from './shared';
 import { PlatformInformation } from './common/platformInformation';
@@ -23,6 +22,7 @@ import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
 import { QuickPickTriggered, QuickPickCommandSelected } from './common/loggingEvents';
+import TelemetryReporter from './telemetryReporter';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -58,7 +58,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let credentialController = new CredentialController(keyChain, eventStream, environmentController);
     eventStream.subscribe(credentialController.eventHandler);
     // Initialize credential
-    let credentialInitialPromise = credentialController.initialize();
+    let credentialInitialPromise = credentialController.initialize(getCorrelationId());
 
     // Sign Status bar
     let signStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);

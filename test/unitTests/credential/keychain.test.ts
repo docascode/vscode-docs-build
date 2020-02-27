@@ -1,7 +1,6 @@
 import assert from 'assert';
 import { KeyChain, Keytar } from '../../../src/credential/keyChain';
-import { UserInfo } from '../../../src/shared';
-import { getFakeEnvironmentController, setEnvToPROD, setEnvToPPE } from '../../utils/faker';
+import { getFakeEnvironmentController, setEnvToPROD, setEnvToPPE, fakedCredential } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
 
 class MockKeytar implements Keytar {
@@ -34,15 +33,9 @@ describe('KeyChain', () => {
 
     it('setUserInfo gets tokens set by setToken with the same environment', async () => {
         setEnvToPROD(environmentController);
-        let expectedUserInfo = <UserInfo>{
-            signType: 'GitHub',
-            userEmail: 'fake@microsoft.com',
-            userName: 'Fake User',
-            userToken: 'fake-token'
-        };
-        await keyChain.setUserInfo(expectedUserInfo);
+        await keyChain.setUserInfo(fakedCredential.userInfo);
         let userInfo = await keyChain.getUserInfo();
-        assert.deepStrictEqual(userInfo, expectedUserInfo);
+        assert.deepStrictEqual(userInfo, fakedCredential.userInfo);
 
         // Mock PPE environment
         setEnvToPPE(environmentController);
@@ -53,15 +46,9 @@ describe('KeyChain', () => {
     });
 
     it('setUserInfo no longer returns removed tokens', async () => {
-        let expectedUserInfo = <UserInfo>{
-            signType: 'GitHub',
-            userEmail: 'fake@microsoft.com',
-            userName: 'Fake User',
-            userToken: 'fake-token'
-        };
-        await keyChain.setUserInfo(expectedUserInfo);
+        await keyChain.setUserInfo(fakedCredential.userInfo);
         let userInfo = await keyChain.getUserInfo();
-        assert.deepStrictEqual(userInfo, expectedUserInfo);
+        assert.deepStrictEqual(userInfo, fakedCredential.userInfo);
 
         await keyChain.resetUserInfo();
         userInfo = await keyChain.getUserInfo();

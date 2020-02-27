@@ -1,13 +1,14 @@
 import fs from 'fs-extra';
 import path from 'path';
 import vscode from 'vscode';
-import { ensureExtensionActivatedAndInitializationFinished, setupAvailableMockKeyChain, triggerCommand } from "../utils/testHelper";
+import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from "../utils/testHelper";
 import { BaseEvent, RefreshCredential, DocfxRestoreCompleted, DocfxBuildCompleted, BuildCompleted } from "../../src/common/loggingEvents";
 import { createSandbox } from 'sinon';
 import { EventType } from "../../src/common/eventType";
 import converter from 'number-to-words';
 import { formatDuration, getRepositoryInfoFromLocalFolder } from "../../src/utils/utils";
-import { ReportItem, BenchmarkReport } from "../../src/shared";
+import { ReportItem, BenchmarkReport, UserInfo } from "../../src/shared";
+import { setupKeyChain } from '../utils/faker';
 
 const testRound = 3;
 
@@ -36,7 +37,7 @@ export function run(): Promise<void> {
 
         let subscription = eventStream.subscribe((event: BaseEvent) => {
             switch (event.type) {
-                case EventType.CredentialRetrieveFromLocalCredentialManager:
+                case EventType.UserSignInCompleted:
                     console.log(`Trigger build to restore all the dependency...`);
                     triggerBuild();
                     break;
@@ -62,10 +63,22 @@ export function run(): Promise<void> {
         });
 
         // Prepare
-        setupAvailableMockKeyChain(sinon, keyChain);
+        setupAvailableKeyChain();
 
         // Refresh the credential, after credential refreshed, trigger the build
         eventStream.post(new RefreshCredential());
+
+        function setupAvailableKeyChain() {
+            if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
+                console.error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN" from environment variable');
+            }
+            setupKeyChain(sinon, keyChain, <UserInfo>{
+                signType: 'GitHub',
+                userName: 'VSC-Service-Account',
+                userEmail: 'vscavu@microsoft.com',
+                userToken: process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN
+            });
+        }
 
         function triggerBuild() {
             restoreDuration = 0;
