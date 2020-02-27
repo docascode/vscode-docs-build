@@ -27,7 +27,7 @@ import TelemetryReporter from './telemetryReporter';
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
     const extensionContext = new ExtensionContext(context);
-    const environmentController = new DocsEnvironmentController(eventStream);
+    const environmentController = await DocsEnvironmentController.CreateAsync(eventStream);
     const platformInformation = await PlatformInformation.getCurrent();
 
     // Telemetry
