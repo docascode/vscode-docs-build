@@ -1,10 +1,10 @@
 import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted } from '../common/loggingEvents';
-import TelemetryReporter from 'vscode-extension-telemetry';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
 import { DocsError } from '../error/docsError';
 import { BuildType } from '../build/buildInput';
 import { DocfxExecutionResult } from '../build/buildResult';
+import TelemetryReporter from '../telemetryReporter';
 
 export class TelemetryObserver {
     constructor(private reporter: TelemetryReporter) { }
