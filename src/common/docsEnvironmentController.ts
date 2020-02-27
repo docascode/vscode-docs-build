@@ -11,10 +11,11 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
 
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
     private environment: Environment;
-    private configurationChangeListener: vscode.Disposable;
     private _docsRepoType: DocsRepoType;
+    private configurationChangeListener: vscode.Disposable;
 
     constructor(private eventStream: EventStream) {
+        this.activeWorkSpaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
     }
 
     public static async CreateAsync(eventStream: EventStream): Promise<DocsEnvironmentController> {
@@ -46,8 +47,11 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     private async getDocsRepoType(): Promise<DocsRepoType> {
-        const [docsRepoType] = await getRepositoryInfoFromLocalFolder(this.activeWorkSpaceFolder.uri.fsPath);
-        return docsRepoType;
+        if (this.activeWorkSpaceFolder) {
+            const [docsRepoType] = await getRepositoryInfoFromLocalFolder(this.activeWorkSpaceFolder.uri.fsPath);
+            return docsRepoType;
+        }
+        return 'GitHub';
     }
 
     private async refreshEnv(): Promise<void> {
