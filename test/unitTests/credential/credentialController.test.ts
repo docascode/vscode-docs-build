@@ -61,7 +61,7 @@ describe('CredentialController', () => {
             isResetUserInfoCalled = true;
             return;
         });
-    }
+    };
 
     before(() => init('GitHub'));
 
