@@ -109,5 +109,5 @@ export async function killGrandChildProcess(pid: number, signal?: string | numbe
                 resolve();
             }
         });
-    })
+    });
 }
