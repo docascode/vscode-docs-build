@@ -2,13 +2,13 @@ import { EnvironmentController } from '../../src/common/environmentController';
 import { AbsolutePathPackage } from '../../src/dependency/package';
 import { SinonSandbox } from 'sinon';
 import { KeyChain } from '../../src/credential/keyChain';
-import { UserInfo } from '../../src/shared';
+import { UserInfo, DocsRepoType } from '../../src/shared';
 import { Credential } from '../../src/credential/credentialController';
 
-export function getFakeEnvironmentController(): EnvironmentController {
+export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHub'): EnvironmentController {
     return {
         env: 'PROD',
-        docsRepoType: 'GitHub'
+        docsRepoType: docsRepoType || 'GitHub'
     };
 }
 

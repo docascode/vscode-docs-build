@@ -7,7 +7,7 @@ import { KeyChain } from '../../../src/credential/keyChain';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
-import { UserInfo, uriHandler } from '../../../src/shared';
+import { UserInfo, uriHandler, DocsRepoType } from '../../../src/shared';
 import { getFakeEnvironmentController, setupKeyChain, fakedCredential } from '../../utils/faker';
 import extensionConfig from '../../../src/config';
 import { DocsError } from '../../../src/error/docsError';
@@ -17,7 +17,13 @@ import { TimeOutError } from '../../../src/error/timeOutError';
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'ceapex.docs-build',
     path: '/github-authenticate',
-    query: 'name=Fake-User&email=fake@microsoft.com&X-OP-BuildUserToken=fake-token'
+    query: 'name=Fake-User-GitHub&email=fake-github@microsoft.com&X-OP-BuildUserToken=fake-github-token'
+};
+
+const fakedAzureDevOpsCallbackURL = <vscode.Uri>{
+    authority: 'ceapex.docs-build',
+    path: '/azure-devops-authenticate',
+    query: 'name=Fake-User-Azure-DevOps&email=fake-azure-devops@microsoft.com&X-OP-BuildUserToken=fake-azure-devops-token'
 };
 
 describe('CredentialController', () => {
@@ -38,9 +44,9 @@ describe('CredentialController', () => {
     let isResetUserInfoCalled: boolean;
     let isCredentialControllerInitializeCalled: boolean;
 
-    before(() => {
+    const init = (docsRepoType: DocsRepoType) => {
         eventStream = new EventStream();
-        environmentController = getFakeEnvironmentController();
+        environmentController = getFakeEnvironmentController(docsRepoType);
         keyChain = new KeyChain(environmentController);
         credentialController = new CredentialController(keyChain, eventStream, environmentController);
         testEventBus = new TestEventBus(eventStream);
@@ -55,7 +61,9 @@ describe('CredentialController', () => {
             isResetUserInfoCalled = true;
             return;
         });
-    });
+    }
+
+    before(() => init('GitHub'));
 
     beforeEach(() => {
         isSetUserInfoCalled = false;
@@ -149,7 +157,7 @@ describe('CredentialController', () => {
         });
     });
 
-    describe(`User Sign-in`, () => {
+    describe(`User Sign-in With GitHub`, () => {
         it(`Sign-in successfully`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
@@ -170,9 +178,9 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             let expectedUserInfo = <UserInfo>{
                 signType: 'GitHub',
-                userEmail: 'fake@microsoft.com',
-                userName: 'Fake-User',
-                userToken: 'fake-token'
+                userEmail: 'fake-github@microsoft.com',
+                userName: 'Fake-User-GitHub',
+                userToken: 'fake-github-token'
             };
             let expectedCredential = <Credential>{
                 signInStatus: 'SignedIn',
@@ -228,6 +236,93 @@ describe('CredentialController', () => {
                 new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
                 new CredentialReset(),
                 new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with GitHub Failed: Time out`, ErrorCode.GitHubSignInTimeOut, new TimeOutError('Time out'))),
+            ]);
+        });
+    });
+
+    
+
+    describe(`User Sign-in With Azure-DevOps`, () => {
+        before(() => init('Azure-DevOps'));
+
+        it(`Sign-in successfully`, async () => {
+            // Prepare
+            stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
+                function (target: vscode.Uri): Thenable<boolean> {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            uriHandler.handleUri(fakedAzureDevOpsCallbackURL);
+                        }, 10);
+                        resolve(true);
+                    });
+                }
+            );
+
+            // act
+            await credentialController.signIn('fakedCorrelationId');
+
+            // Assert
+            let credential = credentialController.credential;
+            let expectedUserInfo = <UserInfo>{
+                signType: 'Azure-DevOps',
+                userEmail: 'fake-azure-devops@microsoft.com',
+                userName: 'Fake-User-Azure-DevOps',
+                userToken: 'fake-azure-devops-token'
+            };
+            let expectedCredential = <Credential>{
+                signInStatus: 'SignedIn',
+                userInfo: expectedUserInfo
+            };
+            assert.deepStrictEqual(credential, expectedCredential);
+            assert.equal(isSetUserInfoCalled, true);
+            assert.deepStrictEqual(setUserInfo, expectedUserInfo);
+            assert.deepStrictEqual(testEventBus.getEvents(), [
+                new CredentialReset(),
+                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInProgress(`Sign-in to docs build with Azure-DevOps account...`, 'Sign-in'),
+                new UserSignInSucceeded('fakedCorrelationId', expectedCredential)
+            ]);
+        });
+
+        it(`Sign-in with Azure-DevOps failed`, async () => {
+            // Prepare
+            stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(false);
+
+            // Act
+            await credentialController.signIn('fakedCorrelationId');
+
+            // Assert
+            let credential = credentialController.credential;
+            AssertCredentialReset(credential);
+            assert.deepStrictEqual(testEventBus.getEvents(), [
+                new CredentialReset(),
+                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInProgress(`Sign-in to docs build with Azure-DevOps account...`, 'Sign-in'),
+                new CredentialReset(),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with Azure-DevOps Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined)),
+            ]);
+        });
+
+        it(`Sign-in with Azure-DevOps time out`, async () => {
+            // Prepare
+            // Mock sign-in timeout config to 200ms.
+            stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
+                return 200;
+            });
+            stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(true);
+
+            // Act
+            await credentialController.signIn('fakedCorrelationId');
+
+            // Assert
+            let credential = credentialController.credential;
+            AssertCredentialReset(credential);
+            assert.deepStrictEqual(testEventBus.getEvents(), [
+                new CredentialReset(),
+                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInProgress(`Sign-in to docs build with Azure-DevOps account...`, 'Sign-in'),
+                new CredentialReset(),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with Azure-DevOps Failed: Time out`, ErrorCode.AzureDevOpsSignInTimeOut, new TimeOutError('Time out'))),
             ]);
         });
     });
