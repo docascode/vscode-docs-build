@@ -48,8 +48,12 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
 
     private async getDocsRepoType(): Promise<DocsRepoType> {
         if (this.activeWorkSpaceFolder) {
-            const [docsRepoType] = await getRepositoryInfoFromLocalFolder(this.activeWorkSpaceFolder.uri.fsPath);
-            return docsRepoType;
+            try {
+                const [docsRepoType] = await getRepositoryInfoFromLocalFolder(this.activeWorkSpaceFolder.uri.fsPath);
+                return docsRepoType;
+            } catch {
+                return 'GitHub';
+            }
         }
         return 'GitHub';
     }
