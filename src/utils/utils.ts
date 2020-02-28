@@ -57,7 +57,7 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
 
 function normalizeRemoteUrl(url: string): [DocsRepoType, string] {
     const repository = gitUrlParse(url);
-    const docsRepoType = repository.resource.startsWith('github.com') ? 'GitHub' : 'Azure DevOps';
+    const docsRepoType = repository.resource.startsWith('github.com') ? 'GitHub' : 'Azure-DevOps';
     return [docsRepoType, `https://${repository.resource}/${repository.full_name}`];
 }
 
