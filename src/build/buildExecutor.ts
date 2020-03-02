@@ -52,6 +52,7 @@ export class BuildExecutor {
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
         if (this.telemetryReporter.getUserOptIn()) {
+            // TODO: docfx need to support more common properties, e.g. if it is local build or server build
             envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this.environmentController.env];
         }
 
