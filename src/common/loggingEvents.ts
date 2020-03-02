@@ -124,18 +124,18 @@ export class CancelBuildTriggered implements BaseEvent {
 
 export class CancelBuildCompleted implements BaseEvent {
     type = EventType.CancelBuildCompleted;
-    constructor(public correlationId: string, public succeeded: boolean, public buildCorrelationId: string) { }
+    constructor(public correlationId: string, public succeeded: boolean) { }
 }
 
 export class CancelBuildSucceeded extends CancelBuildCompleted {
-    constructor(public correlationId: string, public buildCorrelationId: string){
-        super(correlationId, true, buildCorrelationId);
+    constructor(public correlationId: string){
+        super(correlationId, true);
     }
 }
 
 export class CancelBuildFailed extends CancelBuildCompleted {
-    constructor(public correlationId: string, public buildCorrelationId: string, public err?: Error){
-        super(correlationId, false, buildCorrelationId);
+    constructor(public correlationId: string, public err?: Error){
+        super(correlationId, false);
     }
 }
 

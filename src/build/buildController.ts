@@ -84,15 +84,15 @@ export class BuildController {
         }
     }
 
-    public cancelBuild(correlationId: string): void {
-        try {
-            this.eventStream.post(new CancelBuildTriggered(correlationId));
-            if (!this.instantAvailable) {
+    public cancelBuild(): void {
+        if (!this.instantAvailable) {
+            try {
+                this.eventStream.post(new CancelBuildTriggered(this.currentBuildCorrelationId));
                 this.buildExecutor.cancelBuild();
+                this.eventStream.post(new CancelBuildSucceeded(this.currentBuildCorrelationId));
+            } catch (err) {
+                this.eventStream.post(new CancelBuildFailed(this.currentBuildCorrelationId, err));
             }
-            this.eventStream.post(new CancelBuildSucceeded(correlationId, this.currentBuildCorrelationId));
-        } catch (err) {
-            this.eventStream.post(new CancelBuildFailed(correlationId, this.currentBuildCorrelationId, err));
         }
     }
 

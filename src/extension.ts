@@ -89,7 +89,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.build', (uri) => {
             buildController.build(getCorrelationId(), uri, credentialController.credential);
         }),
-        vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild(getCorrelationId())),
+        vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
         vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
             CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
@@ -166,7 +166,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                     buildController.build(getCorrelationId(), undefined, credentialController.credential);
                     break;
                 case 'Cancel Build':
-                    buildController.cancelBuild(getCorrelationId());
+                    buildController.cancelBuild();
                     break;
             }
             quickPickMenu.hide();

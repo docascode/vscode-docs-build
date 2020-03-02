@@ -208,7 +208,7 @@ describe('DocsLoggerObserver', () => {
     });
 
     it(`Cancel Build failed`, () => {
-        let event = new CancelBuildFailed('fakedcorrelationId', 'fakedBuildCorrealtionId', new Error('Faked error message'));
+        let event = new CancelBuildFailed('fakedcorrelationId', new Error('Faked error message'));
         observer.eventHandler(event);
 
         let expectedOutput = `Failed to cancel the current build: Faked error message\n\n`;
