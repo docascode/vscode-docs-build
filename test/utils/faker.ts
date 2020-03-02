@@ -38,6 +38,7 @@ export const fakedCredential = <Credential>{
     signInStatus: 'SignedIn',
     userInfo: {
         signType: 'GitHub',
+        userId: 'faked-id',
         userEmail: 'fake@microsoft.com',
         userName: 'Faked User',
         userToken: 'faked-token'

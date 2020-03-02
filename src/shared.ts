@@ -30,6 +30,7 @@ export type DocsRepoType = 'GitHub' | 'Azure DevOps';
 
 export interface UserInfo {
     readonly signType: DocsRepoType;
+    readonly userId: string;
     readonly userName: string;
     readonly userEmail: string;
     readonly userToken: string;

@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocsRepoType } from '../shared';
 import { DocsError } from '../error/docsError';
@@ -11,6 +11,7 @@ export class TelemetryObserver {
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
+            // Sign
             case EventType.UserSignInTriggered:
                 this.handleUserSignInTriggered(<UserSignInTriggered>event);
                 break;
@@ -23,6 +24,10 @@ export class TelemetryObserver {
             case EventType.UserSignOutCompleted:
                 this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
                 break;
+            case EventType.CredentialReset:
+                this.handleCredentialReset();
+                break;
+            // Build
             case EventType.BuildTriggered:
                 this.handleBuildTriggered(<BuildTriggered>event);
                 break;
@@ -41,8 +46,9 @@ export class TelemetryObserver {
             case EventType.PackageInstallCompleted:
                 this.handlePackageInstallCompleted(<PackageInstallCompleted>event);
                 break;
-            // TODO: Send Metric for event PackageInstallAttemptFailed
-            // Depends on this PR: https://github.com/microsoft/vscode-extension-telemetry/pull/42
+            case EventType.PackageInstallAttemptFailed:
+                this.handlePackageInstallAttemptFailed(<PackageInstallAttemptFailed>event);
+                break;
             case EventType.QuickPickTriggered:
                 this.handleQuickPickTriggered(<QuickPickTriggered>event);
                 break;
@@ -59,7 +65,6 @@ export class TelemetryObserver {
     private handleUserSignInTriggered(event: UserSignInTriggered) {
         this.reporter.sendTelemetryEvent(
             'SignIn.Triggered',
-
             {
                 CorrelationId: event.correlationId
             }
@@ -67,6 +72,13 @@ export class TelemetryObserver {
     }
 
     private handleUserSignInCompleted(event: UserSignInCompleted) {
+        // Set telemetry common property
+        if (event.succeeded) {
+            this.reporter.setCommonProperty({
+                'common.docsUserId': (<UserSignInSucceeded>event).credential.userInfo.userId
+            });
+        }
+
         let signInType: DocsRepoType;
         let userName: string;
         let userEmail: string;
@@ -91,6 +103,12 @@ export class TelemetryObserver {
                 ErrorCode: errorCode
             }
         );
+    }
+
+    private handleCredentialReset() {
+        this.reporter.setCommonProperty({
+            'common.docsUserId': undefined
+        });
     }
 
     private handleUserSignOutTriggered(event: UserSignOutTriggered) {
@@ -211,6 +229,18 @@ export class TelemetryObserver {
             {
                 RetryCount: event.retryCount,
                 ElapsedTimeInSeconds: event.elapsedTimeInSeconds
+            }
+        );
+    }
+
+    private handlePackageInstallAttemptFailed(event: PackageInstallAttemptFailed){
+        this.reporter.sendTelemetryMetric(
+            'InstallDependency.Package.Error',
+            1,
+            {
+                CorrelationId: event.correlationId,
+                PackageId: event.installedPackage.id,
+                ErrorCode: this.getErrorCode(event.err)
             }
         );
     }
