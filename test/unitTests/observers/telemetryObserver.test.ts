@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, PackageInstallAttemptFailed, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
@@ -11,6 +11,9 @@ import TelemetryReporter from '../../../src/telemetryReporter';
 describe('TelemetryObserver', () => {
     let observer: TelemetryObserver;
 
+    let sentMetricName: string;
+    let sentMetricValue: number;
+    let sentMetricProperties: any;
     let sentEventName: string;
     let sentEventProperties: any;
     let sentEventMeasurements: any;
@@ -24,6 +27,15 @@ describe('TelemetryObserver', () => {
             sentEventName = eventName;
             sentEventProperties = properties;
             sentEventMeasurements = measurements;
+        },
+        sendTelemetryMetric(
+            metricName: string,
+            value: number,
+            properties?: { [key: string]: string }
+        ): void {
+            sentMetricName = metricName;
+            sentMetricProperties = properties;
+            sentMetricValue = value;
         }
     };
 
@@ -32,6 +44,9 @@ describe('TelemetryObserver', () => {
     });
 
     beforeEach(() => {
+        sentMetricName = undefined;
+        sentMetricProperties = undefined;
+        sentMetricValue = undefined;
         sentEventName = undefined;
         sentEventProperties = undefined;
         sentEventMeasurements = undefined;
@@ -311,6 +326,18 @@ describe('TelemetryObserver', () => {
                 RetryCount: 2,
                 ElapsedTimeInSeconds: 10
             });
+        });
+    });
+
+    it(`PackageInstallAttemptFailed: 'InstallDependency.Package.Error' metric should be sent`, () => {
+        let event = new PackageInstallAttemptFailed('fakedCorrelationId', fakedPackage, 1, new DocsError('Faked error msg', ErrorCode.CheckIntegrityFailed));
+        observer.eventHandler(event);
+        assert.equal(sentMetricName, 'InstallDependency.Package.Error');
+        assert.equal(sentMetricValue, 1);
+        assert.deepStrictEqual(sentMetricProperties, {
+            CorrelationId: 'fakedCorrelationId',
+            PackageId: 'faked-id',
+            ErrorCode: 'CheckIntegrityFailed'
         });
     });
 
