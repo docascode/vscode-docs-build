@@ -1,7 +1,7 @@
 import { EventType } from './eventType';
 import { Credential } from '../credential/credentialController';
 import { PlatformInformation } from './platformInformation';
-import { Environment, DocsRepoType } from '../shared';
+import { Environment } from '../shared';
 import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { BuildInput } from '../build/buildInput';
 import { AbsolutePathPackage } from '../dependency/package';
@@ -214,7 +214,7 @@ export class PlatformInfoRetrieved implements BaseEvent {
 // Others
 export class EnvironmentChanged implements BaseEvent {
     type = EventType.EnvironmentChanged;
-    constructor(public env: Environment, public docsRepoType: DocsRepoType) { }
+    constructor(public env: Environment) { }
 }
 
 export class QuickPickTriggered implements BaseEvent {

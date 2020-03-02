@@ -64,7 +64,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
 
         if((this.environment && this.environment !== newEnv) ||
            (this._docsRepoType && this._docsRepoType !== newDocsRepoType)) {
-            this.eventStream.post(new EnvironmentChanged(newEnv, newDocsRepoType));
+            this.eventStream.post(new EnvironmentChanged(newEnv));
         }
         this.environment = newEnv;
         this._docsRepoType = newDocsRepoType;

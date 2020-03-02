@@ -92,7 +92,7 @@ describe('CredentialController', () => {
     }
 
     [
-        new EnvironmentChanged('PPE', 'GitHub')
+        new EnvironmentChanged('PPE')
     ].forEach((event: BaseEvent) => {
         describe(`Observer[${event.constructor.name}]: Credential should be refreshed`, () => {
             beforeEach(() => {
