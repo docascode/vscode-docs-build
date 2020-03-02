@@ -26,7 +26,7 @@ export const OP_CONFIG_FILE_NAME = '.openpublishing.publish.config.json';
 // OAuth
 export type DocsSignInStatus = 'Initializing' | 'SigningIn' | 'SignedIn' | 'SignedOut';
 
-export type DocsRepoType = 'GitHub' | 'Azure-DevOps';
+export type DocsRepoType = 'GitHub' | 'Azure DevOps';
 
 export interface UserInfo {
     readonly signType: DocsRepoType;
