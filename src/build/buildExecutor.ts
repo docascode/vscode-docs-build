@@ -14,6 +14,8 @@ import { ExtensionContext } from '../extensionContext';
 import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
 import { OUTPUT_FOLDER_NAME } from '../shared';
+import config from '../config';
+import TelemetryReporter from '../telemetryReporter';
 
 export class BuildExecutor {
     private cwd: string;
@@ -21,7 +23,13 @@ export class BuildExecutor {
     private runningChildProcess: ChildProcess;
     private static skipRestore: boolean = false;
 
-    constructor(context: ExtensionContext, private platformInfo: PlatformInformation, private environmentController: EnvironmentController, private eventStream: EventStream) {
+    constructor(
+        context: ExtensionContext,
+        private platformInfo: PlatformInformation,
+        private environmentController: EnvironmentController,
+        private eventStream: EventStream,
+        private telemetryReporter: TelemetryReporter
+    ) {
         let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
         let buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === this.platformInfo.rid);
         let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
@@ -38,10 +46,15 @@ export class BuildExecutor {
         let outputPath = path.join(input.localRepositoryPath, OUTPUT_FOLDER_NAME);
         fs.emptyDirSync(outputPath);
 
-        let envs = {
+        let envs: any = {
+            'DOCFX_CORRELATION_ID': correlationId,
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this.environmentController.env
         };
+        if (this.telemetryReporter.getUserOptIn()) {
+            // TODO: docfx need to support more common properties, e.g. if it is local build or server build
+            envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this.environmentController.env];
+        }
 
         if (!BuildExecutor.skipRestore) {
             let restoreStart = Date.now();
