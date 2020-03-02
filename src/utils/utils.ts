@@ -100,7 +100,7 @@ export async function getFolderSizeInMB(folderPath: string): Promise<number> {
     return size;
 }
 
-export async function killGrandChildProcess(pid: number, signal?: string | number) {
+export async function killProcessTree(pid: number, signal?: string | number) {
     return new Promise((resolve, reject) => {
         signal = signal || 'SIGKILL';
         psTree(pid, function (err, children: psTree.PS[]) {

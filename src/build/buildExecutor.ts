@@ -9,7 +9,7 @@ import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxResto
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
-import { basicAuth, getDurationInSeconds, getFolderSizeInMB, killGrandChildProcess } from '../utils/utils';
+import { basicAuth, getDurationInSeconds, getFolderSizeInMB, killProcessTree } from '../utils/utils';
 import { ExtensionContext } from '../extensionContext';
 import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
@@ -83,7 +83,7 @@ export class BuildExecutor {
             if (this.platformInfo.isWindows()) {
                 // For Windows, grand child process will still keep running even parent process has been killed.
                 // So we need to kill them manually
-                await killGrandChildProcess(this.runningChildProcess.pid);
+                await killProcessTree(this.runningChildProcess.pid);
             }
         }
     }

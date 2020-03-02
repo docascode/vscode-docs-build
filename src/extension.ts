@@ -137,7 +137,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                 description: 'Sign-out from Docs Build',
                 picked: true
             });
-        if (buildController.instantAvailable) {
+        if (buildController.instanceAvailable) {
             pickItems.push(
                 {
                     label: 'Build',

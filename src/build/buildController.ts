@@ -25,7 +25,7 @@ export class BuildController {
     private buildExecutor: BuildExecutor;
     private currentBuildCorrelationId: string;
 
-    public instantAvailable: boolean;
+    public instanceAvailable: boolean;
 
     constructor(
         context: ExtensionContext,
@@ -35,7 +35,7 @@ export class BuildController {
         private diagnosticController: DiagnosticController,
         private eventStream: EventStream,
     ) {
-        this.instantAvailable = true;
+        this.instanceAvailable = true;
 
         this.opBuildAPIClient = new OPBuildAPIClient(environmentController);
         this.buildExecutor = new BuildExecutor(context, platformInformation, environmentController, eventStream, telemetryReporter);
@@ -85,7 +85,7 @@ export class BuildController {
     }
 
     public cancelBuild(): void {
-        if (!this.instantAvailable) {
+        if (!this.instanceAvailable) {
             try {
                 this.eventStream.post(new CancelBuildTriggered(this.currentBuildCorrelationId));
                 this.buildExecutor.cancelBuild();
@@ -97,15 +97,15 @@ export class BuildController {
     }
 
     private setAvailableFlag() {
-        if (!this.instantAvailable) {
+        if (!this.instanceAvailable) {
             throw new DocsError('Last build has not finished.', ErrorCode.TriggerBuildWhenInstantNotAvailable);
         }
-        this.instantAvailable = false;
+        this.instanceAvailable = false;
         this.eventStream.post(new BuildInstantAllocated());
     }
 
     private resetAvailableFlag() {
-        this.instantAvailable = true;
+        this.instanceAvailable = true;
         this.eventStream.post(new BuildInstantReleased());
     }
 
