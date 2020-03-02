@@ -17,7 +17,7 @@ import { TimeOutError } from '../../../src/error/timeOutError';
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'ceapex.docs-build',
     path: '/github-authenticate',
-    query: 'name=Fake-User&email=fake@microsoft.com&X-OP-BuildUserToken=fake-token'
+    query: 'id=faked-id&name=Fake-User&email=fake@microsoft.com&X-OP-BuildUserToken=fake-token'
 };
 
 describe('CredentialController', () => {
@@ -170,6 +170,7 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             let expectedUserInfo = <UserInfo>{
                 signType: 'GitHub',
+                userId: 'faked-id',
                 userEmail: 'fake@microsoft.com',
                 userName: 'Fake-User',
                 userToken: 'fake-token'

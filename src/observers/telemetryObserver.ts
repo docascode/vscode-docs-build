@@ -11,6 +11,7 @@ export class TelemetryObserver {
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
+            // Sign
             case EventType.UserSignInTriggered:
                 this.handleUserSignInTriggered(<UserSignInTriggered>event);
                 break;
@@ -23,6 +24,10 @@ export class TelemetryObserver {
             case EventType.UserSignOutCompleted:
                 this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
                 break;
+            case EventType.CredentialReset:
+                this.handleCredentialReset();
+                break;
+            // Build
             case EventType.BuildTriggered:
                 this.handleBuildTriggered(<BuildTriggered>event);
                 break;
@@ -60,7 +65,6 @@ export class TelemetryObserver {
     private handleUserSignInTriggered(event: UserSignInTriggered) {
         this.reporter.sendTelemetryEvent(
             'SignIn.Triggered',
-
             {
                 CorrelationId: event.correlationId
             }
@@ -68,6 +72,14 @@ export class TelemetryObserver {
     }
 
     private handleUserSignInCompleted(event: UserSignInCompleted) {
+        // Set telemetry common property
+        if (event.succeeded) {
+            this.reporter.setCommonProperty({
+                'common.docsUserId': (<UserSignInSucceeded>event).credential.userInfo.userId
+            });
+        }
+
+        // Send telemetry
         let signInType: DocsSignInType;
         let userName: string;
         let userEmail: string;
@@ -92,6 +104,12 @@ export class TelemetryObserver {
                 ErrorCode: errorCode
             }
         );
+    }
+
+    private handleCredentialReset() {
+        this.reporter.setCommonProperty({
+            'common.docsUserId': undefined
+        });
     }
 
     private handleUserSignOutTriggered(event: UserSignOutTriggered) {
