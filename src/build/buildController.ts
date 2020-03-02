@@ -17,6 +17,7 @@ import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
+import TelemetryReporter from '../telemetryReporter';
 
 export class BuildController {
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
@@ -28,13 +29,14 @@ export class BuildController {
         context: ExtensionContext,
         environmentController: EnvironmentController,
         platformInformation: PlatformInformation,
+        telemetryReporter: TelemetryReporter,
         private diagnosticController: DiagnosticController,
         private eventStream: EventStream,
     ) {
         this.instantAvailable = true;
 
         this.opBuildAPIClient = new OPBuildAPIClient(environmentController);
-        this.buildExecutor = new BuildExecutor(context, platformInformation, environmentController, eventStream);
+        this.buildExecutor = new BuildExecutor(context, platformInformation, environmentController, eventStream, telemetryReporter);
     }
 
     public async build(correlationId: string, uri: vscode.Uri, credential: Credential): Promise<void> {

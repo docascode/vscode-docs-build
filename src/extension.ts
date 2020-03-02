@@ -67,7 +67,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     // Build component initialize
     let diagnosticController = new DiagnosticController();
-    let buildController = new BuildController(extensionContext, environmentController, platformInformation, diagnosticController, eventStream);
+    let buildController = new BuildController(extensionContext, environmentController, platformInformation, telemetryReporter, diagnosticController, eventStream);
 
     // Build status bar
     let buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
@@ -108,9 +108,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     };
 }
 
-function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController) {
+function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController): TelemetryReporter {
     let key = config.AIKey[environmentController.env];
-    return new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
+    let telemetryReporter = new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
+    telemetryReporter.setCommonProperty({
+        'common.docsUserId': undefined
+    });
+    return telemetryReporter;
 }
 
 function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController) {

@@ -17,13 +17,13 @@ import { TimeOutError } from '../../../src/error/timeOutError';
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'ceapex.docs-build',
     path: '/github-authenticate',
-    query: 'name=Fake-User-GitHub&email=fake-github@microsoft.com&X-OP-BuildUserToken=fake-github-token'
+    query: 'id=faked-github-id&name=Fake-User-GitHub&email=fake-github@microsoft.com&X-OP-BuildUserToken=fake-github-token'
 };
 
 const fakedAzureDevOpsCallbackURL = <vscode.Uri>{
     authority: 'ceapex.docs-build',
     path: '/azure-devops-authenticate',
-    query: 'name=Fake-User-Azure-DevOps&email=fake-azure-devops@microsoft.com&X-OP-BuildUserToken=fake-azure-devops-token'
+    query: 'id=faked-azure-devops-id&name=Fake-User-Azure-DevOps&email=fake-azure-devops@microsoft.com&X-OP-BuildUserToken=fake-azure-devops-token'
 };
 
 describe('CredentialController', () => {
@@ -178,6 +178,7 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             let expectedUserInfo = <UserInfo>{
                 signType: 'GitHub',
+                userId: 'faked-github-id',
                 userEmail: 'fake-github@microsoft.com',
                 userName: 'Fake-User-GitHub',
                 userToken: 'fake-github-token'
@@ -265,6 +266,7 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             let expectedUserInfo = <UserInfo>{
                 signType: 'Azure-DevOps',
+                userId: 'faked-azure-devops-id',
                 userEmail: 'fake-azure-devops@microsoft.com',
                 userName: 'Fake-User-Azure-DevOps',
                 userToken: 'fake-azure-devops-token'

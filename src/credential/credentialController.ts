@@ -157,6 +157,7 @@ export class CredentialController {
                     const query = parseQuery(uri);
 
                     resolve({
+                        userId: query.id,
                         userName: query.name,
                         userEmail: query.email,
                         userToken: query['X-OP-BuildUserToken'],
@@ -177,7 +178,7 @@ export class CredentialController {
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/azure-devops-authenticate`));
         const azureDevOpsQuery = querystring.stringify({
             client_id: authConfig.AzureDevOpsOauthClientId,
-            redirect_uri: `${authConfig.AzureDevOpsRedirectUrl}`, // TODO: queryresponsemode not working currently
+            redirect_uri: `${authConfig.AzureDevOpsRedirectUrl}/${querystring.stringify({response_mode : "query"})}`,
             scope: authConfig.AzureDevOpsOauthScope,
             response_type: 'Assertion',
             // Note: `vscode.Uri.toString` by default encode = into %3D, skip this encode here.
@@ -199,6 +200,7 @@ export class CredentialController {
                     const query = parseQuery(uri);
 
                     resolve({
+                        userId: query.id,
                         userName: query.name,
                         userEmail: query.email,
                         userToken: query['X-OP-BuildUserToken'],
