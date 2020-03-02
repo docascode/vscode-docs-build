@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, PackageInstallAttemptFailed, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, PackageInstallAttemptFailed, CredentialReset, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
@@ -17,8 +17,12 @@ describe('TelemetryObserver', () => {
     let sentEventName: string;
     let sentEventProperties: any;
     let sentEventMeasurements: any;
+    let commonProperty: { [key: string]: string };
 
     let telemetryReporter = <TelemetryReporter>{
+        setCommonProperty(properties: { [key: string]: string }): void {
+            commonProperty = properties;
+        },
         sendTelemetryEvent(eventName: string, properties?: {
             [key: string]: string;
         }, measurements?: {
@@ -50,6 +54,8 @@ describe('TelemetryObserver', () => {
         sentEventName = undefined;
         sentEventProperties = undefined;
         sentEventMeasurements = undefined;
+
+        commonProperty = {};
     });
 
     // Sign
@@ -75,6 +81,9 @@ describe('TelemetryObserver', () => {
                 UserName: 'Faked User',
                 UserEmail: 'fake@microsoft.com',
                 ErrorCode: undefined,
+            });
+            assert.deepStrictEqual(commonProperty, {
+                'common.docsUserId': 'faked-id'
             });
         });
 
@@ -106,6 +115,20 @@ describe('TelemetryObserver', () => {
                 UserEmail: 'fake@microsoft.com',
                 ErrorCode: undefined
             });
+            assert.deepStrictEqual(commonProperty, {
+                'common.docsUserId': 'faked-id'
+            });
+        });
+    });
+
+    it(`UserSignOutTriggered: 'SignOut.Triggered' event should be sent`, () => {
+        let event = new CredentialReset();
+        commonProperty = {
+            'common.docsUserId': 'faked-id'
+        };
+        observer.eventHandler(event);
+        assert.deepStrictEqual(commonProperty, {
+            'common.docsUserId': undefined
         });
     });
 

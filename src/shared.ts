@@ -30,6 +30,7 @@ export type DocsSignInType = 'GitHub' | 'Azure DevOps';
 
 export interface UserInfo {
     readonly signType: DocsSignInType;
+    readonly userId: string;
     readonly userName: string;
     readonly userEmail: string;
     readonly userToken: string;

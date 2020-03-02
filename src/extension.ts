@@ -108,9 +108,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     };
 }
 
-function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController) {
+function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController): TelemetryReporter {
     let key = config.AIKey[environmentController.env];
-    return new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
+    let telemetryReporter = new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
+    telemetryReporter.setCommonProperty({
+        'common.docsUserId': undefined
+    });
+    return telemetryReporter;
 }
 
 function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController) {
