@@ -244,7 +244,7 @@ describe('CredentialController', () => {
     
 
     describe(`User Sign-in With Azure-DevOps`, () => {
-        before(() => init('Azure-DevOps'));
+        before(() => init('Azure DevOps'));
 
         it(`Sign-in successfully`, async () => {
             // Prepare
@@ -265,7 +265,7 @@ describe('CredentialController', () => {
             // Assert
             let credential = credentialController.credential;
             let expectedUserInfo = <UserInfo>{
-                signType: 'Azure-DevOps',
+                signType: 'Azure DevOps',
                 userId: 'faked-azure-devops-id',
                 userEmail: 'fake-azure-devops@microsoft.com',
                 userName: 'Fake-User-Azure-DevOps',
