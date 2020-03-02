@@ -1,6 +1,6 @@
 import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
-import { DocsSignInType } from '../shared';
+import { DocsRepoType } from '../shared';
 import { DocsError } from '../error/docsError';
 import { BuildType } from '../build/buildInput';
 import { DocfxExecutionResult } from '../build/buildResult';
@@ -79,8 +79,7 @@ export class TelemetryObserver {
             });
         }
 
-        // Send telemetry
-        let signInType: DocsSignInType;
+        let signInType: DocsRepoType;
         let userName: string;
         let userEmail: string;
         let errorCode: string;

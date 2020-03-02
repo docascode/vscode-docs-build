@@ -18,7 +18,11 @@
 		],
 		"no-switch-case-fall-through": true,
 		"no-null-keyword": true,
-		"variable-name": true
+		"variable-name": {
+			"options": [
+				"allow-leading-underscore"
+			]
+		}
 	},
 	"rulesDirectory": [
 		"tslint-microsoft-contrib"
