@@ -5,6 +5,7 @@ import simpleGit from 'simple-git/promise';
 import uuid from 'uuid/v1';
 import du from 'du';
 import psTree from 'ps-tree';
+import { DocsRepoType } from '../shared';
 
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {
@@ -31,7 +32,7 @@ export function safelyReadJsonFile(filePath: string) {
     return JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }).replace(/^\uFEFF/, '').replace(/\u00A0/g, ' '));
 }
 
-export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): Promise<string[]> {
+export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): Promise<[DocsRepoType, string, string, string]> {
     if (!fs.existsSync(repositoryPath)) {
         throw new Error(`Path(${repositoryPath}) is not existed on the current machine`);
     }
@@ -50,12 +51,15 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
 
     let commit = await repository.revparse(['HEAD']);
 
-    return [normalizeRemoteUrl(remote), branch, commit];
+    const [docsRepoType, normalizedRepositoryUrl] = normalizeRemoteUrl(remote);
+
+    return [docsRepoType, normalizedRepositoryUrl, branch, commit];
 }
 
-function normalizeRemoteUrl(url: string): string {
+function normalizeRemoteUrl(url: string): [DocsRepoType, string] {
     const repository = gitUrlParse(url);
-    return `https://${repository.resource}/${repository.full_name}`;
+    const docsRepoType = repository.resource.startsWith('github.com') ? 'GitHub' : 'Azure DevOps';
+    return [docsRepoType, `https://${repository.resource}/${repository.full_name}`];
 }
 
 export function basicAuth(token: string) {

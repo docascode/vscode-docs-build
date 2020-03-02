@@ -24,7 +24,7 @@ export function run(): Promise<void> {
         let buildDuration = 0;
         let totalDuration = 0;
         let workspace = vscode.workspace.workspaceFolders[0];
-        let [url, branch, commit] = await getRepositoryInfoFromLocalFolder(workspace.uri.fsPath);
+        let [, url, branch, commit] = await getRepositoryInfoFromLocalFolder(workspace.uri.fsPath);
         let report = <BenchmarkReport>{
             name: workspace.name,
             url,

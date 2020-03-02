@@ -187,7 +187,7 @@ export class BuildController {
 
         let localRepositoryUrl: string;
         try {
-            [localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
+            [, localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
         } catch (err) {
             throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
         }

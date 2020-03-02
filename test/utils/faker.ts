@@ -8,6 +8,7 @@ import { Credential } from '../../src/credential/credentialController';
 export function getFakeEnvironmentController(): EnvironmentController {
     return {
         env: 'PROD',
+        docsRepoType: 'GitHub'
     };
 }
 
@@ -37,6 +38,7 @@ export const fakedCredential = <Credential>{
     signInStatus: 'SignedIn',
     userInfo: {
         signType: 'GitHub',
+        userId: 'faked-id',
         userEmail: 'fake@microsoft.com',
         userName: 'Faked User',
         userToken: 'faked-token'

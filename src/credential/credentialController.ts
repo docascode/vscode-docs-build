@@ -151,6 +151,7 @@ export class CredentialController {
                     const query = parseQuery(uri);
 
                     resolve({
+                        userId: query.id,
                         userName: query.name,
                         userEmail: query.email,
                         userToken: query['X-OP-BuildUserToken'],
