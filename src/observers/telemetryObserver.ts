@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocsSignInType } from '../shared';
 import { DocsError } from '../error/docsError';
@@ -41,8 +41,9 @@ export class TelemetryObserver {
             case EventType.PackageInstallCompleted:
                 this.handlePackageInstallCompleted(<PackageInstallCompleted>event);
                 break;
-            // TODO: Send Metric for event PackageInstallAttemptFailed
-            // Depends on this PR: https://github.com/microsoft/vscode-extension-telemetry/pull/42
+            case EventType.PackageInstallAttemptFailed:
+                this.handlePackageInstallAttemptFailed(<PackageInstallAttemptFailed>event);
+                break;
             case EventType.QuickPickTriggered:
                 this.handleQuickPickTriggered(<QuickPickTriggered>event);
                 break;
@@ -211,6 +212,18 @@ export class TelemetryObserver {
             {
                 RetryCount: event.retryCount,
                 ElapsedTimeInSeconds: event.elapsedTimeInSeconds
+            }
+        );
+    }
+
+    private handlePackageInstallAttemptFailed(event: PackageInstallAttemptFailed){
+        this.reporter.sendTelemetryMetric(
+            'InstallDependency.Package.Error',
+            1,
+            {
+                CorrelationId: event.correlationId,
+                PackageId: event.installedPackage.id,
+                ErrorCode: this.getErrorCode(event.err)
             }
         );
     }
