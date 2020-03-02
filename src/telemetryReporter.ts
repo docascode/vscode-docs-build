@@ -100,7 +100,7 @@ export default class TelemetryReporter {
         };
     }
 
-    public getUserOptIn() {
+    public getUserOptIn(): boolean {
         return this.userOptIn;
     }
 
