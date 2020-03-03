@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, PackageInstallAttemptFailed, CredentialReset, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, PackageInstallAttemptFailed, CredentialReset, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
@@ -208,21 +208,6 @@ describe('TelemetryObserver', () => {
             });
         });
 
-        it('BuildCacheCalculated', () => {
-            let event = new BuildCacheSizeCalculated(
-                'FakedCorrelationId',
-                20);
-            observer.eventHandler(event);
-
-            assert.equal(sentEventName, 'BuildCacheSize');
-            assert.deepStrictEqual(sentEventProperties, {
-                CorrelationId: 'FakedCorrelationId',
-            });
-            assert.deepEqual(sentEventMeasurements, {
-                SizeInMB: 20,
-            });
-        });
-
         it('BuildFailed', () => {
             let event = new BuildFailed(
                 'FakedCorrelationId',
@@ -279,6 +264,55 @@ describe('TelemetryObserver', () => {
                 TotalTimeInSeconds: 10,
                 RestoreTimeInSeconds: undefined,
                 BuildTimeInSeconds: undefined
+            });
+        });
+    });
+
+    it('BuildCacheCalculated', () => {
+        let event = new BuildCacheSizeCalculated(
+            'FakedCorrelationId',
+            20);
+        observer.eventHandler(event);
+
+        assert.equal(sentEventName, 'BuildCacheSize');
+        assert.deepStrictEqual(sentEventProperties, {
+            CorrelationId: 'FakedCorrelationId',
+        });
+        assert.deepEqual(sentEventMeasurements, {
+            SizeInMB: 20,
+        });
+    });
+
+    it('BuildCacheCalculated', () => {
+        let event = new CancelBuildTriggered('FakedCorrelationId');
+        observer.eventHandler(event);
+
+        assert.equal(sentEventName, 'CancelBuild.Triggered');
+        assert.deepStrictEqual(sentEventProperties, {
+            CorrelationId: 'FakedCorrelationId',
+        });
+    });
+
+    describe('CancelBuildCompleted', ()=> {
+        it('CancelBuildSucceeded', () => {
+            let event = new CancelBuildSucceeded('FakedCorrelationId');
+            observer.eventHandler(event);
+    
+            assert.equal(sentEventName, 'CancelBuild.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
+                CorrelationId: 'FakedCorrelationId',
+                Result: 'Succeeded'
+            });
+        });
+
+        it('CancelBuildFailed', () => {
+            let event = new CancelBuildFailed('FakedCorrelationId');
+            observer.eventHandler(event);
+    
+            assert.equal(sentEventName, 'CancelBuild.Completed');
+            assert.deepStrictEqual(sentEventProperties, {
+                CorrelationId: 'FakedCorrelationId',
+                Result: 'Failed'
             });
         });
     });
