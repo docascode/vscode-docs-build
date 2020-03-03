@@ -11,7 +11,7 @@ import { BuildExecutor } from './buildExecutor';
 import { PlatformInformation } from '../common/platformInformation';
 import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
-import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled } from '../common/loggingEvents';
+import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed } from '../common/loggingEvents';
 import { ExtensionContext } from '../extensionContext';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
@@ -21,9 +21,11 @@ import TelemetryReporter from '../telemetryReporter';
 
 export class BuildController {
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
-    private instantAvailable: boolean;
     private opBuildAPIClient: OPBuildAPIClient;
     private buildExecutor: BuildExecutor;
+    private currentBuildCorrelationId: string;
+
+    public instanceAvailable: boolean;
 
     constructor(
         context: ExtensionContext,
@@ -33,7 +35,7 @@ export class BuildController {
         private diagnosticController: DiagnosticController,
         private eventStream: EventStream,
     ) {
-        this.instantAvailable = true;
+        this.instanceAvailable = true;
 
         this.opBuildAPIClient = new OPBuildAPIClient(environmentController);
         this.buildExecutor = new BuildExecutor(context, platformInformation, environmentController, eventStream, telemetryReporter);
@@ -45,6 +47,7 @@ export class BuildController {
         let start = Date.now();
 
         try {
+            buildInput = await this.getBuildInput(uri, credential);
             this.setAvailableFlag();
         } catch (err) {
             this.eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
@@ -52,8 +55,7 @@ export class BuildController {
         }
 
         try {
-            buildInput = await this.getBuildInput(uri, credential);
-
+            this.currentBuildCorrelationId = correlationId;
             this.eventStream.post(new BuildStarted(this.activeWorkSpaceFolder.name));
             let buildResult = await this.buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
@@ -73,6 +75,7 @@ export class BuildController {
             this.eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
         }
         finally {
+            this.currentBuildCorrelationId = undefined;
             this.resetAvailableFlag();
         }
 
@@ -81,16 +84,28 @@ export class BuildController {
         }
     }
 
+    public cancelBuild(): void {
+        if (!this.instanceAvailable) {
+            try {
+                this.eventStream.post(new CancelBuildTriggered(this.currentBuildCorrelationId));
+                this.buildExecutor.cancelBuild();
+                this.eventStream.post(new CancelBuildSucceeded(this.currentBuildCorrelationId));
+            } catch (err) {
+                this.eventStream.post(new CancelBuildFailed(this.currentBuildCorrelationId, err));
+            }
+        }
+    }
+
     private setAvailableFlag() {
-        if (!this.instantAvailable) {
+        if (!this.instanceAvailable) {
             throw new DocsError('Last build has not finished.', ErrorCode.TriggerBuildWhenInstantNotAvailable);
         }
-        this.instantAvailable = false;
+        this.instanceAvailable = false;
         this.eventStream.post(new BuildInstantAllocated());
     }
 
     private resetAvailableFlag() {
-        this.instantAvailable = true;
+        this.instanceAvailable = true;
         this.eventStream.post(new BuildInstantReleased());
     }
 

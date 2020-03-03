@@ -4,6 +4,7 @@ import gitUrlParse from 'git-url-parse';
 import simpleGit from 'simple-git/promise';
 import uuid from 'uuid/v1';
 import du from 'du';
+import psTree from 'ps-tree';
 import { DocsRepoType } from '../shared';
 
 export function parseQuery(uri: vscode.Uri) {
@@ -97,4 +98,20 @@ export async function getFolderSizeInMB(folderPath: string): Promise<number> {
 
     let size = Math.floor(await du(folderPath) / 1024 / 1024);
     return size;
+}
+
+export async function killProcessTree(pid: number, signal?: string | number) {
+    return new Promise((resolve, reject) => {
+        signal = signal || 'SIGKILL';
+        psTree(pid, function (err, children: psTree.PS[]) {
+            if (err) {
+                reject(err);
+            } else {
+                children.forEach((ps: psTree.PS) => {
+                    process.kill(Number(ps.PID), signal);
+                });
+                resolve();
+            }
+        });
+    });
 }

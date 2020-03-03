@@ -89,6 +89,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('docs.build', (uri) => {
             buildController.build(getCorrelationId(), uri, credentialController.credential);
         }),
+        vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
         vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
             CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
@@ -121,27 +122,36 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     eventStream.post(new QuickPickTriggered(correlationId));
     const quickPickMenu = vscode.window.createQuickPick();
     const currentSignInStatus = credentialController.credential.signInStatus;
+    let pickItems: vscode.QuickPickItem[] = [];
     if (currentSignInStatus === 'SignedOut') {
-        quickPickMenu.items = <vscode.QuickPickItem[]>[
+        pickItems.push(
             {
                 label: 'Sign-in',
                 description: 'Sign-in to Docs Build',
                 picked: true
-            },
-        ];
+            });
     } else if (currentSignInStatus === 'SignedIn') {
-        quickPickMenu.items = <vscode.QuickPickItem[]>[
+        pickItems.push(
             {
                 label: 'Sign-out',
                 description: 'Sign-out from Docs Build',
                 picked: true
-            },
-            {
-                label: 'Build',
-                description: 'Trigger a build'
-            }
-        ];
+            });
+        if (buildController.instanceAvailable) {
+            pickItems.push(
+                {
+                    label: 'Build',
+                    description: 'Trigger a build'
+                });
+        } else {
+            pickItems.push(
+                {
+                    label: 'Cancel Build',
+                    description: 'Cancel the current build'
+                });
+        }
     }
+    quickPickMenu.items = pickItems;
     quickPickMenu.onDidChangeSelection(selection => {
         if (selection[0]) {
             eventStream.post(new QuickPickCommandSelected(correlationId, selection[0].label));
@@ -154,6 +164,9 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                     break;
                 case 'Build':
                     buildController.build(getCorrelationId(), undefined, credentialController.credential);
+                    break;
+                case 'Cancel Build':
+                    buildController.cancelBuild();
                     break;
             }
             quickPickMenu.hide();
