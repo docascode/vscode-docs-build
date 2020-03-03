@@ -175,10 +175,11 @@ export class CredentialController {
 
     private async signInWithAzureDevOps(): Promise<UserInfo | null> {
         const authConfig = extensionConfig.auth[this.environmentController.env];
-        const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/azure-devops-authenticate`));
+        const callbackUri = await vscode.env.asExternalUri(
+            vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/azure-devops-authenticate?${querystring.stringify({response_mode : "query"})}`));
         const azureDevOpsQuery = querystring.stringify({
             client_id: authConfig.AzureDevOpsOauthClientId,
-            redirect_uri: `${authConfig.AzureDevOpsRedirectUrl}?${querystring.stringify({response_mode : "query"})}`,
+            redirect_uri: `${authConfig.AzureDevOpsRedirectUrl}`,
             scope: authConfig.AzureDevOpsOauthScope,
             response_type: 'Assertion',
             // Note: `vscode.Uri.toString` by default encode = into %3D, skip this encode here.
