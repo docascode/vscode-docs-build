@@ -44,9 +44,9 @@ describe('CredentialController', () => {
     let isResetUserInfoCalled: boolean;
     let isCredentialControllerInitializeCalled: boolean;
 
-    const init = (docsRepoType: DocsRepoType) => {
+    before(() => {
         eventStream = new EventStream();
-        environmentController = getFakeEnvironmentController(docsRepoType);
+        environmentController = getFakeEnvironmentController('GitHub');
         keyChain = new KeyChain(environmentController);
         credentialController = new CredentialController(keyChain, eventStream, environmentController);
         testEventBus = new TestEventBus(eventStream);
@@ -61,9 +61,7 @@ describe('CredentialController', () => {
             isResetUserInfoCalled = true;
             return;
         });
-    };
-
-    before(() => init('GitHub'));
+    });
 
     beforeEach(() => {
         isSetUserInfoCalled = false;
@@ -241,10 +239,25 @@ describe('CredentialController', () => {
         });
     });
 
-    
+
 
     describe(`User Sign-in With Azure-DevOps`, () => {
-        before(() => init('Azure DevOps'));
+        before(() => {
+            environmentController = getFakeEnvironmentController('Azure DevOps');
+            keyChain = new KeyChain(environmentController);keyChain = new KeyChain(environmentController);
+            credentialController = new CredentialController(keyChain, eventStream, environmentController);
+
+            sinon.reset();
+            sinon.stub(keyChain, 'setUserInfo').callsFake(function (userInfo: UserInfo): Promise<void> {
+                isSetUserInfoCalled = true;
+                setUserInfo = userInfo;
+                return;
+            });
+            sinon.stub(keyChain, 'resetUserInfo').callsFake(function (): Promise<void> {
+                isResetUserInfoCalled = true;
+                return;
+            });
+        });
 
         it(`Sign-in successfully`, async () => {
             // Prepare
