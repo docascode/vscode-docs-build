@@ -109,10 +109,12 @@ export default class TelemetryReporter {
             ...this.customCommonProperties,
             ...properties
         };
-        this.appInsightsClient.commonProperties = {
-            ...this.appInsightsClient.commonProperties,
-            ...properties
-        };
+        if (this.appInsightsClient) {
+            this.appInsightsClient.commonProperties = {
+                ...this.appInsightsClient.commonProperties,
+                ...properties
+            };
+        }
     }
 
     public sendTelemetryEvent(eventName: string, properties?: { [key: string]: string }, measurements?: { [key: string]: number }): void {
