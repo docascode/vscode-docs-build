@@ -117,6 +117,28 @@ export class BuildCanceled extends BuildCompleted {
     constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number) { super(correlationId, DocfxExecutionResult.Canceled, buildInput, totalTimeInSeconds); }
 }
 
+export class CancelBuildTriggered implements BaseEvent {
+    type = EventType.CancelBuildTriggered;
+    constructor(public correlationId: string) { }
+}
+
+export class CancelBuildCompleted implements BaseEvent {
+    type = EventType.CancelBuildCompleted;
+    constructor(public correlationId: string, public succeeded: boolean) { }
+}
+
+export class CancelBuildSucceeded extends CancelBuildCompleted {
+    constructor(public correlationId: string){
+        super(correlationId, true);
+    }
+}
+
+export class CancelBuildFailed extends CancelBuildCompleted {
+    constructor(public correlationId: string, public err?: Error){
+        super(correlationId, false);
+    }
+}
+
 export class BuildProgress implements BaseEvent {
     type = EventType.BuildProgress;
     constructor(public message: string) { }
