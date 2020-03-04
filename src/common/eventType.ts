@@ -21,6 +21,9 @@ export enum EventType {
     BuildProgress,
     BuildCompleted,
 
+    CancelBuildTriggered,
+    CancelBuildCompleted,
+
     DocfxRestoreStarted,
     DocfxRestoreCompleted,
     DocfxBuildStarted,

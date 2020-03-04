@@ -72,6 +72,11 @@
       {
         "command": "docs.validationQuickPick",
         "title": "Docs Validation menu"
+      },
+      {
+        "command": "docs.cancelBuild",
+        "title": "Cancel the build",
+        "category": "Docs"
       }
     ],
     "keybindings": [
@@ -151,6 +156,7 @@
     "@types/git-url-parse": "^9.0.0",
     "@types/keytar": "^4.4.0",
     "@types/mkdirp": "^0.5.2",
+    "@types/ps-tree": "^1.1.0",
     "@types/request": "^2.48.4",
     "@types/uuid": "^3.4.7",
     "@types/yauzl": "^2.9.1",
@@ -161,6 +167,7 @@
     "git-url-parse": "^11.1.2",
     "mkdirp": "^0.5.1",
     "ms-rest-azure": "^3.0.0",
+    "ps-tree": "^1.2.0",
     "querystring": "^0.2.0",
     "request": "^2.88.0",
     "rxjs": "^6.5.3",

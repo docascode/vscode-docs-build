@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildTriggered, CancelBuildCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocsRepoType } from '../shared';
 import { DocsError } from '../error/docsError';
@@ -36,6 +36,12 @@ export class TelemetryObserver {
                 break;
             case EventType.BuildCacheSizeCalculated:
                 this.handleBuildCacheSize(<BuildCacheSizeCalculated>event);
+                break;
+            case EventType.CancelBuildTriggered:
+                this.handleCancelBuildTriggered(<CancelBuildTriggered>event);
+                break;
+            case EventType.CancelBuildCompleted:
+                this.handleCancelBuildCompleted(<CancelBuildCompleted>event);
                 break;
             case EventType.DependencyInstallStarted:
                 this.handleDependencyInstallStarted(<DependencyInstallStarted>event);
@@ -196,6 +202,25 @@ export class TelemetryObserver {
         );
     }
 
+    private handleCancelBuildTriggered(event: CancelBuildTriggered){
+        this.reporter.sendTelemetryEvent(
+            'CancelBuild.Triggered',
+            {
+                CorrelationId: event.correlationId,
+            }
+        );
+    }
+
+    private handleCancelBuildCompleted(event: CancelBuildCompleted){
+        this.reporter.sendTelemetryEvent(
+            'CancelBuild.Completed',
+            {
+                CorrelationId: event.correlationId,
+                Result: event.succeeded ? 'Succeeded': 'Failed'
+            }
+        );
+    }
+
     // Install Dependencies
     private handleDependencyInstallStarted(event: DependencyInstallStarted) {
         this.reporter.sendTelemetryEvent(
@@ -234,7 +259,7 @@ export class TelemetryObserver {
         );
     }
 
-    private handlePackageInstallAttemptFailed(event: PackageInstallAttemptFailed){
+    private handlePackageInstallAttemptFailed(event: PackageInstallAttemptFailed) {
         this.reporter.sendTelemetryMetric(
             'InstallDependency.Package.Error',
             1,

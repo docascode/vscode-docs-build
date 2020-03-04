@@ -9,7 +9,7 @@ import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxResto
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
-import { basicAuth, getDurationInSeconds, getFolderSizeInMB } from '../utils/utils';
+import { basicAuth, getDurationInSeconds, getFolderSizeInMB, killProcessTree } from '../utils/utils';
 import { ExtensionContext } from '../extensionContext';
 import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
@@ -25,13 +25,13 @@ export class BuildExecutor {
 
     constructor(
         context: ExtensionContext,
-        platformInfo: PlatformInformation,
+        private platformInfo: PlatformInformation,
         private environmentController: EnvironmentController,
         private eventStream: EventStream,
         private telemetryReporter: TelemetryReporter
     ) {
         let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
-        let buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === platformInfo.rid);
+        let buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === this.platformInfo.rid);
         let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
         this.cwd = absolutePackage.installPath.value;
         this.binary = absolutePackage.binary;
@@ -77,9 +77,14 @@ export class BuildExecutor {
         return buildResult;
     }
 
-    public cancelBuild(): void {
+    public async cancelBuild() {
         if (this.runningChildProcess) {
             this.runningChildProcess.kill('SIGKILL');
+            if (this.platformInfo.isWindows()) {
+                // For Windows, grand child process will still keep running even parent process has been killed.
+                // So we need to kill them manually
+                await killProcessTree(this.runningChildProcess.pid);
+            }
         }
     }
 
@@ -112,16 +117,16 @@ export class BuildExecutor {
                 command,
                 this.eventStream,
                 (code: number, signal: string) => {
+                    let docfxExecutionResult: DocfxExecutionResult;
                     if (signal === 'SIGKILL') {
-                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Canceled));
-                        resolve(DocfxExecutionResult.Canceled);
+                        docfxExecutionResult = DocfxExecutionResult.Canceled;
                     } else if (code === 0) {
-                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Succeeded, 0));
-                        resolve(DocfxExecutionResult.Succeeded);
+                        docfxExecutionResult = DocfxExecutionResult.Succeeded;
                     } else {
-                        this.eventStream.post(new DocfxRestoreCompleted(DocfxExecutionResult.Failed, code));
-                        resolve(DocfxExecutionResult.Failed);
+                        docfxExecutionResult = DocfxExecutionResult.Failed;
                     }
+                    this.eventStream.post(new DocfxRestoreCompleted(docfxExecutionResult, code));
+                    resolve(docfxExecutionResult);
                 },
                 { env: envs, cwd: this.cwd },
                 stdinInput
@@ -140,16 +145,16 @@ export class BuildExecutor {
                 command,
                 this.eventStream,
                 (code: number, signal: string) => {
+                    let docfxExecutionResult: DocfxExecutionResult;
                     if (signal === 'SIGKILL') {
-                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Canceled));
-                        resolve(DocfxExecutionResult.Canceled);
+                        docfxExecutionResult = DocfxExecutionResult.Canceled;
                     } else if (code === 0) {
-                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Succeeded, 0));
-                        resolve(DocfxExecutionResult.Succeeded);
+                        docfxExecutionResult = DocfxExecutionResult.Succeeded;
                     } else {
-                        this.eventStream.post(new DocfxBuildCompleted(DocfxExecutionResult.Failed, code));
-                        resolve(DocfxExecutionResult.Failed);
+                        docfxExecutionResult = DocfxExecutionResult.Failed;
                     }
+                    this.eventStream.post(new DocfxBuildCompleted(docfxExecutionResult, code));
+                    resolve(docfxExecutionResult);
                 },
                 { env: envs, cwd: this.cwd }
             );
