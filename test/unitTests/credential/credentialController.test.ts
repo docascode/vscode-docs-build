@@ -7,7 +7,7 @@ import { KeyChain } from '../../../src/credential/keyChain';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
-import { UserInfo, uriHandler, DocsRepoType } from '../../../src/shared';
+import { UserInfo, uriHandler } from '../../../src/shared';
 import { getFakeEnvironmentController, setupKeyChain, fakedCredential } from '../../utils/faker';
 import extensionConfig from '../../../src/config';
 import { DocsError } from '../../../src/error/docsError';
