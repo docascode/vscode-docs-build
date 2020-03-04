@@ -85,6 +85,7 @@ export class TelemetryObserver {
             });
         }
 
+        // Send telemetry
         let signInType: DocsRepoType;
         let userName: string;
         let userEmail: string;

@@ -116,7 +116,7 @@ export class DocsLoggerObserver {
             } else {
                 this.appendLine(`Successfully sign-in to Docs Build:`);
             }
-            this.appendLine(`    - GitHub Account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
+            this.appendLine(`    - ${asUserSignInSucceeded.credential.userInfo.signType} Account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
             this.appendLine(`    - User email    : ${asUserSignInSucceeded.credential.userInfo.userEmail}`);
         } else {
             this.appendLine(`Failed to sign-in to Docs Build: ${(<UserSignInFailed>event).err.message}`);

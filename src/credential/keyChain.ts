@@ -48,6 +48,6 @@ export class KeyChain {
     }
 
     private get userInfoAccountId(): string {
-        return `docs-build-user-info-${this.environmentController.env}`;
+        return `docs-build-user-info-${this.environmentController.env}-${this.environmentController.docsRepoType}`;
     }
 }
