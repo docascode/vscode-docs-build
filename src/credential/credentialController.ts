@@ -68,8 +68,14 @@ export class CredentialController {
             this.resetCredential();
             this.signInStatus = 'SigningIn';
             this.eventStream.post(new UserSignInTriggered(correlationId));
-            this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'));
-            let userInfo = await this.signInWithGitHub();
+            let userInfo;
+            if(this.environmentController.docsRepoType === 'GitHub') {
+                this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'));
+                userInfo = await this.signInWithGitHub();
+            } else {
+                this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with Azure-DevOps account...`, 'Sign-in'));
+                userInfo = await this.signInWithAzureDevOps();
+            }
 
             this.signInStatus = 'SignedIn';
             this.userInfo = userInfo;
@@ -164,6 +170,50 @@ export class CredentialController {
         } catch (err) {
             let errorCode = err instanceof TimeOutError ? ErrorCode.GitHubSignInTimeOut : ErrorCode.GitHubSignInFailed;
             throw new DocsError(`Sign-in with GitHub Failed: ${err.message}`, errorCode, err);
+        }
+    }
+
+    private async signInWithAzureDevOps(): Promise<UserInfo | null> {
+        const authConfig = extensionConfig.auth[this.environmentController.env];
+        const callbackUri = await vscode.env.asExternalUri(
+            vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/azure-devops-authenticate?${querystring.stringify({response_mode : "query"})}`));
+        const azureDevOpsQuery = querystring.stringify({
+            client_id: authConfig.AzureDevOpsOauthClientId,
+            redirect_uri: `${authConfig.AzureDevOpsRedirectUrl}`,
+            scope: authConfig.AzureDevOpsOauthScope,
+            response_type: 'Assertion',
+            // Note: `vscode.Uri.toString` by default encode = into %3D, skip this encode here.
+            state: callbackUri.toString(true)
+        });
+        const azureDevOpsSignInUrl = `https://app.vssps.visualstudio.com/oauth2/authorize?${azureDevOpsQuery}`;
+        const signInUrl = await this.getSignInUrl(azureDevOpsSignInUrl);
+
+        // Use <any> cast here to bypass vscode URL conversion.
+        let opened = await vscode.env.openExternal(<any>signInUrl);
+        if (!opened) {
+            // User decline to open external URL to sign in
+            throw new DocsError(`Sign-in with Azure-DevOps Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined);
+        }
+
+        try {
+            return await handleAuthCallback(async (uri: vscode.Uri, resolve: (result: UserInfo) => void, reject: (reason: any) => void) => {
+                try {
+                    const query = parseQuery(uri);
+
+                    resolve({
+                        userId: query.id,
+                        userName: query.name,
+                        userEmail: query.email,
+                        userToken: query['X-OP-BuildUserToken'],
+                        signType: 'Azure DevOps'
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        } catch (err) {
+            let errorCode = err instanceof TimeOutError ? ErrorCode.AzureDevOpsSignInTimeOut : ErrorCode.AzureDevOpsSignInFailed;
+            throw new DocsError(`Sign-in with Azure-DevOps Failed: ${err.message}`, errorCode, err);
         }
     }
 }
