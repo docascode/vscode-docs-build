@@ -1,5 +1,6 @@
 import cp from 'child_process';
 import assert from 'assert';
+import path from 'path';
 import * as childProcessUtil from '../../../src/utils/childProcessUtils';
 import * as utils from '../../../src/utils/utils';
 import { EventStream } from '../../../src/common/eventStream';
@@ -171,12 +172,12 @@ describe('BuildExecutor', () => {
             assert.equal(buildResult.isRestoreSkipped, false);
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe restore "${testFolder}\\fakedRepositoyPath" --legacy --output "${testFolder}\\fakedRepositoyPath\\_site" --stdin`,
-                `docfx.exe build "${testFolder}\\fakedRepositoyPath" --legacy --dry-run --output "${testFolder}\\fakedRepositoyPath\\_site"`,
+                `docfx.exe restore "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}" --stdin`,
+                `docfx.exe build "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}"`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
-                    cwd: `${testFolder}\\fakedExtensionPath\\.docfx`,
+                    cwd: `${path.resolve(testFolder, 'fakedExtensionPath', '.docfx')}`,
                     env: {
                         APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
@@ -185,7 +186,7 @@ describe('BuildExecutor', () => {
                     }
                 },
                 {
-                    cwd: `${testFolder}\\fakedExtensionPath\\.docfx`,
+                    cwd: `${path.resolve(testFolder, 'fakedExtensionPath', '.docfx')}`,
                     env: {
                         APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
@@ -276,7 +277,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(executedOptions, [
                 {
-                    cwd: `${testFolder}\\fakedExtensionPath\\.docfx`,
+                    cwd: `${path.resolve(testFolder, 'fakedExtensionPath', '.docfx')}`,
                     env: {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
@@ -293,7 +294,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `./docfx build "${testFolder}\\fakedRepositoyPath" --legacy --dry-run --output "${testFolder}\\fakedRepositoyPath\\_site"`,
+                `./docfx build "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}"`,
             ]);
 
             // Reset environment
