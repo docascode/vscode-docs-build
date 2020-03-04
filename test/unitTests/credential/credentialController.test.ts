@@ -242,22 +242,7 @@ describe('CredentialController', () => {
 
 
     describe(`User Sign-in With Azure-DevOps`, () => {
-        before(() => {
-            environmentController = getFakeEnvironmentController('Azure DevOps');
-            keyChain = new KeyChain(environmentController);keyChain = new KeyChain(environmentController);
-            credentialController = new CredentialController(keyChain, eventStream, environmentController);
-
-            sinon.reset();
-            sinon.stub(keyChain, 'setUserInfo').callsFake(function (userInfo: UserInfo): Promise<void> {
-                isSetUserInfoCalled = true;
-                setUserInfo = userInfo;
-                return;
-            });
-            sinon.stub(keyChain, 'resetUserInfo').callsFake(function (): Promise<void> {
-                isResetUserInfoCalled = true;
-                return;
-            });
-        });
+        before(() => { environmentController.docsRepoType = 'Azure DevOps'; });
 
         it(`Sign-in successfully`, async () => {
             // Prepare
