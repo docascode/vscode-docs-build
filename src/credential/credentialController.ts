@@ -131,10 +131,10 @@ export class CredentialController {
 
     private async signInWithGitHub(): Promise<UserInfo | null> {
         const authConfig = extensionConfig.auth[this.environmentController.env];
-        const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/github-authenticate`));
+        const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/github-authenticate?${querystring.stringify({response_mode : "query"})}`));
         const githubQuery = querystring.stringify({
             client_id: authConfig.GitHubOauthClientId,
-            redirect_uri: `${authConfig.GitHubOauthRedirectUrl}/queryresponsemode`,
+            redirect_uri: authConfig.GitHubOauthRedirectUrl,
             scope: authConfig.GitHubOauthScope,
             // Note: `vscode.Uri.toString` by default encode = into %3D, skip this encode here.
             state: callbackUri.toString(true)
@@ -179,7 +179,7 @@ export class CredentialController {
             vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/azure-devops-authenticate?${querystring.stringify({response_mode : "query"})}`));
         const azureDevOpsQuery = querystring.stringify({
             client_id: authConfig.AzureDevOpsOauthClientId,
-            redirect_uri: `${authConfig.AzureDevOpsRedirectUrl}`,
+            redirect_uri: authConfig.AzureDevOpsRedirectUrl,
             scope: authConfig.AzureDevOpsOauthScope,
             response_type: 'Assertion',
             // Note: `vscode.Uri.toString` by default encode = into %3D, skip this encode here.
