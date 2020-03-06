@@ -1,5 +1,7 @@
 # Docs Build - Local Validation
 
+[![Build Status](https://dev.azure.com/ceapex/Engineering/_apis/build/status/Docs%20Validation/docascode.vscode-docs-build?branchName=master)](https://dev.azure.com/ceapex/Engineering/_build/latest?definitionId=1716&branchName=master)
+
 This is a VS Code extension to provide the Local Build Validation experience for a docs repository.
 
 ## Features
