@@ -162,9 +162,9 @@ export class DocfxBuildCompleted implements BaseEvent {
     constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
 }
 
-export class BuildCacheSizeCalculated implements BaseEvent {
-    type = EventType.BuildCacheSizeCalculated;
-    constructor(public correlationId: string, public sizeInMB: number) { }
+export class CalculatBuildCacheSize implements BaseEvent {
+    type = EventType.CalculateBuildCacheSize;
+    constructor(public correlationId: string) { }
 }
 
 // API

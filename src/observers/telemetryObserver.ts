@@ -1,10 +1,13 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, BuildCacheSizeCalculated, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildTriggered, CancelBuildCompleted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, CalculatBuildCacheSize, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildTriggered, CancelBuildCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocsRepoType } from '../shared';
 import { DocsError } from '../error/docsError';
 import { BuildType } from '../build/buildInput';
 import { DocfxExecutionResult } from '../build/buildResult';
 import TelemetryReporter from '../telemetryReporter';
+import { getFolderSizeInMB } from '../utils/utils';
+import os from 'os';
+import path from 'path';
 
 export class TelemetryObserver {
     constructor(private reporter: TelemetryReporter) { }
@@ -34,8 +37,8 @@ export class TelemetryObserver {
             case EventType.BuildCompleted:
                 this.handleBuildCompleted(<BuildCompleted>event);
                 break;
-            case EventType.BuildCacheSizeCalculated:
-                this.handleBuildCacheSize(<BuildCacheSizeCalculated>event);
+            case EventType.CalculateBuildCacheSize:
+                this.handleBuildCacheSize(<CalculatBuildCacheSize>event);
                 break;
             case EventType.CancelBuildTriggered:
                 this.handleCancelBuildTriggered(<CancelBuildTriggered>event);
@@ -190,16 +193,17 @@ export class TelemetryObserver {
         );
     }
 
-    private handleBuildCacheSize(event: BuildCacheSizeCalculated) {
-        this.reporter.sendTelemetryEvent(
+    private handleBuildCacheSize(event: CalculatBuildCacheSize) {
+        getFolderSizeInMB(path.join(os.homedir(), '.docfx')).then(cacheSize =>
+            this.reporter.sendTelemetryEvent(
             'BuildCacheSize',
             {
                 CorrelationId: event.correlationId,
             },
             {
-                SizeInMB: event.sizeInMB,
+                SizeInMB: cacheSize,
             }
-        );
+        ));
     }
 
     private handleCancelBuildTriggered(event: CancelBuildTriggered){

@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, BuildCacheSizeCalculated, PackageInstallAttemptFailed, CredentialReset, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CredentialReset, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
@@ -268,22 +268,7 @@ describe('TelemetryObserver', () => {
         });
     });
 
-    it('BuildCacheCalculated', () => {
-        let event = new BuildCacheSizeCalculated(
-            'FakedCorrelationId',
-            20);
-        observer.eventHandler(event);
-
-        assert.equal(sentEventName, 'BuildCacheSize');
-        assert.deepStrictEqual(sentEventProperties, {
-            CorrelationId: 'FakedCorrelationId',
-        });
-        assert.deepEqual(sentEventMeasurements, {
-            SizeInMB: 20,
-        });
-    });
-
-    it('BuildCacheCalculated', () => {
+    it('CancelBuildTriggered', () => {
         let event = new CancelBuildTriggered('FakedCorrelationId');
         observer.eventHandler(event);
 
