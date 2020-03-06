@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.1.15 (March 6, 2020)
+### Added
+- Support Cancelling build. (#34)
+- Support Azure DevOps repository. (#80)
+### Changed
+- Merge the 2 step sign in flow into 1 step sign in flow. (#68)
+
 ## 0.1.14 (February 21, 2020)
 ### Fixed
 - Update telemetry. (#65 #66)
