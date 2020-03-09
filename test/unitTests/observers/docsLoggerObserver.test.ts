@@ -157,7 +157,7 @@ describe('DocsLoggerObserver', () => {
 
     describe('DocfxRestoreCompleted', () => {
         it(`Docfx Restore succeeded`, () => {
-            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Succeeded);
+            let event = new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Succeeded);
             observer.eventHandler(event);
 
             let expectedOutput = `Restore Finished, start to run 'docfx build'...\n\n`;
@@ -165,7 +165,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Docfx Restore failed`, () => {
-            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Failed, 1);
+            let event = new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 1);
             observer.eventHandler(event);
 
             let expectedOutput = `Error: Running 'docfx restore' failed with exit code: 1\n\n`;
@@ -173,7 +173,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it(`Docfx Restore canceled`, () => {
-            let event = new DocfxRestoreCompleted(DocfxExecutionResult.Canceled);
+            let event = new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Canceled);
             observer.eventHandler(event);
 
             let expectedOutput = `'docfx restore' command has been canceled, skip running 'docfx build'\n\n`;

@@ -1,4 +1,4 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildTriggered, CancelBuildCompleted, DocfxRestoreStarted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildTriggered, CancelBuildCompleted, DocfxRestoreCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocsRepoType } from '../shared';
 import { DocsError } from '../error/docsError';
@@ -37,8 +37,8 @@ export class TelemetryObserver {
             case EventType.BuildCompleted:
                 this.handleBuildCompleted(<BuildCompleted>event);
                 break;
-            case EventType.DocfxRestoreStarted:
-                this.handleDocfxRestoreStarted(<DocfxRestoreStarted>event);
+            case EventType.DocfxRestoreCompleted:
+                this.handleDocfxRestoreCompleted(<DocfxRestoreCompleted>event);
                 break;
             case EventType.CancelBuildTriggered:
                 this.handleCancelBuildTriggered(<CancelBuildTriggered>event);
@@ -193,7 +193,7 @@ export class TelemetryObserver {
         );
     }
 
-    private handleDocfxRestoreStarted(event: DocfxRestoreStarted) {
+    private handleDocfxRestoreCompleted(event: DocfxRestoreCompleted) {
         getFolderSizeInMB(path.join(os.homedir(), '.docfx')).then(cacheSize =>
             this.reporter.sendTelemetryEvent(
             'BuildCacheSize',

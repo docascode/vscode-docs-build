@@ -107,7 +107,7 @@ export class BuildExecutor {
             let stdinInput = JSON.stringify({
                 "http": secrets
             });
-            this.eventStream.post(new DocfxRestoreStarted(correlationId));
+            this.eventStream.post(new DocfxRestoreStarted());
             let command = `${this.binary} restore "${repositoryPath}" --legacy --output "${outputPath}" --stdin`;
             this.runningChildProcess = executeDocfx(
                 command,
@@ -121,7 +121,7 @@ export class BuildExecutor {
                     } else {
                         docfxExecutionResult = DocfxExecutionResult.Failed;
                     }
-                    this.eventStream.post(new DocfxRestoreCompleted(docfxExecutionResult, code));
+                    this.eventStream.post(new DocfxRestoreCompleted(correlationId, docfxExecutionResult, code));
                     resolve(docfxExecutionResult);
                 },
                 { env: envs, cwd: this.cwd },

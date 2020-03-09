@@ -112,8 +112,8 @@ describe('BuildExecutor', () => {
             let buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(testEventBus.getEvents(), [
-                new DocfxRestoreStarted('fakedCorrelationId'),
-                new DocfxRestoreCompleted(DocfxExecutionResult.Failed, 1),
+                new DocfxRestoreStarted(),
+                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 1),
             ]);
             assert.equal(buildResult.result, DocfxExecutionResult.Failed);
             assert.equal(buildResult.isRestoreSkipped, false);
@@ -123,8 +123,8 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(testEventBus.getEvents(), [
-                new DocfxRestoreStarted('fakedCorrelationId'),
-                new DocfxRestoreCompleted(DocfxExecutionResult.Failed, 1),
+                new DocfxRestoreStarted(),
+                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 1),
             ]);
         });
 
@@ -137,8 +137,8 @@ describe('BuildExecutor', () => {
                 await buildExecutor.cancelBuild();
                 let buildResult = await buildPromise;
                 assert.deepStrictEqual(testEventBus.getEvents(), [
-                    new DocfxRestoreStarted('fakedCorrelationId'),
-                    new DocfxRestoreCompleted(DocfxExecutionResult.Canceled, 0),
+                    new DocfxRestoreStarted(),
+                    new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Canceled, 0),
                 ]);
                 assert.equal(buildResult.result, DocfxExecutionResult.Canceled);
                 assert.equal(buildResult.isRestoreSkipped, false);
@@ -204,8 +204,8 @@ describe('BuildExecutor', () => {
                 undefined
             ]);
             assert.deepStrictEqual(testEventBus.getEvents(), [
-                new DocfxRestoreStarted('fakedCorrelationId'),
-                new DocfxRestoreCompleted(DocfxExecutionResult.Succeeded, 0),
+                new DocfxRestoreStarted(),
+                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Succeeded, 0),
                 new DocfxBuildStarted(),
                 new DocfxBuildCompleted(DocfxExecutionResult.Succeeded, 0)
             ]);

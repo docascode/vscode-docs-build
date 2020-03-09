@@ -146,12 +146,11 @@ export class BuildProgress implements BaseEvent {
 
 export class DocfxRestoreStarted implements BaseEvent {
     type = EventType.DocfxRestoreStarted;
-    constructor(public correlationId: string) { }
 }
 
 export class DocfxRestoreCompleted implements BaseEvent {
     type = EventType.DocfxRestoreCompleted;
-    constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
+    constructor(public correlationId: string, public result: DocfxExecutionResult, public exitCode?: number) { }
 }
 
 export class DocfxBuildStarted implements BaseEvent {
