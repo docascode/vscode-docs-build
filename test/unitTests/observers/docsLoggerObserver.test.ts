@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { OutputChannel } from 'vscode';
-import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
@@ -105,7 +105,7 @@ describe('DocsLoggerObserver', () => {
     });
 
     it(`BuildInstantAllocated`, () => {
-        let event = new BuildInstantAllocated();
+        let event = new BuildTriggered('FakedCorrelationId');
         observer.eventHandler(event);
 
         let expectedOutput = `\n---------------------------\n`
@@ -117,7 +117,7 @@ describe('DocsLoggerObserver', () => {
         let event = new BuildStarted('FakedWorkspaceFolderName');
         observer.eventHandler(event);
 
-        let expectedOutput = `Start to build workspace folder 'FakedWorkspaceFolderName'\n`;
+        let expectedOutput = `Start to build workspace folder 'FakedWorkspaceFolderName'...\n`;
         assert.equal(loggerText, expectedOutput);
     });
 

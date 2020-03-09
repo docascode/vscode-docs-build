@@ -24,7 +24,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
         const action = new vscode.CodeAction('Learn more...', vscode.CodeActionKind.QuickFix);
         action.command = {
             command: 'learnMore',
-            title: 'Learn more about this error code',
+            title: `Learn more about the error code '${diagnostic.code}'`,
             tooltip: 'This will open the error code detail page.',
             arguments: [diagnostic.code]
         };
