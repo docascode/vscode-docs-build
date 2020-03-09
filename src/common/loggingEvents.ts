@@ -146,6 +146,7 @@ export class BuildProgress implements BaseEvent {
 
 export class DocfxRestoreStarted implements BaseEvent {
     type = EventType.DocfxRestoreStarted;
+    constructor(public correlationId: string) { }
 }
 
 export class DocfxRestoreCompleted implements BaseEvent {
@@ -160,11 +161,6 @@ export class DocfxBuildStarted implements BaseEvent {
 export class DocfxBuildCompleted implements BaseEvent {
     type = EventType.DocfxBuildCompleted;
     constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
-}
-
-export class CalculatBuildCacheSize implements BaseEvent {
-    type = EventType.CalculateBuildCacheSize;
-    constructor(public correlationId: string) { }
 }
 
 // API

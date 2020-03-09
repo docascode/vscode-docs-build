@@ -4,7 +4,7 @@ import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/package';
-import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted, CalculatBuildCacheSize } from '../common/loggingEvents';
+import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted} from '../common/loggingEvents';
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
@@ -57,10 +57,7 @@ export class BuildExecutor {
 
         if (!BuildExecutor.skipRestore) {
             let restoreStart = Date.now();
-            let result = await this.restore(input.localRepositoryPath, outputPath, buildUserToken, envs);
-
-            this.eventStream.post(new CalculatBuildCacheSize(correlationId));
-
+            let result = await this.restore(correlationId, input.localRepositoryPath, outputPath, buildUserToken, envs);
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;
@@ -87,6 +84,7 @@ export class BuildExecutor {
     }
 
     private async restore(
+        correlationId: string,
         repositoryPath: string,
         outputPath: string,
         buildUserToken: string,
@@ -109,7 +107,7 @@ export class BuildExecutor {
             let stdinInput = JSON.stringify({
                 "http": secrets
             });
-            this.eventStream.post(new DocfxRestoreStarted());
+            this.eventStream.post(new DocfxRestoreStarted(correlationId));
             let command = `${this.binary} restore "${repositoryPath}" --legacy --output "${outputPath}" --stdin`;
             this.runningChildProcess = executeDocfx(
                 command,
