@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import { AbsolutePathPackage, Package } from './package';
 import { PlatformInformation } from '../common/platformInformation';
 import { downloadFile } from './fileDownloader';
-import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile } from './dependencyHelper';
+import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile, getInstallLockFilePath } from './dependencyHelper';
 import { InstallZip } from './zipInstaller';
 import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallStarted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';
@@ -59,7 +59,7 @@ async function installDependencies(correlationId: string, packages: AbsolutePath
                     await InstallZip(buffer, pkg.installPath, eventStream);
 
                     // Create Download finished lock
-                    await createInstallLockFile(pkg.installPath, InstallFileType.Finish);
+                    await createInstallLockFile(pkg.installPath, InstallFileType.Finish, pkg.integrity);
 
                     break;
                 } catch (error) {
@@ -99,7 +99,15 @@ function getPackagesForCurrentPlatform(packages: AbsolutePathPackage[], platform
 function filterInstalledPackages(packages: AbsolutePathPackage[]) {
     if (packages) {
         return packages.filter(pkg => {
-            return !installFileExists(pkg.installPath, InstallFileType.Finish);
+            if (!installFileExists(pkg.installPath, InstallFileType.Finish)) {
+                return true;
+            }
+            let installedPackageIntegrity = fs.readFileSync(getInstallLockFilePath(pkg.installPath, InstallFileType.Finish)).toString().trim();
+            if (pkg.integrity !== installedPackageIntegrity) {
+                fs.removeSync(pkg.installPath.value);
+                return true;
+            }
+            return false;
         });
     }
     else {
