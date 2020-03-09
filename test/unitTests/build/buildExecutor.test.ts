@@ -11,7 +11,7 @@ import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtension
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import { BuildExecutor } from '../../../src/build/buildExecutor';
-import { DocfxRestoreStarted, DocfxRestoreCompleted, BuildCacheSizeCalculated, DocfxBuildStarted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
+import { DocfxRestoreStarted, DocfxRestoreCompleted, DocfxBuildStarted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
 import { DocfxExecutionResult, BuildResult } from '../../../src/build/buildResult';
 import { setTimeout } from 'timers';
 import { EventType } from '../../../src/common/eventType';
@@ -48,7 +48,6 @@ describe('BuildExecutor', () => {
         sinon = createSandbox();
         stubExecuteDocfx = undefined;
 
-        sinon.stub(utils, 'getFolderSizeInMB').resolves(10);
         sinon.stub(utils, 'killProcessTree').callsFake((pid: number, signal: string) => {
             killProcessTreeFuncCalled = true;
             return Promise.resolve();
@@ -114,8 +113,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxRestoreStarted(),
-                new DocfxRestoreCompleted(DocfxExecutionResult.Failed, 1),
-                new BuildCacheSizeCalculated('fakedCorrelationId', 10),
+                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 1),
             ]);
             assert.equal(buildResult.result, DocfxExecutionResult.Failed);
             assert.equal(buildResult.isRestoreSkipped, false);
@@ -126,8 +124,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxRestoreStarted(),
-                new DocfxRestoreCompleted(DocfxExecutionResult.Failed, 1),
-                new BuildCacheSizeCalculated('fakedCorrelationId', 10),
+                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 1),
             ]);
         });
 
@@ -141,8 +138,7 @@ describe('BuildExecutor', () => {
                 let buildResult = await buildPromise;
                 assert.deepStrictEqual(testEventBus.getEvents(), [
                     new DocfxRestoreStarted(),
-                    new DocfxRestoreCompleted(DocfxExecutionResult.Canceled, 0),
-                    new BuildCacheSizeCalculated('fakedCorrelationId', 10),
+                    new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Canceled, 0),
                 ]);
                 assert.equal(buildResult.result, DocfxExecutionResult.Canceled);
                 assert.equal(buildResult.isRestoreSkipped, false);
@@ -209,8 +205,7 @@ describe('BuildExecutor', () => {
             ]);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxRestoreStarted(),
-                new DocfxRestoreCompleted(DocfxExecutionResult.Succeeded, 0),
-                new BuildCacheSizeCalculated('fakedCorrelationId', 10),
+                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Succeeded, 0),
                 new DocfxBuildStarted(),
                 new DocfxBuildCompleted(DocfxExecutionResult.Succeeded, 0)
             ]);
