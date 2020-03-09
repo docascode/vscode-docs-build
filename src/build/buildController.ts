@@ -183,19 +183,19 @@ export class BuildController {
     }
 
     private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {
-        this.eventStream.post(new BuildProgress('Retrieving repository information for the current workspace folder...'));
+        this.eventStream.post(new BuildProgress('Retrieving repository information for the current workspace folder...\n'));
 
         let localRepositoryUrl: string, doscRepoType: DocsRepoType;
         try {
             [doscRepoType, localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
-            if (doscRepoType === 'Azure DevOps') {
-                return [localRepositoryUrl, localRepositoryUrl];
-            }
         } catch (err) {
             throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
         }
 
-        let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
+        let originalRepositoryUrl = localRepositoryUrl;
+        if (doscRepoType === 'GitHub') {
+            originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
+        }
 
         this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
         return [localRepositoryUrl, originalRepositoryUrl];

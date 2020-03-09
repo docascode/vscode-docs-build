@@ -34,8 +34,8 @@ export class DocsLoggerObserver {
             case EventType.RepositoryInfoRetrieved:
                 this.handleRepositoryInfoRetrieved(<RepositoryInfoRetrieved>event);
                 break;
-            case EventType.BuildInstantAllocated:
-                this.handleBuildInstantAllocated();
+            case EventType.BuildTriggered:
+                this.handleBuildTriggered();
                 break;
             case EventType.BuildStarted:
                 this.handleBuildStarted(<BuildStarted>event);
@@ -151,14 +151,14 @@ export class DocsLoggerObserver {
         this.appendLine();
     }
 
-    private handleBuildInstantAllocated() {
+    private handleBuildTriggered() {
         this.appendLine();
         this.appendLine('---------------------------');
         this.appendLine(`Preparing build context...`);
     }
 
     private handleBuildStarted(event: BuildStarted) {
-        this.appendLine(`Start to build workspace folder '${event.workSpaceFolderName}'`);
+        this.appendLine(`Start to build workspace folder '${event.workSpaceFolderName}'...`);
     }
 
     private handleBuildCompleted(event: BuildCompleted) {
@@ -177,7 +177,7 @@ export class DocsLoggerObserver {
     }
 
     private handleBuildProgress(event: BuildProgress) {
-        this.appendLine(`${event.message}`);
+        this.appendLine(event.message.trimRight());
     }
 
     private handleDocfxRestoreCompleted(event: DocfxRestoreCompleted) {
