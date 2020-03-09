@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.16 (March 9, 2020)
+### Changed
+- Use latest docfx: 3.0.0-beta-01584-b16bf7cb5. (#91)
+
 ## 0.1.15 (March 6, 2020)
 ### Added
 - Support Cancelling build. (#34)
