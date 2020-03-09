@@ -22,9 +22,9 @@ export function deleteInstallLockFile(installFolderPath: AbsolutePath, installFi
     fs.removeSync(getInstallLockFilePath(installFolderPath, installFileType));
 }
 
-export async function createInstallLockFile(installFolderPath: AbsolutePath, installFileType: InstallFileType): Promise<void> {
+export async function createInstallLockFile(installFolderPath: AbsolutePath, installFileType: InstallFileType, content: string = ''): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        fs.writeFile(getInstallLockFilePath(installFolderPath, installFileType), '', err => {
+        fs.writeFile(getInstallLockFilePath(installFolderPath, installFileType), content, err => {
             if (err) {
                 reject(new DocsError(`Failed to create ${installFileType} install Lock File`, ErrorCode.CreateInstallLockFileFailed));
                 return;
