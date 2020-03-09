@@ -1,15 +1,14 @@
 import fs from 'fs-extra';
 import path from 'path';
-import os from 'os';
 import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/package';
-import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted, BuildCacheSizeCalculated } from '../common/loggingEvents';
+import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted} from '../common/loggingEvents';
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
-import { basicAuth, getDurationInSeconds, getFolderSizeInMB, killProcessTree } from '../utils/utils';
+import { basicAuth, getDurationInSeconds, killProcessTree } from '../utils/utils';
 import { ExtensionContext } from '../extensionContext';
 import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
@@ -58,11 +57,7 @@ export class BuildExecutor {
 
         if (!BuildExecutor.skipRestore) {
             let restoreStart = Date.now();
-            let result = await this.restore(input.localRepositoryPath, outputPath, buildUserToken, envs);
-
-            let cacheSize = await getFolderSizeInMB(path.join(os.homedir(), '.docfx'));
-            this.eventStream.post(new BuildCacheSizeCalculated(correlationId, cacheSize));
-
+            let result = await this.restore(correlationId, input.localRepositoryPath, outputPath, buildUserToken, envs);
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;
@@ -89,6 +84,7 @@ export class BuildExecutor {
     }
 
     private async restore(
+        correlationId: string,
         repositoryPath: string,
         outputPath: string,
         buildUserToken: string,
@@ -125,7 +121,7 @@ export class BuildExecutor {
                     } else {
                         docfxExecutionResult = DocfxExecutionResult.Failed;
                     }
-                    this.eventStream.post(new DocfxRestoreCompleted(docfxExecutionResult, code));
+                    this.eventStream.post(new DocfxRestoreCompleted(correlationId, docfxExecutionResult, code));
                     resolve(docfxExecutionResult);
                 },
                 { env: envs, cwd: this.cwd },

@@ -150,7 +150,7 @@ export class DocfxRestoreStarted implements BaseEvent {
 
 export class DocfxRestoreCompleted implements BaseEvent {
     type = EventType.DocfxRestoreCompleted;
-    constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
+    constructor(public correlationId: string, public result: DocfxExecutionResult, public exitCode?: number) { }
 }
 
 export class DocfxBuildStarted implements BaseEvent {
@@ -160,11 +160,6 @@ export class DocfxBuildStarted implements BaseEvent {
 export class DocfxBuildCompleted implements BaseEvent {
     type = EventType.DocfxBuildCompleted;
     constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
-}
-
-export class BuildCacheSizeCalculated implements BaseEvent {
-    type = EventType.BuildCacheSizeCalculated;
-    constructor(public correlationId: string, public sizeInMB: number) { }
 }
 
 // API
