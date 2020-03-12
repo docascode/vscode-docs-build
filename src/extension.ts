@@ -23,6 +23,8 @@ import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
 import { QuickPickTriggered, QuickPickCommandSelected } from './common/loggingEvents';
 import TelemetryReporter from './telemetryReporter';
+import { OPBuildAPIClient } from './build/opBuildAPIClient';
+import { BuildExecutor } from './build/buildExecutor';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -67,7 +69,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     // Build component initialize
     let diagnosticController = new DiagnosticController();
-    let buildController = new BuildController(extensionContext, environmentController, platformInformation, telemetryReporter, diagnosticController, eventStream);
+    let opBuildAPIClient = new OPBuildAPIClient(environmentController);
+    let buildExecutor = new BuildExecutor(extensionContext, platformInformation, environmentController, eventStream, telemetryReporter);
+    let buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, eventStream);
 
     // Build status bar
     let buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
@@ -83,7 +87,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         signStatusBar,
         buildStatusBar,
         environmentController,
-        // TODO: Support cancel the current build
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn(getCorrelationId())),
         vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut(getCorrelationId())),
         vscode.commands.registerCommand('docs.build', (uri) => {
