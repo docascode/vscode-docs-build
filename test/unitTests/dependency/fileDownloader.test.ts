@@ -35,6 +35,7 @@ describe(`fileDownloader`, () => {
 
     after(async () => {
         await server.stop();
+        eventBus.dispose();
     });
 
     [

@@ -30,6 +30,7 @@ describe(`downloadChecker`, () => {
 
     after(async () => {
         await server.stop();
+        eventBus.dispose();
     });
 
     it(`IntegrityCheck Passed`, async () => {

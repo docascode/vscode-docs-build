@@ -79,6 +79,7 @@ describe('CredentialController', () => {
 
     after(() => {
         sinon.restore();
+        testEventBus.dispose();
     });
 
     function setupAvailableKeyChain() {

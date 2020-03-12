@@ -103,6 +103,7 @@ describe('BuildExecutor', () => {
 
     after(() => {
         sinon.restore();
+        testEventBus.dispose();
     });
 
     describe('Restore', () => {

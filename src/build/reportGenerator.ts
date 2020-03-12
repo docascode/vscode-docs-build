@@ -44,6 +44,7 @@ export function visualizeBuildReport(repositoryPath: string, diagnosticControlle
         let opConfigPath = path.join(repositoryPath, OP_CONFIG_FILE_NAME);
         let opConfig = safelyReadJsonFile(opConfigPath);
         let docsets = <Docset[]>opConfig.docsets_to_publish;
+        diagnosticController.reset();
         for (let docset of docsets) {
             visualizeBuildReportForDocset(repositoryPath, docset, diagnosticController, eventStream);
         }
@@ -53,9 +54,8 @@ export function visualizeBuildReport(repositoryPath: string, diagnosticControlle
 }
 
 function visualizeBuildReportForDocset(repositoryPath: string, docset: Docset, diagnosticController: DiagnosticController, eventStream: EventStream) {
-    eventStream.post(new BuildProgress(`Generating report for docset ${docset.docset_name}...`));
-    diagnosticController.reset();
-    
+    eventStream.post(new BuildProgress(`Generating report for docset '${docset.docset_name}'...`));
+
     let reportFilePath = path.join(repositoryPath, OUTPUT_FOLDER_NAME, docset.build_source_folder, REPORT_FILENAME);
     if (!fs.existsSync(reportFilePath)) {
         eventStream.post(new BuildProgress(`Log file (.error.log) not found. Skip generating report for current docset '${docset.docset_name}'`));
