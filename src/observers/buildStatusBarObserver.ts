@@ -9,7 +9,7 @@ export class BuildStatusBarObserver extends BaseStatusBarObserver {
                 this.setAndShowStatusBar(`$(sync~spin)`, undefined, undefined, 'Building the current workspace folder');
                 break;
             case EventType.BuildInstantReleased:
-                this.setAndShowStatusBar(`$(sync)`, undefined, undefined, 'Ready to Build');
+                this.setAndShowStatusBar(`$(sync)`, undefined, undefined, 'Ready to build');
                 break;
         }
     }

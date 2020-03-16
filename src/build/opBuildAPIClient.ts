@@ -22,7 +22,7 @@ export class OPBuildAPIClient {
             .then((response: any) => {
                 return response.toString();
             }, (code: any) => {
-                throw new Error(`Cannot the get original repository URL for current repository(${code})`);
+                throw new Error(`Cannot retrieve the original repository URL for current repository (${code})`);
             });
     }
 

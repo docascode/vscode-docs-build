@@ -32,7 +32,7 @@ async function downloadCore(urlString: string, eventStream: EventStream, strictS
                 }
                 else if (response.statusCode !== 200) {
                     // Download failed
-                    return reject(new Error(`Invalid status code(${response.statusCode})`));
+                    return reject(new Error(`Invalid status code (${response.statusCode})`));
                 }
 
                 let packageSize = parseInt(response.headers['content-length']!, 10);
@@ -58,7 +58,7 @@ async function downloadCore(urlString: string, eventStream: EventStream, strictS
                 });
 
                 response.on('error', err => {
-                    reject(new Error(`Response Error(${err.message || 'NONE'})`));
+                    reject(new Error(`Response error(${err.message || 'NONE'})`));
                 });
             });
 

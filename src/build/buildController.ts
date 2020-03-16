@@ -68,7 +68,7 @@ export class BuildController {
                     this.eventStream.post(new BuildCanceled(correlationId, buildInput, getTotalTimeInSeconds()));
                     break;
                 case DocfxExecutionResult.Failed:
-                    throw new DocsError('Running docfx failed', ErrorCode.RunDocfxFailed);
+                    throw new DocsError('Running DocFX failed', ErrorCode.RunDocfxFailed);
             }
         }
         catch (err) {
@@ -134,7 +134,7 @@ export class BuildController {
 
         // Check user sign in status
         if (credential.signInStatus !== 'SignedIn') {
-            throw new DocsError('You have to sign-in firstly', ErrorCode.TriggerBuildBeforeSignedIn);
+            throw new DocsError('You have to sign in first', ErrorCode.TriggerBuildBeforeSignedIn);
         }
 
         try {
@@ -183,13 +183,13 @@ export class BuildController {
     }
 
     private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {
-        this.eventStream.post(new BuildProgress('Retrieving repository information for the current workspace folder...\n'));
+        this.eventStream.post(new BuildProgress('Retrieving repository information for current workspace folder...\n'));
 
         let localRepositoryUrl: string, doscRepoType: DocsRepoType;
         try {
             [doscRepoType, localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
         } catch (err) {
-            throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
+            throw new Error(`Cannot get the repository information for current workspace folder(${err.message})`);
         }
 
         let originalRepositoryUrl = localRepositoryUrl;

@@ -211,7 +211,7 @@ describe('DocsLoggerObserver', () => {
         let event = new CancelBuildFailed('fakedcorrelationId', new Error('Faked error message'));
         observer.eventHandler(event);
 
-        let expectedOutput = `Failed to cancel the current build: Faked error message\n\n`;
+        let expectedOutput = `Failed to cancel the current validation: Faked error message\n\n`;
         assert.equal(loggerText, expectedOutput);
     });
 
@@ -237,7 +237,7 @@ describe('DocsLoggerObserver', () => {
         let event = new DependencyInstallStarted('fakedCorrelationId');
         observer.eventHandler(event);
 
-        let expectedOutput = `Installing runtime dependencies...\n`;
+        let expectedOutput = `Installing run-time dependencies...\n`;
         assert.equal(loggerText, expectedOutput);
     });
 
@@ -246,7 +246,7 @@ describe('DocsLoggerObserver', () => {
             let event = new DependencyInstallCompleted('fakedCorrelationId', true, 10);
             observer.eventHandler(event);
 
-            let expectedOutput = `Runtime dependencies installation finished!\n\n`;
+            let expectedOutput = `Run-time dependencies installation finished!\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -254,7 +254,7 @@ describe('DocsLoggerObserver', () => {
             let event = new DependencyInstallCompleted('fakedCorrelationId', false, 10);
             observer.eventHandler(event);
 
-            let expectedOutput = `Install runtime dependencies failed, some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.\n\n`;
+            let expectedOutput = `Installation of run-time dependencies failed, some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
     });

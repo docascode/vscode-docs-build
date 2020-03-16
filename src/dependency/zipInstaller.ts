@@ -27,7 +27,7 @@ export async function InstallZip(buffer: Buffer, destinationInstallPath: Absolut
                         // Directory - create it
                         mkdirp(absoluteEntryPath, { mode: 0o775 }, (err) => {
                             if (err) {
-                                return reject(new Error(`Error creating directory for zip directory entry(${err.message})`));
+                                return reject(new Error(`Error creating directory for zip directory entry (${err.message})`));
                             }
 
                             zipFile.readEntry();
@@ -37,12 +37,12 @@ export async function InstallZip(buffer: Buffer, destinationInstallPath: Absolut
                         // File - extract it
                         zipFile.openReadStream(entry, (err, readStream) => {
                             if (err) {
-                                return reject(new Error(`Error reading zip stream(${err.message})`));
+                                return reject(new Error(`Error reading zip stream (${err.message})`));
                             }
 
                             mkdirp(path.dirname(absoluteEntryPath), { mode: 0o775 }, err => {
                                 if (err) {
-                                    return reject(new Error(`Error creating directory for zip file entry(${err.message})`));
+                                    return reject(new Error(`Error creating directory for zip file entry (${err.message})`));
                                 }
 
                                 readStream.pipe(fs.createWriteStream(absoluteEntryPath, { mode: 0o775 }));
@@ -57,7 +57,7 @@ export async function InstallZip(buffer: Buffer, destinationInstallPath: Absolut
                 });
 
                 zipFile.on('error', err => {
-                    reject(new Error(`Zip File Error(${err.message})`));
+                    reject(new Error(`Zip file error(${err.message})`));
                 });
             });
         });

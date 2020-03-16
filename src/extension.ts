@@ -44,7 +44,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     let runtimeDependenciesInstalled = await ensureRuntimeDependencies(extensionContext, getCorrelationId(), platformInformation, eventStream);
     if (!runtimeDependenciesInstalled) {
-        throw new Error('Install runtime dependencies failed, Please restart Visual Studio Code to re-trigger the download.');
+        throw new Error('Installation of run-time dependencies failed. Please restart Visual Studio Code to re-trigger the installation.');
     }
 
     // Message 
@@ -127,27 +127,27 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
         pickItems.push(
             {
                 label: 'Sign-in',
-                description: 'Sign-in to Docs Build',
+                description: 'Sign in to Docs Build',
                 picked: true
             });
     } else if (currentSignInStatus === 'SignedIn') {
         pickItems.push(
             {
                 label: 'Sign-out',
-                description: 'Sign-out from Docs Build',
+                description: 'Sign out from Docs Build',
                 picked: true
             });
         if (buildController.instanceAvailable) {
             pickItems.push(
                 {
                     label: 'Build',
-                    description: 'Trigger a build'
+                    description: 'Trigger a validation'
                 });
         } else {
             pickItems.push(
                 {
                     label: 'Cancel Build',
-                    description: 'Cancel the current build'
+                    description: 'Cancel the current validation'
                 });
         }
     }

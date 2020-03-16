@@ -70,10 +70,10 @@ export class CredentialController {
             this.eventStream.post(new UserSignInTriggered(correlationId));
             let userInfo;
             if(this.environmentController.docsRepoType === 'GitHub') {
-                this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'));
+                this.eventStream.post(new UserSignInProgress(`Sign in to Docs Build with GitHub account...`, 'Sign-in'));
                 userInfo = await this.signInWithGitHub();
             } else {
-                this.eventStream.post(new UserSignInProgress(`Sign-in to docs build with Azure-DevOps account...`, 'Sign-in'));
+                this.eventStream.post(new UserSignInProgress(`Sign in to Docs Build with Azure DevOps account...`, 'Sign-in'));
                 userInfo = await this.signInWithAzureDevOps();
             }
 
@@ -148,7 +148,7 @@ export class CredentialController {
         let opened = await vscode.env.openExternal(<any>signInUrl);
         if (!opened) {
             // User decline to open external URL to sign in
-            throw new DocsError(`Sign-in with GitHub Failed: Please Allow to open external URL to Sign-In`, ErrorCode.GitHubSignInExternalUrlDeclined);
+            throw new DocsError(`Signing in with GitHub failed: please allow to open external URL to sign in`, ErrorCode.GitHubSignInExternalUrlDeclined);
         }
 
         try {
@@ -169,7 +169,7 @@ export class CredentialController {
             });
         } catch (err) {
             let errorCode = err instanceof TimeOutError ? ErrorCode.GitHubSignInTimeOut : ErrorCode.GitHubSignInFailed;
-            throw new DocsError(`Sign-in with GitHub Failed: ${err.message}`, errorCode, err);
+            throw new DocsError(`Signing in with GitHub failed: ${err.message}`, errorCode, err);
         }
     }
 
@@ -192,7 +192,7 @@ export class CredentialController {
         let opened = await vscode.env.openExternal(<any>signInUrl);
         if (!opened) {
             // User decline to open external URL to sign in
-            throw new DocsError(`Sign-in with Azure-DevOps Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined);
+            throw new DocsError(`Signing in with Azure DevOps failed: please allow to open external URL to sign in`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined);
         }
 
         try {
@@ -213,7 +213,7 @@ export class CredentialController {
             });
         } catch (err) {
             let errorCode = err instanceof TimeOutError ? ErrorCode.AzureDevOpsSignInTimeOut : ErrorCode.AzureDevOpsSignInFailed;
-            throw new DocsError(`Sign-in with Azure-DevOps Failed: ${err.message}`, errorCode, err);
+            throw new DocsError(`Signing in with Azure DevOps failed: ${err.message}`, errorCode, err);
         }
     }
 }
