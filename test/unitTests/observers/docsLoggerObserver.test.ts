@@ -28,8 +28,8 @@ describe('DocsLoggerObserver', () => {
             let event = new UserSignInSucceeded('FakedCorrelationId', fakedCredential);
             observer.eventHandler(event);
 
-            let expectedOutput = `Successfully sign-in to Docs Build:\n`
-                + `    - GitHub Account: Faked User\n`
+            let expectedOutput = `Successfully signed in to Docs:\n`
+                + `    - GitHub account: Faked User\n`
                 + `    - User email    : fake@microsoft.com\n`
                 + `\n`;
             assert.equal(loggerText, expectedOutput);
@@ -39,7 +39,7 @@ describe('DocsLoggerObserver', () => {
             let event = new UserSignInFailed('FakedCorrelationId', new Error('Faked error msg'));
             observer.eventHandler(event);
 
-            let expectedOutput = `Failed to sign-in to Docs Build: Faked error msg\n\n`;
+            let expectedOutput = `Failed to sign in to Docs: Faked error msg\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -60,7 +60,7 @@ describe('DocsLoggerObserver', () => {
             let event = new UserSignOutSucceeded('FakedCorrelationId');
             observer.eventHandler(event);
 
-            let expectedOutput = `Successfully sign-out from Docs Build!\n\n`;
+            let expectedOutput = `Successfully signed out from Docs!\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -68,7 +68,7 @@ describe('DocsLoggerObserver', () => {
             let event = new UserSignOutFailed('FakedCorrelationId', new Error('Faked error msg'));
             observer.eventHandler(event);
 
-            let expectedOutput = `Failed to sign-out from Docs Build: Faked error msg\n\n`;
+            let expectedOutput = `Failed to sign out from Docs: Faked error msg\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
     });

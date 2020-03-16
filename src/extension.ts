@@ -127,14 +127,14 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
         pickItems.push(
             {
                 label: 'Sign-in',
-                description: 'Sign in to Docs Build',
+                description: 'Sign in to Docs',
                 picked: true
             });
     } else if (currentSignInStatus === 'SignedIn') {
         pickItems.push(
             {
                 label: 'Sign-out',
-                description: 'Sign out from Docs Build',
+                description: 'Sign out from Docs',
                 picked: true
             });
         if (buildController.instanceAvailable) {

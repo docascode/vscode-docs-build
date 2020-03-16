@@ -114,21 +114,21 @@ export class DocsLoggerObserver {
             if (asUserSignInSucceeded.retrievedFromCache) {
                 this.appendLine(`Successfully retrieved user credential from local credential manager:`);
             } else {
-                this.appendLine(`Successfully signed in to Docs Build:`);
+                this.appendLine(`Successfully signed in to Docs:`);
             }
             this.appendLine(`    - ${asUserSignInSucceeded.credential.userInfo.signType} account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
             this.appendLine(`    - User email    : ${asUserSignInSucceeded.credential.userInfo.userEmail}`);
         } else {
-            this.appendLine(`Failed to sign in to Docs Build: ${(<UserSignInFailed>event).err.message}`);
+            this.appendLine(`Failed to sign in to Docs: ${(<UserSignInFailed>event).err.message}`);
         }
         this.appendLine();
     }
 
     private handleUserSignOutCompleted(event: UserSignOutCompleted) {
         if (event.succeeded) {
-            this.appendLine(`Successfully sign out from Docs Build.`);
+            this.appendLine(`Successfully sign out from Docs.`);
         } else {
-            this.appendLine(`Failed to sign out from Docs Build: ${(<UserSignOutFailed>event).err.message}`);
+            this.appendLine(`Failed to sign out from Docs: ${(<UserSignOutFailed>event).err.message}`);
         }
         this.appendLine();
     }

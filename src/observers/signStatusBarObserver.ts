@@ -25,7 +25,7 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
                 }
                 break;
             case EventType.CredentialReset:
-                this.setAndShowStatusBar(`${this.statusBarTextPrefix} Sign in to Docs Build`, 'docs.signIn');
+                this.setAndShowStatusBar(`${this.statusBarTextPrefix} Sign in to Docs`, 'docs.signIn');
                 break;
         }
     }
