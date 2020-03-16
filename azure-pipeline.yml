@@ -10,6 +10,7 @@ pr:
 
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
+  runCodesignValidationInjection: false
 
 strategy:
   matrix:
