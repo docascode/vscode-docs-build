@@ -191,18 +191,16 @@ describe('BuildExecutor', () => {
                     }
                 }
             ]);
-            assert.deepStrictEqual(executedStdinInput, [
-                JSON.stringify({
-                    "http": {
-                        "https://op-build-prod.azurewebsites.net": {
-                            "headers": {
-                                "X-OP-BuildUserToken": "faked-build-token"
-                            }
-                        }
-                    }
-                }),
-                undefined
-            ]);
+            assert.equal(executedStdinInput.length, 2);
+            assert.notEqual(executedStdinInput[0], undefined);
+            assert.equal(executedStdinInput[1], undefined);
+            let firstExecutedStdinInput = <any>JSON.parse(executedStdinInput[0]);
+            assert.deepStrictEqual(firstExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
+                "headers": {
+                    "X-OP-BuildUserToken": "faked-build-token"
+                }
+            });
+
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxRestoreStarted(),
                 new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Succeeded, 0),
