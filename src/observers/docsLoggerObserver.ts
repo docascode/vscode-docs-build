@@ -126,7 +126,7 @@ export class DocsLoggerObserver {
 
     private handleUserSignOutCompleted(event: UserSignOutCompleted) {
         if (event.succeeded) {
-            this.appendLine(`Successfully sign out from Docs.`);
+            this.appendLine(`Successfully signed out from Docs.`);
         } else {
             this.appendLine(`Failed to sign out from Docs: ${(<UserSignOutFailed>event).err.message}`);
         }

@@ -47,8 +47,8 @@ describe('DocsLoggerObserver', () => {
             let event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true);
             observer.eventHandler(event);
     
-            let expectedOutput = `Successfully retrieved user credential from Local Credential Manager:\n`
-                + `    - GitHub Account: Faked User\n`
+            let expectedOutput = `Successfully retrieved user credential from local credential manager:\n`
+                + `    - GitHub account: Faked User\n`
                 + `    - User email    : fake@microsoft.com\n`
                 + `\n`;
             assert.equal(loggerText, expectedOutput);
@@ -60,7 +60,7 @@ describe('DocsLoggerObserver', () => {
             let event = new UserSignOutSucceeded('FakedCorrelationId');
             observer.eventHandler(event);
 
-            let expectedOutput = `Successfully signed out from Docs!\n\n`;
+            let expectedOutput = `Successfully signed out from Docs.\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -87,8 +87,8 @@ describe('DocsLoggerObserver', () => {
             let event = new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.repository');
             observer.eventHandler(event);
 
-            let expectedOutput = `Repository Information of current workspace folder:\n`
-                + `  Local Repository URL: https://faked.repository\n`
+            let expectedOutput = `Repository information of current workspace folder:\n`
+                + `  Local repository URL: https://faked.repository\n`
                 + `\n`;
             assert.equal(loggerText, expectedOutput);
         });
@@ -97,8 +97,8 @@ describe('DocsLoggerObserver', () => {
             let event = new RepositoryInfoRetrieved('https://faked.local.repository', 'https://faked.original.repository');
             observer.eventHandler(event);
 
-            let expectedOutput = `Repository Information of current workspace folder:\n`
-                + `  Local Repository URL: https://faked.local.repository(original: https://faked.original.repository)\n`
+            let expectedOutput = `Repository information of current workspace folder:\n`
+                + `  Local repository URL: https://faked.local.repository(original: https://faked.original.repository)\n`
                 + `\n`;
             assert.equal(loggerText, expectedOutput);
         });
@@ -160,7 +160,7 @@ describe('DocsLoggerObserver', () => {
             let event = new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Succeeded);
             observer.eventHandler(event);
 
-            let expectedOutput = `Restore Finished, start to run 'docfx build'...\n\n`;
+            let expectedOutput = `Restore finished, start to run 'docfx build'...\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -168,7 +168,7 @@ describe('DocsLoggerObserver', () => {
             let event = new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 1);
             observer.eventHandler(event);
 
-            let expectedOutput = `Error: Running 'docfx restore' failed with exit code: 1\n\n`;
+            let expectedOutput = `Error: running 'docfx restore' failed with exit code: 1\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -186,7 +186,7 @@ describe('DocsLoggerObserver', () => {
             let event = new DocfxBuildCompleted(DocfxExecutionResult.Succeeded);
             observer.eventHandler(event);
 
-            let expectedOutput = `Build Finished, Generating report...\n\n`;
+            let expectedOutput = `Build finished, generating report...\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -194,7 +194,7 @@ describe('DocsLoggerObserver', () => {
             let event = new DocfxBuildCompleted(DocfxExecutionResult.Failed, 1);
             observer.eventHandler(event);
 
-            let expectedOutput = `Error: Running 'docfx build' failed with exit code: 1\n\n`;
+            let expectedOutput = `Error: running 'docfx build' failed with exit code: 1\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -228,7 +228,7 @@ describe('DocsLoggerObserver', () => {
         let event = new APICallFailed('FakedAPIName', 'https://faked.api', 'Faked msg');
         observer.eventHandler(event);
 
-        let expectedOutput = `[OPBuildAPIClient.FakedAPIName] Call API 'https://faked.api' failed: Faked msg\n`;
+        let expectedOutput = `[OPBuildAPIClient.FakedAPIName] Call of API 'https://faked.api' failed: Faked msg\n`;
         assert.equal(loggerText, expectedOutput);
     });
 
@@ -246,7 +246,7 @@ describe('DocsLoggerObserver', () => {
             let event = new DependencyInstallCompleted('fakedCorrelationId', true, 10);
             observer.eventHandler(event);
 
-            let expectedOutput = `Run-time dependencies installation finished!\n\n`;
+            let expectedOutput = `Run-time dependencies installation finished.\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 
@@ -254,7 +254,7 @@ describe('DocsLoggerObserver', () => {
             let event = new DependencyInstallCompleted('fakedCorrelationId', false, 10);
             observer.eventHandler(event);
 
-            let expectedOutput = `Installation of run-time dependencies failed, some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.\n\n`;
+            let expectedOutput = `Installation of run-time dependencies failed and some features may not work as expected. Please restart Visual Studio Code to re-trigger the installation.\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
     });
@@ -280,7 +280,7 @@ describe('DocsLoggerObserver', () => {
             let event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, false, 3, 10);
             observer.eventHandler(event);
 
-            let expectedOutput = `Package 'Faked package description' install failed after 3 times try!\n\n`;
+            let expectedOutput = `Package 'Faked package description' installation failed after 3 times attempt!\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
     });
@@ -290,7 +290,7 @@ describe('DocsLoggerObserver', () => {
             let event = new PackageInstallAttemptFailed('FakedCorrelationId', fakedPackage, 1, new Error('Faked error msg.'));
             observer.eventHandler(event);
 
-            let expectedOutput = `Failed to install package 'Faked package description': Faked error msg. Retrying..\n\n`;
+            let expectedOutput = `Failed to install package 'Faked package description': Faked error msg. Retrying...\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
 

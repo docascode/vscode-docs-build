@@ -37,6 +37,6 @@ describe('BuildStatusBarObserver', () => {
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(sync)`);
         assert.equal(statusBarItem.command, undefined);
-        assert.equal(statusBarItem.tooltip, 'Ready to Build');
+        assert.equal(statusBarItem.tooltip, 'Ready to build');
     });
 });

@@ -211,7 +211,7 @@ describe('CredentialController', () => {
                 new UserSignInTriggered('fakedCorrelationId'),
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with GitHub Failed: Please Allow to open external URL to Sign-In`, ErrorCode.GitHubSignInExternalUrlDeclined)),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with GitHub failed: please allow to open external URL to sign in`, ErrorCode.GitHubSignInExternalUrlDeclined)),
             ]);
         });
 
@@ -299,7 +299,7 @@ describe('CredentialController', () => {
                 new UserSignInTriggered('fakedCorrelationId'),
                 new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with Azure DevOps failed. Please Allow to open external URL to Sign-In`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined)),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with Azure DevOps failed. Please allow to open external URL to sign in`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined)),
             ]);
         });
 
