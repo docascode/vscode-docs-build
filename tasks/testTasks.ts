@@ -1,7 +1,9 @@
+import cp from 'child_process';
 import gulp from 'gulp';
 import path from 'path';
 import { rootPath, testAssetsPath } from './projectPaths';
 import { runTests } from 'vscode-test';
+import { executeCommandSync } from '../src/utils/childProcessUtils';
 
 require('./benchmarkTestTask');
 
@@ -9,6 +11,9 @@ gulp.task('test:e2e', async () => {
     const extensionDevelopmentPath = rootPath;
     const extensionTestsPath = path.resolve(rootPath, './out/test/e2eTests/index');
     const testRepoPath = path.join(testAssetsPath, "vscode-docs-build-e2e-test");
+
+    // Initialize Submodule
+    cp.execSync('git submodule update --init', { cwd: rootPath });
 
     const githubToken = process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN;
     if (!githubToken) {
