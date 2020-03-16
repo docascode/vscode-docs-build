@@ -3,7 +3,6 @@ import gulp from 'gulp';
 import path from 'path';
 import { rootPath, testAssetsPath } from './projectPaths';
 import { runTests } from 'vscode-test';
-import { executeCommandSync } from '../src/utils/childProcessUtils';
 
 require('./benchmarkTestTask');
 
