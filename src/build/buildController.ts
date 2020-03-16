@@ -9,7 +9,7 @@ import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeco
 import { EnvironmentController } from '../common/environmentController';
 import { BuildExecutor } from './buildExecutor';
 import { PlatformInformation } from '../common/platformInformation';
-import { OP_CONFIG_FILE_NAME, DocsRepoType } from '../shared';
+import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
 import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed } from '../common/loggingEvents';
 import { ExtensionContext } from '../extensionContext';
