@@ -58,12 +58,12 @@ async function downloadCore(urlString: string, eventStream: EventStream, strictS
                 });
 
                 response.on('error', err => {
-                    reject(new Error(`Response error(${err.message || 'NONE'})`));
+                    reject(new Error(`Response error (${err.message || 'NONE'})`));
                 });
             });
 
             request.on('error', err => {
-                reject(new Error(`Request error(${err.message || 'NONE'})`));
+                reject(new Error(`Request error (${err.message || 'NONE'})`));
             });
 
             request.end();

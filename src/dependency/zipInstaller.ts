@@ -57,7 +57,7 @@ export async function InstallZip(buffer: Buffer, destinationInstallPath: Absolut
                 });
 
                 zipFile.on('error', err => {
-                    reject(new Error(`Zip file error(${err.message})`));
+                    reject(new Error(`Zip file error (${err.message})`));
                 });
             });
         });

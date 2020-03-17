@@ -70,10 +70,10 @@ export class CredentialController {
             this.eventStream.post(new UserSignInTriggered(correlationId));
             let userInfo;
             if(this.environmentController.docsRepoType === 'GitHub') {
-                this.eventStream.post(new UserSignInProgress(`Signed in to Docs with GitHub account...`, 'Sign-in'));
+                this.eventStream.post(new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'));
                 userInfo = await this.signInWithGitHub();
             } else {
-                this.eventStream.post(new UserSignInProgress(`Signed in to Docs with Azure DevOps account...`, 'Sign-in'));
+                this.eventStream.post(new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'));
                 userInfo = await this.signInWithAzureDevOps();
             }
 
