@@ -9,7 +9,7 @@ import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeco
 import { EnvironmentController } from '../common/environmentController';
 import { BuildExecutor } from './buildExecutor';
 import { PlatformInformation } from '../common/platformInformation';
-import { OP_CONFIG_FILE_NAME, DocsRepoType } from '../shared';
+import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
 import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed } from '../common/loggingEvents';
 import { ExtensionContext } from '../extensionContext';
@@ -185,17 +185,14 @@ export class BuildController {
     private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {
         this.eventStream.post(new BuildProgress('Retrieving repository information for the current workspace folder...\n'));
 
-        let localRepositoryUrl: string, doscRepoType: DocsRepoType;
+        let localRepositoryUrl: string;
         try {
-            [doscRepoType, localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
+            [, localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
         } catch (err) {
             throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
         }
 
-        let originalRepositoryUrl = localRepositoryUrl;
-        if (doscRepoType === 'GitHub') {
-            originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
-        }
+        let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
 
         this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
         return [localRepositoryUrl, originalRepositoryUrl];
