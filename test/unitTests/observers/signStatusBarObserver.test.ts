@@ -30,7 +30,7 @@ describe('SignStatusBarObserver', () => {
         let event = new CredentialInitializing();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: initializing`);
+        assert.equal(statusBarItem.text, `Docs: Initializing`);
         assert.equal(statusBarItem.command, undefined);
         assert.equal(statusBarItem.tooltip, undefined);
     });
@@ -39,7 +39,7 @@ describe('SignStatusBarObserver', () => {
         let event = new UserSignInTriggered('FakedCorrelationId');
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: signing in`);
+        assert.equal(statusBarItem.text, `Docs: Signing in`);
         assert.equal(statusBarItem.command, undefined);
         assert.equal(statusBarItem.tooltip, undefined);
     });
@@ -57,7 +57,7 @@ describe('SignStatusBarObserver', () => {
         let event = new CredentialReset();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: signing in to Docs`);
+        assert.equal(statusBarItem.text, `Docs: Sign in to Docs`);
         assert.equal(statusBarItem.command, 'docs.signIn');
         assert.equal(statusBarItem.tooltip, undefined);
     });

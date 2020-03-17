@@ -212,7 +212,7 @@ export class DocsLoggerObserver {
 
     private handleCancelBuildCompleted(event: CancelBuildCompleted) {
         if (!event.succeeded) {
-            this.appendLine(`Failed to cancel the current build: ${(<CancelBuildFailed>event).err.message}`);
+            this.appendLine(`Failed to cancel the current validation: ${(<CancelBuildFailed>event).err.message}`);
             this.appendLine();
         }
     }
