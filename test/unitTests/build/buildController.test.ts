@@ -8,12 +8,11 @@ import { EventStream } from '../../../src/common/eventStream';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
 import { OPBuildAPIClient } from '../../../src/build/opBuildAPIClient';
-import { BuildExecutor } from '../../../src/build/buildExecutor';
 import { BuildResult, DocfxExecutionResult } from '../../../src/build/buildResult';
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildController } from '../../../src/build/buildController';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
-import { fakedCredential } from '../../utils/faker';
+import { fakedCredential, getFakedBuildExecutor } from '../../utils/faker';
 import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
@@ -50,34 +49,6 @@ describe('BuildController', () => {
 
         sinon = createSandbox();
     });
-
-    function getFakedBuildExecutor(docfxExecutionResult: DocfxExecutionResult): BuildExecutor {
-        let buildCancelled = false;
-        return <any>{
-            RunBuild: (correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> => {
-                return new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        if (buildCancelled) {
-                            resolve(<BuildResult>{
-                                result: DocfxExecutionResult.Canceled,
-                                isRestoreSkipped: false
-                            });
-                            buildCancelled = false;
-                        } else {
-                            resolve(<BuildResult>{
-                                result: docfxExecutionResult,
-                                isRestoreSkipped: false
-                            });
-                        }
-                    }, 10);
-                });
-            },
-            cancelBuild: (): Promise<void> => {
-                buildCancelled = true;
-                return Promise.resolve();
-            }
-        };
-    }
 
     beforeEach(() => {
         visualizeBuildReportCalled = false;
