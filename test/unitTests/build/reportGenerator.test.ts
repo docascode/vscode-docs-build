@@ -89,10 +89,6 @@ describe("ReportGenerator", () => {
                 .returns(false);
         });
 
-        beforeEach(() => {
-            testEventBus.clear();
-        });
-
         it("When there is no diagnostics in last build", () => {
             diagnosticSet = {};
             visualizeBuildReport(testRepositoryPath, fakedDiagnosticController, eventStream);
