@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.1.17 (March 19, 2020)
+### Fixed
+- Fix Azure DevOps repository credential expiry detect issue. (#99)
+- Fix build with implicitly restore failed. (#100)
+### Changed
+- Refine message wording. (#98)
+
 ## 0.1.16 (March 9, 2020)
 ### Changed
 - Use latest docfx: 3.0.0-beta-01584-b16bf7cb5. (#91)
