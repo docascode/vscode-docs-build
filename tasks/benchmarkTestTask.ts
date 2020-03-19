@@ -26,7 +26,7 @@ gulp.task('test:benchmark:runTest', async () => {
     const extensionTestsPath = path.resolve(rootPath, 'out/test/benchmarkTests/index');
     const githubToken = process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN;
     if (!githubToken) {
-        console.error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN" from environment variable');
+        throw new Error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN" from environment variable');
     }
     const extensionTestsEnv = {
         'VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN': githubToken

@@ -21,6 +21,26 @@
             "preLaunchTask": "npm: watch"
         },
         {
+            "name": "Launch extension e2e tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "${workspaceFolder}/testAssets/vscode-docs-build-e2e-test",
+                "--disable-extensions",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/out/test/e2eTests"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/out/test/**/*.js"
+            ],
+            "env": {
+                "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}",
+            },
+            "preLaunchTask": "npm: watch",
+            "sourceMaps": true
+        },
+        {
             "name": "Launch extension unit tests",
             "type": "extensionHost",
             "request": "launch",
@@ -52,7 +72,6 @@
             ],
             "env": {
                 "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}",
-                "VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN}"
             },
             "preLaunchTask": "npm: watch",
             "sourceMaps": true

@@ -70,7 +70,7 @@ export function run(): Promise<void> {
 
         function setupAvailableKeyChain() {
             if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
-                console.error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN" from environment variable');
+                throw new Error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN" from environment variable');
             }
             setupKeyChain(sinon, keyChain, <UserInfo>{
                 signType: 'GitHub',
