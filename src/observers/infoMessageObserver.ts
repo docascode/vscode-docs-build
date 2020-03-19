@@ -8,12 +8,12 @@ export class InfoMessageObserver {
             case EventType.UserSignInCompleted:
                 let asUserSignInCompleted = <UserSignInCompleted>event;
                 if (asUserSignInCompleted.succeeded && !asUserSignInCompleted.retrievedFromCache) {
-                    this.showInfoMessage('Successfully Sign-in!', new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
+                    this.showInfoMessage('Successfully signed in!', new MessageAction('Build', 'docs.build', 'Would you like to validate current workspace folder?'));
                 }
                 break;
             case EventType.UserSignOutCompleted:
                 if ((<UserSignOutCompleted>event).succeeded) {
-                    this.showInfoMessage('Successfully Sign-Out!');
+                    this.showInfoMessage('Successfully signed out!');
                 }
                 break;
             case EventType.RepositoryEnabledV3:
@@ -44,13 +44,13 @@ export class InfoMessageObserver {
 
     private handleRepositoryEnabledV3() {
         this.showInfoMessage(
-            `Repository has been migrated to DocFx V3`,
-            new MessageAction('Build', 'docs.build', 'Do you want to build Current workspace folder?'));
+            `Repository has enabled DocFX V3`,
+            new MessageAction('Build', 'docs.build', 'Would you like to validate current workspace folder?'));
     }
 
     private handleBuildJobSucceeded() {
         this.showInfoMessage(
-            `Build finished. Please open the 'Problem' panel to review the result`,
+            `Build finished. Please open the 'Problem' panel to see the results`,
             new MessageAction(
                 "Open",
                 'workbench.actions.view.problems'

@@ -48,7 +48,7 @@ export function visualizeBuildReport(repositoryPath: string, diagnosticControlle
             visualizeBuildReportForDocset(repositoryPath, docset, diagnosticController, eventStream);
         }
     } catch (err) {
-        throw new DocsError('Generate report failed', ErrorCode.GenerateReportFailed);
+        throw new DocsError('Generating report failed', ErrorCode.GenerateReportFailed);
     }
 }
 

@@ -112,23 +112,23 @@ export class DocsLoggerObserver {
         if (event.succeeded) {
             let asUserSignInSucceeded = <UserSignInSucceeded>event;
             if (asUserSignInSucceeded.retrievedFromCache) {
-                this.appendLine(`Successfully retrieved user credential from Local Credential Manager:`);
+                this.appendLine(`Successfully retrieved user credential from local credential manager:`);
             } else {
-                this.appendLine(`Successfully sign-in to Docs Build:`);
+                this.appendLine(`Successfully signed in to Docs:`);
             }
-            this.appendLine(`    - ${asUserSignInSucceeded.credential.userInfo.signType} Account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
+            this.appendLine(`    - ${asUserSignInSucceeded.credential.userInfo.signType} account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
             this.appendLine(`    - User email    : ${asUserSignInSucceeded.credential.userInfo.userEmail}`);
         } else {
-            this.appendLine(`Failed to sign-in to Docs Build: ${(<UserSignInFailed>event).err.message}`);
+            this.appendLine(`Failed to sign in to Docs: ${(<UserSignInFailed>event).err.message}`);
         }
         this.appendLine();
     }
 
     private handleUserSignOutCompleted(event: UserSignOutCompleted) {
         if (event.succeeded) {
-            this.appendLine(`Successfully sign-out from Docs Build!`);
+            this.appendLine(`Successfully signed out from Docs.`);
         } else {
-            this.appendLine(`Failed to sign-out from Docs Build: ${(<UserSignOutFailed>event).err.message}`);
+            this.appendLine(`Failed to sign out from Docs: ${(<UserSignOutFailed>event).err.message}`);
         }
         this.appendLine();
     }
@@ -146,8 +146,8 @@ export class DocsLoggerObserver {
         } else {
             repositoryUrl = event.localRepositoryUrl;
         }
-        this.appendLine(`Repository Information of current workspace folder:`);
-        this.appendLine(`  Local Repository URL: ${repositoryUrl}`);
+        this.appendLine(`Repository information of current workspace folder:`);
+        this.appendLine(`  Local repository URL: ${repositoryUrl}`);
         this.appendLine();
     }
 
@@ -183,10 +183,10 @@ export class DocsLoggerObserver {
     private handleDocfxRestoreCompleted(event: DocfxRestoreCompleted) {
         switch (event.result) {
             case DocfxExecutionResult.Succeeded:
-                this.appendLine(`Restore Finished, start to run 'docfx build'...`);
+                this.appendLine(`Restore finished, start to run 'docfx build'...`);
                 break;
             case DocfxExecutionResult.Failed:
-                this.appendLine(`Error: Running 'docfx restore' failed with exit code: ${event.exitCode}`);
+                this.appendLine(`Error: running 'docfx restore' failed with exit code: ${event.exitCode}`);
                 break;
             case DocfxExecutionResult.Canceled:
                 this.appendLine(`'docfx restore' command has been canceled, skip running 'docfx build'`);
@@ -198,10 +198,10 @@ export class DocsLoggerObserver {
     private handleDocfxBuildCompleted(event: DocfxBuildCompleted) {
         switch (event.result) {
             case DocfxExecutionResult.Succeeded:
-                this.appendLine(`Build Finished, Generating report...`);
+                this.appendLine(`Build finished, generating report...`);
                 break;
             case DocfxExecutionResult.Failed:
-                this.appendLine(`Error: Running 'docfx build' failed with exit code: ${event.exitCode}`);
+                this.appendLine(`Error: running 'docfx build' failed with exit code: ${event.exitCode}`);
                 break;
             case DocfxExecutionResult.Canceled:
                 this.appendLine(`'docfx build' command has been canceled`);
@@ -212,7 +212,7 @@ export class DocsLoggerObserver {
 
     private handleCancelBuildCompleted(event: CancelBuildCompleted) {
         if (!event.succeeded) {
-            this.appendLine(`Failed to cancel the current build: ${(<CancelBuildFailed>event).err.message}`);
+            this.appendLine(`Failed to cancel the current validation: ${(<CancelBuildFailed>event).err.message}`);
             this.appendLine();
         }
     }
@@ -223,19 +223,19 @@ export class DocsLoggerObserver {
     }
 
     private handleAPICallFailed(event: APICallFailed) {
-        this.appendLine(`[OPBuildAPIClient.${event.name}] Call API '${decodeURIComponent(event.url)}' failed: ${event.message}`);
+        this.appendLine(`[OPBuildAPIClient.${event.name}] Call of API '${decodeURIComponent(event.url)}' failed: ${event.message}`);
     }
 
     // Runtime Dependency
     private handleDependencyInstallStarted() {
-        this.appendLine(`Installing runtime dependencies...`);
+        this.appendLine(`Installing run-time dependencies...`);
     }
 
     private handleDependencyInstallCompleted(event: DependencyInstallCompleted) {
         if (event.succeeded) {
-            this.appendLine('Runtime dependencies installation finished!');
+            this.appendLine('Run-time dependencies installation finished.');
         } else {
-            this.appendLine('Install runtime dependencies failed, some features may not work as expected. Please restart Visual Studio Code to re-trigger the download.');
+            this.appendLine('Installation of run-time dependencies failed and some features may not work as expected. Please restart Visual Studio Code to re-trigger the installation.');
         }
         this.appendLine();
     }
@@ -248,7 +248,7 @@ export class DocsLoggerObserver {
         if (event.succeeded) {
             this.appendLine(`Package '${event.installedPackage.description}' installed!`);
         } else {
-            this.appendLine(`Package '${event.installedPackage.description}' install failed after ${INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME} times try!`);
+            this.appendLine(`Package '${event.installedPackage.description}' installation failed after ${INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME} times attempt!`);
         }
         this.appendLine();
     }
@@ -256,7 +256,7 @@ export class DocsLoggerObserver {
     private handlePackageInstallAttemptFailed(event: PackageInstallAttemptFailed) {
         let msg = `Failed to install package '${event.installedPackage.description}': ${event.err.message}`;
         if (event.retryCount < INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME) {
-            msg += ` Retrying..`;
+            msg += ` Retrying...`;
         }
         this.appendLine(msg);
         this.appendLine();

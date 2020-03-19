@@ -18,9 +18,9 @@ function getNodeModule<T>(moduleName: string): T {
 }
 
 const failingKeytar: Keytar = {
-    async getPassword(service, string) { throw new Error('System keyChain unavailable'); },
-    async setPassword(service, string, password) { throw new Error('System keyChain unavailable'); },
-    async deletePassword(service, string) { throw new Error('System keyChain unavailable'); }
+    async getPassword(service, string) { throw new Error('System Keychain unavailable'); },
+    async setPassword(service, string, password) { throw new Error('System Keychain unavailable'); },
+    async deletePassword(service, string) { throw new Error('System Keychain unavailable'); }
 };
 const SERVICE_ID = 'vscode-docs-build';
 

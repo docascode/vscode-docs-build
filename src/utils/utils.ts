@@ -27,14 +27,14 @@ export async function delay<T = void>(ms: number, result?: T) {
 
 export function safelyReadJsonFile(filePath: string) {
     if (!fs.existsSync(filePath)) {
-        throw new Error(`'${filePath}' is not existed`);
+        throw new Error(`'${filePath}' does not exist`);
     }
     return JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }).replace(/^\uFEFF/, '').replace(/\u00A0/g, ' '));
 }
 
 export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): Promise<[DocsRepoType, string, string, string]> {
     if (!fs.existsSync(repositoryPath)) {
-        throw new Error(`Path(${repositoryPath}) is not existed on the current machine`);
+        throw new Error(`Path (${repositoryPath}) does not exist on the current machine`);
     }
     let repository = simpleGit(repositoryPath);
     if (!(await repository.checkIsRepo())) {

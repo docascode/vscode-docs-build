@@ -21,14 +21,14 @@ export async function updateRuntimeDependencies(): Promise<void> {
 async function updateDocFXPackages(packageJSON: PackageJSONFile): Promise<void> {
     const docfxVersion = process.env.DOCFX_VERSION;
     if(!docfxVersion){
-        throw new Error(`Please specific the docfx version by environment variables 'DOCFX_VERSION'`);
+        throw new Error(`Please specify DocFX version by environment variable 'DOCFX_VERSION'`);
     }
-    console.log(`  Updating DocFX packages to version '${docfxVersion}'`);
+    console.log(`  Updating DocFX package to version '${docfxVersion}'`);
 
     let docfxPackages = packageJSON.runtimeDependencies.filter(dp => dp.name === 'docfx');
 
     for (let pkg of docfxPackages) {
-        console.log(`    Update Package '${pkg.id}(${pkg.description})'...`);
+        console.log(`    Updating package '${pkg.id}(${pkg.description})'...`);
         pkg.url = `${DOCFX_PACKAGE_BLOB_URL}/docfx-${pkg.rid}-${docfxVersion}.zip`;
         pkg.integrity = (await getFileFromURL(`${pkg.url}.sha256`)).trim();
     }
@@ -40,7 +40,7 @@ async function getFileFromURL(url: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         let request = https.request(url, response => {
             if (response.statusCode !== 200) {
-                return reject(new Error(`Failed to download from ${url}. Error code '${response.statusCode}'`));
+                return reject(new Error(`Failed to download from ${url} with error code '${response.statusCode}'`));
             }
 
             response.on('data', (chunk) => {
@@ -56,7 +56,7 @@ async function getFileFromURL(url: string): Promise<string> {
             });
 
             response.on('error', err => {
-                reject(new Error(`Failed to download from ${url}. Error Message: ${err.message || 'NONE'}`));
+                reject(new Error(`Failed to download from ${url} with error message: ${err.message || 'NONE'}`));
             });
         });
 
