@@ -192,7 +192,7 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
+                new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
                 new UserSignInSucceeded('fakedCorrelationId', expectedCredential)
             ]);
         });
@@ -210,13 +210,13 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
+                new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with GitHub Failed: Please Allow to open external URL to Sign-In`, ErrorCode.GitHubSignInExternalUrlDeclined)),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with GitHub failed: please allow to open external URL to sign in`, ErrorCode.GitHubSignInExternalUrlDeclined)),
             ]);
         });
 
-        it(`Sign-in with GitHub time out`, async () => {
+        it(`Sign-in with GitHub timed out`, async () => {
             // Prepare
             // Mock sign-in timeout config to 200ms.
             stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
@@ -233,19 +233,19 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with GitHub account...`, 'Sign-in'),
+                new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with GitHub Failed: Time out`, ErrorCode.GitHubSignInTimeOut, new TimeOutError('Time out'))),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with GitHub failed: Timed out`, ErrorCode.GitHubSignInTimeOut, new TimeOutError('Timed out'))),
             ]);
         });
     });
 
 
 
-    describe(`User Sign-in With Azure-DevOps`, () => {
+    describe(`User signing in With Azure DevOps`, () => {
         before(() => { environmentController.docsRepoType = 'Azure DevOps'; });
 
-        it(`Sign-in successfully`, async () => {
+        it(`Sign in successfully`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
                 function (target: vscode.Uri): Thenable<boolean> {
@@ -280,12 +280,12 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with Azure-DevOps account...`, 'Sign-in'),
+                new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'),
                 new UserSignInSucceeded('fakedCorrelationId', expectedCredential)
             ]);
         });
 
-        it(`Sign-in with Azure-DevOps failed`, async () => {
+        it(`Signing in with Azure DevOps failed`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(false);
 
@@ -298,13 +298,13 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with Azure-DevOps account...`, 'Sign-in'),
+                new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with Azure-DevOps Failed: Please Allow to open external URL to Sign-In`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined)),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with Azure DevOps failed: please allow to open external URL to sign in`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined)),
             ]);
         });
 
-        it(`Sign-in with Azure-DevOps time out`, async () => {
+        it(`Signing in with Azure DevOps timed out`, async () => {
             // Prepare
             // Mock sign-in timeout config to 200ms.
             stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
@@ -321,9 +321,9 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
                 new UserSignInTriggered('fakedCorrelationId'),
-                new UserSignInProgress(`Sign-in to docs build with Azure-DevOps account...`, 'Sign-in'),
+                new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Sign-in with Azure-DevOps Failed: Time out`, ErrorCode.AzureDevOpsSignInTimeOut, new TimeOutError('Time out'))),
+                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with Azure DevOps failed: Timed out`, ErrorCode.AzureDevOpsSignInTimeOut, new TimeOutError('Timed out'))),
             ]);
         });
     });

@@ -16,7 +16,7 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
                 this.setAndShowStatusBar(`${this.statusBarTextPrefix} Initializing`, undefined);
                 break;
             case EventType.UserSignInTriggered:
-                this.setAndShowStatusBar(`${this.statusBarTextPrefix} Signing-in`, undefined);
+                this.setAndShowStatusBar(`${this.statusBarTextPrefix} Signing in`, undefined);
                 break;
             case EventType.UserSignInCompleted:
                 if ((<UserSignInCompleted>event).succeeded) {
@@ -25,13 +25,13 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
                 }
                 break;
             case EventType.CredentialReset:
-                this.setAndShowStatusBar(`${this.statusBarTextPrefix} Sign-in to Docs`, 'docs.signIn');
+                this.setAndShowStatusBar(`${this.statusBarTextPrefix} Sign in to Docs`, 'docs.signIn');
                 break;
         }
     }
 
     private get statusBarTextPrefix() {
-        return this.environmentController.env === 'PPE' ? 'Docs(Sandbox):' : 'Docs:';
+        return this.environmentController.env === 'PPE' ? 'Docs (PPE):' : 'Docs:';
     }
 
     private handleSignedIn(credential: Credential) {

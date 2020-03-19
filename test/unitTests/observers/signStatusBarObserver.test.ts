@@ -39,7 +39,7 @@ describe('SignStatusBarObserver', () => {
         let event = new UserSignInTriggered('FakedCorrelationId');
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: Signing-in`);
+        assert.equal(statusBarItem.text, `Docs: Signing in`);
         assert.equal(statusBarItem.command, undefined);
         assert.equal(statusBarItem.tooltip, undefined);
     });
@@ -57,12 +57,12 @@ describe('SignStatusBarObserver', () => {
         let event = new CredentialReset();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: Sign-in to Docs`);
+        assert.equal(statusBarItem.text, `Docs: Sign in to Docs`);
         assert.equal(statusBarItem.command, 'docs.signIn');
         assert.equal(statusBarItem.tooltip, undefined);
     });
 
-    it(`PPE Environment: Status bar is shown with 'Docs(Sandbox):'`, () => {
+    it(`PPE Environment: Status bar is shown with 'Docs (PPE):'`, () => {
         // Mock PPE environment
         setEnvToPPE(environmentController);
 
@@ -70,7 +70,7 @@ describe('SignStatusBarObserver', () => {
         let event = new CredentialInitializing();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs(Sandbox): Initializing`);
+        assert.equal(statusBarItem.text, `Docs (PPE): Initializing`);
         assert.equal(statusBarItem.command, undefined);
         assert.equal(statusBarItem.tooltip, undefined);
     });

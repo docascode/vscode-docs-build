@@ -26,7 +26,7 @@ export async function createInstallLockFile(installFolderPath: AbsolutePath, ins
     return new Promise<void>((resolve, reject) => {
         fs.writeFile(getInstallLockFilePath(installFolderPath, installFileType), content, err => {
             if (err) {
-                reject(new DocsError(`Failed to create ${installFileType} install Lock File`, ErrorCode.CreateInstallLockFileFailed));
+                reject(new DocsError(`Failed to create ${installFileType} installation lock file`, ErrorCode.CreateInstallLockFileFailed));
                 return;
             }
 
