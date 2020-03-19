@@ -170,7 +170,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(executedCommands, [
                 `docfx.exe restore "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}" --stdin`,
-                `docfx.exe build "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}"`,
+                `docfx.exe build "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}" --stdin`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
@@ -194,9 +194,15 @@ describe('BuildExecutor', () => {
             ]);
             assert.equal(executedStdinInput.length, 2);
             assert.notEqual(executedStdinInput[0], undefined);
-            assert.equal(executedStdinInput[1], undefined);
+            assert.notEqual(executedStdinInput[1], undefined);
             let firstExecutedStdinInput = <any>JSON.parse(executedStdinInput[0]);
             assert.deepStrictEqual(firstExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
+                "headers": {
+                    "X-OP-BuildUserToken": "faked-build-token"
+                }
+            });
+            let secondExecutedStdinInput = <any>JSON.parse(executedStdinInput[1]);
+            assert.deepStrictEqual(secondExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
                 "headers": {
                     "X-OP-BuildUserToken": "faked-build-token"
                 }
@@ -288,7 +294,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `./docfx build "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}"`,
+                `./docfx build "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}" --stdin`,
             ]);
 
             // Reset environment
