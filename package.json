@@ -49,24 +49,24 @@
             "PPE"
           ],
           "default": "PROD",
-          "description": "The Build environment"
+          "description": "The environment this extension targets to."
         }
       }
     },
     "commands": [
       {
         "command": "docs.signIn",
-        "title": "Sign-in to Docs Build",
+        "title": "Sign in to Docs",
         "category": "Docs"
       },
       {
         "command": "docs.signOut",
-        "title": "Sign-out from Docs Build",
+        "title": "Sign out from Docs",
         "category": "Docs"
       },
       {
         "command": "docs.build",
-        "title": "Build this workspace folder",
+        "title": "Validate this workspace folder",
         "category": "Docs"
       },
       {
@@ -75,7 +75,7 @@
       },
       {
         "command": "docs.cancelBuild",
-        "title": "Cancel the build",
+        "title": "Cancel the validation",
         "category": "Docs"
       }
     ],

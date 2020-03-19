@@ -14,13 +14,13 @@ export class ErrorMessageObserver {
             case EventType.UserSignInCompleted:
                 if (!(<UserSignInCompleted>event).succeeded) {
                     let asUserSignInFailed = <UserSignInFailed>event;
-                    this.showErrorMessage(`Sign-In failed: ${asUserSignInFailed.err.message}`);
+                    this.showErrorMessage(`Signing in failed: ${asUserSignInFailed.err.message}`);
                 }
                 break;
             case EventType.UserSignOutCompleted:
                 if (!(<UserSignOutCompleted>event).succeeded) {
                     let asUserSignOutFailed = <UserSignOutFailed>event;
-                    this.showErrorMessage(`Sign-Out failed: ${asUserSignOutFailed.err.message}`);
+                    this.showErrorMessage(`Signing out failed: ${asUserSignOutFailed.err.message}`);
                 }
                 break;
             case EventType.BuildCompleted:
@@ -69,15 +69,15 @@ export class ErrorMessageObserver {
                     error.extensionData);
                 break;
             case ErrorCode.TriggerBuildBeforeSignedIn:
-                action = new MessageAction('Sign-in', 'docs.signIn');
+                action = new MessageAction('Sign in', 'docs.signIn');
                 break;
         }
-        this.showErrorMessage(`Build current workspace failed(${event.err.message}), please check the channel output for detail`, action);
+        this.showErrorMessage(`Validation of current workspace failed (${event.err.message}). Please check the channel output for details`, action);
     }
 
     private handleCredentialExpired() {
-        let message = `Credential has expired. Please sign-in again to continue.`;
-        let messageAction = new MessageAction('Sign-in', 'docs.signIn');
+        let message = `Credential has expired. Please sign in again to continue.`;
+        let messageAction = new MessageAction('Sign in', 'docs.signIn');
         this.showErrorMessage(message, messageAction);
     }
 }

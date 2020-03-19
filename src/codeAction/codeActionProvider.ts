@@ -25,7 +25,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
         action.command = {
             command: 'learnMore',
             title: `Learn more about the error code '${diagnostic.code}'`,
-            tooltip: 'This will open the error code detail page.',
+            tooltip: `This will open the documentation for the error code '${diagnostic.code}'.`,
             arguments: [diagnostic.code]
         };
         action.diagnostics = [diagnostic];

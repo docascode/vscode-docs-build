@@ -28,7 +28,7 @@ describe('BuildStatusBarObserver', () => {
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(sync~spin)`);
         assert.equal(statusBarItem.command, undefined);
-        assert.equal(statusBarItem.tooltip, 'Building the current workspace folder');
+        assert.equal(statusBarItem.tooltip, 'Validating the current workspace folder');
     });
 
     it(`BuildInstantReleased: Status bar is shown with '$(sync)' text`, () => {
@@ -37,6 +37,6 @@ describe('BuildStatusBarObserver', () => {
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(sync)`);
         assert.equal(statusBarItem.command, undefined);
-        assert.equal(statusBarItem.tooltip, 'Ready to Build');
+        assert.equal(statusBarItem.tooltip, 'Ready to validate');
     });
 });
