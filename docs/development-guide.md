@@ -31,6 +31,14 @@ $ code .
 3. Press `F5` to run the extension
 4. Check the `Variables`, `Call Stack` and use the `Watch` in the `Run and Debug` Tab.
 
+### Debug the E2E test
+
+1. Set a breakpoint.
+2. Set `VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN` in [launch.json](../.vscode/launch.json)
+3. Select `Launch extension e2e tests` in the `Run and Debug` Tab.
+4. Press `F5` to run the extension
+5. Check the `Variables`, `Call Stack` and use the `Watch` in the `Run and Debug` Tab.
+
 ### Debug the UT
 
 1. Set a breakpoint.
@@ -41,7 +49,7 @@ $ code .
 ### Debug the benchmark test
 
 1. Set a breakpoint.
-2. Set `VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN` and `VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN` in [launch.json](../.vscode/launch.json)
+2. Set `VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN` in [launch.json](../.vscode/launch.json)
 3. Select `Launch extension benchmark tests` in the `Run and Debug` Tab.
 4. Press `F5` to run the extension
 5. Check the `Variables`, `Call Stack` and use the `Watch` in the `Run and Debug` Tab.
@@ -55,6 +63,7 @@ $ code .
 
 ## Scripts
 
-- `npm run test`: Run all the test
+- `npm run test`: Run all the test including E2E test(**requires two tokens be set by environment variable**) and Unit test
+- `npm run test:unit`: Run Unit test
 - `npm run benchmark`: Run benchmark
 - `npm run lint`: Run tslint
