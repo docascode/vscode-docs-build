@@ -1,10 +1,10 @@
 export enum ErrorCode {
-    // Sign GitHub
+    // Sign in and out GitHub
     GitHubSignInTimeOut = 'GitHubSignInTimeOut',
     GitHubSignInExternalUrlDeclined = 'GitHubSignInExternalUrlDeclined',
     GitHubSignInFailed = 'GitHubSignInFailed',
 
-    // Sign Azure-DevOps
+    // Sign in and out Azure DevOps
     AzureDevOpsSignInTimeOut = 'AzureDevOpsSignInTimeOut',
     AzureDevOpsSignInExternalUrlDeclined = 'AzureDevOpsSignInExternalUrlDeclined',
     AzureDevOpsSignInFailed = 'AzureDevOpsSignInFailed',

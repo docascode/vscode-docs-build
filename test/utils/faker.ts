@@ -9,6 +9,8 @@ import { ExtensionContext } from '../../src/extensionContext';
 import { PlatformInformation } from '../../src/common/platformInformation';
 import TelemetryReporter from '../../src/telemetryReporter';
 import { BuildInput, BuildType } from '../../src/build/buildInput';
+import { BuildResult, DocfxExecutionResult } from '../../src/build/buildResult';
+import { BuildExecutor } from '../../src/build/buildExecutor';
 
 export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHub'): EnvironmentController {
     return {
@@ -45,12 +47,12 @@ export function getFakedTelemetryReporter(): TelemetryReporter {
     };
 }
 
-export function setTelemetryUserOptInToTrue(telemetryReporter: TelemetryReporter){
-    telemetryReporter.getUserOptIn = ()=> true;
+export function setTelemetryUserOptInToTrue(telemetryReporter: TelemetryReporter) {
+    telemetryReporter.getUserOptIn = () => true;
 }
 
-export function setTelemetryUserOptInToFalse(telemetryReporter: TelemetryReporter){
-    telemetryReporter.getUserOptIn = ()=> false;
+export function setTelemetryUserOptInToFalse(telemetryReporter: TelemetryReporter) {
+    telemetryReporter.getUserOptIn = () => false;
 }
 
 export function setupKeyChain(sinon: SinonSandbox, keyChain: KeyChain, userInfo: UserInfo) {
@@ -109,3 +111,31 @@ export const fakedBuildInput = <BuildInput>{
     localRepositoryUrl: 'https://faked.repository',
     originalRepositoryUrl: 'https://faked.original.repository'
 };
+
+export function getFakedBuildExecutor(docfxExecutionResult: DocfxExecutionResult): BuildExecutor {
+    let buildCancelled = false;
+    return <any>{
+        RunBuild: (correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> => {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (buildCancelled) {
+                        resolve(<BuildResult>{
+                            result: DocfxExecutionResult.Canceled,
+                            isRestoreSkipped: false
+                        });
+                        buildCancelled = false;
+                    } else {
+                        resolve(<BuildResult>{
+                            result: docfxExecutionResult,
+                            isRestoreSkipped: false
+                        });
+                    }
+                }, 10);
+            });
+        },
+        cancelBuild: (): Promise<void> => {
+            buildCancelled = true;
+            return Promise.resolve();
+        }
+    };
+}

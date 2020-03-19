@@ -6,39 +6,28 @@ import { OPBuildAPIClient } from './opBuildAPIClient';
 import { EventStream } from '../common/eventStream';
 import { DiagnosticController } from './diagnosticController';
 import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds } from '../utils/utils';
-import { EnvironmentController } from '../common/environmentController';
 import { BuildExecutor } from './buildExecutor';
-import { PlatformInformation } from '../common/platformInformation';
-import { OP_CONFIG_FILE_NAME, DocsRepoType } from '../shared';
+import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
 import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed } from '../common/loggingEvents';
-import { ExtensionContext } from '../extensionContext';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
-import TelemetryReporter from '../telemetryReporter';
 
 export class BuildController {
     private activeWorkSpaceFolder: vscode.WorkspaceFolder;
-    private opBuildAPIClient: OPBuildAPIClient;
-    private buildExecutor: BuildExecutor;
     private currentBuildCorrelationId: string;
 
     public instanceAvailable: boolean;
 
     constructor(
-        context: ExtensionContext,
-        environmentController: EnvironmentController,
-        platformInformation: PlatformInformation,
-        telemetryReporter: TelemetryReporter,
+        private buildExecutor: BuildExecutor,
+        private opBuildAPIClient: OPBuildAPIClient,
         private diagnosticController: DiagnosticController,
         private eventStream: EventStream,
     ) {
         this.instanceAvailable = true;
-
-        this.opBuildAPIClient = new OPBuildAPIClient(environmentController);
-        this.buildExecutor = new BuildExecutor(context, platformInformation, environmentController, eventStream, telemetryReporter);
     }
 
     public async build(correlationId: string, uri: vscode.Uri, credential: Credential): Promise<void> {
@@ -68,7 +57,7 @@ export class BuildController {
                     this.eventStream.post(new BuildCanceled(correlationId, buildInput, getTotalTimeInSeconds()));
                     break;
                 case DocfxExecutionResult.Failed:
-                    throw new DocsError('Running docfx failed', ErrorCode.RunDocfxFailed);
+                    throw new DocsError('Running DocFX failed', ErrorCode.RunDocfxFailed);
             }
         }
         catch (err) {
@@ -134,7 +123,7 @@ export class BuildController {
 
         // Check user sign in status
         if (credential.signInStatus !== 'SignedIn') {
-            throw new DocsError('You have to sign-in firstly', ErrorCode.TriggerBuildBeforeSignedIn);
+            throw new DocsError('You have to sign in first', ErrorCode.TriggerBuildBeforeSignedIn);
         }
 
         try {
@@ -172,7 +161,7 @@ export class BuildController {
         let opConfig = safelyReadJsonFile(opConfigPath);
         if (!opConfig.docs_build_engine || opConfig.docs_build_engine.name !== 'docfx_v3') {
             throw new DocsError(
-                'Docs Build requires the repository enable DocFX v3',
+                'Docs Validation Extension requires the repository enable DocFX v3',
                 ErrorCode.TriggerBuildOnV2Repo,
                 undefined,
                 [opConfigPath]
@@ -183,19 +172,16 @@ export class BuildController {
     }
 
     private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {
-        this.eventStream.post(new BuildProgress('Retrieving repository information for the current workspace folder...\n'));
+        this.eventStream.post(new BuildProgress('Retrieving repository information for current workspace folder...\n'));
 
-        let localRepositoryUrl: string, doscRepoType: DocsRepoType;
+        let localRepositoryUrl: string;
         try {
-            [doscRepoType, localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
+            [, localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
         } catch (err) {
-            throw new Error(`Cannot get the repository information for the current workspace folder(${err.message})`);
+            throw new Error(`Cannot get the repository information for current workspace folder(${err.message})`);
         }
 
-        let originalRepositoryUrl = localRepositoryUrl;
-        if (doscRepoType === 'GitHub') {
-            originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
-        }
+        let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
 
         this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
         return [localRepositoryUrl, originalRepositoryUrl];

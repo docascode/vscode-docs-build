@@ -35,6 +35,7 @@ describe(`fileDownloader`, () => {
 
     after(async () => {
         await server.stop();
+        eventBus.dispose();
     });
 
     [
@@ -69,9 +70,9 @@ describe(`fileDownloader`, () => {
         } catch (err) {
             errorThrown = true;
             assert.deepStrictEqual(err, new DocsError(
-                `Failed to download from '${server.baseUrl}/errorResource': Invalid status code(404)`,
+                `Failed to download from '${server.baseUrl}/errorResource': Invalid status code (404)`,
                 ErrorCode.DownloadFileFailed,
-                new Error('Invalid status code(404)')));
+                new Error('Invalid status code (404)')));
 
             assert.deepStrictEqual(eventBus.getEvents(), [
                 new DownloadStarted(downloadDescription)
