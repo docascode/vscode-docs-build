@@ -1,7 +1,7 @@
 import vscode, { Uri, Diagnostic, Range } from 'vscode';
 import assert from 'assert';
 import path from 'path';
-import { ensureExtensionActivatedAndInitializationFinished } from '../utils/testHelper';
+import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from '../utils/testHelper';
 import { EventType } from '../../src/common/eventType';
 import { BaseEvent, UserSignInCompleted, BuildCompleted } from '../../src/common/loggingEvents';
 import { createSandbox, SinonSandbox } from 'sinon';
@@ -48,7 +48,7 @@ describe('E2E Test', () => {
                     case EventType.UserSignInCompleted:
                         let asUserSignInCompleted = <UserSignInCompleted>event;
                         assert.equal(asUserSignInCompleted.succeeded, true);
-                        triggerBuild();
+                        triggerCommand('docs.build');
                         break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);
@@ -57,15 +57,7 @@ describe('E2E Test', () => {
                 }
             });
 
-            triggerSignIn();
-
-            function triggerSignIn() {
-                vscode.commands.executeCommand('docs.signIn');
-            }
-
-            function triggerBuild() {
-                vscode.commands.executeCommand('docs.build');
-            }
+            triggerCommand('docs.signIn');
 
             function finalCheck(event: BuildCompleted) {
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
