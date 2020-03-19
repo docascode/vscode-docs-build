@@ -117,6 +117,8 @@
     "watch": "tsc -watch -p ./",
     "publish": "vsce publish",
     "pretest": "npm run compile",
+    "pretest:ut": "npm run compile",
+    "test:ut": "gulp test:unit",
     "test": "gulp test",
     "prebenchmark": "webpack --mode production",
     "benchmark": "gulp test:benchmark",

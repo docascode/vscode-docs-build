@@ -1,0 +1,3 @@
+[submodule "testAssets/vscode-docs-build-e2e-test"]
+	path = testAssets/vscode-docs-build-e2e-test
+	url = https://github.com/docascode/vscode-docs-build-e2e-test
