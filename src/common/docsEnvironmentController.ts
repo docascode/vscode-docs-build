@@ -9,19 +9,19 @@ const ENVIRONMENT_CONFIG_NAME = 'environment';
 
 export class DocsEnvironmentController implements EnvironmentController, vscode.Disposable {
 
-    private activeWorkSpaceFolder: vscode.WorkspaceFolder;
-    private environment: Environment;
+    private _activeWorkSpaceFolder: vscode.WorkspaceFolder;
+    private _environment: Environment;
     private _docsRepoType: DocsRepoType;
-    private configurationChangeListener: vscode.Disposable;
+    private _configurationChangeListener: vscode.Disposable;
 
-    constructor(private eventStream: EventStream) {
-        this.activeWorkSpaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
+    constructor(private _eventStream: EventStream) {
+        this._activeWorkSpaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
     }
 
     public static async CreateAsync(eventStream: EventStream): Promise<DocsEnvironmentController> {
         const docsEnvironmentController = new DocsEnvironmentController(eventStream);
         await docsEnvironmentController.refreshEnv();
-        docsEnvironmentController.configurationChangeListener = vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
+        docsEnvironmentController._configurationChangeListener = vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
             if (event.affectsConfiguration(`${EXTENSION_NAME}.${ENVIRONMENT_CONFIG_NAME}`)) {
                 docsEnvironmentController.refreshEnv();
             }
@@ -30,11 +30,11 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     public dispose(): void {
-        this.configurationChangeListener.dispose();
+        this._configurationChangeListener.dispose();
     }
 
     public get env(): Environment {
-        return this.environment;
+        return this._environment;
     }
 
     public get docsRepoType(): DocsRepoType {
@@ -47,9 +47,9 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     private async getDocsRepoType(): Promise<DocsRepoType> {
-        if (this.activeWorkSpaceFolder) {
+        if (this._activeWorkSpaceFolder) {
             try {
-                const [docsRepoType] = await getRepositoryInfoFromLocalFolder(this.activeWorkSpaceFolder.uri.fsPath);
+                const [docsRepoType] = await getRepositoryInfoFromLocalFolder(this._activeWorkSpaceFolder.uri.fsPath);
                 return docsRepoType;
             } catch {
                 return 'GitHub';
@@ -62,11 +62,11 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
         let newEnv = this.getEnv();
         let newDocsRepoType = await this.getDocsRepoType();
 
-        if((this.environment && this.environment !== newEnv) ||
+        if((this._environment && this._environment !== newEnv) ||
            (this._docsRepoType && this._docsRepoType !== newDocsRepoType)) {
-            this.eventStream.post(new EnvironmentChanged(newEnv));
+            this._eventStream.post(new EnvironmentChanged(newEnv));
         }
-        this.environment = newEnv;
+        this._environment = newEnv;
         this._docsRepoType = newDocsRepoType;
     }
 }

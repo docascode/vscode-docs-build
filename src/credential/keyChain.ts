@@ -25,14 +25,14 @@ const failingKeytar: Keytar = {
 const SERVICE_ID = 'vscode-docs-build';
 
 export class KeyChain {
-    private keytar: Keytar;
+    private _keytar: Keytar;
 
-    constructor(private environmentController: EnvironmentController, overwriteKeytar?: Keytar) {
-        this.keytar = overwriteKeytar || getNodeModule<Keytar>('keytar') || failingKeytar;
+    constructor(private _environmentController: EnvironmentController, overwriteKeytar?: Keytar) {
+        this._keytar = overwriteKeytar || getNodeModule<Keytar>('keytar') || failingKeytar;
     }
 
     public async getUserInfo(): Promise<UserInfo | null> {
-        let userInfoStr = await this.keytar.getPassword(SERVICE_ID, this.userInfoAccountId);
+        let userInfoStr = await this._keytar.getPassword(SERVICE_ID, this.userInfoAccountId);
         if (userInfoStr) {
             return JSON.parse(userInfoStr);
         }
@@ -40,14 +40,14 @@ export class KeyChain {
     }
 
     public async setUserInfo(userInfo: UserInfo): Promise<void> {
-        await this.keytar.setPassword(SERVICE_ID, this.userInfoAccountId, JSON.stringify(userInfo));
+        await this._keytar.setPassword(SERVICE_ID, this.userInfoAccountId, JSON.stringify(userInfo));
     }
 
     public async resetUserInfo(): Promise<void> {
-        await this.keytar.deletePassword(SERVICE_ID, this.userInfoAccountId);
+        await this._keytar.deletePassword(SERVICE_ID, this.userInfoAccountId);
     }
 
     private get userInfoAccountId(): string {
-        return `docs-build-user-info-${this.environmentController.env}-${this.environmentController.docsRepoType}`;
+        return `docs-build-user-info-${this._environmentController.env}-${this._environmentController.docsRepoType}`;
     }
 }

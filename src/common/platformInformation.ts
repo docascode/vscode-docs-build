@@ -2,25 +2,25 @@ import os from 'os';
 const arch = require('arch');
 
 export class PlatformInformation {
-    public constructor(private platform: string, private architecture: string, public rid: string) { }
+    public constructor(private _platform: string, private _architecture: string, public rid: string) { }
 
     public isWindows(): boolean {
-        return this.platform === 'win32';
+        return this._platform === 'win32';
     }
 
     public isMacOS(): boolean {
-        return this.platform === 'darwin';
+        return this._platform === 'darwin';
     }
 
     public toString(): string {
-        let result = this.platform;
+        let result = this._platform;
 
-        if (this.architecture) {
+        if (this._architecture) {
             if (result) {
                 result += ', ';
             }
 
-            result += this.architecture;
+            result += this._architecture;
         }
 
         return result;
