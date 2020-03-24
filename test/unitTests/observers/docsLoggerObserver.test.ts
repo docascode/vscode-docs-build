@@ -304,13 +304,13 @@ describe('DocsLoggerObserver', () => {
     });
 
     it(`DownloadStarted`, () => {
-        observer.downloadProgressDotValue = 1;
+        observer.downloadProgressDot = 1;
         let event = new DownloadStarted('Faked package description');
         observer.eventHandler(event);
 
         let expectedOutput = `Downloading package '${event.pkgDescription}' `;
         assert.equal(loggerText, expectedOutput);
-        assert.equal(observer.downloadProgressDotValue, 0);
+        assert.equal(observer.downloadProgressDot, 0);
     });
 
     it(`DownloadSizeObtained`, () => {
@@ -331,23 +331,23 @@ describe('DocsLoggerObserver', () => {
         });
 
         it('5%', () => {
-            observer.downloadProgressDotValue = 0;
+            observer.downloadProgressDot = 0;
             let event = new DownloadProgress(5);
             observer.eventHandler(event);
 
             let expectedOutput = `.`;
             assert.equal(loggerText, expectedOutput);
-            assert.equal(observer.downloadProgressDotValue, 1);
+            assert.equal(observer.downloadProgressDot, 1);
         });
 
         it('6%', () => {
-            observer.downloadProgressDotValue = 0;
+            observer.downloadProgressDot = 0;
             let event = new DownloadProgress(6);
             observer.eventHandler(event);
 
             let expectedOutput = `..`;
             assert.equal(loggerText, expectedOutput);
-            assert.equal(observer.downloadProgressDotValue, 2);
+            assert.equal(observer.downloadProgressDot, 2);
         });
     });
 

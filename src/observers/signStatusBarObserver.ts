@@ -6,7 +6,7 @@ import { StatusBarItem } from 'vscode';
 import { EnvironmentController } from '../common/environmentController';
 
 export class SignStatusBarObserver extends BaseStatusBarObserver {
-    constructor(statusBarItem: StatusBarItem, private environmentController: EnvironmentController) {
+    constructor(statusBarItem: StatusBarItem, private _environmentController: EnvironmentController) {
         super(statusBarItem);
     }
 
@@ -31,7 +31,7 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
     }
 
     private get statusBarTextPrefix() {
-        return this.environmentController.env === 'PPE' ? 'Docs (PPE):' : 'Docs:';
+        return this._environmentController.env === 'PPE' ? 'Docs (PPE):' : 'Docs:';
     }
 
     private handleSignedIn(credential: Credential) {

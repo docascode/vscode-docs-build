@@ -16,55 +16,58 @@ import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
 
 export class BuildController {
-    private activeWorkSpaceFolder: vscode.WorkspaceFolder;
-    private currentBuildCorrelationId: string;
-
-    public instanceAvailable: boolean;
+    private _activeWorkSpaceFolder: vscode.WorkspaceFolder;
+    private _currentBuildCorrelationId: string;
+    private _instanceAvailable: boolean;
 
     constructor(
-        private buildExecutor: BuildExecutor,
-        private opBuildAPIClient: OPBuildAPIClient,
-        private diagnosticController: DiagnosticController,
-        private eventStream: EventStream,
+        private _buildExecutor: BuildExecutor,
+        private _opBuildAPIClient: OPBuildAPIClient,
+        private _diagnosticController: DiagnosticController,
+        private _eventStream: EventStream,
     ) {
-        this.instanceAvailable = true;
+        this._instanceAvailable = true;
+    }
+
+    public get instanceAvailable(): boolean {
+        return this._instanceAvailable;
     }
 
     public async build(correlationId: string, uri: vscode.Uri, credential: Credential): Promise<void> {
         let buildInput: BuildInput;
-        this.eventStream.post(new BuildTriggered(correlationId));
+        this._eventStream.post(new BuildTriggered(correlationId));
         let start = Date.now();
 
         try {
             buildInput = await this.getBuildInput(uri, credential);
             this.setAvailableFlag();
         } catch (err) {
-            this.eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
+            this._eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
             return;
         }
 
         try {
-            this.currentBuildCorrelationId = correlationId;
-            this.eventStream.post(new BuildStarted(this.activeWorkSpaceFolder.name));
-            let buildResult = await this.buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo.userToken);
+            this._currentBuildCorrelationId = correlationId;
+            this._eventStream.post(new BuildStarted(this._activeWorkSpaceFolder.name));
+            let buildResult = await this._buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             switch (buildResult.result) {
                 case DocfxExecutionResult.Succeeded:
-                    visualizeBuildReport(buildInput.localRepositoryPath, this.diagnosticController, this.eventStream);
-                    this.eventStream.post(new BuildSucceeded(correlationId, buildInput, getTotalTimeInSeconds(), buildResult));
+                    visualizeBuildReport(buildInput.localRepositoryPath, this._diagnosticController, this._eventStream);
+                    this._eventStream.post(new BuildSucceeded(correlationId, buildInput, getTotalTimeInSeconds(), buildResult));
                     break;
                 case DocfxExecutionResult.Canceled:
-                    this.eventStream.post(new BuildCanceled(correlationId, buildInput, getTotalTimeInSeconds()));
+                    this._eventStream.post(new BuildCanceled(correlationId, buildInput, getTotalTimeInSeconds()));
                     break;
                 case DocfxExecutionResult.Failed:
                     throw new DocsError('Running DocFX failed', ErrorCode.RunDocfxFailed);
             }
         }
         catch (err) {
-            this.eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
+            this._eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
         }
         finally {
-            this.currentBuildCorrelationId = undefined;
+            this._currentBuildCorrelationId = undefined;
             this.resetAvailableFlag();
         }
 
@@ -74,35 +77,35 @@ export class BuildController {
     }
 
     public cancelBuild(): void {
-        if (!this.instanceAvailable) {
+        if (!this._instanceAvailable) {
             try {
-                this.eventStream.post(new CancelBuildTriggered(this.currentBuildCorrelationId));
-                this.buildExecutor.cancelBuild();
-                this.eventStream.post(new CancelBuildSucceeded(this.currentBuildCorrelationId));
+                this._eventStream.post(new CancelBuildTriggered(this._currentBuildCorrelationId));
+                this._buildExecutor.cancelBuild();
+                this._eventStream.post(new CancelBuildSucceeded(this._currentBuildCorrelationId));
             } catch (err) {
-                this.eventStream.post(new CancelBuildFailed(this.currentBuildCorrelationId, err));
+                this._eventStream.post(new CancelBuildFailed(this._currentBuildCorrelationId, err));
             }
         }
     }
 
     private setAvailableFlag() {
-        if (!this.instanceAvailable) {
+        if (!this._instanceAvailable) {
             throw new DocsError('Last build has not finished.', ErrorCode.TriggerBuildWhenInstantNotAvailable);
         }
-        this.instanceAvailable = false;
-        this.eventStream.post(new BuildInstantAllocated());
+        this._instanceAvailable = false;
+        this._eventStream.post(new BuildInstantAllocated());
     }
 
     private resetAvailableFlag() {
-        this.instanceAvailable = true;
-        this.eventStream.post(new BuildInstantReleased());
+        this._instanceAvailable = true;
+        this._eventStream.post(new BuildInstantReleased());
     }
 
     private async getBuildInput(uri: vscode.Uri, credential: Credential): Promise<BuildInput> {
         if (uri) {
             // Trigger build from the right click the workspace file.
-            this.activeWorkSpaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-        } else if (!this.activeWorkSpaceFolder) {
+            this._activeWorkSpaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+        } else if (!this._activeWorkSpaceFolder) {
             // Trigger build from command palette or click the status bar
             let workspaceFolders = vscode.workspace.workspaceFolders;
             if (workspaceFolders) {
@@ -113,13 +116,13 @@ export class BuildController {
                         ErrorCode.TriggerBuildWithoutSpecificWorkspace
                     );
                 }
-                this.activeWorkSpaceFolder = workspaceFolders[0];
+                this._activeWorkSpaceFolder = workspaceFolders[0];
             }
         }
 
         // Check the workspace is a valid Docs repository
-        await this.validateWorkSpaceFolder(this.activeWorkSpaceFolder);
-        let localRepositoryPath = this.activeWorkSpaceFolder.uri.fsPath;
+        await this.validateWorkSpaceFolder(this._activeWorkSpaceFolder);
+        let localRepositoryPath = this._activeWorkSpaceFolder.uri.fsPath;
 
         // Check user sign in status
         if (credential.signInStatus !== 'SignedIn') {
@@ -172,7 +175,7 @@ export class BuildController {
     }
 
     private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {
-        this.eventStream.post(new BuildProgress('Retrieving repository information for current workspace folder...\n'));
+        this._eventStream.post(new BuildProgress('Retrieving repository information for current workspace folder...\n'));
 
         let localRepositoryUrl: string;
         try {
@@ -181,9 +184,9 @@ export class BuildController {
             throw new Error(`Cannot get the repository information for current workspace folder(${err.message})`);
         }
 
-        let originalRepositoryUrl = await this.opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this.eventStream);
+        let originalRepositoryUrl = await this._opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this._eventStream);
 
-        this.eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
+        this._eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
         return [localRepositoryUrl, originalRepositoryUrl];
     }
 }

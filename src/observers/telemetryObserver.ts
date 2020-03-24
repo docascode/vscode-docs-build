@@ -10,7 +10,7 @@ import os from 'os';
 import path from 'path';
 
 export class TelemetryObserver {
-    constructor(private reporter: TelemetryReporter) { }
+    constructor(private _reporter: TelemetryReporter) { }
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
@@ -72,7 +72,7 @@ export class TelemetryObserver {
 
     // Sign
     private handleUserSignInTriggered(event: UserSignInTriggered) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'SignIn.Triggered',
             {
                 CorrelationId: event.correlationId
@@ -83,7 +83,7 @@ export class TelemetryObserver {
     private handleUserSignInCompleted(event: UserSignInCompleted) {
         // Set telemetry common property
         if (event.succeeded) {
-            this.reporter.setCommonProperty({
+            this._reporter.setCommonProperty({
                 'common.docsUserId': (<UserSignInSucceeded>event).credential.userInfo.userId
             });
         }
@@ -101,7 +101,7 @@ export class TelemetryObserver {
         } else {
             errorCode = this.getErrorCode((<UserSignInFailed>event).err);
         }
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'SignIn.Completed',
             {
                 CorrelationId: event.correlationId,
@@ -116,13 +116,13 @@ export class TelemetryObserver {
     }
 
     private handleCredentialReset() {
-        this.reporter.setCommonProperty({
+        this._reporter.setCommonProperty({
             'common.docsUserId': undefined
         });
     }
 
     private handleUserSignOutTriggered(event: UserSignOutTriggered) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'SignOut.Triggered',
             {
                 CorrelationId: event.correlationId
@@ -131,7 +131,7 @@ export class TelemetryObserver {
     }
 
     private handleUserSignOutCompleted(event: UserSignOutCompleted) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'SignOut.Completed',
             {
                 CorrelationId: event.correlationId,
@@ -142,7 +142,7 @@ export class TelemetryObserver {
 
     // Build
     private handleBuildTriggered(event: BuildTriggered) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'Build.Triggered',
             {
                 CorrelationId: event.correlationId
@@ -174,7 +174,7 @@ export class TelemetryObserver {
         } else if (event.result === DocfxExecutionResult.Failed) {
             errorCode = this.getErrorCode((<BuildFailed>event).err);
         }
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'Build.Completed',
             {
                 CorrelationId: event.correlationId,
@@ -195,7 +195,7 @@ export class TelemetryObserver {
 
     private handleDocfxRestoreCompleted(event: DocfxRestoreCompleted) {
         getFolderSizeInMB(path.join(os.homedir(), '.docfx')).then(cacheSize =>
-            this.reporter.sendTelemetryEvent(
+            this._reporter.sendTelemetryEvent(
             'BuildCacheSize',
             {
                 CorrelationId: event.correlationId,
@@ -207,7 +207,7 @@ export class TelemetryObserver {
     }
 
     private handleCancelBuildTriggered(event: CancelBuildTriggered){
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'CancelBuild.Triggered',
             {
                 CorrelationId: event.correlationId,
@@ -216,7 +216,7 @@ export class TelemetryObserver {
     }
 
     private handleCancelBuildCompleted(event: CancelBuildCompleted){
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'CancelBuild.Completed',
             {
                 CorrelationId: event.correlationId,
@@ -227,7 +227,7 @@ export class TelemetryObserver {
 
     // Install Dependencies
     private handleDependencyInstallStarted(event: DependencyInstallStarted) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'InstallDependency.Started',
             {
                 CorrelationId: event.correlationId
@@ -236,7 +236,7 @@ export class TelemetryObserver {
     }
 
     private handleDependencyInstallCompleted(event: DependencyInstallCompleted) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'InstallDependency.Completed',
             {
                 CorrelationId: event.correlationId,
@@ -249,7 +249,7 @@ export class TelemetryObserver {
     }
 
     private handlePackageInstallCompleted(event: PackageInstallCompleted) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'InstallDependency.Package.Completed',
             {
                 CorrelationId: event.correlationId,
@@ -264,7 +264,7 @@ export class TelemetryObserver {
     }
 
     private handlePackageInstallAttemptFailed(event: PackageInstallAttemptFailed) {
-        this.reporter.sendTelemetryMetric(
+        this._reporter.sendTelemetryMetric(
             'InstallDependency.Package.Error',
             1,
             {
@@ -276,7 +276,7 @@ export class TelemetryObserver {
     }
 
     private handleQuickPickTriggered(event: QuickPickTriggered) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'QuickPick.Triggered',
             {
                 CorrelationId: event.correlationId
@@ -285,7 +285,7 @@ export class TelemetryObserver {
     }
 
     private handleQuickPickCommandSelected(event: QuickPickCommandSelected) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'QuickPick.CommandSelected',
             {
                 CorrelationId: event.correlationId,
@@ -295,7 +295,7 @@ export class TelemetryObserver {
     }
 
     private handleLearnMoreClicked(event: LearnMoreClicked) {
-        this.reporter.sendTelemetryEvent(
+        this._reporter.sendTelemetryEvent(
             'LearnMore.Clicked',
             {
                 CorrelationId: event.correlationId,
