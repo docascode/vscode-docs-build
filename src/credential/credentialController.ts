@@ -35,10 +35,10 @@ export interface Credential {
 }
 
 export class CredentialController {
-    private signInStatus: DocsSignInStatus;
-    private userInfo: UserInfo;
+    private _signInStatus: DocsSignInStatus;
+    private _userInfo: UserInfo;
 
-    constructor(private keyChain: KeyChain, private eventStream: EventStream, private environmentController: EnvironmentController) { }
+    constructor(private _keyChain: KeyChain, private _eventStream: EventStream, private _environmentController: EnvironmentController) { }
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
@@ -58,65 +58,65 @@ export class CredentialController {
 
     public get credential(): Credential {
         return {
-            signInStatus: this.signInStatus,
-            userInfo: this.userInfo
+            signInStatus: this._signInStatus,
+            userInfo: this._userInfo
         };
     }
 
     public async signIn(correlationId: string): Promise<void> {
         try {
             this.resetCredential();
-            this.signInStatus = 'SigningIn';
-            this.eventStream.post(new UserSignInTriggered(correlationId));
+            this._signInStatus = 'SigningIn';
+            this._eventStream.post(new UserSignInTriggered(correlationId));
             let userInfo;
-            if(this.environmentController.docsRepoType === 'GitHub') {
-                this.eventStream.post(new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'));
+            if(this._environmentController.docsRepoType === 'GitHub') {
+                this._eventStream.post(new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'));
                 userInfo = await this.signInWithGitHub();
             } else {
-                this.eventStream.post(new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'));
+                this._eventStream.post(new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'));
                 userInfo = await this.signInWithAzureDevOps();
             }
 
-            this.signInStatus = 'SignedIn';
-            this.userInfo = userInfo;
-            await this.keyChain.setUserInfo(userInfo);
-            this.eventStream.post(new UserSignInSucceeded(correlationId, this.credential));
+            this._signInStatus = 'SignedIn';
+            this._userInfo = userInfo;
+            await this._keyChain.setUserInfo(userInfo);
+            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential));
         } catch (err) {
             this.resetCredential();
-            this.eventStream.post(new UserSignInFailed(correlationId, err));
+            this._eventStream.post(new UserSignInFailed(correlationId, err));
         }
     }
 
     public signOut(correlationId: string) {
-        this.eventStream.post(new UserSignOutTriggered(correlationId));
+        this._eventStream.post(new UserSignOutTriggered(correlationId));
         try {
             this.resetCredential();
-            this.eventStream.post(new UserSignOutSucceeded(correlationId));
+            this._eventStream.post(new UserSignOutSucceeded(correlationId));
         } catch (err) {
-            this.eventStream.post(new UserSignOutFailed(correlationId, err));
+            this._eventStream.post(new UserSignOutFailed(correlationId, err));
         }
     }
 
     private resetCredential() {
-        this.keyChain.resetUserInfo();
-        this.signInStatus = 'SignedOut';
-        this.userInfo = undefined;
-        this.eventStream.post(new CredentialReset());
+        this._keyChain.resetUserInfo();
+        this._signInStatus = 'SignedOut';
+        this._userInfo = undefined;
+        this._eventStream.post(new CredentialReset());
     }
 
     private async refreshCredential(correlationId: string): Promise<void> {
-        let userInfo = await this.keyChain.getUserInfo();
+        let userInfo = await this._keyChain.getUserInfo();
         if (userInfo) {
-            this.signInStatus = 'SignedIn';
-            this.userInfo = userInfo;
-            this.eventStream.post(new UserSignInSucceeded(correlationId, this.credential, true));
+            this._signInStatus = 'SignedIn';
+            this._userInfo = userInfo;
+            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential, true));
         } else {
             this.resetCredential();
         }
     }
 
     private async getSignInUrl(callbackUri: string): Promise<string> {
-        const authConfig = extensionConfig.auth[this.environmentController.env];
+        const authConfig = extensionConfig.auth[this._environmentController.env];
         const query = querystring.stringify({
             client_id: authConfig.AADAuthClientId,
             redirect_uri: authConfig.AADAuthRedirectUrl,
@@ -130,7 +130,7 @@ export class CredentialController {
     }
 
     private async signInWithGitHub(): Promise<UserInfo | null> {
-        const authConfig = extensionConfig.auth[this.environmentController.env];
+        const authConfig = extensionConfig.auth[this._environmentController.env];
         const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/github-authenticate?${querystring.stringify({response_mode : "query"})}`));
         const githubQuery = querystring.stringify({
             client_id: authConfig.GitHubOauthClientId,
@@ -174,7 +174,7 @@ export class CredentialController {
     }
 
     private async signInWithAzureDevOps(): Promise<UserInfo | null> {
-        const authConfig = extensionConfig.auth[this.environmentController.env];
+        const authConfig = extensionConfig.auth[this._environmentController.env];
         const callbackUri = await vscode.env.asExternalUri(
             vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/azure-devops-authenticate?${querystring.stringify({response_mode : "query"})}`));
         const azureDevOpsQuery = querystring.stringify({

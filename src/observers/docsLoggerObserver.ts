@@ -5,17 +5,17 @@ import { DocfxExecutionResult } from '../build/buildResult';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
 
 export class DocsLoggerObserver {
-    private downloadProgressDot: number;
-    constructor(private logger: OutputChannel) { }
+    private _downloadProgressDot: number;
+    constructor(private _logger: OutputChannel) { }
 
     // Just for Test
-    public get downloadProgressDotValue() {
-        return this.downloadProgressDot;
+    public get downloadProgressDot() {
+        return this._downloadProgressDot;
     }
 
     // Just for Test
-    public set downloadProgressDotValue(value: number) {
-        this.downloadProgressDot = value;
+    public set downloadProgressDot(value: number) {
+        this._downloadProgressDot = value;
     }
 
     public eventHandler = (event: BaseEvent) => {
@@ -100,11 +100,11 @@ export class DocsLoggerObserver {
     }
 
     private appendLine(message?: string): void {
-        this.logger.appendLine(message || '');
+        this._logger.appendLine(message || '');
     }
 
     private append(message: string): void {
-        this.logger.append(message);
+        this._logger.append(message);
     }
 
     // Sign
@@ -264,7 +264,7 @@ export class DocsLoggerObserver {
 
     private handleDownloadStarted(event: DownloadStarted) {
         this.append(`Downloading package '${event.pkgDescription}' `);
-        this.downloadProgressDot = 0;
+        this._downloadProgressDot = 0;
     }
 
     private handleDownloadSizeObtained(event: DownloadSizeObtained) {
@@ -276,8 +276,8 @@ export class DocsLoggerObserver {
             this.appendLine(` Done!`);
         } else {
             let newDownloadProgressDot = Math.ceil(event.downloadPercentage / 5);
-            this.append('.'.repeat(newDownloadProgressDot - this.downloadProgressDot));
-            this.downloadProgressDot = newDownloadProgressDot;
+            this.append('.'.repeat(newDownloadProgressDot - this._downloadProgressDot));
+            this._downloadProgressDot = newDownloadProgressDot;
         }
     }
 

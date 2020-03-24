@@ -10,7 +10,7 @@ const OP_BUILD_USER_TOKEN_HEADER_NAME = 'X-OP-BuildUserToken';
 type RequestMethod = 'POST' | 'GET';
 
 export class OPBuildAPIClient {
-    constructor(private environmentController: EnvironmentController) { }
+    constructor(private _environmentController: EnvironmentController) { }
 
     public async getOriginalRepositoryUrl(gitRepoUrl: string, opBuildUserToken: string, eventStream: EventStream): Promise<string> {
         const requestUrl = `${this.APIBaseUrl}/v2/Repositories/OriginalRepositoryUrl`
@@ -27,7 +27,7 @@ export class OPBuildAPIClient {
     }
 
     private get APIBaseUrl() {
-        return extensionConfig.OPBuildAPIEndPoint[this.environmentController.env];
+        return extensionConfig.OPBuildAPIEndPoint[this._environmentController.env];
     }
 
     private async sendRequest(

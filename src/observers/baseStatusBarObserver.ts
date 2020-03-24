@@ -2,26 +2,23 @@ import { StatusBarItem } from 'vscode';
 import { BaseEvent } from '../common/loggingEvents';
 
 export abstract class BaseStatusBarObserver {
-    private statusBarItem: StatusBarItem;
-
-    constructor(statusBarItem: StatusBarItem) {
-        this.statusBarItem = statusBarItem;
+    constructor(private _statusBarItem: StatusBarItem) {
     }
 
     public setAndShowStatusBar(text: string, command: string, color?: string, tooltip?: string) {
-        this.statusBarItem.text = text;
-        this.statusBarItem.command = command;
-        this.statusBarItem.color = color;
-        this.statusBarItem.tooltip = tooltip;
-        this.statusBarItem.show();
+        this._statusBarItem.text = text;
+        this._statusBarItem.command = command;
+        this._statusBarItem.color = color;
+        this._statusBarItem.tooltip = tooltip;
+        this._statusBarItem.show();
     }
 
     public resetAndHideStatusBar() {
-        this.statusBarItem.text = undefined;
-        this.statusBarItem.command = undefined;
-        this.statusBarItem.color = undefined;
-        this.statusBarItem.tooltip = undefined;
-        this.statusBarItem.hide();
+        this._statusBarItem.text = undefined;
+        this._statusBarItem.command = undefined;
+        this._statusBarItem.color = undefined;
+        this._statusBarItem.tooltip = undefined;
+        this._statusBarItem.hide();
     }
 
     abstract eventHandler: (event: BaseEvent) => void;
