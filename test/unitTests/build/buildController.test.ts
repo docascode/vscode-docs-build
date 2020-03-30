@@ -135,7 +135,7 @@ describe('BuildController', () => {
             new BuildTriggered('fakedCorrelationId'),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
-                    `Docs Validation Extension requires the repository enable DocFX v3`,
+                    `Docs Validation Extension requires the repository has DocFX v3 enabled`,
                     ErrorCode.TriggerBuildOnV2Repo,
                     undefined,
                     [fakedOpConfigPath]

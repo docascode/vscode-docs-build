@@ -8,7 +8,7 @@ export class InfoMessageObserver {
             case EventType.UserSignInCompleted:
                 let asUserSignInCompleted = <UserSignInCompleted>event;
                 if (asUserSignInCompleted.succeeded && !asUserSignInCompleted.retrievedFromCache) {
-                    this.showInfoMessage('Successfully signed in!', new MessageAction('Build', 'docs.build', 'Would you like to validate current workspace folder?'));
+                    this.showInfoMessage('Successfully signed in!', new MessageAction('Build', 'docs.build', 'Would you like to validate the current workspace folder?'));
                 }
                 break;
             case EventType.UserSignOutCompleted:
