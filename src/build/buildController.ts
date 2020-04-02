@@ -164,7 +164,7 @@ export class BuildController {
         let opConfig = safelyReadJsonFile(opConfigPath);
         if (!opConfig.docs_build_engine || opConfig.docs_build_engine.name !== 'docfx_v3') {
             throw new DocsError(
-                'Docs Validation Extension requires the repository enable DocFX v3',
+                'Docs Validation Extension requires the repository has DocFX v3 enabled',
                 ErrorCode.TriggerBuildOnV2Repo,
                 undefined,
                 [opConfigPath]
