@@ -12,7 +12,7 @@ import { BuildResult, DocfxExecutionResult } from '../../../src/build/buildResul
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildController } from '../../../src/build/buildController';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
-import { fakedCredential, getFakedBuildExecutor } from '../../utils/faker';
+import { fakedCredential, getFakedBuildExecutor, tempFolder } from '../../utils/faker';
 import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
@@ -54,7 +54,7 @@ describe('BuildController', () => {
         visualizeBuildReportCalled = false;
         testEventBus.clear();
         sinon.restore();
-        sinon.stub(reportGenerator, "visualizeBuildReport").callsFake((repositoryPath: string, diagnosticController: DiagnosticController, eventStream: EventStream) => {
+        sinon.stub(reportGenerator, "visualizeBuildReport").callsFake((repositoryPath: string, outputFolderPath: string, diagnosticController: DiagnosticController, eventStream: EventStream) => {
             visualizeBuildReportCalled = true;
         });
         sinon.stub(utils, "getDurationInSeconds").returns(1);
@@ -186,7 +186,8 @@ describe('BuildController', () => {
                     buildType: 'FullBuild',
                     localRepositoryPath: path.normalize('/fakedFolder/'),
                     localRepositoryUrl: 'https://faked.repository',
-                    originalRepositoryUrl: 'https://faked.original.repository'
+                    originalRepositoryUrl: 'https://faked.original.repository',
+                    outputFolderPath: path.resolve(tempFolder, 'output')
                 },
                 1,
                 <BuildResult>{

@@ -5,7 +5,7 @@ import { Credential } from '../credential/credentialController';
 import { OPBuildAPIClient } from './opBuildAPIClient';
 import { EventStream } from '../common/eventStream';
 import { DiagnosticController } from './diagnosticController';
-import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds } from '../utils/utils';
+import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds, getRandomOutputFolder } from '../utils/utils';
 import { BuildExecutor } from './buildExecutor';
 import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
@@ -53,7 +53,7 @@ export class BuildController {
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             switch (buildResult.result) {
                 case DocfxExecutionResult.Succeeded:
-                    visualizeBuildReport(buildInput.localRepositoryPath, this._diagnosticController, this._eventStream);
+                    visualizeBuildReport(buildInput.localRepositoryPath, buildInput.outputFolderPath, this._diagnosticController, this._eventStream);
                     this._eventStream.post(new BuildSucceeded(correlationId, buildInput, getTotalTimeInSeconds(), buildResult));
                     break;
                 case DocfxExecutionResult.Canceled:
@@ -68,6 +68,7 @@ export class BuildController {
         }
         finally {
             this._currentBuildCorrelationId = undefined;
+            fs.removeSync(buildInput.outputFolderPath);
             this.resetAvailableFlag();
         }
 
@@ -131,11 +132,16 @@ export class BuildController {
 
         try {
             let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
+            let outputFolderPath = process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER
+                                     ? process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER
+                                     : getRandomOutputFolder();
+            outputFolderPath = path.normalize(outputFolderPath);
             return <BuildInput>{
                 buildType: BuildType.FullBuild,
                 localRepositoryPath,
                 localRepositoryUrl,
                 originalRepositoryUrl,
+                outputFolderPath,
             };
         } catch (err) {
             throw new DocsError(
