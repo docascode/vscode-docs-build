@@ -130,11 +130,11 @@ describe("ReportGenerator", () => {
                 ]
             });
         stubFsExistsSync
-            .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder1/.errors.log`)).returns(true)
-            .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder2/.errors.log`)).returns(true);
+            .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder1/.errors.log`)).returns(true)
+            .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder2/.errors.log`)).returns(true);
         stubFsReadFileSync
-            .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder1/.errors.log`)).returns(fakedErrorLog)
-            .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder2/.errors.log`)).returns(fakedErrorLog);
+            .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder1/.errors.log`)).returns(fakedErrorLog)
+            .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder2/.errors.log`)).returns(fakedErrorLog);
 
         visualizeBuildReport(testRepositoryPath, testOutputFolderPath, fakedDiagnosticController, eventStream);
 

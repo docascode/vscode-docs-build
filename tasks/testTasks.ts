@@ -1,7 +1,7 @@
 import cp from 'child_process';
 import gulp from 'gulp';
 import path from 'path';
-import { rootPath, testAssetsPath, tempPath } from './projectPaths';
+import { rootPath, testAssetsPath, defaultOutputPath } from './projectPaths';
 import { runTests } from 'vscode-test';
 
 require('./benchmarkTestTask');
@@ -20,7 +20,7 @@ gulp.task('test:e2e', async () => {
     }
     const extensionTestsEnv = {
         'VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN': githubToken,
-        'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': path.resolve(tempPath, 'output')
+        'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath
     };
 
     // Download VS Code, unzip it and run the integration test
@@ -37,7 +37,7 @@ gulp.task('test:unit', async () => {
     const extensionTestsPath = path.resolve(rootPath, './out/test/unitTests/index');
 
     const extensionTestsEnv = {
-        'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': path.resolve(tempPath, 'output')
+        'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath
     };
 
     // Download VS Code, unzip it and run the integration test
