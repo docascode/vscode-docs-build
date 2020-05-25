@@ -124,7 +124,7 @@ export function getRandomOutputFolder() {
 }
 
 export function normalizeDriveLetter(filePath: string) {
-    if(process.platform === 'win32'){
+    if (process.platform === 'win32') {
         return filePath.replace(/^([A-Z]):/, (match, driver) => `${driver.toLowerCase()}:`);
     } else {
         return filePath;

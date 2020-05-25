@@ -132,10 +132,7 @@ export class BuildController {
 
         try {
             let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
-            let outputFolderPath = process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER
-                                     ? process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER
-                                     : getRandomOutputFolder();
-            outputFolderPath = normalizeDriveLetter(outputFolderPath);
+            let outputFolderPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER || getRandomOutputFolder());
             return <BuildInput>{
                 buildType: BuildType.FullBuild,
                 localRepositoryPath,
