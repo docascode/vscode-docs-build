@@ -118,7 +118,15 @@ export async function killProcessTree(pid: number, signal?: string | number) {
     });
 }
 
-export function getRandomOutputFolder(){
+export function getRandomOutputFolder() {
     let randomFolder = Math.random().toString(36).substring(7);
     return path.join(tempDirectory, randomFolder);
+}
+
+export function normalizeDriveLetter(filePath: string) {
+    if(process.platform === 'win32'){
+        return filePath.replace(/^([A-Z]):/, (match, driver) => `${driver.toLowerCase()}:`);
+    } else {
+        return filePath;
+    }
 }

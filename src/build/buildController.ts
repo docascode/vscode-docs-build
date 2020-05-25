@@ -5,7 +5,7 @@ import { Credential } from '../credential/credentialController';
 import { OPBuildAPIClient } from './opBuildAPIClient';
 import { EventStream } from '../common/eventStream';
 import { DiagnosticController } from './diagnosticController';
-import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds, getRandomOutputFolder } from '../utils/utils';
+import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds, getRandomOutputFolder, normalizeDriveLetter } from '../utils/utils';
 import { BuildExecutor } from './buildExecutor';
 import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
@@ -135,7 +135,7 @@ export class BuildController {
             let outputFolderPath = process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER
                                      ? process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER
                                      : getRandomOutputFolder();
-            outputFolderPath = path.normalize(outputFolderPath);
+            outputFolderPath = normalizeDriveLetter(outputFolderPath);
             return <BuildInput>{
                 buildType: BuildType.FullBuild,
                 localRepositoryPath,
