@@ -3,6 +3,7 @@ export interface BuildInput {
     readonly localRepositoryPath: string;
     readonly localRepositoryUrl: string;
     readonly originalRepositoryUrl: string;
+    readonly outputFolderPath: string;
 }
 
 export enum BuildType {

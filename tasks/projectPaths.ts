@@ -1,6 +1,8 @@
 import path from 'path';
 
 export const rootPath = path.resolve(__dirname, '..');
+export const tempPath = path.resolve(rootPath, '.temp');
+export const defaultOutputPath = path.resolve(tempPath, 'output');
 
 const nodeModulesPath = path.join(rootPath, 'node_modules');
 export const nycPath = path.join(nodeModulesPath, 'nyc', 'bin', 'nyc.js');

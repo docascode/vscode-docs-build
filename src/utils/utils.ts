@@ -1,4 +1,5 @@
 import vscode from 'vscode';
+import path from 'path';
 import fs from 'fs-extra';
 import gitUrlParse from 'git-url-parse';
 import simpleGit from 'simple-git/promise';
@@ -6,6 +7,7 @@ import uuid from 'uuid/v1';
 import du from 'du';
 import psTree from 'ps-tree';
 import { DocsRepoType } from '../shared';
+import tempDirectory from 'temp-dir';
 
 export function parseQuery(uri: vscode.Uri) {
     return uri.query.split('&').reduce((prev: any, current) => {
@@ -114,4 +116,17 @@ export async function killProcessTree(pid: number, signal?: string | number) {
             }
         });
     });
+}
+
+export function getRandomOutputFolder() {
+    let randomFolder = Math.random().toString(36).substring(7);
+    return path.join(tempDirectory, randomFolder);
+}
+
+export function normalizeDriveLetter(filePath: string) {
+    if (process.platform === 'win32') {
+        return filePath.replace(/^([A-Z]):/, (match, driver) => `${driver.toLowerCase()}:`);
+    } else {
+        return filePath;
+    }
 }

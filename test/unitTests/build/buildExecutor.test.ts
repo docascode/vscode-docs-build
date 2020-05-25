@@ -7,7 +7,7 @@ import { EventStream } from '../../../src/common/eventStream';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
-import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtensionContext, fakedBuildInput, testFolder, setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, getFakedWindowsPlatformInformation, getFakedNonWindowsPlatformInformation } from '../../utils/faker';
+import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtensionContext, fakedBuildInput, tempFolder, setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, getFakedWindowsPlatformInformation, getFakedNonWindowsPlatformInformation, defaultOutputPath } from '../../utils/faker';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import { BuildExecutor } from '../../../src/build/buildExecutor';
@@ -169,12 +169,12 @@ describe('BuildExecutor', () => {
             assert.equal(buildResult.isRestoreSkipped, false);
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe restore "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}" --stdin`,
-                `docfx.exe build "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}" --stdin`,
+                `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoyPath')}" --legacy --output "${defaultOutputPath}" --stdin`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${defaultOutputPath}" --stdin`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
-                    cwd: `${path.resolve(testFolder, 'fakedExtensionPath', '.docfx')}`,
+                    cwd: `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`,
                     env: {
                         APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
@@ -183,7 +183,7 @@ describe('BuildExecutor', () => {
                     }
                 },
                 {
-                    cwd: `${path.resolve(testFolder, 'fakedExtensionPath', '.docfx')}`,
+                    cwd: `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`,
                     env: {
                         APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
@@ -277,7 +277,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(executedOptions, [
                 {
-                    cwd: `${path.resolve(testFolder, 'fakedExtensionPath', '.docfx')}`,
+                    cwd: `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`,
                     env: {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
@@ -294,7 +294,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `./docfx build "${path.resolve(testFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${path.resolve(testFolder, 'fakedRepositoyPath', '_site')}" --stdin`,
+                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoyPath')}" --legacy --dry-run --output "${defaultOutputPath}" --stdin`,
             ]);
 
             // Reset environment

@@ -13,6 +13,7 @@ import { BuildProgress } from '../../../src/common/loggingEvents';
 
 describe("ReportGenerator", () => {
     const testRepositoryPath = path.resolve(__dirname, "fakedFolder");
+    const testOutputFolderPath = path.resolve(__dirname, "fakeOutput");
     const fakedErrorLog = `{"message_severity":"info","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
         + `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
         + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`;
@@ -85,13 +86,13 @@ describe("ReportGenerator", () => {
     describe("No validation result", () => {
         before(() => {
             stubFsExistsSync
-                .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder1/.errors.log`))
+                .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder1/.errors.log`))
                 .returns(false);
         });
 
         it("When there is no diagnostics in last build", () => {
             diagnosticSet = {};
-            visualizeBuildReport(testRepositoryPath, fakedDiagnosticController, eventStream);
+            visualizeBuildReport(testRepositoryPath, testOutputFolderPath, fakedDiagnosticController, eventStream);
 
             assert.deepStrictEqual(diagnosticSet, {});
             assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -104,7 +105,7 @@ describe("ReportGenerator", () => {
             diagnosticSet = {
                 "testPath": {}
             };
-            visualizeBuildReport(testRepositoryPath, fakedDiagnosticController, eventStream);
+            visualizeBuildReport(testRepositoryPath, testOutputFolderPath, fakedDiagnosticController, eventStream);
 
             assert.deepStrictEqual(diagnosticSet, {});
             assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -129,13 +130,13 @@ describe("ReportGenerator", () => {
                 ]
             });
         stubFsExistsSync
-            .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder1/.errors.log`)).returns(true)
-            .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder2/.errors.log`)).returns(true);
+            .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder1/.errors.log`)).returns(true)
+            .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder2/.errors.log`)).returns(true);
         stubFsReadFileSync
-            .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder1/.errors.log`)).returns(fakedErrorLog)
-            .withArgs(path.normalize(`${testRepositoryPath}/_site/sourceFolder2/.errors.log`)).returns(fakedErrorLog);
+            .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder1/.errors.log`)).returns(fakedErrorLog)
+            .withArgs(path.normalize(`${testOutputFolderPath}/sourceFolder2/.errors.log`)).returns(fakedErrorLog);
 
-        visualizeBuildReport(testRepositoryPath, fakedDiagnosticController, eventStream);
+        visualizeBuildReport(testRepositoryPath, testOutputFolderPath, fakedDiagnosticController, eventStream);
 
         assert.deepStrictEqual(diagnosticSet, {
             [path.normalize(`${testRepositoryPath}/sourceFolder1/index.md`)]: {
