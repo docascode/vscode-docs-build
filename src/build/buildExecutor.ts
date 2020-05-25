@@ -1,5 +1,3 @@
-import fs from 'fs-extra';
-import path from 'path';
 import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
@@ -12,7 +10,6 @@ import { basicAuth, getDurationInSeconds, killProcessTree } from '../utils/utils
 import { ExtensionContext } from '../extensionContext';
 import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
-import { OUTPUT_FOLDER_NAME } from '../shared';
 import config from '../config';
 import TelemetryReporter from '../telemetryReporter';
 
@@ -42,14 +39,11 @@ export class BuildExecutor {
             isRestoreSkipped: BuildExecutor.SKIP_RESTORE
         };
 
-        let outputPath = path.join(input.localRepositoryPath, OUTPUT_FOLDER_NAME);
-        fs.emptyDirSync(outputPath);
-
         let [envs, stdinInput] = this.getBuildParameters(correlationId, input, buildUserToken);
 
         if (!BuildExecutor.SKIP_RESTORE) {
             let restoreStart = Date.now();
-            let result = await this.restore(correlationId, input.localRepositoryPath, outputPath, envs, stdinInput);
+            let result = await this.restore(correlationId, input.localRepositoryPath, input.outputFolderPath, envs, stdinInput);
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;
@@ -59,7 +53,7 @@ export class BuildExecutor {
         }
 
         let buildStart = Date.now();
-        buildResult.result = await this.build(input.localRepositoryPath, outputPath, envs, stdinInput);
+        buildResult.result = await this.build(input.localRepositoryPath, input.outputFolderPath, envs, stdinInput);
         buildResult.buildTimeInSeconds = getDurationInSeconds(Date.now() - buildStart);
         return buildResult;
     }
@@ -109,12 +103,12 @@ export class BuildExecutor {
     private async restore(
         correlationId: string,
         repositoryPath: string,
-        outputPath: string,
+        outputFolderPath: string,
         envs: any,
         stdinInput: string): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxRestoreStarted());
-            let command = `${this._binary} restore "${repositoryPath}" --legacy --output "${outputPath}" --stdin`;
+            let command = `${this._binary} restore "${repositoryPath}" --legacy --output "${outputFolderPath}" --stdin`;
             this._runningChildProcess = executeDocfx(
                 command,
                 this._eventStream,
@@ -138,12 +132,12 @@ export class BuildExecutor {
 
     private async build(
         repositoryPath: string,
-        outputPath: string,
+        outputFolderPath: string,
         envs: any,
         stdinInput: string): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxBuildStarted());
-            let command = `${this._binary} build "${repositoryPath}" --legacy --dry-run --output "${outputPath}" --stdin`;
+            let command = `${this._binary} build "${repositoryPath}" --legacy --dry-run --output "${outputFolderPath}" --stdin`;
             this._runningChildProcess = executeDocfx(
                 command,
                 this._eventStream,

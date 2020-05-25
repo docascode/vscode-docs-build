@@ -80,7 +80,8 @@ export const fakedCredential = <Credential>{
     }
 };
 
-export const testFolder = path.resolve(__dirname, '.temp');
+export const tempFolder = path.resolve(__dirname, '../../../.temp');
+export const defaultOutputPath = path.resolve(tempFolder, 'output');
 
 export const fakedExtensionContext = <ExtensionContext>{
     packageJson: {
@@ -101,15 +102,16 @@ export const fakedExtensionContext = <ExtensionContext>{
             }
         ]
     },
-    extensionPath: path.resolve(testFolder, 'fakedExtensionPath'),
+    extensionPath: path.resolve(tempFolder, 'fakedExtensionPath'),
     extensionVersion: '0.0.1'
 };
 
 export const fakedBuildInput = <BuildInput>{
     buildType: BuildType.FullBuild,
-    localRepositoryPath: path.resolve(testFolder, 'fakedRepositoyPath'),
+    localRepositoryPath: path.resolve(tempFolder, 'fakedRepositoyPath'),
     localRepositoryUrl: 'https://faked.repository',
-    originalRepositoryUrl: 'https://faked.original.repository'
+    originalRepositoryUrl: 'https://faked.original.repository',
+    outputFolderPath: defaultOutputPath
 };
 
 export function getFakedBuildExecutor(docfxExecutionResult: DocfxExecutionResult): BuildExecutor {

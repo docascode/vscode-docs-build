@@ -36,6 +36,7 @@
             ],
             "env": {
                 "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}",
+                "VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER": "${workspaceFolder}/.temp/output"
             },
             "preLaunchTask": "npm: watch",
             "sourceMaps": true
@@ -53,6 +54,9 @@
             "outFiles": [
                 "${workspaceFolder}/out/test/**/*.js"
             ],
+            "env": {
+                "VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER": "${workspaceFolder}/.temp/output"
+            },
             "preLaunchTask": "npm: watch",
             "sourceMaps": true
         },
