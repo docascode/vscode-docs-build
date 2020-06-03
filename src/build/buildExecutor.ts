@@ -116,7 +116,7 @@ export class BuildExecutor {
                     let docfxExecutionResult: DocfxExecutionResult;
                     if (signal === 'SIGKILL') {
                         docfxExecutionResult = DocfxExecutionResult.Canceled;
-                    } else if (code === 0) {
+                    } else if (code === 0 || code === 1) {
                         docfxExecutionResult = DocfxExecutionResult.Succeeded;
                     } else {
                         docfxExecutionResult = DocfxExecutionResult.Failed;
@@ -145,7 +145,7 @@ export class BuildExecutor {
                     let docfxExecutionResult: DocfxExecutionResult;
                     if (signal === 'SIGKILL') {
                         docfxExecutionResult = DocfxExecutionResult.Canceled;
-                    } else if (code === 0) {
+                    } else if (code === 0 || code === 1) {
                         docfxExecutionResult = DocfxExecutionResult.Succeeded;
                     } else {
                         docfxExecutionResult = DocfxExecutionResult.Failed;

@@ -108,13 +108,13 @@ describe('BuildExecutor', () => {
 
     describe('Restore', () => {
         it('Restore failed', async () => {
-            mockExecuteDocfx(1, 0);
+            mockExecuteDocfx(2, 0);
 
             let buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxRestoreStarted(),
-                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 1),
+                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 2),
             ]);
             assert.equal(buildResult.result, DocfxExecutionResult.Failed);
             assert.equal(buildResult.isRestoreSkipped, false);
@@ -125,7 +125,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxRestoreStarted(),
-                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 1),
+                new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Failed, 2),
             ]);
         });
 
@@ -228,7 +228,7 @@ describe('BuildExecutor', () => {
         });
 
         it('Build Failed', async () => {
-            mockExecuteDocfx(0, 1);
+            mockExecuteDocfx(0, 2);
 
             let buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
@@ -236,7 +236,7 @@ describe('BuildExecutor', () => {
             assert.equal(buildResult.isRestoreSkipped, true);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxBuildStarted(),
-                new DocfxBuildCompleted(DocfxExecutionResult.Failed, 1)
+                new DocfxBuildCompleted(DocfxExecutionResult.Failed, 2)
             ]);
         });
 
