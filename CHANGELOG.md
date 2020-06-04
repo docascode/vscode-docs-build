@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.1.18 (June 4, 2020)
+### Changed
+- Stop generating output inside the repository to avoid introducing git changes. (#106)
+- Use latest docfx: 3.0.0-beta1.15+efb56a9787. (#107)
+
 ## 0.1.17 (March 19, 2020)
 ### Fixed
 - Fix Azure DevOps repository credential expiry detect issue. (#99)
