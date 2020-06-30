@@ -89,7 +89,7 @@
                 "updateRuntimeDependencies"
             ],
             "env": {
-                "DOCFX_VERSION": "3.0.0-beta1.15+efb56a9787"
+                "DOCFX_VERSION": "3.0.0-beta1.116+20abf93571"
             },
             "cwd": "${workspaceFolder}"
         }
