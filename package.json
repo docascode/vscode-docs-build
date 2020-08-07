@@ -29,7 +29,8 @@
     "theme": "light"
   },
   "activationEvents": [
-    "workspaceContains:.openpublishing.publish.config.json"
+    "workspaceContains:.openpublishing.publish.config.json",
+    "onCommand:docs.build"
   ],
   "author": {
     "email": "jipe@microsoft.com",

@@ -10,7 +10,6 @@ export enum EventType {
     UserSignOutCompleted,
 
     // Build
-    RepositoryEnabledV3,
     RepositoryInfoRetrieved,
 
     BuildInstantReleased,

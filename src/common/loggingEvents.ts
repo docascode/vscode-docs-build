@@ -73,10 +73,6 @@ export class CredentialExpired implements BaseEvent {
 }
 
 // Build
-export class RepositoryEnabledV3 implements BaseEvent {
-    type = EventType.RepositoryEnabledV3;
-}
-
 export class RepositoryInfoRetrieved implements BaseEvent {
     type = EventType.RepositoryInfoRetrieved;
     constructor(public localRepositoryUrl: string, public originalRepositoryUrl: string) { }
