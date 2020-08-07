@@ -128,7 +128,11 @@ describe('BuildController', () => {
     });
 
     it('Trigger build on V2 repository', async () => {
-        stubSafelyReadJsonFile.withArgs(fakedOpConfigPath).returns({});
+        stubSafelyReadJsonFile.withArgs(fakedOpConfigPath).returns({
+            "docs_build_engine": {
+                "name": "docfx_v2"
+            }
+        });
 
         await buildController.build('fakedCorrelationId', undefined, fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -137,8 +141,7 @@ describe('BuildController', () => {
                 new DocsError(
                     `Docs Validation Extension requires the repository has DocFX v3 enabled`,
                     ErrorCode.TriggerBuildOnV2Repo,
-                    undefined,
-                    [fakedOpConfigPath]
+                    undefined
                 ))
         ]);
     });
