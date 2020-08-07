@@ -16,9 +16,6 @@ export class InfoMessageObserver {
                     this.showInfoMessage('Successfully signed out!');
                 }
                 break;
-            case EventType.RepositoryEnabledV3:
-                this.handleRepositoryEnabledV3();
-                break;
             case EventType.BuildCompleted:
                 if ((<BuildCompleted>event).result === 'Succeeded') {
                     this.handleBuildJobSucceeded();
@@ -40,12 +37,6 @@ export class InfoMessageObserver {
                 input.callback(input.args);
             }
         }
-    }
-
-    private handleRepositoryEnabledV3() {
-        this.showInfoMessage(
-            `Repository has enabled DocFX V3`,
-            new MessageAction('Build', 'docs.build', 'Would you like to validate current workspace folder?'));
     }
 
     private handleBuildJobSucceeded() {

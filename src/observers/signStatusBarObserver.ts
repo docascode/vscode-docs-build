@@ -31,11 +31,11 @@ export class SignStatusBarObserver extends BaseStatusBarObserver {
     }
 
     private get statusBarTextPrefix() {
-        return this._environmentController.env === 'PPE' ? 'Docs (PPE):' : 'Docs:';
+        return this._environmentController.env === 'PPE' ? 'Docs Validation(PPE):' : 'Docs Validation:';
     }
 
     private handleSignedIn(credential: Credential) {
         let icon = credential.userInfo!.signType === 'GitHub' ? '$(mark-github)' : '$(rocket)';
-        this.setAndShowStatusBar(`${this.statusBarTextPrefix} ${icon} ${credential.userInfo!.userName}(${credential.userInfo!.userEmail})`, 'docs.validationQuickPick');
+        this.setAndShowStatusBar(`${this.statusBarTextPrefix} ${icon} ${credential.userInfo!.userName}`, 'docs.validationQuickPick');
     }
 }

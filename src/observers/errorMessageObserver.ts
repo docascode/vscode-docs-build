@@ -1,9 +1,7 @@
-import fs from 'fs-extra';
 import vscode from 'vscode';
 import { EventType } from '../common/eventType';
-import { BaseEvent, UserSignInFailed, RepositoryEnabledV3, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed } from '../common/loggingEvents';
+import { BaseEvent, UserSignInFailed, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed } from '../common/loggingEvents';
 import { MessageAction } from '../shared';
-import { safelyReadJsonFile } from '../utils/utils';
 import { ErrorCode } from '../error/errorCode';
 import { DocsError } from '../error/docsError';
 import { DocfxExecutionResult } from '../build/buildResult';
@@ -53,21 +51,6 @@ export class ErrorMessageObserver {
         let action: MessageAction;
         let error = <DocsError>event.err;
         switch (error.code) {
-            case ErrorCode.TriggerBuildOnV2Repo:
-                action = new MessageAction(
-                    'Enable DocFX v3',
-                    undefined,
-                    'Would you like to enable DocFX v3 on this repository?',
-                    (args: any[]) => {
-                        let [opConfigPath, eventStream] = args;
-                        let opConfig = safelyReadJsonFile(opConfigPath);
-                        opConfig.docs_build_engine = { name: 'docfx_v3' };
-                        vscode.window.showTextDocument(vscode.Uri.file(opConfigPath));
-                        fs.writeJSONSync(opConfigPath, opConfig, { spaces: 2 });
-                        eventStream.post(new RepositoryEnabledV3());
-                    },
-                    error.extensionData);
-                break;
             case ErrorCode.TriggerBuildBeforeSignedIn:
                 action = new MessageAction('Sign in', 'docs.signIn');
                 break;
