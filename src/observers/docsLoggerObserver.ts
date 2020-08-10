@@ -116,8 +116,8 @@ export class DocsLoggerObserver {
             } else {
                 this.appendLine(`Successfully signed in to Docs:`);
             }
-            this.appendLine(`    - ${asUserSignInSucceeded.credential.userInfo.signType} account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
-            this.appendLine(`    - User email    : ${asUserSignInSucceeded.credential.userInfo.userEmail}`);
+            this.appendLine(`    - Platform: ${asUserSignInSucceeded.credential.userInfo.signType}`);
+            this.appendLine(`    - Account: ${asUserSignInSucceeded.credential.userInfo.userName}`);
         } else {
             this.appendLine(`Failed to sign in to Docs: ${(<UserSignInFailed>event).err.message}`);
         }

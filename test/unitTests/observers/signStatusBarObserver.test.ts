@@ -30,7 +30,7 @@ describe('SignStatusBarObserver', () => {
         let event = new CredentialInitializing();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: Initializing`);
+        assert.equal(statusBarItem.text, `Docs Validation: Initializing`);
         assert.equal(statusBarItem.command, undefined);
         assert.equal(statusBarItem.tooltip, undefined);
     });
@@ -39,7 +39,7 @@ describe('SignStatusBarObserver', () => {
         let event = new UserSignInTriggered('FakedCorrelationId');
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: Signing in`);
+        assert.equal(statusBarItem.text, `Docs Validation: Signing in`);
         assert.equal(statusBarItem.command, undefined);
         assert.equal(statusBarItem.tooltip, undefined);
     });
@@ -48,7 +48,7 @@ describe('SignStatusBarObserver', () => {
         let event = new UserSignInSucceeded('FakedCorrelationId', fakedCredential);
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: $(mark-github) Faked User(fake@microsoft.com)`);
+        assert.equal(statusBarItem.text, `Docs Validation: $(mark-github) Faked User`);
         assert.equal(statusBarItem.command, 'docs.validationQuickPick');
         assert.equal(statusBarItem.tooltip, undefined);
     });
@@ -57,7 +57,7 @@ describe('SignStatusBarObserver', () => {
         let event = new CredentialReset();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs: Sign in to Docs`);
+        assert.equal(statusBarItem.text, `Docs Validation: Sign in to Docs`);
         assert.equal(statusBarItem.command, 'docs.signIn');
         assert.equal(statusBarItem.tooltip, undefined);
     });
@@ -70,7 +70,7 @@ describe('SignStatusBarObserver', () => {
         let event = new CredentialInitializing();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs (PPE): Initializing`);
+        assert.equal(statusBarItem.text, `Docs Validation(PPE): Initializing`);
         assert.equal(statusBarItem.command, undefined);
         assert.equal(statusBarItem.tooltip, undefined);
     });
