@@ -29,8 +29,8 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             let expectedOutput = `Successfully signed in to Docs:\n`
-                + `    - GitHub account: Faked User\n`
-                + `    - User email    : fake@microsoft.com\n`
+                + `    - Platform: GitHub\n`
+                + `    - Account: Faked User\n`
                 + `\n`;
             assert.equal(loggerText, expectedOutput);
         });
@@ -48,8 +48,8 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
     
             let expectedOutput = `Successfully retrieved user credential from local credential manager:\n`
-                + `    - GitHub account: Faked User\n`
-                + `    - User email    : fake@microsoft.com\n`
+                + `    - Platform: GitHub\n`
+                + `    - Account: Faked User\n`
                 + `\n`;
             assert.equal(loggerText, expectedOutput);
         });
