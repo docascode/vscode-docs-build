@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.20 (August 12, 2020)
+### Changed
+- Update extension prerequisites check. (#110)
+
 ## 0.1.19 (June 30, 2020)
 ### Changed
 - Use latest docfx: 3.0.0-beta1.116+20abf93571.

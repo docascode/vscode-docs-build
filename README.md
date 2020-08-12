@@ -7,9 +7,7 @@ This is a VS Code extension to provide the Local Build Validation experience for
 ## Features
 
 - Ability to sign in/out of the dependant Docs APIs, and display the status in the status bar
-![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/VSCode-Docs-OAuth.gif?raw=true)
-
-- Build the current workspace folder
+- Validate the current workspace folder
 - Display the real-time build streaming output in the `Docs` channel
 - Display all diagnostics in the `Problem` view with detailed information after a build has finished.
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/vscode-docs-build.gif?raw=true)
