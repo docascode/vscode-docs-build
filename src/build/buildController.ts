@@ -9,7 +9,7 @@ import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeco
 import { BuildExecutor } from './buildExecutor';
 import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
-import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed } from '../common/loggingEvents';
+import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
@@ -19,6 +19,7 @@ export class BuildController {
     private _activeWorkSpaceFolder: vscode.WorkspaceFolder;
     private _currentBuildCorrelationId: string;
     private _instanceAvailable: boolean;
+    private _buildInput: BuildInput;
 
     constructor(
         private _buildExecutor: BuildExecutor,
@@ -39,6 +40,7 @@ export class BuildController {
         let start = Date.now();
 
         try {
+            await this.validateUserCredential(credential);
             buildInput = await this.getBuildInput(uri, credential);
             this.setAvailableFlag();
         } catch (err) {
@@ -102,10 +104,21 @@ export class BuildController {
         this._eventStream.post(new BuildInstantReleased());
     }
 
+    private async validateUserCredential(credential: Credential) {
+        if (credential.signInStatus !== 'SignedIn') {
+            throw new DocsError(`You have to sign in first`, ErrorCode.TriggerBuildBeforeSignedIn);
+        }
+
+        if (!(await this._opBuildAPIClient.validateCredential(credential.userInfo.userToken, this._eventStream))) {
+            this._eventStream.post(new CredentialExpired());
+            throw new DocsError(`Credential has expired. Please sign in again to continue.`, ErrorCode.TriggerBuildWithCredentialExpired);
+        }
+    }
+
     private async getBuildInput(uri: vscode.Uri, credential: Credential): Promise<BuildInput> {
+        let activeWorkSpaceFolder;
         if (uri) {
-            // Trigger build from the right click the workspace file.
-            this._activeWorkSpaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+            activeWorkSpaceFolder = vscode.workspace.getWorkspaceFolder(uri);
         } else if (!this._activeWorkSpaceFolder) {
             // Trigger build from command palette or click the status bar
             let workspaceFolders = vscode.workspace.workspaceFolders;
@@ -117,29 +130,32 @@ export class BuildController {
                         ErrorCode.TriggerBuildWithoutSpecificWorkspace
                     );
                 }
-                this._activeWorkSpaceFolder = workspaceFolders[0];
+                activeWorkSpaceFolder = workspaceFolders[0];
             }
+        } else {
+            activeWorkSpaceFolder = this._activeWorkSpaceFolder;
         }
+
+        if (activeWorkSpaceFolder !== null && activeWorkSpaceFolder === this._activeWorkSpaceFolder && this._buildInput) {
+            return this._buildInput;
+        }
+        this._activeWorkSpaceFolder = activeWorkSpaceFolder;
 
         // Check the workspace is a valid Docs repository
         await this.validateWorkSpaceFolder(this._activeWorkSpaceFolder);
         let localRepositoryPath = this._activeWorkSpaceFolder.uri.fsPath;
 
-        // Check user sign in status
-        if (credential.signInStatus !== 'SignedIn') {
-            throw new DocsError('You have to sign in first', ErrorCode.TriggerBuildBeforeSignedIn);
-        }
-
         try {
             let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
             let outputFolderPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER || getRandomOutputFolder());
-            return <BuildInput>{
+            this._buildInput = <BuildInput>{
                 buildType: BuildType.FullBuild,
                 localRepositoryPath,
                 localRepositoryUrl,
                 originalRepositoryUrl,
                 outputFolderPath,
             };
+            return this._buildInput;
         } catch (err) {
             throw new DocsError(
                 err.message,
@@ -177,18 +193,39 @@ export class BuildController {
     }
 
     private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {
-        this._eventStream.post(new BuildProgress('Retrieving repository information for current workspace folder...\n'));
+        this._eventStream.post(new BuildProgress('Retrieving repository information for current workspace folder...'));
 
         let localRepositoryUrl: string;
+        let locale: string;
         try {
-            [, localRepositoryUrl] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
+            [, localRepositoryUrl, , , locale] = await getRepositoryInfoFromLocalFolder(localRepositoryPath);
         } catch (err) {
             throw new Error(`Cannot get the repository information for current workspace folder(${err.message})`);
         }
 
-        let originalRepositoryUrl = await this._opBuildAPIClient.getOriginalRepositoryUrl(localRepositoryUrl, buildUserToken, this._eventStream);
+        this._eventStream.post(new BuildProgress('Trying to get provisioned repository information by repository URL...'));
+        let originalRepositoryUrl = await this._opBuildAPIClient.getProvisionedRepositoryUrlByRepositoryUrl(localRepositoryUrl, buildUserToken, this._eventStream);
+        if (!originalRepositoryUrl) {
+            this._eventStream.post(new BuildProgress('Trying to get provisioned repository information by docset information...'));
+
+            let docsetName = this.getOneDocsetNameFromOpConfig(localRepositoryPath);
+            if (!docsetName) {
+                throw new Error(`No docset found in the repository configuration`);
+            }
+            originalRepositoryUrl = await this._opBuildAPIClient.getProvisionedRepositoryUrlByDocsetNameAndLocale(docsetName, locale, buildUserToken, this._eventStream);
+        }
 
         this._eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
         return [localRepositoryUrl, originalRepositoryUrl];
+    }
+
+    private getOneDocsetNameFromOpConfig(localRepositoryPath: string) {
+        let opConfigPath = path.join(localRepositoryPath, OP_CONFIG_FILE_NAME);
+
+        let opConfig = safelyReadJsonFile(opConfigPath);
+        if (opConfig.docsets_to_publish && opConfig.docsets_to_publish.length > 0) {
+            return opConfig.docsets_to_publish[0].docset_name;
+        }
+        return undefined;
     }
 }
