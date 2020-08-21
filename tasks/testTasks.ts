@@ -20,7 +20,8 @@ gulp.task('test:e2e', async () => {
     }
     const extensionTestsEnv = {
         'VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN': githubToken,
-        'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath
+        'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath,
+        'COVERAGE': process.env.COVERAGE,
     };
 
     // Download VS Code, unzip it and run the integration test
