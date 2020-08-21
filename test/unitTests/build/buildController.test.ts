@@ -263,7 +263,7 @@ describe('BuildController', () => {
         assert.equal(visualizeBuildReportCalled, true);
     });
 
-    it.only('Successfully build with getting repo info by docset name', async () => {
+    it('Successfully build with getting repo info by docset name', async () => {
         let opBuildAPIClient = <OPBuildAPIClient>{
             getProvisionedRepositoryUrlByRepositoryUrl: (gitRepoUrl: string, opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
                 return new Promise((resolve, reject) => {
