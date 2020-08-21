@@ -19,11 +19,9 @@ gulp.task('test:e2e', async () => {
         throw new Error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN" from environment variable');
     }
 
-    console.log(`enable codecode: ${process.env.COVERAGE}`);
     const extensionTestsEnv = {
         'VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN': githubToken,
-        'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath,
-        // 'COVERAGE': process.env.COVERAGE,
+        'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath
     };
 
     // Download VS Code, unzip it and run the integration test
