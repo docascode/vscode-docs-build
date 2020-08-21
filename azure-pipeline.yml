@@ -53,14 +53,13 @@ steps:
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
 
 - bash: |
-    VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN=$(VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN=$(VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) COVERAGE=$(COVERAGE) npm run test
+    VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN=$(VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN=$(VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) npm run test
   displayName: Run Test(Mac)
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
 
 - powershell: |
     $env:VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN="$(VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)"
     $env:VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN="$(VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN)"
-    $env:COVERAGE=$(COVERAGE)
     npm run test
   displayName: Run Test(Windows)
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
@@ -70,7 +69,7 @@ steps:
   inputs:
     PathtoPublish: 'coverage/unit/lcov.info'
     ArtifactName: Report
-  condition: succeeded()
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
 
 - bash: ./node_modules/.bin/codecov -f coverage/unit/lcov.info -F unit
   displayName: 'Report unit test coverage'
