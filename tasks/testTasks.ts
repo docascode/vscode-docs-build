@@ -18,6 +18,8 @@ gulp.task('test:e2e', async () => {
     if (!githubToken) {
         throw new Error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN" from environment variable');
     }
+
+    console.log(`enable codecode: ${process.env.COVERAGE}`);
     const extensionTestsEnv = {
         'VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN': githubToken,
         'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath,

@@ -3,6 +3,7 @@ import Mocha from 'mocha';
 import glob from 'glob';
 
 export async function run(): Promise<void> {
+    console.log(`enable codecode: ${process.env.COVERAGE}`);
     const nyc = process.env.COVERAGE ? setupCoverage() : undefined;
     const mocha = new Mocha({
         ui: 'bdd',
