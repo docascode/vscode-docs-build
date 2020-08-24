@@ -59,19 +59,25 @@ If you meet any problem or have any feedback about this extension, please Contac
 
 ## Q&A
 
+1. Clone Dependencies failed
+
+    GitHub has recently enabled SSO on Microsoft-owned organizations. If you see the below errors, please follow the instructions there to enable SSO on your token so that local validation can pass through.
+    ![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed?raw=true)
+
 1. Clone template Failed
 
-When your validation fails with some error message like the following.
-![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed?raw=true)
+    When your validation fails with some error message like:
+    ![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed?raw=true)
 
-Please try the following solutions:
-1. Make sure you can access this repository https://github.com/Microsoft/templates.docs.msft on GitHub, if not, please join the `Microsoft` org by the this [website](https://repos.opensource.microsoft.com/Microsoft/), after that, try again.
+    Please try the following solutions:
 
-2. Try to clone the template repository in a separated terminal by running the following command:
+    1. Make sure you can access this repository https://github.com/Microsoft/templates.docs.msft on GitHub, if not, please join the `Microsoft` org by the this [website](https://repos.opensource.microsoft.com/Microsoft/), after that, try again.
 
-```bash
-$ git clone https://github.com/Microsoft/templates.docs.msft
-```
+    2. Try to clone the template repository in a separated terminal by running the following command:
 
-If you have enabled the 2FA on GitHub and you run into the following errors when you clone the repository. Please follow the instruction of this [answer](https://stackoverflow.com/a/34919582/8335256)
-![clone-template-failed-2FA](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed-2FA?raw=true)
+    ```bash
+    $ git clone https://github.com/Microsoft/templates.docs.msft
+    ```
+
+    If you have enabled the 2FA on GitHub and you run into the following errors when you clone the repository. Please follow the instruction of this [answer](https://stackoverflow.com/a/34919582/8335256)
+    ![clone-template-failed-2FA](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed-2FA?raw=true)
