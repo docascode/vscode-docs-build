@@ -34,7 +34,7 @@ export function safelyReadJsonFile(filePath: string) {
     return JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }).replace(/^\uFEFF/, '').replace(/\u00A0/g, ' '));
 }
 
-export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): Promise<[DocsRepoType, string, string, string]> {
+export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): Promise<[DocsRepoType, string, string, string, string]> {
     if (!fs.existsSync(repositoryPath)) {
         throw new Error(`Path (${repositoryPath}) does not exist on the current machine`);
     }
@@ -53,15 +53,20 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
 
     let commit = await repository.revparse(['HEAD']);
 
-    const [docsRepoType, normalizedRepositoryUrl] = normalizeRemoteUrl(remote);
+    const [docsRepoType, normalizedRepositoryUrl, locale] = parseRemoteUrl(remote);
 
-    return [docsRepoType, normalizedRepositoryUrl, branch, commit];
+    return [docsRepoType, normalizedRepositoryUrl, branch, commit, locale];
 }
 
-function normalizeRemoteUrl(url: string): [DocsRepoType, string] {
+function parseRemoteUrl(url: string): [DocsRepoType, string, string] {
     const repository = gitUrlParse(url);
     const docsRepoType = repository.resource.startsWith('github.com') ? 'GitHub' : 'Azure DevOps';
-    return [docsRepoType, `https://${repository.resource}/${repository.full_name}`];
+    let match = /^.+?(?<locale>\.[a-z]{2,4}-[a-z]{2,4}(-[a-z]{2,4})?|\.loc)?$/g.exec(repository.name);
+    let locale = 'en-us';
+    if(match && match.groups && match.groups.locale) {
+        locale = match.groups.locale.substring(1);
+    }
+    return [docsRepoType, `https://${repository.resource}/${repository.full_name}`, locale];
 }
 
 export function basicAuth(token: string) {

@@ -65,7 +65,7 @@ describe('E2E Test', () => {
                 let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));
                 let diagnostics = vscode.languages.getDiagnostics(fileUri);
 
-                const expectedDiagnostic = new Diagnostic(new Range(6, 0, 6, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
+                const expectedDiagnostic = new Diagnostic(new Range(7, 0, 7, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
                 expectedDiagnostic.code = 'file-not-found';
                 expectedDiagnostic.source = 'Docs Validation';
 
