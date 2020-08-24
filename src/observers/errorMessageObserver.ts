@@ -26,9 +26,6 @@ export class ErrorMessageObserver {
                     this.handleBuildFailed(<BuildFailed>event);
                 }
                 break;
-            case EventType.CredentialExpired:
-                this.handleCredentialExpired();
-                break;
         }
     }
 
@@ -54,13 +51,10 @@ export class ErrorMessageObserver {
             case ErrorCode.TriggerBuildBeforeSignedIn:
                 action = new MessageAction('Sign in', 'docs.signIn');
                 break;
+            case ErrorCode.TriggerBuildWithCredentialExpired:
+                action = new MessageAction('Sign in', 'docs.signIn');
+                break;
         }
         this.showErrorMessage(`Validation of current workspace failed (${event.err.message}). Please check the channel output for details`, action);
-    }
-
-    private handleCredentialExpired() {
-        let message = `Credential has expired. Please sign in again to continue.`;
-        let messageAction = new MessageAction('Sign in', 'docs.signIn');
-        this.showErrorMessage(message, messageAction);
     }
 }
