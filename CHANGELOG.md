@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.21 (August 24, 2020)
+### Added
+- Support validating paired repository linked to a provisioned repository. (#115)
+
 ## 0.1.20 (August 12, 2020)
 ### Changed
 - Update extension prerequisites check. (#110)
