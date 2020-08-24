@@ -62,12 +62,12 @@ If you meet any problem or have any feedback about this extension, please Contac
 1. Clone Dependencies failed
 
     GitHub has recently enabled SSO on Microsoft-owned organizations. If you see the below errors, please follow the instructions there to enable SSO on your token so that local validation can pass through.
-    ![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed?raw=true)
+    ![clone-failed-sso](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-failed-sso.jpg?raw=true)
 
 1. Clone template Failed
 
     When your validation fails with some error message like:
-    ![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed?raw=true)
+    ![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed.png?raw=true)
 
     Please try the following solutions:
 
@@ -80,4 +80,4 @@ If you meet any problem or have any feedback about this extension, please Contac
     ```
 
     If you have enabled the 2FA on GitHub and you run into the following errors when you clone the repository. Please follow the instruction of this [answer](https://stackoverflow.com/a/34919582/8335256)
-    ![clone-template-failed-2FA](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed-2FA?raw=true)
+    ![clone-template-failed-2FA](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed-2FA.png?raw=true)
