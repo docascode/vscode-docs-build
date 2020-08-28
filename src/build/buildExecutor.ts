@@ -43,7 +43,7 @@ export class BuildExecutor {
 
         if (!BuildExecutor.SKIP_RESTORE) {
             let restoreStart = Date.now();
-            let result = await this.restore(correlationId, input.localRepositoryPath, input.outputFolderPath, envs, stdinInput);
+            let result = await this.restore(correlationId, input.localRepositoryPath, input.logPath, envs, stdinInput);
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;
@@ -53,7 +53,7 @@ export class BuildExecutor {
         }
 
         let buildStart = Date.now();
-        buildResult.result = await this.build(input.localRepositoryPath, input.outputFolderPath, envs, stdinInput);
+        buildResult.result = await this.build(input.localRepositoryPath, input.logPath, envs, stdinInput);
         buildResult.buildTimeInSeconds = getDurationInSeconds(Date.now() - buildStart);
         return buildResult;
     }
@@ -103,12 +103,12 @@ export class BuildExecutor {
     private async restore(
         correlationId: string,
         repositoryPath: string,
-        outputFolderPath: string,
+        logPath: string,
         envs: any,
         stdinInput: string): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxRestoreStarted());
-            let command = `${this._binary} restore "${repositoryPath}" --legacy --output "${outputFolderPath}" --stdin`;
+            let command = `${this._binary} restore "${repositoryPath}" --legacy --log "${logPath}" --stdin`;
             this._runningChildProcess = executeDocfx(
                 command,
                 this._eventStream,
@@ -132,12 +132,12 @@ export class BuildExecutor {
 
     private async build(
         repositoryPath: string,
-        outputFolderPath: string,
+        logPath: string,
         envs: any,
         stdinInput: string): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxBuildStarted());
-            let command = `${this._binary} build "${repositoryPath}" --legacy --dry-run --output "${outputFolderPath}" --stdin`;
+            let command = `${this._binary} build "${repositoryPath}" --legacy --dry-run --log "${logPath}" --stdin`;
             this._runningChildProcess = executeDocfx(
                 command,
                 this._eventStream,
