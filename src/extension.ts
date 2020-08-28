@@ -87,6 +87,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         signStatusBar,
         buildStatusBar,
         environmentController,
+        buildExecutor,
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn(getCorrelationId())),
         vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut(getCorrelationId())),
         vscode.commands.registerCommand('docs.build', (uri) => {
