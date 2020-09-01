@@ -15,7 +15,8 @@ import { BuildExecutor } from '../../src/build/buildExecutor';
 export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHub'): EnvironmentController {
     return {
         env: 'PROD',
-        docsRepoType: docsRepoType || 'GitHub'
+        docsRepoType: docsRepoType || 'GitHub',
+        debugMode: false,
     };
 }
 
@@ -109,7 +110,7 @@ export const fakedExtensionContext = <ExtensionContext>{
 
 export const fakedBuildInput = <BuildInput>{
     buildType: BuildType.FullBuild,
-    localRepositoryPath: path.resolve(tempFolder, 'fakedRepositoyPath'),
+    localRepositoryPath: path.resolve(tempFolder, 'fakedRepositoryPath'),
     localRepositoryUrl: 'https://faked.repository',
     originalRepositoryUrl: 'https://faked.original.repository',
     logPath: defaultLogPath

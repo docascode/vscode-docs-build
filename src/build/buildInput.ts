@@ -1,4 +1,5 @@
 export interface BuildInput {
+    readonly workspaceFolderName: string;
     readonly buildType: BuildType;
     readonly localRepositoryPath: string;
     readonly localRepositoryUrl: string;

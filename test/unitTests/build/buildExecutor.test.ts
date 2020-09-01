@@ -169,8 +169,8 @@ describe('BuildExecutor', () => {
             assert.equal(buildResult.isRestoreSkipped, false);
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoyPath')}" --legacy --log "${defaultLogPath}" --stdin`,
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoyPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin`,
+                `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --log "${defaultLogPath}" --stdin`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
@@ -294,11 +294,23 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoyPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin`,
+                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin`,
             ]);
 
             // Reset environment
             buildExecutor = new BuildExecutor(fakedExtensionContext, fakedWindowsPlatformInformation, fakedEnvironmentController, eventStream, fakedTelemetryReporter);
+        });
+
+        it('Debug Mode', async () => {
+            fakedEnvironmentController.debugMode = true;
+            await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
+
+            assert.deepStrictEqual(executedCommands, [
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin --verbose`,
+            ]);
+
+            // Reset environment
+            fakedEnvironmentController.debugMode = false;
         });
     });
 });

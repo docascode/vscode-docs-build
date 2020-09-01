@@ -16,7 +16,6 @@ import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
 
 export class BuildController {
-    private _activeWorkSpaceFolder: vscode.WorkspaceFolder;
     private _currentBuildCorrelationId: string;
     private _instanceAvailable: boolean;
     private _buildInput: BuildInput;
@@ -34,14 +33,14 @@ export class BuildController {
         return this._instanceAvailable;
     }
 
-    public async build(correlationId: string, uri: vscode.Uri, credential: Credential): Promise<void> {
+    public async build(correlationId: string, credential: Credential): Promise<void> {
         let buildInput: BuildInput;
         this._eventStream.post(new BuildTriggered(correlationId));
         let start = Date.now();
 
         try {
             await this.validateUserCredential(credential);
-            buildInput = await this.getBuildInput(uri, credential);
+            buildInput = await this.getBuildInput(credential);
             this.setAvailableFlag();
         } catch (err) {
             this._eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
@@ -50,7 +49,7 @@ export class BuildController {
 
         try {
             this._currentBuildCorrelationId = correlationId;
-            this._eventStream.post(new BuildStarted(this._activeWorkSpaceFolder.name));
+            this._eventStream.post(new BuildStarted(buildInput.workspaceFolderName));
             let buildResult = await this._buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             switch (buildResult.result) {
@@ -70,7 +69,7 @@ export class BuildController {
         }
         finally {
             this._currentBuildCorrelationId = undefined;
-            fs.removeSync(buildInput.outputFolderPath);
+            fs.remove(buildInput.outputFolderPath);
             this.resetAvailableFlag();
         }
 
@@ -115,41 +114,21 @@ export class BuildController {
         }
     }
 
-    private async getBuildInput(uri: vscode.Uri, credential: Credential): Promise<BuildInput> {
-        let activeWorkSpaceFolder;
-        if (uri) {
-            activeWorkSpaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-        } else if (!this._activeWorkSpaceFolder) {
-            // Trigger build from command palette or click the status bar
-            let workspaceFolders = vscode.workspace.workspaceFolders;
-            if (workspaceFolders) {
-                if (workspaceFolders.length > 1) {
-                    // TODO: Display a command palette to let user select the target workspace folder.
-                    throw new DocsError(
-                        'Multiple workspace folders are opened. Please right click any file inside the target workspace folder to trigger the build',
-                        ErrorCode.TriggerBuildWithoutSpecificWorkspace
-                    );
-                }
-                activeWorkSpaceFolder = workspaceFolders[0];
-            }
-        } else {
-            activeWorkSpaceFolder = this._activeWorkSpaceFolder;
-        }
-
-        if (activeWorkSpaceFolder !== null && activeWorkSpaceFolder === this._activeWorkSpaceFolder && this._buildInput) {
+    private async getBuildInput(credential: Credential): Promise<BuildInput> {
+        if (this._buildInput) {
             return this._buildInput;
         }
-        this._activeWorkSpaceFolder = activeWorkSpaceFolder;
 
         // Check the workspace is a valid Docs repository
-        await this.validateWorkSpaceFolder(this._activeWorkSpaceFolder);
-        let localRepositoryPath = this._activeWorkSpaceFolder.uri.fsPath;
+        let activeWorkSpaceFolder = await this.getValidatedWorkSpace();
+        let localRepositoryPath = activeWorkSpaceFolder.uri.fsPath;
 
         try {
             let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
             let outputFolderPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER || getTempOutputFolder());
             let logPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_LOG_PATH || path.join(outputFolderPath, '.errors.log'));
             this._buildInput = <BuildInput>{
+                workspaceFolderName: activeWorkSpaceFolder.name,
                 buildType: BuildType.FullBuild,
                 localRepositoryPath,
                 localRepositoryUrl,
@@ -166,13 +145,24 @@ export class BuildController {
         }
     }
 
-    private async validateWorkSpaceFolder(workspaceFolder: vscode.WorkspaceFolder) {
-        if (!workspaceFolder) {
+    private async getValidatedWorkSpace(): Promise<vscode.WorkspaceFolder> {
+        let workspaceFolders = vscode.workspace.workspaceFolders;
+
+        if (!workspaceFolders) {
             throw new DocsError(
                 'You can only trigger the build on a workspace folder.',
                 ErrorCode.TriggerBuildOnNonWorkspace
             );
         }
+
+        if (workspaceFolders.length > 1) {
+            throw new DocsError(
+                'Validation is triggered on a workspace which contains multiple folders, please close other folders and only keep one in the current workspace',
+                ErrorCode.TriggerBuildOnWorkspaceWithMultipleFolders
+            );
+        }
+
+        let workspaceFolder = workspaceFolders[0];
 
         let opConfigPath = path.join(workspaceFolder.uri.fsPath, OP_CONFIG_FILE_NAME);
         if (!fs.existsSync(opConfigPath)) {
@@ -191,7 +181,7 @@ export class BuildController {
             );
         }
 
-        return true;
+        return workspaceFolder;
     }
 
     private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {
