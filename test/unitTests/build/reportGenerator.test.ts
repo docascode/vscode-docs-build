@@ -101,9 +101,9 @@ describe("ReportGenerator", () => {
 
     it("Report found", () => {
         stubFsExistsSync
-            .withArgs(path.normalize(testLogPath)).returns(true)
+            .withArgs(path.normalize(testLogPath)).returns(true);
         stubFsReadFileSync
-            .withArgs(path.normalize(testLogPath)).returns(fakedErrorLog)
+            .withArgs(path.normalize(testLogPath)).returns(fakedErrorLog);
 
         visualizeBuildReport(testRepositoryPath, testLogPath, fakedDiagnosticController, eventStream);
 
