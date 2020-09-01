@@ -10,7 +10,6 @@ const DEBUG_MODE_CONFIG_NAME = 'debugMode.enable';
 
 export class DocsEnvironmentController implements EnvironmentController, vscode.Disposable {
 
-    private _activeWorkSpaceFolder: vscode.WorkspaceFolder;
     private _environment: Environment;
     private _debugMode: boolean;
     private _docsRepoType: DocsRepoType;
@@ -20,8 +19,6 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     public async initialize() {
-        this._activeWorkSpaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
-
         this._environment = this.getEnv();
         this._debugMode = this.getDebugMode();
         this._docsRepoType = await this.getDocsRepoType();
@@ -69,9 +66,10 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     private async getDocsRepoType(): Promise<DocsRepoType> {
-        if (this._activeWorkSpaceFolder) {
+        let activeWorkSpaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
+        if (activeWorkSpaceFolder) {
             try {
-                const [docsRepoType] = await getRepositoryInfoFromLocalFolder(this._activeWorkSpaceFolder.uri.fsPath);
+                const [docsRepoType] = await getRepositoryInfoFromLocalFolder(activeWorkSpaceFolder.uri.fsPath);
                 return docsRepoType;
             } catch {
                 return 'GitHub';

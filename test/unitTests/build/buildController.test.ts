@@ -18,6 +18,16 @@ import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { Credential } from '../../../src/credential/credentialController';
 
+const expectedBuildInput = <BuildInput>{
+    buildType: 'FullBuild',
+    localRepositoryPath: path.normalize('/fakedFolder/'),
+    localRepositoryUrl: 'https://faked.repository',
+    originalRepositoryUrl: 'https://faked.original.repository',
+    outputFolderPath: defaultOutputPath,
+    logPath: defaultLogPath,
+    workspaceFolderName: "fakedWorkspaceFolder",
+};
+
 describe('BuildController', () => {
     let sinon: SinonSandbox;
     let visualizeBuildReportCalled: boolean;
@@ -91,26 +101,26 @@ describe('BuildController', () => {
         sinon.restore();
     });
 
-    it('Trigger build without specific workspace', async () => {
+    it('Trigger build on workspace with multiple folders', async () => {
         stubWorkspaceFolders.get(() => {
             return [{}, {}];
         });
 
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
-                    'Multiple workspace folders are opened. Please right click any file inside the target workspace folder to trigger the build',
-                    ErrorCode.TriggerBuildWithoutSpecificWorkspace
+                    'Validation is triggered on a workspace which contains multiple folders, please close other folders and only keep one in the current workspace',
+                    ErrorCode.TriggerBuildOnWorkspaceWithMultipleFolders
                 ))
         ]);
     });
 
     it('Trigger build on non-workspace', async () => {
-        let stubGetWorkspaceFolder = sinon.stub(vscode.workspace, "getWorkspaceFolder").returns(undefined);
+        stubWorkspaceFolders = sinon.stub(vscode.workspace, "workspaceFolders").get(() => undefined);
 
-        await buildController.build('fakedCorrelationId', vscode.Uri.file('fakedFolder/'), fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildFailed('fakedCorrelationId', undefined, 1,
@@ -119,13 +129,12 @@ describe('BuildController', () => {
                     ErrorCode.TriggerBuildOnNonWorkspace
                 ))
         ]);
-        stubGetWorkspaceFolder.restore();
     });
 
     it('Trigger build on non-Docs repository', async () => {
         stubExistsSync.withArgs(fakedOpConfigPath).returns(false);
 
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildFailed('fakedCorrelationId', undefined, 1,
@@ -143,7 +152,7 @@ describe('BuildController', () => {
             }
         });
 
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildFailed('fakedCorrelationId', undefined, 1,
@@ -156,7 +165,7 @@ describe('BuildController', () => {
     });
 
     it('Trigger build before signed in', async () => {
-        await buildController.build('fakedCorrelationId', undefined, <Credential>{
+        await buildController.build('fakedCorrelationId', <Credential>{
             signInStatus: 'Initializing'
         });
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -179,7 +188,7 @@ describe('BuildController', () => {
         };
         buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, eventStream);
 
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new CredentialExpired(),
@@ -194,7 +203,7 @@ describe('BuildController', () => {
     it('Trigger build on invalid docs repository', async () => {
         stubGetRepositoryInfoFromLocalFolder.throws(new Error('Faked error msg'));
 
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -208,7 +217,7 @@ describe('BuildController', () => {
 
     it('Successfully build', async () => {
         // First time
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -218,14 +227,7 @@ describe('BuildController', () => {
             new BuildStarted('fakedWorkspaceFolder'),
             new BuildSucceeded(
                 'fakedCorrelationId',
-                <BuildInput>{
-                    buildType: 'FullBuild',
-                    localRepositoryPath: path.normalize('/fakedFolder/'),
-                    localRepositoryUrl: 'https://faked.repository',
-                    originalRepositoryUrl: 'https://faked.original.repository',
-                    outputFolderPath: defaultOutputPath,
-                    logPath: defaultLogPath
-                },
+                expectedBuildInput,
                 1,
                 <BuildResult>{
                     result: DocfxExecutionResult.Succeeded,
@@ -239,21 +241,14 @@ describe('BuildController', () => {
         // Second time
         testEventBus.clear();
         visualizeBuildReportCalled = false;
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildInstantAllocated(),
             new BuildStarted('fakedWorkspaceFolder'),
             new BuildSucceeded(
                 'fakedCorrelationId',
-                <BuildInput>{
-                    buildType: 'FullBuild',
-                    localRepositoryPath: path.normalize('/fakedFolder/'),
-                    localRepositoryUrl: 'https://faked.repository',
-                    originalRepositoryUrl: 'https://faked.original.repository',
-                    outputFolderPath: defaultOutputPath,
-                    logPath: defaultLogPath
-                },
+                expectedBuildInput,
                 1,
                 <BuildResult>{
                     result: DocfxExecutionResult.Succeeded,
@@ -285,7 +280,7 @@ describe('BuildController', () => {
         };
         buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, eventStream);
 
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -296,14 +291,7 @@ describe('BuildController', () => {
             new BuildStarted('fakedWorkspaceFolder'),
             new BuildSucceeded(
                 'fakedCorrelationId',
-                <BuildInput>{
-                    buildType: 'FullBuild',
-                    localRepositoryPath: path.normalize('/fakedFolder/'),
-                    localRepositoryUrl: 'https://faked.repository',
-                    originalRepositoryUrl: 'https://faked.original.repository',
-                    outputFolderPath: defaultOutputPath,
-                    logPath: defaultLogPath
-                },
+                expectedBuildInput,
                 1,
                 <BuildResult>{
                     result: DocfxExecutionResult.Succeeded,
@@ -316,8 +304,8 @@ describe('BuildController', () => {
     });
 
     it('Trigger two builds at the same time', async () => {
-        let firstBuildPromise = buildController.build('fakedCorrelationId1', undefined, fakedCredential);
-        let secondBuildPromise = buildController.build('fakedCorrelationId2', undefined, fakedCredential);
+        let firstBuildPromise = buildController.build('fakedCorrelationId1', fakedCredential);
+        let secondBuildPromise = buildController.build('fakedCorrelationId2', fakedCredential);
         await Promise.all([firstBuildPromise, secondBuildPromise]);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId1'),
@@ -332,14 +320,7 @@ describe('BuildController', () => {
             new BuildStarted('fakedWorkspaceFolder'),
             new BuildFailed(
                 'fakedCorrelationId2',
-                <BuildInput>{
-                    buildType: 'FullBuild',
-                    localRepositoryPath: path.normalize('/fakedFolder/'),
-                    localRepositoryUrl: 'https://faked.repository',
-                    originalRepositoryUrl: 'https://faked.original.repository',
-                    outputFolderPath: defaultOutputPath,
-                    logPath: defaultLogPath
-                },
+                expectedBuildInput,
                 1,
                 new DocsError(
                     `Last build has not finished.`,
@@ -354,7 +335,8 @@ describe('BuildController', () => {
                     localRepositoryUrl: 'https://faked.repository',
                     originalRepositoryUrl: 'https://faked.original.repository',
                     outputFolderPath: defaultOutputPath,
-                    logPath: defaultLogPath
+                    logPath: defaultLogPath,
+                    workspaceFolderName: "fakedWorkspaceFolder",
                 },
                 1,
                 <BuildResult>{
@@ -370,7 +352,7 @@ describe('BuildController', () => {
     it('Build Failed', async () => {
         buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Failed), fakedOPBuildAPIClient, undefined, eventStream);
 
-        await buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -380,14 +362,7 @@ describe('BuildController', () => {
             new BuildStarted('fakedWorkspaceFolder'),
             new BuildFailed(
                 'fakedCorrelationId',
-                <BuildInput>{
-                    buildType: 'FullBuild',
-                    localRepositoryPath: path.normalize('/fakedFolder/'),
-                    localRepositoryUrl: 'https://faked.repository',
-                    originalRepositoryUrl: 'https://faked.original.repository',
-                    outputFolderPath: defaultOutputPath,
-                    logPath: defaultLogPath
-                },
+                expectedBuildInput,
                 1,
                 new DocsError(
                     `Running DocFX failed`,
@@ -403,7 +378,7 @@ describe('BuildController', () => {
     });
 
     it('Build Cancelled', async () => {
-        let buildPromise = buildController.build('fakedCorrelationId', undefined, fakedCredential);
+        let buildPromise = buildController.build('fakedCorrelationId', fakedCredential);
         setTimeout(() => { buildController.cancelBuild(); }, 5);
         await buildPromise;
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -417,14 +392,8 @@ describe('BuildController', () => {
             new CancelBuildSucceeded('fakedCorrelationId'),
             new BuildCanceled(
                 'fakedCorrelationId',
-                <BuildInput>{
-                    buildType: 'FullBuild',
-                    localRepositoryPath: path.normalize('/fakedFolder/'),
-                    localRepositoryUrl: 'https://faked.repository',
-                    originalRepositoryUrl: 'https://faked.original.repository',
-                    outputFolderPath: defaultOutputPath,
-                    logPath: defaultLogPath
-                }, 1
+                expectedBuildInput,
+                1
             ),
             new BuildInstantReleased(),
         ]);

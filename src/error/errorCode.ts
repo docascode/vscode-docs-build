@@ -17,7 +17,7 @@ export enum ErrorCode {
     TriggerBuildOnNonWorkspace = 'TriggerBuildOnNonWorkspace',
     TriggerBuildOnNonDocsRepo = 'TriggerBuildOnNonDocsRepo',
     TriggerBuildOnInvalidDocsRepo = 'TriggerBuildOnInvalidDocsRepo',
-    TriggerBuildWithoutSpecificWorkspace = 'TriggerBuildWithoutSpecificWorkspace',
+    TriggerBuildOnWorkspaceWithMultipleFolders = 'TriggerBuildOnWorkspaceWithMultipleFolders',
     RunDocfxFailed = 'RunDocfxFailed',
     GenerateReportFailed = 'GenerateReportFailed',
 
