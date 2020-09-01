@@ -4,6 +4,7 @@ export interface BuildInput {
     readonly localRepositoryUrl: string;
     readonly originalRepositoryUrl: string;
     readonly outputFolderPath: string;
+    readonly logPath: string;
 }
 
 export enum BuildType {

@@ -2,17 +2,11 @@ import fs from 'fs-extra';
 import path from 'path';
 import vscode from 'vscode';
 import { EventStream } from "../common/eventStream";
-import { safelyReadJsonFile } from '../utils/utils';
-import { OP_CONFIG_FILE_NAME, EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
+import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
 import { DiagnosticController } from './diagnosticController';
 import { BuildProgress } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
-
-interface Docset {
-    docset_name: string;
-    build_source_folder: string;
-}
 
 interface ReportItem {
     message_severity: MessageSeverity;
@@ -34,67 +28,55 @@ const severityMap = new Map<MessageSeverity, vscode.DiagnosticSeverity>([
     ["suggestion", vscode.DiagnosticSeverity.Information]
 ]);
 
-const REPORT_FILENAME = '.errors.log';
-
 type MessageSeverity = "error" | "warning" | "info" | "suggestion";
 type LogItemType = 'system' | ' user';
 
-export function visualizeBuildReport(repositoryPath: string, outputFolderPath: string, diagnosticController: DiagnosticController, eventStream: EventStream) {
+export function visualizeBuildReport(repositoryPath: string, logPath: string, diagnosticController: DiagnosticController, eventStream: EventStream) {
     try {
-        let opConfigPath = path.join(repositoryPath, OP_CONFIG_FILE_NAME);
-        let opConfig = safelyReadJsonFile(opConfigPath);
-        let docsets = <Docset[]>opConfig.docsets_to_publish;
         diagnosticController.reset();
-        for (let docset of docsets) {
-            visualizeBuildReportForDocset(repositoryPath, docset, outputFolderPath, diagnosticController, eventStream);
+
+        if (!fs.existsSync(logPath)) {
+            eventStream.post(new BuildProgress(`Log file (.error.log) not found. Skip generating report`));
+            return;
         }
+        eventStream.post(new BuildProgress(`Log file found, Generating report...`));
+
+        let report = fs.readFileSync(logPath).toString().split('\n').filter(item => item);
+        let diagnosticsSet = new Map<string, any>();
+        report.forEach(item => {
+            let reportItem = <ReportItem>JSON.parse(item);
+
+            if (!reportItem.file) {
+                return;
+            }
+            let range = new vscode.Range(
+                convertToZeroBased(reportItem.line),
+                convertToZeroBased(reportItem.column),
+                convertToZeroBased(reportItem.end_line),
+                convertToZeroBased(reportItem.end_column));
+            let diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
+            diagnostic.code = reportItem.code;
+            diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
+
+            let sourceFile = reportItem.file;
+            if (!diagnosticsSet.has(sourceFile)) {
+                diagnosticsSet.set(sourceFile, {
+                    uri: vscode.Uri.file(path.resolve(repositoryPath, sourceFile)),
+                    diagnostics: []
+                });
+            }
+            diagnosticsSet.get(sourceFile).diagnostics.push(diagnostic);
+
+            function convertToZeroBased(num: number) {
+                let zeroBased = num - 1;
+                return zeroBased < 0 ? 0 : zeroBased;
+            }
+        });
+
+        diagnosticsSet.forEach((value) => {
+            diagnosticController.setDiagnostic(value.uri, value.diagnostics);
+        });
     } catch (err) {
         throw new DocsError('Generating report failed', ErrorCode.GenerateReportFailed);
     }
-}
-
-function visualizeBuildReportForDocset(repositoryPath: string, docset: Docset, outputFolderPath: string, diagnosticController: DiagnosticController, eventStream: EventStream) {
-    eventStream.post(new BuildProgress(`Generating report for docset '${docset.docset_name}'...`));
-
-    let reportFilePath = path.join(outputFolderPath, docset.build_source_folder, REPORT_FILENAME);
-    if (!fs.existsSync(reportFilePath)) {
-        eventStream.post(new BuildProgress(`Log file (.error.log) not found. Skip generating report for current docset '${docset.docset_name}'`));
-        return;
-    }
-
-    let report = fs.readFileSync(reportFilePath).toString().split('\n').filter(item => item);
-    let diagnosticsSet = new Map<string, any>();
-    report.forEach(item => {
-        let reportItem = <ReportItem>JSON.parse(item);
-
-        if (!reportItem.file) {
-            return;
-        }
-        let range = new vscode.Range(
-            convertToZeroBased(reportItem.line),
-            convertToZeroBased(reportItem.column),
-            convertToZeroBased(reportItem.end_line),
-            convertToZeroBased(reportItem.end_column));
-        let diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
-        diagnostic.code = reportItem.code;
-        diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
-
-        let sourceFile = path.join(docset.build_source_folder, reportItem.file);
-        if (!diagnosticsSet.has(sourceFile)) {
-            diagnosticsSet.set(sourceFile, {
-                uri: vscode.Uri.file(path.resolve(repositoryPath, sourceFile)),
-                diagnostics: []
-            });
-        }
-        diagnosticsSet.get(sourceFile).diagnostics.push(diagnostic);
-
-        function convertToZeroBased(num: number) {
-            let zeroBased = num - 1;
-            return zeroBased < 0 ? 0 : zeroBased;
-        }
-    });
-
-    diagnosticsSet.forEach((value) => {
-        diagnosticController.setDiagnostic(value.uri, value.diagnostics);
-    });
 }

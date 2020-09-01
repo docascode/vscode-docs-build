@@ -123,7 +123,7 @@ export async function killProcessTree(pid: number, signal?: string | number) {
     });
 }
 
-export function getRandomOutputFolder() {
+export function getTempOutputFolder() {
     let randomFolder = Math.random().toString(36).substring(7);
     return path.join(tempDirectory, randomFolder);
 }
