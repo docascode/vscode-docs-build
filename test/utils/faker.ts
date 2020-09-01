@@ -15,7 +15,8 @@ import { BuildExecutor } from '../../src/build/buildExecutor';
 export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHub'): EnvironmentController {
     return {
         env: 'PROD',
-        docsRepoType: docsRepoType || 'GitHub'
+        docsRepoType: docsRepoType || 'GitHub',
+        debugMode: false,
     };
 }
 

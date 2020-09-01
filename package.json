@@ -52,10 +52,10 @@
           "default": "PROD",
           "description": "The environment this extension targets to."
         },
-        "docs-build.verbose.enable": {
+        "docs-build.debugMode.enable": {
           "type": "boolean",
           "default": false,
-          "description": "Enable the verbose output for trouble shooting, with this flag enabled, more detail information will be output in the output channel"
+          "description": "Enable the debug mode for trouble shooting, with this flag enabled, more detail information will be output in the output channel"
         }
       }
     },

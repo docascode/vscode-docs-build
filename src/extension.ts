@@ -87,7 +87,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         signStatusBar,
         buildStatusBar,
         environmentController,
-        buildExecutor,
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn(getCorrelationId())),
         vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut(getCorrelationId())),
         vscode.commands.registerCommand('docs.build', (uri) => {
@@ -144,7 +143,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
         if (buildController.instanceAvailable) {
             pickItems.push(
                 {
-                    label: 'Build',
+                    label: 'Validate',
                     description: 'Trigger a validation'
                 });
         } else {

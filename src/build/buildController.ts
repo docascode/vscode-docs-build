@@ -70,7 +70,7 @@ export class BuildController {
         }
         finally {
             this._currentBuildCorrelationId = undefined;
-            fs.removeSync(buildInput.outputFolderPath);
+            fs.remove(buildInput.outputFolderPath);
             this.resetAvailableFlag();
         }
 

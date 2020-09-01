@@ -19,7 +19,8 @@ export function executeDocfx(
         env: {
             ...process.env,
             ...options.env
-        }
+        },
+        maxBuffer: 100 * 1024 *1024
     };
 
     eventStream.post(new BuildProgress(`& ${command}`));
