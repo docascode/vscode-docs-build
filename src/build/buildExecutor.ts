@@ -1,3 +1,4 @@
+import vscode from 'vscode';
 import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
@@ -10,14 +11,19 @@ import { basicAuth, getDurationInSeconds, killProcessTree } from '../utils/utils
 import { ExtensionContext } from '../extensionContext';
 import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
+import { EXTENSION_NAME } from '../shared';
 import config from '../config';
 import TelemetryReporter from '../telemetryReporter';
 
-export class BuildExecutor {
+const VERBOSE_CONFIG_NAME = 'verbose.enable';
+
+export class BuildExecutor implements vscode.Disposable {
     private _cwd: string;
     private _binary: string;
     private _runningChildProcess: ChildProcess;
     private static SKIP_RESTORE: boolean = false;
+    private readonly configListener: vscode.Disposable;
+    private _enableVerbose: boolean = false;
 
     constructor(
         context: ExtensionContext,
@@ -31,6 +37,21 @@ export class BuildExecutor {
         let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
         this._cwd = absolutePackage.installPath.value;
         this._binary = absolutePackage.binary;
+
+        this.updateEnableVerbose();
+        this.configListener = vscode.workspace.onDidChangeConfiguration(() => this.updateEnableVerbose());
+    }
+
+    public dispose() {
+        this.configListener.dispose();
+    }
+
+    private updateEnableVerbose(): void {
+        const config = vscode.workspace.getConfiguration(EXTENSION_NAME);
+        const enableVerbose = config.get<boolean>(VERBOSE_CONFIG_NAME, false);
+        if (this._enableVerbose !== enableVerbose) {
+            this._enableVerbose = enableVerbose;
+        }
     }
 
     public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> {
@@ -109,6 +130,7 @@ export class BuildExecutor {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxRestoreStarted());
             let command = `${this._binary} restore "${repositoryPath}" --legacy --log "${logPath}" --stdin`;
+            command += this._enableVerbose ? ' --verbose' : '';
             this._runningChildProcess = executeDocfx(
                 command,
                 this._eventStream,
@@ -138,6 +160,7 @@ export class BuildExecutor {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxBuildStarted());
             let command = `${this._binary} build "${repositoryPath}" --legacy --dry-run --log "${logPath}" --stdin`;
+            command += this._enableVerbose ? ' --verbose' : '';
             this._runningChildProcess = executeDocfx(
                 command,
                 this._eventStream,
