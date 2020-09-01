@@ -41,7 +41,7 @@
   "main": "./out/src/extension",
   "contributes": {
     "configuration": {
-      "title": "Docs Validation Configuration",
+      "title": "Docs Validation",
       "properties": {
         "docs-build.environment": {
           "type": "string",
@@ -51,6 +51,11 @@
           ],
           "default": "PROD",
           "description": "The environment this extension targets to."
+        },
+        "docs-build.verbose.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable the verbose output for trouble shooting, with this flag enabled, more detail information will be output in the output channel"
         }
       }
     },
