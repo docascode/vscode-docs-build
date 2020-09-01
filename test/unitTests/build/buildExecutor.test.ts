@@ -300,5 +300,17 @@ describe('BuildExecutor', () => {
             // Reset environment
             buildExecutor = new BuildExecutor(fakedExtensionContext, fakedWindowsPlatformInformation, fakedEnvironmentController, eventStream, fakedTelemetryReporter);
         });
+
+        it('Debug Mode', async () => {
+            fakedEnvironmentController.debugMode = true;
+            await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
+
+            assert.deepStrictEqual(executedCommands, [
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin --verbose`,
+            ]);
+
+            // Reset environment
+            fakedEnvironmentController.debugMode = false;
+        });
     });
 });

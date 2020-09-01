@@ -33,11 +33,6 @@ export class BuildController {
         return this._instanceAvailable;
     }
 
-    // Do not use, just for test
-    public resetBuildInput() {
-        this._buildInput = undefined;
-    }
-
     public async build(correlationId: string, credential: Credential): Promise<void> {
         let buildInput: BuildInput;
         this._eventStream.post(new BuildTriggered(correlationId));
