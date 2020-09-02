@@ -202,7 +202,7 @@ export class BuildController {
                 && docset.customized_tasks.docset_postbuild
                 && docset.customized_tasks.docset_postbuild.some(
                     (script: string) => script.toLocaleLowerCase().endsWith("triplecrownvalidation.ps1")
-                )
+                );
         });
     }
 
