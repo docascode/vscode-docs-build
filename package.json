@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "docs-validation",
   "description": "Docs Validation Extension",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "engines": {
     "vscode": "^1.40.0"
   },

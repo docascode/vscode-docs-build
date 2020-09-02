@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.1.22 (September 2, 2020)
+### Added
+- Support validating learn repository. (#115)
+- Support debug mode. (#120)
+### Changed
+- Use latest docfx: 3.0.0-beta1.353+50b0b3e0b1. (#121)
+
 ## 0.1.21 (August 24, 2020)
 ### Added
 - Support validating paired repository linked to a provisioned repository. (#115)
