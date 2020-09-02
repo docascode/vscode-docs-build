@@ -110,9 +110,11 @@ export const fakedExtensionContext = <ExtensionContext>{
 
 export const fakedBuildInput = <BuildInput>{
     buildType: BuildType.FullBuild,
+    dryRun: true,
     localRepositoryPath: path.resolve(tempFolder, 'fakedRepositoryPath'),
     localRepositoryUrl: 'https://faked.repository',
     originalRepositoryUrl: 'https://faked.original.repository',
+    outputFolderPath: defaultOutputPath,
     logPath: defaultLogPath
 };
 

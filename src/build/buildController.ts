@@ -14,6 +14,7 @@ import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
+import { EnvironmentController } from '../common/environmentController';
 
 export class BuildController {
     private _currentBuildCorrelationId: string;
@@ -24,6 +25,7 @@ export class BuildController {
         private _buildExecutor: BuildExecutor,
         private _opBuildAPIClient: OPBuildAPIClient,
         private _diagnosticController: DiagnosticController,
+        private _environmentController: EnvironmentController,
         private _eventStream: EventStream,
     ) {
         this._instanceAvailable = true;
@@ -69,7 +71,9 @@ export class BuildController {
         }
         finally {
             this._currentBuildCorrelationId = undefined;
-            fs.remove(buildInput.outputFolderPath);
+            if (!this._environmentController.debugMode) {
+                fs.remove(buildInput.outputFolderPath);
+            }
             this.resetAvailableFlag();
         }
 
@@ -116,6 +120,7 @@ export class BuildController {
 
     private async getBuildInput(credential: Credential): Promise<BuildInput> {
         if (this._buildInput) {
+            fs.emptyDirSync(this._buildInput.outputFolderPath);
             return this._buildInput;
         }
 
@@ -125,6 +130,7 @@ export class BuildController {
 
         try {
             let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
+            let dryRun = this.needDryRun(activeWorkSpaceFolder.uri.fsPath);
             let outputFolderPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER || getTempOutputFolder());
             let logPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_LOG_PATH || path.join(outputFolderPath, '.errors.log'));
             this._buildInput = <BuildInput>{
@@ -135,6 +141,7 @@ export class BuildController {
                 originalRepositoryUrl,
                 outputFolderPath,
                 logPath,
+                dryRun,
             };
             return this._buildInput;
         } catch (err) {
@@ -182,6 +189,21 @@ export class BuildController {
         }
 
         return workspaceFolder;
+    }
+
+    private needDryRun(repoPath: string): boolean {
+        // TODO: Remove this when the learn validation is implemented in the validation service.
+        // Related feature link: https://dev.azure.com/ceapex/Engineering/_workitems/edit/265252
+        let opConfigPath = path.join(repoPath, OP_CONFIG_FILE_NAME);
+        let opConfig = safelyReadJsonFile(opConfigPath);
+
+        return !opConfig.docsets_to_publish.some((docset: any) => {
+            return docset.customized_tasks
+                && docset.customized_tasks.docset_postbuild
+                && docset.customized_tasks.docset_postbuild.some(
+                    (script: string) => script.toLocaleLowerCase().endsWith("triplecrownvalidation.ps1")
+                )
+        });
     }
 
     private async retrieveRepositoryInfo(localRepositoryPath: string, buildUserToken: string): Promise<string[]> {

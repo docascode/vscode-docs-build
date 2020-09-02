@@ -7,7 +7,7 @@ import { EventStream } from '../../../src/common/eventStream';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
-import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtensionContext, fakedBuildInput, tempFolder, setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, getFakedWindowsPlatformInformation, getFakedNonWindowsPlatformInformation, defaultLogPath } from '../../utils/faker';
+import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtensionContext, fakedBuildInput, tempFolder, setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, getFakedWindowsPlatformInformation, getFakedNonWindowsPlatformInformation, defaultLogPath, defaultOutputPath } from '../../utils/faker';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import { BuildExecutor } from '../../../src/build/buildExecutor';
@@ -16,6 +16,7 @@ import { DocfxExecutionResult, BuildResult } from '../../../src/build/buildResul
 import { setTimeout } from 'timers';
 import { EventType } from '../../../src/common/eventType';
 import { Subscription } from 'rxjs';
+import { BuildType, BuildInput } from '../../../src/build/buildInput';
 
 describe('BuildExecutor', () => {
     let sinon: SinonSandbox;
@@ -170,7 +171,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(executedCommands, [
                 `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --log "${defaultLogPath}" --stdin`,
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --dry-run`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
@@ -294,11 +295,35 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin`,
+                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --dry-run`,
             ]);
 
             // Reset environment
             buildExecutor = new BuildExecutor(fakedExtensionContext, fakedWindowsPlatformInformation, fakedEnvironmentController, eventStream, fakedTelemetryReporter);
+        });
+
+        it('No Dry run', async () => {
+            fakedEnvironmentController.debugMode = true;
+            await buildExecutor.RunBuild(
+                'fakedCorrelationId',
+                <BuildInput>{
+                    buildType: BuildType.FullBuild,
+                    dryRun: false,
+                    localRepositoryPath: path.resolve(tempFolder, 'fakedRepositoryPath'),
+                    localRepositoryUrl: 'https://faked.repository',
+                    originalRepositoryUrl: 'https://faked.original.repository',
+                    outputFolderPath: defaultOutputPath,
+                    logPath: defaultLogPath
+                },
+                'faked-build-token'
+            );
+
+            assert.deepStrictEqual(executedCommands, [
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --verbose`,
+            ]);
+
+            // Reset environment
+            fakedEnvironmentController.debugMode = false;
         });
 
         it('Debug Mode', async () => {
@@ -306,7 +331,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --dry-run --log "${defaultLogPath}" --stdin --verbose`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --verbose --dry-run`,
             ]);
 
             // Reset environment
