@@ -71,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     let diagnosticController = new DiagnosticController();
     let opBuildAPIClient = new OPBuildAPIClient(environmentController);
     let buildExecutor = new BuildExecutor(extensionContext, platformInformation, environmentController, eventStream, telemetryReporter);
-    let buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, eventStream);
+    let buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, environmentController, eventStream);
 
     // Build status bar
     let buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
