@@ -1,14 +1,14 @@
 import assert from 'assert';
-import { SignStatusBarObserver } from '../../../src/observers/signStatusBarObserver';
+import { DocsStatusBarObserver } from '../../../src/observers/docsStatusBarObserver';
 import { StatusBarItem } from 'vscode';
 import { CredentialInitializing, UserSignInSucceeded, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
 import { getFakeEnvironmentController, setEnvToPPE, fakedCredential } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
 
-describe('SignStatusBarObserver', () => {
+describe('DocsStatusBarObserver', () => {
     let showCalled: boolean;
     let environmentController: EnvironmentController;
-    let observer: SignStatusBarObserver;
+    let observer: DocsStatusBarObserver;
 
     let statusBarItem = <StatusBarItem>{
         show: () => { showCalled = true; }
@@ -16,7 +16,7 @@ describe('SignStatusBarObserver', () => {
 
     before(() => {
         environmentController = getFakeEnvironmentController();
-        observer = new SignStatusBarObserver(statusBarItem, environmentController);
+        observer = new DocsStatusBarObserver(statusBarItem, environmentController);
     });
 
     beforeEach(() => {
@@ -40,7 +40,7 @@ describe('SignStatusBarObserver', () => {
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `Docs Validation: Signing in`);
-        assert.equal(statusBarItem.command, undefined);
+        assert.equal(statusBarItem.command, 'docs.signOut');
         assert.equal(statusBarItem.tooltip, undefined);
     });
 
@@ -57,8 +57,8 @@ describe('SignStatusBarObserver', () => {
         let event = new CredentialReset();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
-        assert.equal(statusBarItem.text, `Docs Validation: Sign in to Docs`);
-        assert.equal(statusBarItem.command, 'docs.signIn');
+        assert.equal(statusBarItem.text, `Docs Validation`);
+        assert.equal(statusBarItem.command, 'docs.validationQuickPick');
         assert.equal(statusBarItem.tooltip, undefined);
     });
 

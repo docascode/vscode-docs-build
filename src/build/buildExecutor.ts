@@ -81,12 +81,15 @@ export class BuildExecutor {
         }
 
         let secrets = <any>{
-            [`${extensionConfig.OPBuildAPIEndPoint[this._environmentController.env]}`]: {
+        };
+
+        if (buildUserToken) {
+            secrets[`${extensionConfig.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
                 "headers": {
                     "X-OP-BuildUserToken": buildUserToken
                 }
-            }
-        };
+            };
+        }
         if (process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) {
             secrets["https://github.com"] = {
                 "headers": {

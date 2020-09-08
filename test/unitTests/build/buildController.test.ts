@@ -43,8 +43,12 @@ describe('BuildController', () => {
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
 
+    let tokenUsedForBuild: string;
+    let tokenUsedForAPICall: string;
+
     const fakedOPBuildAPIClient = <OPBuildAPIClient>{
-        getProvisionedRepositoryUrlByRepositoryUrl: (gitRepoUrl: string, opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
+        getProvisionedRepositoryUrlByDocsetNameAndLocale: (docsetName: string, locale: string = 'en-us', opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
+            tokenUsedForAPICall = opBuildUserToken;
             return new Promise((resolve, reject) => {
                 resolve('https://faked.original.repository');
             });
@@ -66,7 +70,17 @@ describe('BuildController', () => {
     });
 
     beforeEach(() => {
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), fakedOPBuildAPIClient, undefined, fakeEnvironmentController, eventStream);
+        buildController = new BuildController(
+            getFakedBuildExecutor(
+                DocfxExecutionResult.Succeeded,
+                (correlationId: string, input: BuildInput, buildUserToken: string) => {
+                    tokenUsedForBuild = buildUserToken;
+                }),
+            fakedOPBuildAPIClient, undefined,
+            fakeEnvironmentController, eventStream
+        );
+        tokenUsedForBuild = undefined;
+        tokenUsedForAPICall = undefined;
         visualizeBuildReportCalled = false;
         testEventBus.clear();
         sinon.restore();
@@ -166,20 +180,6 @@ describe('BuildController', () => {
         ]);
     });
 
-    it('Trigger build before signed in', async () => {
-        await buildController.build('fakedCorrelationId', <Credential>{
-            signInStatus: 'Initializing'
-        });
-        assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
-            new BuildFailed('fakedCorrelationId', undefined, 1,
-                new DocsError(
-                    `You have to sign in first`,
-                    ErrorCode.TriggerBuildBeforeSignedIn
-                ))
-        ]);
-    });
-
     it('Trigger build when credential expires', async () => {
         let opBuildAPIClient = <OPBuildAPIClient>{
             validateCredential: (opBuildUserToken: string, eventStream: EventStream): Promise<boolean> => {
@@ -217,13 +217,14 @@ describe('BuildController', () => {
         ]);
     });
 
-    it('Successfully build', async () => {
-        // First time
-        await buildController.build('fakedCorrelationId', fakedCredential);
+    it('Trigger build before signed in', async () => {
+        await buildController.build('fakedCorrelationId', <Credential>{
+            signInStatus: 'Initializing'
+        });
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
-            new BuildProgress('Trying to get provisioned repository information by repository URL...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
             new BuildInstantAllocated(),
             new BuildStarted('fakedWorkspaceFolder'),
@@ -239,6 +240,34 @@ describe('BuildController', () => {
             new BuildInstantReleased(),
         ]);
         assert.equal(visualizeBuildReportCalled, true);
+        assert.equal(tokenUsedForBuild, undefined);
+        assert.equal(tokenUsedForAPICall, undefined);
+    });
+
+    it('Successfully build', async () => {
+        // First time
+        await buildController.build('fakedCorrelationId', fakedCredential);
+        assert.deepStrictEqual(testEventBus.getEvents(), [
+            new BuildTriggered('fakedCorrelationId'),
+            new BuildProgress('Retrieving repository information for current workspace folder...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
+            new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
+            new BuildInstantAllocated(),
+            new BuildStarted('fakedWorkspaceFolder'),
+            new BuildSucceeded(
+                'fakedCorrelationId',
+                expectedBuildInput,
+                1,
+                <BuildResult>{
+                    result: DocfxExecutionResult.Succeeded,
+                    isRestoreSkipped: false
+                }
+            ),
+            new BuildInstantReleased(),
+        ]);
+        assert.equal(visualizeBuildReportCalled, true);
+        assert.equal(tokenUsedForBuild, 'faked-token');
+        assert.equal(tokenUsedForAPICall, 'faked-token');
 
         // Second time
         testEventBus.clear();
@@ -265,6 +294,7 @@ describe('BuildController', () => {
     it('Trigger build on learn repository', async () => {
         stubSafelyReadJsonFile.withArgs(fakedOpConfigPath).returns({
             "docsets_to_publish": [{
+                "docset_name": "fakedDocset",
                 "customized_tasks": {
                     "docset_postbuild": [
                         "_dependentPackages/CommonPlugins/tools/TripleCrownValidation.ps1"
@@ -277,7 +307,7 @@ describe('BuildController', () => {
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
-            new BuildProgress('Trying to get provisioned repository information by repository URL...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
             new BuildInstantAllocated(),
             new BuildStarted('fakedWorkspaceFolder'),
@@ -328,8 +358,7 @@ describe('BuildController', () => {
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
-            new BuildProgress('Trying to get provisioned repository information by repository URL...'),
-            new BuildProgress('Trying to get provisioned repository information by docset information...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
             new BuildInstantAllocated(),
             new BuildStarted('fakedWorkspaceFolder'),
@@ -356,8 +385,8 @@ describe('BuildController', () => {
             new BuildTriggered('fakedCorrelationId2'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
-            new BuildProgress('Trying to get provisioned repository information by repository URL...'),
-            new BuildProgress('Trying to get provisioned repository information by repository URL...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
             new BuildInstantAllocated(),
@@ -392,7 +421,7 @@ describe('BuildController', () => {
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
-            new BuildProgress('Trying to get provisioned repository information by repository URL...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
             new BuildInstantAllocated(),
             new BuildStarted('fakedWorkspaceFolder'),
@@ -420,7 +449,7 @@ describe('BuildController', () => {
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
-            new BuildProgress('Trying to get provisioned repository information by repository URL...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
             new BuildInstantAllocated(),
             new BuildStarted('fakedWorkspaceFolder'),

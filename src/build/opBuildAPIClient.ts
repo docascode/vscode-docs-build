@@ -71,7 +71,9 @@ export class OPBuildAPIClient {
         headers: any = {},
     ): Promise<any> {
         method = method || 'GET';
-        headers[OP_BUILD_USER_TOKEN_HEADER_NAME] = token;
+        if (token) {
+            headers[OP_BUILD_USER_TOKEN_HEADER_NAME] = token;
+        }
 
         eventStream.post(new APICallStarted(name, url));
         const promise = new Promise((resolve, reject) => {

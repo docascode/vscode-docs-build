@@ -197,13 +197,13 @@ describe('BuildExecutor', () => {
             assert.notEqual(executedStdinInput[0], undefined);
             assert.notEqual(executedStdinInput[1], undefined);
             let firstExecutedStdinInput = <any>JSON.parse(executedStdinInput[0]);
-            assert.deepStrictEqual(firstExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
+            assert.deepStrictEqual(firstExecutedStdinInput.http["https://docspublic.azurefd.net/api/build"], {
                 "headers": {
                     "X-OP-BuildUserToken": "faked-build-token"
                 }
             });
             let secondExecutedStdinInput = <any>JSON.parse(executedStdinInput[1]);
-            assert.deepStrictEqual(secondExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
+            assert.deepStrictEqual(secondExecutedStdinInput.http["https://docspublic.azurefd.net/api/build"], {
                 "headers": {
                     "X-OP-BuildUserToken": "faked-build-token"
                 }
@@ -333,6 +333,23 @@ describe('BuildExecutor', () => {
             assert.deepStrictEqual(executedCommands, [
                 `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --verbose --dry-run`,
             ]);
+
+            // Reset environment
+            fakedEnvironmentController.debugMode = false;
+        });
+
+        it('Build without credential', async () => {
+            fakedEnvironmentController.debugMode = true;
+            await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, undefined);
+
+            assert.deepStrictEqual(executedCommands, [
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --verbose --dry-run`,
+            ]);
+
+            let stdinInput = <any>JSON.parse(executedStdinInput[0]);
+            assert.deepStrictEqual(stdinInput, {
+                "http": {}
+            });
 
             // Reset environment
             fakedEnvironmentController.debugMode = false;

@@ -28,8 +28,8 @@ const config = {
         }
     },
     OPBuildAPIEndPoint: {
-        PROD: 'https://op-build-prod.azurewebsites.net',
-        PPE: 'https://op-build-sandbox2.azurewebsites.net'
+        PROD: 'https://docspublic.azurefd.net/api/build',
+        PPE: 'https://docspubdev.azurefd.net/api/build'
     },
     AIKey: {
         PROD: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
