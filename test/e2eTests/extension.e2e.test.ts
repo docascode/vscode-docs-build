@@ -38,6 +38,40 @@ describe('E2E Test', () => {
         sinon.restore();
     });
 
+    it('build without sign-in', (done) => {
+        (async function () {
+            const extension = await ensureExtensionActivatedAndInitializationFinished();
+            assert.notEqual(extension, undefined);
+
+            extension.exports.eventStream.subscribe((event: BaseEvent) => {
+                switch (event.type) {
+                    case EventType.CredentialReset:
+                        triggerCommand('docs.build');
+                        break;
+                    case EventType.BuildCompleted:
+                        finalCheck(<BuildCompleted>event);
+                        done();
+                        break;
+                }
+            });
+
+            triggerCommand('docs.signOut');
+
+            function finalCheck(event: BuildCompleted) {
+                assert.equal(event.result, DocfxExecutionResult.Succeeded);
+
+                let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));
+                let diagnostics = vscode.languages.getDiagnostics(fileUri);
+
+                const expectedDiagnostic = new Diagnostic(new Range(7, 0, 7, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
+                expectedDiagnostic.code = 'file-not-found';
+                expectedDiagnostic.source = 'Docs Validation';
+
+                assert.deepStrictEqual(diagnostics, [expectedDiagnostic]);
+            }
+        })();
+    });
+
     it('Sign in to Docs and trigger build', (done) => {
         (async function () {
             const extension = await ensureExtensionActivatedAndInitializationFinished();
