@@ -75,6 +75,11 @@ export class BuildExecutor {
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this._environmentController.env
         };
+        if (!buildUserToken) {
+            // Use live branch when it is public user
+            envs['DOCFX_REPOSITORY_BRANCH'] = 'live';
+        }
+
         if (this._telemetryReporter.getUserOptIn()) {
             // TODO: docfx need to support more common properties, e.g. if it is local build or server build
             envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this._environmentController.env];
@@ -111,8 +116,8 @@ export class BuildExecutor {
         stdinInput: string): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxRestoreStarted());
-            let command = `${this._binary} restore "${repositoryPath}" --legacy --log "${logPath}" --stdin`;
-            command += (this._environmentController.debugMode ? ' --verbose' : '');
+            let command = `${this._binary} restore "${repositoryPath}" --legacy --verbose --log "${logPath}" --stdin`;
+            // command += (this._environmentController.debugMode ? ' --verbose' : '');
             this._runningChildProcess = executeDocfx(
                 command,
                 this._eventStream,
@@ -143,8 +148,8 @@ export class BuildExecutor {
         stdinInput: string): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxBuildStarted());
-            let command = `${this._binary} build "${repositoryPath}" --legacy --output "${outputPath}" --log "${logPath}" --stdin`;
-            command += (this._environmentController.debugMode ? ' --verbose' : '');
+            let command = `${this._binary} build "${repositoryPath}" --legacy --verbose --output "${outputPath}" --log "${logPath}" --stdin`;
+            // command += (this._environmentController.debugMode ? ' --verbose' : '');
             command += (dryRun ? ' --dry-run' : '');
             this._runningChildProcess = executeDocfx(
                 command,

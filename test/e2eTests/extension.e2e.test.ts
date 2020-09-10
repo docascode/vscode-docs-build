@@ -1,12 +1,16 @@
 import vscode, { Uri, Diagnostic, Range } from 'vscode';
 import assert from 'assert';
 import path from 'path';
+import fs from 'fs-extra';
 import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from '../utils/testHelper';
 import { EventType } from '../../src/common/eventType';
 import { BaseEvent, UserSignInCompleted, BuildCompleted } from '../../src/common/loggingEvents';
 import { createSandbox, SinonSandbox } from 'sinon';
 import { uriHandler } from '../../src/shared';
 import { DocfxExecutionResult } from '../../src/build/buildResult';
+import TestEventBus from '../utils/testEventBus';
+
+const outputFile = `${__dirname}/../../../.temp/output/output.json`;
 
 describe('E2E Test', () => {
     let sinon: SinonSandbox;
@@ -32,6 +36,9 @@ describe('E2E Test', () => {
                 });
             }
         );
+
+        fs.ensureFileSync(outputFile);
+        console.log(`File write to ${path.resolve(outputFile)}`);
     });
 
     after(() => {
@@ -43,13 +50,19 @@ describe('E2E Test', () => {
             const extension = await ensureExtensionActivatedAndInitializationFinished();
             assert.notEqual(extension, undefined);
 
-            extension.exports.eventStream.subscribe((event: BaseEvent) => {
+            let testEventBus = new TestEventBus(extension.exports.eventStream);
+
+            let dispose = extension.exports.eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
                     case EventType.CredentialReset:
                         triggerCommand('docs.build');
                         break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);
+                        break;
+                    case EventType.BuildInstantReleased:
+                        dispose.unsubscribe();
+                        testEventBus.dispose();
                         done();
                         break;
                 }
@@ -58,16 +71,25 @@ describe('E2E Test', () => {
             triggerCommand('docs.signOut');
 
             function finalCheck(event: BuildCompleted) {
+                fs.appendFileSync(outputFile, JSON.stringify(testEventBus.getEvents()));
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));
                 let diagnostics = vscode.languages.getDiagnostics(fileUri);
 
-                const expectedDiagnostic = new Diagnostic(new Range(7, 0, 7, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
-                expectedDiagnostic.code = 'file-not-found';
-                expectedDiagnostic.source = 'Docs Validation';
+                const fileNotFoundDiagnostic = new Diagnostic(new Range(7, 0, 7, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
+                fileNotFoundDiagnostic.code = 'file-not-found';
+                fileNotFoundDiagnostic.source = 'Docs Validation';
 
-                assert.deepStrictEqual(diagnostics, [expectedDiagnostic]);
+                assert.deepStrictEqual(diagnostics, [fileNotFoundDiagnostic]);
+
+                let docfxConfigUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "docfx.json"));
+                diagnostics = vscode.languages.getDiagnostics(docfxConfigUri);
+                const invalidMonikerRangeDiagnostic = new Diagnostic(new Range(52, 39, 52, 39), `Invalid moniker range 'netcore-1.1.0': Moniker 'netcore-1.1.0' is not defined.`, vscode.DiagnosticSeverity.Error);
+                invalidMonikerRangeDiagnostic.code = 'moniker-range-invalid';
+                invalidMonikerRangeDiagnostic.source = 'Docs Validation';
+
+                assert.deepStrictEqual(diagnostics, [invalidMonikerRangeDiagnostic]);
             }
         })();
     });
@@ -77,7 +99,9 @@ describe('E2E Test', () => {
             const extension = await ensureExtensionActivatedAndInitializationFinished();
             assert.notEqual(extension, undefined);
 
-            extension.exports.eventStream.subscribe((event: BaseEvent) => {
+            let testEventBus = new TestEventBus(extension.exports.eventStream);
+
+            let dispose = extension.exports.eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
                     case EventType.UserSignInCompleted:
                         let asUserSignInCompleted = <UserSignInCompleted>event;
@@ -86,6 +110,10 @@ describe('E2E Test', () => {
                         break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);
+                        break;
+                    case EventType.BuildInstantReleased:
+                        dispose.unsubscribe();
+                        testEventBus.dispose();
                         done();
                         break;
                 }
@@ -94,6 +122,7 @@ describe('E2E Test', () => {
             triggerCommand('docs.signIn');
 
             function finalCheck(event: BuildCompleted) {
+                fs.appendFileSync(outputFile, JSON.stringify(testEventBus.getEvents()));
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));

@@ -43,6 +43,8 @@ export class BuildController {
         try {
             await this.validateUserCredential(credential);
             buildInput = await this.getBuildInput(credential);
+            fs.emptyDirSync(this._buildInput.outputFolderPath);
+            fs.removeSync(this._buildInput.logPath);
             this.setAvailableFlag();
         } catch (err) {
             this._eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
@@ -120,7 +122,6 @@ export class BuildController {
 
     private async getBuildInput(credential: Credential): Promise<BuildInput> {
         if (this._buildInput) {
-            fs.emptyDirSync(this._buildInput.outputFolderPath);
             return this._buildInput;
         }
 

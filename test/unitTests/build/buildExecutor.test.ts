@@ -351,6 +351,19 @@ describe('BuildExecutor', () => {
                 "http": {}
             });
 
+            assert.deepStrictEqual(executedOptions, [
+                {
+                    cwd: `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`,
+                    env: {
+                        APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
+                        DOCFX_CORRELATION_ID: 'fakedCorrelationId',
+                        DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
+                        DOCS_ENVIRONMENT: 'PROD',
+                        DOCFX_REPOSITORY_BRANCH: 'live'
+                    }
+                }
+            ]);
+
             // Reset environment
             fakedEnvironmentController.debugMode = false;
         });
