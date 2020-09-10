@@ -197,13 +197,13 @@ describe('BuildExecutor', () => {
             assert.notEqual(executedStdinInput[0], undefined);
             assert.notEqual(executedStdinInput[1], undefined);
             let firstExecutedStdinInput = <any>JSON.parse(executedStdinInput[0]);
-            assert.deepStrictEqual(firstExecutedStdinInput.http["https://docspublic.azurefd.net/api/build"], {
+            assert.deepStrictEqual(firstExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
                 "headers": {
                     "X-OP-BuildUserToken": "faked-build-token"
                 }
             });
             let secondExecutedStdinInput = <any>JSON.parse(executedStdinInput[1]);
-            assert.deepStrictEqual(secondExecutedStdinInput.http["https://docspublic.azurefd.net/api/build"], {
+            assert.deepStrictEqual(secondExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
                 "headers": {
                     "X-OP-BuildUserToken": "faked-build-token"
                 }
