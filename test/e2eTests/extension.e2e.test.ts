@@ -50,11 +50,11 @@ describe('E2E Test', () => {
 
     beforeEach(() => {
         testEventBus.clear();
-    })
+    });
 
     afterEach(function () {
         detailE2EOutput[this.currentTest.fullTitle()] = testEventBus.getEvents();
-    })
+    });
 
     after(() => {
         sinon.restore();

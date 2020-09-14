@@ -347,9 +347,7 @@ describe('BuildExecutor', () => {
             ]);
 
             let stdinInput = <any>JSON.parse(executedStdinInput[0]);
-            assert.deepStrictEqual(stdinInput, {
-                "http": {}
-            });
+            assert.equal(stdinInput.http["https://op-build-prod.azurewebsites.net"], undefined);
 
             assert.deepStrictEqual(executedOptions, [
                 {
