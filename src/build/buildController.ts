@@ -75,6 +75,7 @@ export class BuildController {
             this._currentBuildCorrelationId = undefined;
             if (!this._environmentController.debugMode) {
                 fs.remove(buildInput.outputFolderPath);
+                fs.removeSync(this._buildInput.logPath);
             }
             this.resetAvailableFlag();
         }

@@ -9,12 +9,16 @@ import { createSandbox, SinonSandbox } from 'sinon';
 import { uriHandler } from '../../src/shared';
 import { DocfxExecutionResult } from '../../src/build/buildResult';
 import TestEventBus from '../utils/testEventBus';
+import { EventStream } from '../../src/common/eventStream';
 
-const outputFile = `${__dirname}/../../../.temp/output/output.json`;
+const detailE2EOutput: any = {};
 
 describe('E2E Test', () => {
     let sinon: SinonSandbox;
-    before(() => {
+    let eventStream: EventStream;
+    let testEventBus: TestEventBus;
+
+    before(async () => {
         if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
             throw new Error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN" from environment variable');
         }
@@ -37,71 +41,77 @@ describe('E2E Test', () => {
             }
         );
 
-        fs.ensureFileSync(outputFile);
-        console.log(`File write to ${path.resolve(outputFile)}`);
+        const extension = await ensureExtensionActivatedAndInitializationFinished();
+        assert.notEqual(extension, undefined);
+
+        eventStream = extension.exports.eventStream;
+        testEventBus = new TestEventBus(eventStream);
     });
+
+    beforeEach(() => {
+        testEventBus.clear();
+    })
+
+    afterEach(function () {
+        detailE2EOutput[this.currentTest.fullTitle()] = testEventBus.getEvents();
+    })
 
     after(() => {
         sinon.restore();
+
+        const detailE2EOutputFile = `${__dirname}/../../../.temp/output/detail-e2e-output.json`;
+        fs.ensureFileSync(detailE2EOutputFile);
+        fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
+        console.log(`File write to ${path.resolve(detailE2EOutputFile)}`);
     });
 
-    it('build without sign-in', (done) => {
-        (async function () {
-            const extension = await ensureExtensionActivatedAndInitializationFinished();
-            assert.notEqual(extension, undefined);
+    // it('build without sign-in', (done) => {
+    //     (async function () {
+    //         let dispose = eventStream.subscribe((event: BaseEvent) => {
+    //             switch (event.type) {
+    //                 case EventType.CredentialReset:
+    //                     triggerCommand('docs.build');
+    //                     break;
+    //                 case EventType.BuildCompleted:
+    //                     finalCheck(<BuildCompleted>event);
+    //                     break;
+    //                 case EventType.BuildInstantReleased:
+    //                     dispose.unsubscribe();
+    //                     testEventBus.dispose();
+    //                     done();
+    //                     break;
+    //             }
+    //         });
 
-            let testEventBus = new TestEventBus(extension.exports.eventStream);
+    //         triggerCommand('docs.signOut');
 
-            let dispose = extension.exports.eventStream.subscribe((event: BaseEvent) => {
-                switch (event.type) {
-                    case EventType.CredentialReset:
-                        triggerCommand('docs.build');
-                        break;
-                    case EventType.BuildCompleted:
-                        finalCheck(<BuildCompleted>event);
-                        break;
-                    case EventType.BuildInstantReleased:
-                        dispose.unsubscribe();
-                        testEventBus.dispose();
-                        done();
-                        break;
-                }
-            });
+    //         function finalCheck(event: BuildCompleted) {
+    //             detailE2EOutput['build without sign-in'] = testEventBus.getEvents();
+    //             assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
-            triggerCommand('docs.signOut');
+    //             let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));
+    //             let diagnostics = vscode.languages.getDiagnostics(fileUri);
 
-            function finalCheck(event: BuildCompleted) {
-                fs.appendFileSync(outputFile, JSON.stringify(testEventBus.getEvents()));
-                assert.equal(event.result, DocfxExecutionResult.Succeeded);
+    //             const fileNotFoundDiagnostic = new Diagnostic(new Range(7, 0, 7, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
+    //             fileNotFoundDiagnostic.code = 'file-not-found';
+    //             fileNotFoundDiagnostic.source = 'Docs Validation';
 
-                let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));
-                let diagnostics = vscode.languages.getDiagnostics(fileUri);
+    //             assert.deepStrictEqual(diagnostics, [fileNotFoundDiagnostic]);
 
-                const fileNotFoundDiagnostic = new Diagnostic(new Range(7, 0, 7, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
-                fileNotFoundDiagnostic.code = 'file-not-found';
-                fileNotFoundDiagnostic.source = 'Docs Validation';
+    //             let docfxConfigUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "docfx.json"));
+    //             diagnostics = vscode.languages.getDiagnostics(docfxConfigUri);
+    //             const invalidMonikerRangeDiagnostic = new Diagnostic(new Range(52, 39, 52, 39), `Invalid moniker range 'netcore-1.1.0': Moniker 'netcore-1.1.0' is not defined.`, vscode.DiagnosticSeverity.Error);
+    //             invalidMonikerRangeDiagnostic.code = 'moniker-range-invalid';
+    //             invalidMonikerRangeDiagnostic.source = 'Docs Validation';
 
-                assert.deepStrictEqual(diagnostics, [fileNotFoundDiagnostic]);
-
-                let docfxConfigUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "docfx.json"));
-                diagnostics = vscode.languages.getDiagnostics(docfxConfigUri);
-                const invalidMonikerRangeDiagnostic = new Diagnostic(new Range(52, 39, 52, 39), `Invalid moniker range 'netcore-1.1.0': Moniker 'netcore-1.1.0' is not defined.`, vscode.DiagnosticSeverity.Error);
-                invalidMonikerRangeDiagnostic.code = 'moniker-range-invalid';
-                invalidMonikerRangeDiagnostic.source = 'Docs Validation';
-
-                assert.deepStrictEqual(diagnostics, [invalidMonikerRangeDiagnostic]);
-            }
-        })();
-    });
+    //             assert.deepStrictEqual(diagnostics, [invalidMonikerRangeDiagnostic]);
+    //         }
+    //     })();
+    // });
 
     it('Sign in to Docs and trigger build', (done) => {
         (async function () {
-            const extension = await ensureExtensionActivatedAndInitializationFinished();
-            assert.notEqual(extension, undefined);
-
-            let testEventBus = new TestEventBus(extension.exports.eventStream);
-
-            let dispose = extension.exports.eventStream.subscribe((event: BaseEvent) => {
+            let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
                     case EventType.UserSignInCompleted:
                         let asUserSignInCompleted = <UserSignInCompleted>event;
@@ -122,7 +132,6 @@ describe('E2E Test', () => {
             triggerCommand('docs.signIn');
 
             function finalCheck(event: BuildCompleted) {
-                fs.appendFileSync(outputFile, JSON.stringify(testEventBus.getEvents()));
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));
