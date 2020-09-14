@@ -116,8 +116,8 @@ export class BuildExecutor {
         stdinInput: string): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxRestoreStarted());
-            let command = `${this._binary} restore "${repositoryPath}" --legacy --verbose --log "${logPath}" --stdin`;
-            // command += (this._environmentController.debugMode ? ' --verbose' : '');
+            let command = `${this._binary} restore "${repositoryPath}" --legacy --log "${logPath}" --stdin`;
+            command += (this._environmentController.debugMode ? ' --verbose' : '');
             this._runningChildProcess = executeDocfx(
                 command,
                 this._eventStream,
@@ -148,8 +148,8 @@ export class BuildExecutor {
         stdinInput: string): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxBuildStarted());
-            let command = `${this._binary} build "${repositoryPath}" --legacy --verbose --output "${outputPath}" --log "${logPath}" --stdin`;
-            // command += (this._environmentController.debugMode ? ' --verbose' : '');
+            let command = `${this._binary} build "${repositoryPath}" --legacy --output "${outputPath}" --log "${logPath}" --stdin`;
+            command += (this._environmentController.debugMode ? ' --verbose' : '');
             command += (dryRun ? ' --dry-run' : '');
             this._runningChildProcess = executeDocfx(
                 command,

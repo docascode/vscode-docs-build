@@ -71,16 +71,16 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: output'
   inputs:
-    PathtoPublish: '.temp/output'
+    PathtoPublish: '.temp/debug'
     ArtifactName: Output-Mac
-  condition: eq(variables['Agent.OS'], 'Darwin')
+  condition: and(failed(), eq(variables['Agent.OS'], 'Darwin'))
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: output'
   inputs:
-    PathtoPublish: '.temp/output'
+    PathtoPublish: '.temp/debug'
     ArtifactName: Output-Windows
-  condition: eq(variables['Agent.OS'], 'Windows_NT')
+  condition: and(failed(), eq(variables['Agent.OS'], 'Windows_NT'))
 
 - bash: ./node_modules/.bin/codecov -f coverage/unit/lcov.info -F unit
   displayName: 'Report unit test coverage'
