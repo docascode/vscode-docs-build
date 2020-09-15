@@ -1,16 +1,24 @@
 import vscode, { Uri, Diagnostic, Range } from 'vscode';
 import assert from 'assert';
 import path from 'path';
+import fs from 'fs-extra';
 import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from '../utils/testHelper';
 import { EventType } from '../../src/common/eventType';
 import { BaseEvent, UserSignInCompleted, BuildCompleted } from '../../src/common/loggingEvents';
 import { createSandbox, SinonSandbox } from 'sinon';
 import { uriHandler } from '../../src/shared';
 import { DocfxExecutionResult } from '../../src/build/buildResult';
+import TestEventBus from '../utils/testEventBus';
+import { EventStream } from '../../src/common/eventStream';
+
+const detailE2EOutput: any = {};
 
 describe('E2E Test', () => {
     let sinon: SinonSandbox;
-    before(() => {
+    let eventStream: EventStream;
+    let testEventBus: TestEventBus;
+
+    before(async () => {
         if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
             throw new Error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN" from environment variable');
         }
@@ -32,18 +40,33 @@ describe('E2E Test', () => {
                 });
             }
         );
+
+        const extension = await ensureExtensionActivatedAndInitializationFinished();
+        assert.notEqual(extension, undefined);
+
+        eventStream = extension.exports.eventStream;
+        testEventBus = new TestEventBus(eventStream);
+    });
+
+    beforeEach(() => {
+        testEventBus.clear();
+    });
+
+    afterEach(function () {
+        detailE2EOutput[this.currentTest.fullTitle()] = testEventBus.getEvents();
     });
 
     after(() => {
         sinon.restore();
+
+        const detailE2EOutputFile = `${__dirname}/../../../.temp/debug/detail-e2e-output.json`;
+        fs.ensureFileSync(detailE2EOutputFile);
+        fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
     });
 
     it('Sign in to Docs and trigger build', (done) => {
         (async function () {
-            const extension = await ensureExtensionActivatedAndInitializationFinished();
-            assert.notEqual(extension, undefined);
-
-            extension.exports.eventStream.subscribe((event: BaseEvent) => {
+            let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
                     case EventType.UserSignInCompleted:
                         let asUserSignInCompleted = <UserSignInCompleted>event;
@@ -52,6 +75,10 @@ describe('E2E Test', () => {
                         break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);
+                        break;
+                    case EventType.BuildInstantReleased:
+                        dispose.unsubscribe();
+                        testEventBus.dispose();
                         done();
                         break;
                 }
