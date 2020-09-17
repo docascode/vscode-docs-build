@@ -13,6 +13,13 @@ import { BuildInput } from './buildInput';
 import config from '../config';
 import TelemetryReporter from '../telemetryReporter';
 
+interface BuildParameters {
+    restoreCommand: string;
+    buildCommand: string;
+    envs: any;
+    stdin: string;
+}
+
 export class BuildExecutor {
     private _cwd: string;
     private _binary: string;
@@ -39,11 +46,11 @@ export class BuildExecutor {
             isRestoreSkipped: BuildExecutor.SKIP_RESTORE
         };
 
-        let [envs, stdinInput] = this.getBuildParameters(correlationId, input, buildUserToken);
+        let buildParameters = this.getBuildParameters(correlationId, input, buildUserToken);
 
         if (!BuildExecutor.SKIP_RESTORE) {
             let restoreStart = Date.now();
-            let result = await this.restore(correlationId, input.localRepositoryPath, input.logPath, envs, stdinInput);
+            let result = await this.restore(correlationId, buildParameters);
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;
@@ -53,7 +60,7 @@ export class BuildExecutor {
         }
 
         let buildStart = Date.now();
-        buildResult.result = await this.build(input.localRepositoryPath, input.outputFolderPath, input.logPath, input.dryRun, envs, stdinInput);
+        buildResult.result = await this.build(buildParameters);
         buildResult.buildTimeInSeconds = getDurationInSeconds(Date.now() - buildStart);
         return buildResult;
     }
@@ -69,7 +76,61 @@ export class BuildExecutor {
         }
     }
 
-    private getBuildParameters(correlationId: string, input: BuildInput, buildUserToken: string): [any, string] {
+    private async restore(
+        correlationId: string,
+        buildParameters: BuildParameters): Promise<DocfxExecutionResult> {
+        return new Promise((resolve, reject) => {
+            this._eventStream.post(new DocfxRestoreStarted());
+            this._runningChildProcess = executeDocfx(
+                buildParameters.restoreCommand,
+                this._eventStream,
+                (code: number, signal: string) => {
+                    let docfxExecutionResult: DocfxExecutionResult;
+                    if (signal === 'SIGKILL') {
+                        docfxExecutionResult = DocfxExecutionResult.Canceled;
+                    } else if (code === 0) {
+                        docfxExecutionResult = DocfxExecutionResult.Succeeded;
+                    } else {
+                        docfxExecutionResult = DocfxExecutionResult.Failed;
+                    }
+                    this._eventStream.post(new DocfxRestoreCompleted(correlationId, docfxExecutionResult, code));
+                    resolve(docfxExecutionResult);
+                },
+                { env: buildParameters.envs, cwd: this._cwd },
+                buildParameters.stdin
+            );
+        });
+    }
+
+    private async build(buildParameters: BuildParameters): Promise<DocfxExecutionResult> {
+        return new Promise((resolve, reject) => {
+            this._eventStream.post(new DocfxBuildStarted());
+            this._runningChildProcess = executeDocfx(
+                buildParameters.buildCommand,
+                this._eventStream,
+                (code: number, signal: string) => {
+                    let docfxExecutionResult: DocfxExecutionResult;
+                    if (signal === 'SIGKILL') {
+                        docfxExecutionResult = DocfxExecutionResult.Canceled;
+                    } else if (code === 0 || code === 1) {
+                        docfxExecutionResult = DocfxExecutionResult.Succeeded;
+                    } else {
+                        docfxExecutionResult = DocfxExecutionResult.Failed;
+                    }
+                    this._eventStream.post(new DocfxBuildCompleted(docfxExecutionResult, code));
+                    resolve(docfxExecutionResult);
+                },
+                { env: buildParameters.envs, cwd: this._cwd },
+                buildParameters.stdin
+            );
+        });
+    }
+
+    private getBuildParameters(
+        correlationId: string,
+        input: BuildInput,
+        buildUserToken: string,
+    ): BuildParameters {
         let envs: any = {
             'DOCFX_CORRELATION_ID': correlationId,
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
@@ -102,73 +163,26 @@ export class BuildExecutor {
                 }
             };
         }
-        let stdinInput = JSON.stringify({
+        let stdin = JSON.stringify({
             "http": secrets
         });
-        return [envs, stdinInput];
+
+        return <BuildParameters>{
+            envs,
+            stdin,
+            restoreCommand: this.getExecCommand("restore", input),
+            buildCommand: this.getExecCommand("build", input)
+        };
     }
 
-    private async restore(
-        correlationId: string,
-        repositoryPath: string,
-        logPath: string,
-        envs: any,
-        stdinInput: string): Promise<DocfxExecutionResult> {
-        return new Promise((resolve, reject) => {
-            this._eventStream.post(new DocfxRestoreStarted());
-            let command = `${this._binary} restore "${repositoryPath}" --legacy --log "${logPath}" --stdin`;
-            command += (this._environmentController.debugMode ? ' --verbose' : '');
-            this._runningChildProcess = executeDocfx(
-                command,
-                this._eventStream,
-                (code: number, signal: string) => {
-                    let docfxExecutionResult: DocfxExecutionResult;
-                    if (signal === 'SIGKILL') {
-                        docfxExecutionResult = DocfxExecutionResult.Canceled;
-                    } else if (code === 0) {
-                        docfxExecutionResult = DocfxExecutionResult.Succeeded;
-                    } else {
-                        docfxExecutionResult = DocfxExecutionResult.Failed;
-                    }
-                    this._eventStream.post(new DocfxRestoreCompleted(correlationId, docfxExecutionResult, code));
-                    resolve(docfxExecutionResult);
-                },
-                { env: envs, cwd: this._cwd },
-                stdinInput
-            );
-        });
-    }
-
-    private async build(
-        repositoryPath: string,
-        outputPath: string,
-        logPath: string,
-        dryRun: boolean,
-        envs: any,
-        stdinInput: string): Promise<DocfxExecutionResult> {
-        return new Promise((resolve, reject) => {
-            this._eventStream.post(new DocfxBuildStarted());
-            let command = `${this._binary} build "${repositoryPath}" --legacy --output "${outputPath}" --log "${logPath}" --stdin`;
-            command += (this._environmentController.debugMode ? ' --verbose' : '');
-            command += (dryRun ? ' --dry-run' : '');
-            this._runningChildProcess = executeDocfx(
-                command,
-                this._eventStream,
-                (code: number, signal: string) => {
-                    let docfxExecutionResult: DocfxExecutionResult;
-                    if (signal === 'SIGKILL') {
-                        docfxExecutionResult = DocfxExecutionResult.Canceled;
-                    } else if (code === 0 || code === 1) {
-                        docfxExecutionResult = DocfxExecutionResult.Succeeded;
-                    } else {
-                        docfxExecutionResult = DocfxExecutionResult.Failed;
-                    }
-                    this._eventStream.post(new DocfxBuildCompleted(docfxExecutionResult, code));
-                    resolve(docfxExecutionResult);
-                },
-                { env: envs, cwd: this._cwd },
-                stdinInput
-            );
-        });
+    private getExecCommand(
+        command: string,
+        input: BuildInput,
+    ): string {
+        let cmdWithParameters = `${this._binary} ${command} ${input.localRepositoryPath} --log "${input.logPath}" --stdin --template "${config.PublicTemplate}"`;
+        cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
+        cmdWithParameters += (command === "build" && input.dryRun ? ' --dry-run' : '');
+        cmdWithParameters += (command === "build" ? ` --output "${input.outputFolderPath}"` : '');
+        return cmdWithParameters;
     }
 }
