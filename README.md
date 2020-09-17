@@ -1,27 +1,28 @@
-# Docs Build - Local Validation
+# Docs Validation
 
 [![Build Status](https://dev.azure.com/ceapex/Engineering/_apis/build/status/Docs%20Validation/docascode.vscode-docs-build?branchName=master)](https://dev.azure.com/ceapex/Engineering/_build/latest?definitionId=1716&branchName=master)
 
-This is a VS Code extension to provide the Local Build Validation experience for a docs repository.
+This extension enables you to run build validation on a Docs conceptual or Learn repo at author time in VS Code. This means you can make sure your repo is free of validation issues before making a pull request.
 
-## Features
+## Prerequisites
 
-- Ability to sign in/out of the dependant Docs APIs, and display the status in the status bar
-- Validate the current workspace folder
-- Display the real-time build streaming output in the `Docs` channel
-- Display all diagnostics in the `Problem` view with detailed information after a build has finished.
+- You must be a Microsoft employee.
+- Install [git](https://git-scm.com/downloads).
+- Clone your Docs or Learn repo locally in VS Code.
+- All files in the repo must be saved.
+
+## How to use the Docs Validation extension
+
+1. Open a Docs conceptual or Learn repo in VS Code with the extension installed.
+1. Sign in by clicking **Docs Validation: Sign in to Docs** from the VS Code status bar.
+1. Trigger a build by clicking **Yes** when prompted after sign in, by clicking **Docs Validation** on the status bar then clicking **Validate** from the drop-down menu, or by right-clicking any file in the repo and selecting **Validate this workspace folder**.
+1. Build validation will run locally and all results will be output to the Problems pane.
+
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/vscode-docs-build.gif?raw=true)
 
-## Requirements
+> **Note:** The first time you validate a repo, all the Docs build dependencies will be fetched and cached locally. Subsequent validation runs will be faster.
 
-- [git](https://git-scm.com/downloads) installed
-
-## Performance benchmark
-
-> Notes:
-> 1. On the first build of a Docs repository on your local machine, all the dependencies (template repository, Cross Repository Reference, build dependencies, etc.) will need to be fetched, and this will take some time to complete (depending on your network).
-> 2. All of the fetched resources will be cached locally, and additional local builds will run much faster.
-> 3. A restore will be performed on each VS Code session (VS Code).
+<!-- Can we pull these details from the public extension readme? The troubleshooting section might be helpful, but using images that was isn't accessible, so maybe we comment them out for now and build a better accessible readme when we add to the Docs Authoring Pack?
 
 ### Windows
 
@@ -46,10 +47,6 @@ This is a VS Code extension to provide the Local Build Validation experience for
 |  --- | --- | --- | --- |
 | 00:00:50 | 00:00:38 | 00:00:03 | 00:00:54 |
 
-## Limitation
-
-1. You will have to save the file prior to starting a local validation.
-
 ## Contacts
 
 If you meet any problem or have any feedback about this extension, please Contact:
@@ -57,16 +54,20 @@ If you meet any problem or have any feedback about this extension, please Contac
 - Jiayin Pei(jipe@microsoft.com)
 - DocFX VNext(docfxvnext@microsoft.com)
 
-## Q&A
+
+
+## Troubleshooting
 
 1. Clone Dependencies failed
 
     GitHub has recently enabled SSO on Microsoft-owned organizations. If you see the below errors, please follow the instructions there to enable SSO on your token so that local validation can pass through.
+    
     ![clone-failed-sso](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-failed-sso.jpg?raw=true)
 
 1. Clone template Failed
 
     When your validation fails with some error message like:
+    
     ![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed.png?raw=true)
 
     Please try the following solutions:
@@ -79,5 +80,7 @@ If you meet any problem or have any feedback about this extension, please Contac
     $ git clone https://github.com/Microsoft/templates.docs.msft
     ```
 
-    If you have enabled the 2FA on GitHub and you run into the following errors when you clone the repository. Please follow the instruction of this [answer](https://stackoverflow.com/a/34919582/8335256)
+    If you have enabled 2FA on GitHub and you run into the following errors when you clone the repository. Please follow the instruction of this [answer](https://stackoverflow.com/a/34919582/8335256).
     ![clone-template-failed-2FA](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed-2FA.png?raw=true)
+    
+    -->
