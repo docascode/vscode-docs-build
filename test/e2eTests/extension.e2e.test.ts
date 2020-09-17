@@ -62,7 +62,6 @@ describe('E2E Test', () => {
         const detailE2EOutputFile = `${__dirname}/../../../.temp/debug/detail-e2e-output.json`;
         fs.ensureFileSync(detailE2EOutputFile);
         fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
-        console.log(`File write to ${path.resolve(detailE2EOutputFile)}`);
     });
 
     it('build without sign-in', (done) => {
