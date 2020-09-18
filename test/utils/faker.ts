@@ -84,6 +84,7 @@ export const fakedCredential = <Credential>{
 export const tempFolder = path.resolve(__dirname, '../../../.temp');
 export const defaultOutputPath = path.resolve(tempFolder, 'output');
 export const defaultLogPath = path.resolve(defaultOutputPath, '.errors.log');
+export const publicTemplateURL = "https://static.docs.com/ui/latest";
 
 export const fakedExtensionContext = <ExtensionContext>{
     packageJson: {

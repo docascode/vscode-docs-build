@@ -1,4 +1,4 @@
-import vscode, { Uri, Diagnostic, Range } from 'vscode';
+import vscode, { Uri, Diagnostic, Range, DiagnosticSeverity } from 'vscode';
 import assert from 'assert';
 import path from 'path';
 import fs from 'fs-extra';
@@ -12,6 +12,13 @@ import TestEventBus from '../utils/testEventBus';
 import { EventStream } from '../../src/common/eventStream';
 
 const detailE2EOutput: any = {};
+
+interface DiagnosticInfo {
+    range: Range;
+    message: string;
+    code: string;
+    severity: DiagnosticSeverity;
+}
 
 describe('E2E Test', () => {
     let sinon: SinonSandbox;
@@ -64,7 +71,7 @@ describe('E2E Test', () => {
         fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
     });
 
-    it('build without sign-in', (done) => {
+    it.only('build without sign-in', (done) => {
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
@@ -73,7 +80,7 @@ describe('E2E Test', () => {
                         break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);
-                        break;
+                    break;
                     case EventType.BuildInstantReleased:
                         dispose.unsubscribe();
                         testEventBus.dispose();
@@ -88,22 +95,24 @@ describe('E2E Test', () => {
                 detailE2EOutput['build without sign-in'] = testEventBus.getEvents();
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
-                let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));
-                let diagnostics = vscode.languages.getDiagnostics(fileUri);
-
-                const fileNotFoundDiagnostic = new Diagnostic(new Range(7, 0, 7, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
-                fileNotFoundDiagnostic.code = 'file-not-found';
-                fileNotFoundDiagnostic.source = 'Docs Validation';
-
-                assert.deepStrictEqual(diagnostics, [fileNotFoundDiagnostic]);
-
-                let docfxConfigUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "docfx.json"));
-                diagnostics = vscode.languages.getDiagnostics(docfxConfigUri);
-                const invalidMonikerRangeDiagnostic = new Diagnostic(new Range(52, 39, 52, 39), `Invalid moniker range 'netcore-1.1.0': Moniker 'netcore-1.1.0' is not defined.`, vscode.DiagnosticSeverity.Error);
-                invalidMonikerRangeDiagnostic.code = 'moniker-range-invalid';
-                invalidMonikerRangeDiagnostic.source = 'Docs Validation';
-
-                assert.deepStrictEqual(diagnostics, [invalidMonikerRangeDiagnostic]);
+                assertDiagnostics({
+                    "index.md": [
+                        <DiagnosticInfo>{
+                            range: new Range(7, 0, 7, 0),
+                            message: `Invalid file link: 'a.md'.`,
+                            severity: vscode.DiagnosticSeverity.Warning,
+                            code: 'file-not-found',
+                        }
+                    ],
+                    "docfx.json": [
+                        <DiagnosticInfo>{
+                            range: new Range(52, 39, 52, 39),
+                            message: `Invalid moniker range 'netcore-1.1.0': Moniker 'netcore-1.1.0' is not defined.`,
+                            severity: vscode.DiagnosticSeverity.Error,
+                            code: 'moniker-range-invalid',
+                        }
+                    ]
+                });
             }
         })();
     });
@@ -131,17 +140,36 @@ describe('E2E Test', () => {
             triggerCommand('docs.signIn');
 
             function finalCheck(event: BuildCompleted) {
+                detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
-                let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", "index.md"));
-                let diagnostics = vscode.languages.getDiagnostics(fileUri);
-
-                const expectedDiagnostic = new Diagnostic(new Range(7, 0, 7, 0), `Invalid file link: 'a.md'.`, vscode.DiagnosticSeverity.Warning);
-                expectedDiagnostic.code = 'file-not-found';
-                expectedDiagnostic.source = 'Docs Validation';
-
-                assert.deepStrictEqual(diagnostics, [expectedDiagnostic]);
+                assertDiagnostics({
+                    "index.md": [
+                        <DiagnosticInfo>{
+                            range: new Range(7, 0, 7, 0),
+                            message: `Invalid file link: 'a.md'.`,
+                            severity: vscode.DiagnosticSeverity.Warning,
+                            code: 'file-not-found',
+                        }
+                    ]
+                });
             }
         })();
     });
+
+    function assertDiagnostics(expected: { [key: string]: DiagnosticInfo[]; }) {
+        Object.entries(expected).forEach(([file, expectedDiagnostics]) => {
+            let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", file));
+            let diagnostics = vscode.languages.getDiagnostics(fileUri);
+
+            let expectedDiagnosticsForCurrentFile: Diagnostic[] = [];
+            expectedDiagnostics.forEach((item) => {
+                let expectedDiagnostic = new Diagnostic(item.range, item.message, item.severity);
+                expectedDiagnostic.code = item.code;
+                expectedDiagnostic.source = 'Docs Validation';
+                expectedDiagnosticsForCurrentFile.push(expectedDiagnostic);
+            });
+            assert.deepStrictEqual(diagnostics, expectedDiagnosticsForCurrentFile);
+        });
+    }
 });
