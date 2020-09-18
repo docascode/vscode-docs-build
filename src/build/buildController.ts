@@ -43,6 +43,8 @@ export class BuildController {
         try {
             await this.validateUserCredential(credential);
             buildInput = await this.getBuildInput(credential);
+            fs.emptyDirSync(this._buildInput.outputFolderPath);
+            fs.removeSync(this._buildInput.logPath);
             this.setAvailableFlag();
         } catch (err) {
             this._eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
@@ -52,7 +54,7 @@ export class BuildController {
         try {
             this._currentBuildCorrelationId = correlationId;
             this._eventStream.post(new BuildStarted(buildInput.workspaceFolderName));
-            let buildResult = await this._buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo.userToken);
+            let buildResult = await this._buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo?.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             switch (buildResult.result) {
                 case DocfxExecutionResult.Succeeded:
@@ -73,6 +75,7 @@ export class BuildController {
             this._currentBuildCorrelationId = undefined;
             if (!this._environmentController.debugMode) {
                 fs.remove(buildInput.outputFolderPath);
+                fs.removeSync(this._buildInput.logPath);
             }
             this.resetAvailableFlag();
         }
@@ -109,7 +112,7 @@ export class BuildController {
 
     private async validateUserCredential(credential: Credential) {
         if (credential.signInStatus !== 'SignedIn') {
-            throw new DocsError(`You have to sign in first`, ErrorCode.TriggerBuildBeforeSignedIn);
+            return;
         }
 
         if (!(await this._opBuildAPIClient.validateCredential(credential.userInfo.userToken, this._eventStream))) {
@@ -120,7 +123,6 @@ export class BuildController {
 
     private async getBuildInput(credential: Credential): Promise<BuildInput> {
         if (this._buildInput) {
-            fs.emptyDirSync(this._buildInput.outputFolderPath);
             return this._buildInput;
         }
 
@@ -129,7 +131,7 @@ export class BuildController {
         let localRepositoryPath = activeWorkSpaceFolder.uri.fsPath;
 
         try {
-            let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo.userToken);
+            let [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo?.userToken);
             let dryRun = this.needDryRun(activeWorkSpaceFolder.uri.fsPath);
             let outputFolderPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER || getTempOutputFolder());
             let logPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_LOG_PATH || path.join(outputFolderPath, '.errors.log'));
@@ -217,17 +219,12 @@ export class BuildController {
             throw new Error(`Cannot get the repository information for current workspace folder(${err.message})`);
         }
 
-        this._eventStream.post(new BuildProgress('Trying to get provisioned repository information by repository URL...'));
-        let originalRepositoryUrl = await this._opBuildAPIClient.getProvisionedRepositoryUrlByRepositoryUrl(localRepositoryUrl, buildUserToken, this._eventStream);
-        if (!originalRepositoryUrl) {
-            this._eventStream.post(new BuildProgress('Trying to get provisioned repository information by docset information...'));
-
-            let docsetName = this.getOneDocsetNameFromOpConfig(localRepositoryPath);
-            if (!docsetName) {
-                throw new Error(`No docset found in the repository configuration`);
-            }
-            originalRepositoryUrl = await this._opBuildAPIClient.getProvisionedRepositoryUrlByDocsetNameAndLocale(docsetName, locale, buildUserToken, this._eventStream);
+        this._eventStream.post(new BuildProgress('Trying to get provisioned repository information...'));
+        let docsetName = this.getOneDocsetNameFromOpConfig(localRepositoryPath);
+        if (!docsetName) {
+            throw new Error(`No docset found in the repository configuration`);
         }
+        let originalRepositoryUrl = await this._opBuildAPIClient.getProvisionedRepositoryUrlByDocsetNameAndLocale(docsetName, locale, buildUserToken, this._eventStream);
 
         this._eventStream.post(new RepositoryInfoRetrieved(localRepositoryUrl, originalRepositoryUrl));
         return [localRepositoryUrl, originalRepositoryUrl];

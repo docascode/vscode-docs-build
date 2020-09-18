@@ -13,6 +13,13 @@ import { BuildInput } from './buildInput';
 import config from '../config';
 import TelemetryReporter from '../telemetryReporter';
 
+interface BuildParameters {
+    restoreCommand: string;
+    buildCommand: string;
+    envs: any;
+    stdin: string;
+}
+
 export class BuildExecutor {
     private _cwd: string;
     private _binary: string;
@@ -39,11 +46,11 @@ export class BuildExecutor {
             isRestoreSkipped: BuildExecutor.SKIP_RESTORE
         };
 
-        let [envs, stdinInput] = this.getBuildParameters(correlationId, input, buildUserToken);
+        let buildParameters = this.getBuildParameters(correlationId, input, buildUserToken);
 
         if (!BuildExecutor.SKIP_RESTORE) {
             let restoreStart = Date.now();
-            let result = await this.restore(correlationId, input.localRepositoryPath, input.logPath, envs, stdinInput);
+            let result = await this.restore(correlationId, buildParameters);
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;
@@ -53,7 +60,7 @@ export class BuildExecutor {
         }
 
         let buildStart = Date.now();
-        buildResult.result = await this.build(input.localRepositoryPath, input.outputFolderPath, input.logPath, input.dryRun, envs, stdinInput);
+        buildResult.result = await this.build(buildParameters);
         buildResult.buildTimeInSeconds = getDurationInSeconds(Date.now() - buildStart);
         return buildResult;
     }
@@ -69,49 +76,13 @@ export class BuildExecutor {
         }
     }
 
-    private getBuildParameters(correlationId: string, input: BuildInput, buildUserToken: string): [any, string] {
-        let envs: any = {
-            'DOCFX_CORRELATION_ID': correlationId,
-            'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
-            'DOCS_ENVIRONMENT': this._environmentController.env
-        };
-        if (this._telemetryReporter.getUserOptIn()) {
-            // TODO: docfx need to support more common properties, e.g. if it is local build or server build
-            envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this._environmentController.env];
-        }
-
-        let secrets = <any>{
-            [`${extensionConfig.OPBuildAPIEndPoint[this._environmentController.env]}`]: {
-                "headers": {
-                    "X-OP-BuildUserToken": buildUserToken
-                }
-            }
-        };
-        if (process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) {
-            secrets["https://github.com"] = {
-                "headers": {
-                    "authorization": `basic ${basicAuth(process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)}`
-                }
-            };
-        }
-        let stdinInput = JSON.stringify({
-            "http": secrets
-        });
-        return [envs, stdinInput];
-    }
-
     private async restore(
         correlationId: string,
-        repositoryPath: string,
-        logPath: string,
-        envs: any,
-        stdinInput: string): Promise<DocfxExecutionResult> {
+        buildParameters: BuildParameters): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxRestoreStarted());
-            let command = `${this._binary} restore "${repositoryPath}" --legacy --log "${logPath}" --stdin`;
-            command += (this._environmentController.debugMode ? ' --verbose' : '');
             this._runningChildProcess = executeDocfx(
-                command,
+                buildParameters.restoreCommand,
                 this._eventStream,
                 (code: number, signal: string) => {
                     let docfxExecutionResult: DocfxExecutionResult;
@@ -125,26 +96,17 @@ export class BuildExecutor {
                     this._eventStream.post(new DocfxRestoreCompleted(correlationId, docfxExecutionResult, code));
                     resolve(docfxExecutionResult);
                 },
-                { env: envs, cwd: this._cwd },
-                stdinInput
+                { env: buildParameters.envs, cwd: this._cwd },
+                buildParameters.stdin
             );
         });
     }
 
-    private async build(
-        repositoryPath: string,
-        outputPath: string,
-        logPath: string,
-        dryRun: boolean,
-        envs: any,
-        stdinInput: string): Promise<DocfxExecutionResult> {
+    private async build(buildParameters: BuildParameters): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxBuildStarted());
-            let command = `${this._binary} build "${repositoryPath}" --legacy --output "${outputPath}" --log "${logPath}" --stdin`;
-            command += (this._environmentController.debugMode ? ' --verbose' : '');
-            command += (dryRun ? ' --dry-run' : '');
             this._runningChildProcess = executeDocfx(
-                command,
+                buildParameters.buildCommand,
                 this._eventStream,
                 (code: number, signal: string) => {
                     let docfxExecutionResult: DocfxExecutionResult;
@@ -158,9 +120,70 @@ export class BuildExecutor {
                     this._eventStream.post(new DocfxBuildCompleted(docfxExecutionResult, code));
                     resolve(docfxExecutionResult);
                 },
-                { env: envs, cwd: this._cwd },
-                stdinInput
+                { env: buildParameters.envs, cwd: this._cwd },
+                buildParameters.stdin
             );
         });
+    }
+
+    private getBuildParameters(
+        correlationId: string,
+        input: BuildInput,
+        buildUserToken: string,
+    ): BuildParameters {
+        let envs: any = {
+            'DOCFX_CORRELATION_ID': correlationId,
+            'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
+            'DOCS_ENVIRONMENT': this._environmentController.env
+        };
+        if (!buildUserToken) {
+            // TODO: change to user `master` for public contributor after the following task is done:
+            // https://ceapex.visualstudio.com/Engineering/_workitems/edit/302777?src=WorkItemMention&src-action=artifact_link
+            envs['DOCFX_REPOSITORY_BRANCH'] = 'live';
+        }
+
+        if (this._telemetryReporter.getUserOptIn()) {
+            // TODO: docfx need to support more common properties, e.g. if it is local build or server build
+            envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this._environmentController.env];
+        }
+
+        let secrets = <any>{
+        };
+
+        if (buildUserToken) {
+            secrets[`${extensionConfig.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
+                "headers": {
+                    "X-OP-BuildUserToken": buildUserToken
+                }
+            };
+        }
+        if (process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) {
+            secrets["https://github.com"] = {
+                "headers": {
+                    "authorization": `basic ${basicAuth(process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)}`
+                }
+            };
+        }
+        let stdin = JSON.stringify({
+            "http": secrets
+        });
+
+        return <BuildParameters>{
+            envs,
+            stdin,
+            restoreCommand: this.getExecCommand("restore", input),
+            buildCommand: this.getExecCommand("build", input)
+        };
+    }
+
+    private getExecCommand(
+        command: string,
+        input: BuildInput,
+    ): string {
+        let cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin --template "${config.PublicTemplate}"`;
+        cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
+        cmdWithParameters += (command === "build" && input.dryRun ? ' --dry-run' : '');
+        cmdWithParameters += (command === "build" ? ` --output "${input.outputFolderPath}"` : '');
+        return cmdWithParameters;
     }
 }

@@ -7,7 +7,7 @@ import { EventStream } from '../../../src/common/eventStream';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
-import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtensionContext, fakedBuildInput, tempFolder, setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, getFakedWindowsPlatformInformation, getFakedNonWindowsPlatformInformation, defaultLogPath, defaultOutputPath } from '../../utils/faker';
+import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtensionContext, fakedBuildInput, tempFolder, setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, getFakedWindowsPlatformInformation, getFakedNonWindowsPlatformInformation, defaultLogPath, defaultOutputPath, publicTemplateURL } from '../../utils/faker';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import { BuildExecutor } from '../../../src/build/buildExecutor';
@@ -170,8 +170,8 @@ describe('BuildExecutor', () => {
             assert.equal(buildResult.isRestoreSkipped, false);
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --log "${defaultLogPath}" --stdin`,
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --dry-run`,
+                `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}"`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
@@ -295,7 +295,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --dry-run`,
+                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}"`,
             ]);
 
             // Reset environment
@@ -303,7 +303,6 @@ describe('BuildExecutor', () => {
         });
 
         it('No Dry run', async () => {
-            fakedEnvironmentController.debugMode = true;
             await buildExecutor.RunBuild(
                 'fakedCorrelationId',
                 <BuildInput>{
@@ -319,7 +318,7 @@ describe('BuildExecutor', () => {
             );
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --verbose`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --output "${defaultOutputPath}"`,
             ]);
 
             // Reset environment
@@ -331,7 +330,34 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --legacy --output "${defaultOutputPath}" --log "${defaultLogPath}" --stdin --verbose --dry-run`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --verbose --dry-run --output "${defaultOutputPath}"`,
+            ]);
+
+            // Reset environment
+            fakedEnvironmentController.debugMode = false;
+        });
+
+        it('Build without credential', async () => {
+            await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, undefined);
+
+            assert.deepStrictEqual(executedCommands, [
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}"`,
+            ]);
+
+            let stdinInput = <any>JSON.parse(executedStdinInput[0]);
+            assert.equal(stdinInput.http["https://op-build-prod.azurewebsites.net"], undefined);
+
+            assert.deepStrictEqual(executedOptions, [
+                {
+                    cwd: `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`,
+                    env: {
+                        APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
+                        DOCFX_CORRELATION_ID: 'fakedCorrelationId',
+                        DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
+                        DOCS_ENVIRONMENT: 'PROD',
+                        DOCFX_REPOSITORY_BRANCH: 'live'
+                    }
+                }
             ]);
 
             // Reset environment
