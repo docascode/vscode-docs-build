@@ -3,7 +3,7 @@ import { CredentialController } from './credential/credentialController';
 import { uriHandler, EXTENSION_ID } from './shared';
 import { PlatformInformation } from './common/platformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
-import { SignStatusBarObserver } from './observers/signStatusBarObserver';
+import { DocsStatusBarObserver } from './observers/docsStatusBarObserver';
 import { DocsLoggerObserver } from './observers/docsLoggerObserver';
 import { DiagnosticController } from './build/diagnosticController';
 import { BuildController } from './build/buildController';
@@ -62,10 +62,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     // Initialize credential
     let credentialInitialPromise = credentialController.initialize(getCorrelationId());
 
-    // Sign Status bar
-    let signStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);
-    let signStatusBarObserver = new SignStatusBarObserver(signStatusBar, environmentController);
-    eventStream.subscribe(signStatusBarObserver.eventHandler);
+    // Docs Status bar
+    let docsStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);
+    let docsStatusBarObserver = new DocsStatusBarObserver(docsStatusBar, environmentController);
+    eventStream.subscribe(docsStatusBarObserver.eventHandler);
 
     // Build component initialize
     let diagnosticController = new DiagnosticController();
@@ -84,7 +84,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         outputChannel,
         telemetryReporter,
         diagnosticController,
-        signStatusBar,
+        docsStatusBar,
         buildStatusBar,
         environmentController,
         vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn(getCorrelationId())),
@@ -126,49 +126,52 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     const quickPickMenu = vscode.window.createQuickPick();
     const currentSignInStatus = credentialController.credential.signInStatus;
     let pickItems: vscode.QuickPickItem[] = [];
+
+    if (buildController.instanceAvailable) {
+        pickItems.push(
+            {
+                label: '$(debug-start) Validate',
+                description: 'Trigger a validation on current repository'
+            });
+    } else {
+        pickItems.push(
+            {
+                label: '$(debug-stop) Cancel Build',
+                description: 'Cancel the current validation'
+            });
+    }
+
     if (currentSignInStatus === 'SignedOut') {
         pickItems.push(
             {
-                label: 'Sign-in',
-                description: 'Sign in to Docs',
+                label: '$(sign-in) Sign-in',
+                description: 'Sign in to Docs (!This is only available for Microsoft internal user)',
                 picked: true
             });
     } else if (currentSignInStatus === 'SignedIn') {
         pickItems.push(
             {
-                label: 'Sign-out',
+                label: '$(sign-out) Sign-out',
                 description: 'Sign out from Docs',
                 picked: true
             });
-        if (buildController.instanceAvailable) {
-            pickItems.push(
-                {
-                    label: 'Validate',
-                    description: 'Trigger a validation'
-                });
-        } else {
-            pickItems.push(
-                {
-                    label: 'Cancel Build',
-                    description: 'Cancel the current validation'
-                });
-        }
     }
+
     quickPickMenu.items = pickItems;
     quickPickMenu.onDidChangeSelection(selection => {
         if (selection[0]) {
             eventStream.post(new QuickPickCommandSelected(correlationId, selection[0].label));
             switch (selection[0].label) {
-                case 'Sign-in':
+                case '$(sign-in) Sign-in':
                     credentialController.signIn(getCorrelationId());
                     break;
-                case 'Sign-out':
+                case '$(sign-out) Sign-out':
                     credentialController.signOut(getCorrelationId());
                     break;
-                case 'Validate':
+                case '$(debug-start) Validate':
                     buildController.build(getCorrelationId(), credentialController.credential);
                     break;
-                case 'Cancel Build':
+                case '$(debug-stop) Cancel Build':
                     buildController.cancelBuild();
                     break;
             }
