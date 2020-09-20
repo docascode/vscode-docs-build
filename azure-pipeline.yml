@@ -9,8 +9,11 @@ pr:
 - master
 
 variables:
-  npm_config_cache: $(Pipeline.Workspace)/.npm
-  runCodesignValidationInjection: false
+- group: Docs Authoring Pack KV
+- name: npm_config_cache
+  value: $(Pipeline.Workspace)/.npm
+- name: runCodesignValidationInjection
+  value: false
 
 strategy:
   matrix:
@@ -38,6 +41,9 @@ steps:
     path: $(npm_config_cache)
   displayName: Cache npm
 
+- bash: |
+    echo $(Docs-Authoring-Pack-Publish-Token)
+  displayName: 'Test'
 
 - task: Npm@1
   displayName: 'npm install'
