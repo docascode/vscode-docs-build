@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "docs-validation",
   "description": "Docs Validation Extension",
-  "version": "0.1.22",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.40.0"
   },
@@ -16,7 +16,8 @@
     "Docs Build",
     "ceapex",
     "docfx",
-    "local build"
+    "local build",
+    "local validation"
   ],
   "repository": {
     "type": "git",
@@ -37,7 +38,7 @@
     "name": "Jiayin Pei"
   },
   "preview": true,
-  "publisher": "ceapex",
+  "publisher": "docsmsft",
   "main": "./out/src/extension",
   "contributes": {
     "configuration": {
