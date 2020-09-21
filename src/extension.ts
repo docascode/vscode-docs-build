@@ -51,7 +51,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     // Message 
     let errorMessageObserver = new ErrorMessageObserver();
-    let infoMessageObserver = new InfoMessageObserver();
+    let infoMessageObserver = new InfoMessageObserver(environmentController);
     eventStream.subscribe(errorMessageObserver.eventHandler);
     eventStream.subscribe(infoMessageObserver.eventHandler);
 

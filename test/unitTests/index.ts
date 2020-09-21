@@ -6,9 +6,9 @@ export async function run(): Promise<void> {
     const nyc = process.env.COVERAGE ? setupCoverage() : undefined;
     const mocha = new Mocha({
         ui: 'bdd',
-        timeout: 50000
+        timeout: 50000,
+        color: true
     });
-    mocha.useColors(true);
 
     const testsRoot = path.resolve(__dirname, '.');
 

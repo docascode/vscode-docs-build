@@ -105,7 +105,7 @@ describe('DocsLoggerObserver', () => {
     });
 
     it(`BuildInstantAllocated`, () => {
-        let event = new BuildTriggered('FakedCorrelationId');
+        let event = new BuildTriggered('FakedCorrelationId', true);
         observer.eventHandler(event);
 
         let expectedOutput = `\n---------------------------\n`

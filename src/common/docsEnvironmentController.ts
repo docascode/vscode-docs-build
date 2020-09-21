@@ -1,19 +1,16 @@
 import vscode from 'vscode';
-import { Environment, DocsRepoType, EXTENSION_NAME } from '../shared';
+import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME } from '../shared';
 import { EnvironmentChanged } from './loggingEvents';
 import { EventStream } from './eventStream';
 import { EnvironmentController } from './environmentController';
 import { getRepositoryInfoFromLocalFolder } from '../utils/utils';
 
-const ENVIRONMENT_CONFIG_NAME = 'environment';
-const DEBUG_MODE_CONFIG_NAME = 'debugMode.enable';
-
 export class DocsEnvironmentController implements EnvironmentController, vscode.Disposable {
-
     private _environment: Environment;
     private _debugMode: boolean;
     private _docsRepoType: DocsRepoType;
     private _configurationChangeListener: vscode.Disposable;
+    private _enableSignRecommendHint: boolean;
 
     constructor(private _eventStream: EventStream) {
     }
@@ -21,6 +18,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     public async initialize() {
         this._environment = this.getEnv();
         this._debugMode = this.getDebugMode();
+        this._enableSignRecommendHint = this.getEnableSignRecommendHint();
         this._docsRepoType = await this.getDocsRepoType();
 
         this._configurationChangeListener = vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
@@ -28,6 +26,8 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
                 this.refreshEnv();
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${DEBUG_MODE_CONFIG_NAME}`)) {
                 this._debugMode = this.getDebugMode();
+            } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${SIGN_RECOMMEND_HINT_CONFIG_NAME}`)) {
+                this._enableSignRecommendHint = this.getEnableSignRecommendHint();
             }
         });
     }
@@ -55,6 +55,10 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
         return this._debugMode;
     }
 
+    public get enableSignRecommendHint(): boolean {
+        return this._enableSignRecommendHint;
+    }
+
     private getEnv(): Environment {
         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
         return extensionConfig.get<Environment>(ENVIRONMENT_CONFIG_NAME, 'PROD');
@@ -63,6 +67,11 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     private getDebugMode(): boolean {
         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
         return extensionConfig.get<boolean>(DEBUG_MODE_CONFIG_NAME, false);
+    }
+
+    private getEnableSignRecommendHint(): boolean {
+        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+        return extensionConfig.get<boolean>(SIGN_RECOMMEND_HINT_CONFIG_NAME, true);
     }
 
     private async getDocsRepoType(): Promise<DocsRepoType> {

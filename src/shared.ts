@@ -10,8 +10,14 @@ export const EXTENSION_DIAGNOSTIC_SOURCE = 'Docs Validation';
 
 export const INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME = 3;
 
-// Environment
+// Configuration
+export const ENVIRONMENT_CONFIG_NAME = 'environment';
 
+export const DEBUG_MODE_CONFIG_NAME = 'debugMode.enable';
+
+export const SIGN_RECOMMEND_HINT_CONFIG_NAME = 'hint.signRecommend';
+
+// Environment
 export type Environment = 'PROD' | 'PPE';
 
 export class MessageAction implements vscode.MessageItem {

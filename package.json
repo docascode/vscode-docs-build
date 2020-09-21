@@ -56,6 +56,11 @@
           "type": "boolean",
           "default": false,
           "description": "Enable the debug mode for trouble shooting, with this flag enabled, more detail information will be output in the output channel"
+        },
+        "docs-build.hint.signRecommend": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show hint message to recommend Microsoft employee to sign in"
         }
       }
     },
@@ -133,7 +138,7 @@
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/gulp": "^4.0.6",
-    "@types/mocha": "^5.2.7",
+    "@types/mocha": "^8.0.3",
     "@types/node": "^10.17.13",
     "@types/number-to-words": "^1.2.0",
     "@types/sinon": "^7.5.1",
@@ -142,7 +147,7 @@
     "codecov": "^3.7.1",
     "get-port": "^5.1.0",
     "gulp": "^4.0.2",
-    "mocha": "^6.2.2",
+    "mocha": "^8.1.3",
     "mocha-typescript": "^1.1.17",
     "mock-http-server": "^1.4.1",
     "number-to-words": "^1.2.4",

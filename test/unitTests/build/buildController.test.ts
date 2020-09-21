@@ -124,7 +124,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
                     'Validation is triggered on a workspace which contains multiple folders, please close other folders and only keep one in the current workspace',
@@ -138,7 +138,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
                     'You can only trigger the build on a workspace folder.',
@@ -152,7 +152,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
                     `Cannot find '.openpublishing.publish.config.json' file under current workspace folder.`,
@@ -170,7 +170,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
                     `Docs Validation Extension requires the repository has DocFX v3 enabled`,
@@ -192,7 +192,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new CredentialExpired(),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
@@ -207,7 +207,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
@@ -222,7 +222,7 @@ describe('BuildController', () => {
             signInStatus: 'Initializing'
         });
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', false),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
@@ -248,7 +248,7 @@ describe('BuildController', () => {
         // First time
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
@@ -274,7 +274,7 @@ describe('BuildController', () => {
         visualizeBuildReportCalled = false;
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildInstantAllocated(),
             new BuildStarted('fakedWorkspaceFolder'),
             new BuildSucceeded(
@@ -305,7 +305,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
@@ -356,7 +356,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
@@ -381,8 +381,8 @@ describe('BuildController', () => {
         let secondBuildPromise = buildController.build('fakedCorrelationId2', fakedCredential);
         await Promise.all([firstBuildPromise, secondBuildPromise]);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId1'),
-            new BuildTriggered('fakedCorrelationId2'),
+            new BuildTriggered('fakedCorrelationId1', true),
+            new BuildTriggered('fakedCorrelationId2', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Trying to get provisioned repository information...'),
@@ -419,7 +419,7 @@ describe('BuildController', () => {
 
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
@@ -447,7 +447,7 @@ describe('BuildController', () => {
         setTimeout(() => { buildController.cancelBuild(); }, 5);
         await buildPromise;
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId'),
+            new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
