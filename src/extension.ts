@@ -157,6 +157,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
             });
     }
 
+    quickPickMenu.placeholder = "Which command would you like to run?";
     quickPickMenu.items = pickItems;
     quickPickMenu.onDidChangeSelection(selection => {
         if (selection[0]) {
