@@ -1,8 +1,12 @@
 import vscode from 'vscode';
-import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, BuildTriggered } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
-import { MessageAction } from '../shared';
+import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME } from '../shared';
+import { EnvironmentController } from '../common/environmentController';
+
 export class InfoMessageObserver {
+    constructor(private _environmentController: EnvironmentController) { }
+
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.UserSignInCompleted:
@@ -15,6 +19,9 @@ export class InfoMessageObserver {
                 if ((<UserSignOutCompleted>event).succeeded) {
                     this.showInfoMessage('Successfully signed out!');
                 }
+                break;
+            case EventType.BuildTriggered:
+                this.handleBuildTriggered(<BuildTriggered>event);
                 break;
             case EventType.BuildCompleted:
                 if ((<BuildCompleted>event).result === 'Succeeded') {
@@ -46,5 +53,21 @@ export class InfoMessageObserver {
                 "Open",
                 'workbench.actions.view.problems'
             ));
+    }
+
+    private handleBuildTriggered(event: BuildTriggered) {
+        if (!event.signedIn && this._environmentController.enableSignRecommendHint) {
+            this.showInfoMessage(
+                `If you are a Microsoft internal user, you are recommended to login to the Docs system by the status-bar, or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`,
+                new MessageAction(
+                    "Don't show this message again",
+                    undefined,
+                    undefined,
+                    () => {
+                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                        extensionConfig.update(SIGN_RECOMMEND_HINT_CONFIG_NAME, false, true);
+                    }
+                ));
+        }
     }
 }

@@ -17,6 +17,7 @@ export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHu
         env: 'PROD',
         docsRepoType: docsRepoType || 'GitHub',
         debugMode: false,
+        enableSignRecommendHint: true,
     };
 }
 

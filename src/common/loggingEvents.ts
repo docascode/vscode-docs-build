@@ -88,7 +88,7 @@ export class BuildInstantReleased implements BaseEvent {
 
 export class BuildTriggered implements BaseEvent {
     type = EventType.BuildTriggered;
-    constructor(public correlationId: string) { }
+    constructor(public correlationId: string, public signedIn: boolean) { }
 }
 
 export class BuildStarted implements BaseEvent {

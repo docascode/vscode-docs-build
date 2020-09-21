@@ -164,7 +164,7 @@ describe('TelemetryObserver', () => {
     });
 
     it(`BuildTriggered: 'Build.Triggered' event should be sent`, () => {
-        let event = new BuildTriggered('fakedCorrelationId');
+        let event = new BuildTriggered('fakedCorrelationId', true);
         observer.eventHandler(event);
         assert.equal(sentEventName, 'Build.Triggered');
         assert.deepStrictEqual(sentEventProperties, {

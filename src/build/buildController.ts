@@ -37,7 +37,7 @@ export class BuildController {
 
     public async build(correlationId: string, credential: Credential): Promise<void> {
         let buildInput: BuildInput;
-        this._eventStream.post(new BuildTriggered(correlationId));
+        this._eventStream.post(new BuildTriggered(correlationId, !!credential.userInfo));
         let start = Date.now();
 
         try {
