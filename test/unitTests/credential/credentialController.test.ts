@@ -15,13 +15,13 @@ import { ErrorCode } from '../../../src/error/errorCode';
 import { TimeOutError } from '../../../src/error/timeOutError';
 
 const fakedGitHubCallbackURL = <vscode.Uri>{
-    authority: 'ceapex.docs-build',
+    authority: 'docsmsft.docs-build',
     path: '/github-authenticate',
     query: 'id=faked-github-id&name=Fake-User-GitHub&email=fake-github@microsoft.com&X-OP-BuildUserToken=fake-github-token'
 };
 
 const fakedAzureDevOpsCallbackURL = <vscode.Uri>{
-    authority: 'ceapex.docs-build',
+    authority: 'docsmsft.docs-build',
     path: '/azure-devops-authenticate',
     query: 'id=faked-azure-devops-id&name=Fake-User-Azure-DevOps&email=fake-azure-devops@microsoft.com&X-OP-BuildUserToken=fake-azure-devops-token'
 };

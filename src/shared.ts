@@ -4,7 +4,7 @@ import { UriEventHandler } from './common/uriEventHandler';
 // Extension
 export const EXTENSION_NAME = 'docs-build';
 
-export const EXTENSION_ID = `ceapex.${EXTENSION_NAME}`;
+export const EXTENSION_ID = `docsmsft.${EXTENSION_NAME}`;
 
 export const EXTENSION_DIAGNOSTIC_SOURCE = 'Docs Validation';
 
