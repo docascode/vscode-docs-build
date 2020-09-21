@@ -48,9 +48,6 @@ export class ErrorMessageObserver {
         let action: MessageAction;
         let error = <DocsError>event.err;
         switch (error.code) {
-            case ErrorCode.TriggerBuildBeforeSignedIn:
-                action = new MessageAction('Sign in', 'docs.signIn');
-                break;
             case ErrorCode.TriggerBuildWithCredentialExpired:
                 action = new MessageAction('Sign in', 'docs.signIn');
                 break;
