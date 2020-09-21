@@ -11,7 +11,6 @@ export enum ErrorCode {
 
     // Build
     TriggerBuildWhenInstantNotAvailable = 'TriggerBuildWhenInstantNotAvailable',
-    TriggerBuildBeforeSignedIn = 'TriggerBuildBeforeSignedIn',
     TriggerBuildWithCredentialExpired = 'TriggerBuildWithCredentialExpired',
     TriggerBuildOnV2Repo = 'TriggerBuildOnV2Repo',
     TriggerBuildOnNonWorkspace = 'TriggerBuildOnNonWorkspace',
