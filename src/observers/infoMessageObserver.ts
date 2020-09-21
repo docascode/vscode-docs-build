@@ -3,6 +3,7 @@ import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, B
 import { EventType } from '../common/eventType';
 import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME } from '../shared';
 import { EnvironmentController } from '../common/environmentController';
+
 export class InfoMessageObserver {
     constructor(private _environmentController: EnvironmentController) { }
 
