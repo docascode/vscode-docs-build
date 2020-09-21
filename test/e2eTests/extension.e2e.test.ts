@@ -31,7 +31,7 @@ describe('E2E Test', () => {
         }
 
         const fakedGitHubCallbackURL = <vscode.Uri>{
-            authority: 'ceapex.docs-build',
+            authority: 'docsmsft.docs-build',
             path: '/github-authenticate',
             query: `id=vsc-service-account-id&name=VSC-Service-Account&email=vscavu@microsoft.com&X-OP-BuildUserToken=${process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}`
         };
