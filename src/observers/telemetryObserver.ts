@@ -27,9 +27,6 @@ export class TelemetryObserver {
             case EventType.UserSignOutCompleted:
                 this.handleUserSignOutCompleted(<UserSignOutCompleted>event);
                 break;
-            case EventType.CredentialReset:
-                this.handleCredentialReset();
-                break;
             // Build
             case EventType.BuildTriggered:
                 this.handleBuildTriggered(<BuildTriggered>event);
@@ -81,23 +78,12 @@ export class TelemetryObserver {
     }
 
     private handleUserSignInCompleted(event: UserSignInCompleted) {
-        // Set telemetry common property
-        if (event.succeeded) {
-            this._reporter.setCommonProperty({
-                'common.docsUserId': (<UserSignInSucceeded>event).credential.userInfo.userId
-            });
-        }
-
         // Send telemetry
         let signInType: DocsRepoType;
-        let userName: string;
-        let userEmail: string;
         let errorCode: string;
         if (event.succeeded) {
             let userInfo = (<UserSignInSucceeded>event).credential.userInfo;
             signInType = userInfo.signType;
-            userName = userInfo.userName;
-            userEmail = userInfo.userEmail;
         } else {
             errorCode = this.getErrorCode((<UserSignInFailed>event).err);
         }
@@ -108,17 +94,9 @@ export class TelemetryObserver {
                 Result: event.succeeded ? 'Succeeded' : 'Failed',
                 RetrievedFromCache: event.retrievedFromCache.toString(),
                 SignInType: signInType,
-                UserName: userName,
-                UserEmail: userEmail,
                 ErrorCode: errorCode
             }
         );
-    }
-
-    private handleCredentialReset() {
-        this._reporter.setCommonProperty({
-            'common.docsUserId': undefined
-        });
     }
 
     private handleUserSignOutTriggered(event: UserSignOutTriggered) {
@@ -196,17 +174,17 @@ export class TelemetryObserver {
     private handleDocfxRestoreCompleted(event: DocfxRestoreCompleted) {
         getFolderSizeInMB(path.join(os.homedir(), '.docfx')).then(cacheSize =>
             this._reporter.sendTelemetryEvent(
-            'BuildCacheSize',
-            {
-                CorrelationId: event.correlationId,
-            },
-            {
-                SizeInMB: cacheSize,
-            }
-        ));
+                'BuildCacheSize',
+                {
+                    CorrelationId: event.correlationId,
+                },
+                {
+                    SizeInMB: cacheSize,
+                }
+            ));
     }
 
-    private handleCancelBuildTriggered(event: CancelBuildTriggered){
+    private handleCancelBuildTriggered(event: CancelBuildTriggered) {
         this._reporter.sendTelemetryEvent(
             'CancelBuild.Triggered',
             {
@@ -215,12 +193,12 @@ export class TelemetryObserver {
         );
     }
 
-    private handleCancelBuildCompleted(event: CancelBuildCompleted){
+    private handleCancelBuildCompleted(event: CancelBuildCompleted) {
         this._reporter.sendTelemetryEvent(
             'CancelBuild.Completed',
             {
                 CorrelationId: event.correlationId,
-                Result: event.succeeded ? 'Succeeded': 'Failed'
+                Result: event.succeeded ? 'Succeeded' : 'Failed'
             }
         );
     }
