@@ -178,6 +178,7 @@
     "du": "^1.0.0",
     "fs-extra": "^8.1.0",
     "git-url-parse": "^11.1.2",
+    "husky": "^4.3.0",
     "mkdirp": "^0.5.1",
     "ms-rest-azure": "^3.0.0",
     "ps-tree": "^1.2.0",
