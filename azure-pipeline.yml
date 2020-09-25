@@ -9,8 +9,11 @@ pr:
 - master
 
 variables:
-  npm_config_cache: $(Pipeline.Workspace)/.npm
-  runCodesignValidationInjection: false
+- group: Docs Authoring Pack KV
+- name: npm_config_cache
+  value: $(Pipeline.Workspace)/.npm
+- name: runCodesignValidationInjection
+  value: false
 
 strategy:
   matrix:
@@ -37,7 +40,6 @@ steps:
        npm
     path: $(npm_config_cache)
   displayName: Cache npm
-
 
 - task: Npm@1
   displayName: 'npm install'
@@ -89,6 +91,6 @@ steps:
     CODECOV_TOKEN: $(CODECOV_TOKEN)
 
 - bash: |
-    npm run publish -- -p $(VSCODE_MARKETPLACE_TOKEN)
+    npm run publish -- -p $(Docs-Authoring-Pack-Publish-Token)
   displayName: 'Publish'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['Agent.OS'], 'Windows_NT'))
