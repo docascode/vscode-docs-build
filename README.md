@@ -21,6 +21,13 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 > **Note:** The first time you validate a repo, all the Docs build dependencies will be fetched and cached locally. Subsequent validation runs will be faster.
 
+## Known issues
+
+The following validations have incosnsistent results between Docs Build validation and local validation.
+
+- bookmark-not-found: The rendering information required to validate bookmarks in schema-based content isn't available publicly, so if you aren't signed in as a Microsoft employee you might not get all broken bookmark results.
+- author-not-found and ms-author-invalid: These validations require external API calls that aren't supported locally at this time, so no results will be returned for them.
+
 ## Troubleshooting
 
 You might encounter the following issues when using the extension.
@@ -31,7 +38,7 @@ GitHub has recently enabled SSO on Microsoft-owned organizations. If you see the
     
     ![clone-failed-sso](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-failed-sso.jpg?raw=true)
 
-### Clone template Failed
+### Clone template failed
 
 When your validation fails with some error message like:
     
