@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "docs-validation",
   "description": "Docs Validation Extension",
-  "version": "0.2.0",
+  "version": "0.1.22",
   "engines": {
     "vscode": "^1.40.0"
   },
@@ -197,21 +197,21 @@
       "id": "docfx-win7-x64",
       "name": "docfx",
       "description": "DocFX for Windows (x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta1.405+0292787804.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta1.441+460a7ac0e8.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
       "rid": "win7-x64",
-      "integrity": "E55FCA6145DA3DE298279FC6404D67375589535D0841278E8658450745EA9324"
+      "integrity": "FAE158EBFC86362FBB1412C1015DDE30307A34EB07F54876C7D1BC7927C7A82C"
     },
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
       "description": "DocFX for OSX(x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta1.405+0292787804.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta1.441+460a7ac0e8.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
       "rid": "osx-x64",
-      "integrity": "C1E8977170CB7F90A49F3EBCF8C89122A68D96F992FDEE9B215AC874D559A157"
+      "integrity": "E667836BDCE890127C4D04587C9825EFAF7511E9AE60F05290777C3A2FBF8847"
     }
   ]
 }
