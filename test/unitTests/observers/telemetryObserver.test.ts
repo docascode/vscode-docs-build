@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CredentialReset, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, } from '../../../src/common/loggingEvents';
+import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, } from '../../../src/common/loggingEvents';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
@@ -17,12 +17,8 @@ describe('TelemetryObserver', () => {
     let sentEventName: string;
     let sentEventProperties: any;
     let sentEventMeasurements: any;
-    let commonProperty: { [key: string]: string };
 
     let telemetryReporter = <TelemetryReporter>{
-        setCommonProperty(properties: { [key: string]: string }): void {
-            commonProperty = properties;
-        },
         sendTelemetryEvent(eventName: string, properties?: {
             [key: string]: string;
         }, measurements?: {
@@ -54,8 +50,6 @@ describe('TelemetryObserver', () => {
         sentEventName = undefined;
         sentEventProperties = undefined;
         sentEventMeasurements = undefined;
-
-        commonProperty = {};
     });
 
     // Sign
@@ -78,12 +72,7 @@ describe('TelemetryObserver', () => {
                 Result: 'Succeeded',
                 RetrievedFromCache: 'false',
                 SignInType: "GitHub",
-                UserName: 'Faked User',
-                UserEmail: 'fake@microsoft.com',
                 ErrorCode: undefined,
-            });
-            assert.deepStrictEqual(commonProperty, {
-                'common.docsUserId': 'faked-id'
             });
         });
 
@@ -96,8 +85,6 @@ describe('TelemetryObserver', () => {
                 Result: 'Failed',
                 RetrievedFromCache: 'false',
                 SignInType: undefined,
-                UserName: undefined,
-                UserEmail: undefined,
                 ErrorCode: 'GitHubSignInFailed',
             });
         });
@@ -111,24 +98,8 @@ describe('TelemetryObserver', () => {
                 Result: 'Succeeded',
                 RetrievedFromCache: 'true',
                 SignInType: "GitHub",
-                UserName: 'Faked User',
-                UserEmail: 'fake@microsoft.com',
                 ErrorCode: undefined
             });
-            assert.deepStrictEqual(commonProperty, {
-                'common.docsUserId': 'faked-id'
-            });
-        });
-    });
-
-    it(`UserSignOutTriggered: 'SignOut.Triggered' event should be sent`, () => {
-        let event = new CredentialReset();
-        commonProperty = {
-            'common.docsUserId': 'faked-id'
-        };
-        observer.eventHandler(event);
-        assert.deepStrictEqual(commonProperty, {
-            'common.docsUserId': undefined
         });
     });
 
