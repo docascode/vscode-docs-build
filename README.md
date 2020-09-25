@@ -6,7 +6,6 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 ## Prerequisites
 
-- You must be a Microsoft employee.
 - Install [git](https://git-scm.com/downloads).
 - Clone your Docs or Learn repo locally in VS Code.
 - All files in the repo must be saved.
@@ -14,7 +13,7 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 ## How to use the Docs Validation extension
 
 1. Open a Docs conceptual or Learn repo in VS Code with the extension installed.
-1. Sign in by clicking **Docs Validation: Sign in to Docs** from the VS Code status bar.
+1. If you're a Microsoft employee, optionally sign in in by clicking **Docs Validation: Sign in to Docs** from the VS Code status bar. You can still use the extension without signing in, but sign in is recommended to use the most recent build information for private repos.
 1. Trigger a build by clicking **Yes** when prompted after sign in, by clicking **Docs Validation** on the status bar then clicking **Validate** from the drop-down menu, or by right-clicking any file in the repo and selecting **Validate this workspace folder**.
 1. Build validation will run locally and all results will be output to the Problems pane.
 
@@ -22,65 +21,30 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 > **Note:** The first time you validate a repo, all the Docs build dependencies will be fetched and cached locally. Subsequent validation runs will be faster.
 
-<!-- Can we pull these details from the public extension readme? The troubleshooting section might be helpful, but using images that was isn't accessible, so maybe we comment them out for now and build a better accessible readme when we add to the Docs Authoring Pack?
-
-### Windows
-
-> Device Spec(Surface Book2):  
-> - CPU: 1.9GHz 4 Cores Intel Core i7-8650U
-> - Memory: 16GB 1867 MHz DDR4  
-> - Storage: SSD  
-> - Battery settings: Power mode(plugged in): Best performance
-
-| azure-docs-pr | docs | edge-developer | sql-docs-pr |
-|  --- | --- | --- | --- |
-| 00:01:22 | 00:00:48 | 00:00:03 | 00:01:07 |
-
-### Mac
-
-> Device Spec(MacBook Pro):  
-> - CPU: 2.2GHz 6 Cores Intel Core i7  
-> - Memory: 32GB 2400 MHz DDR4  
-> - Storage: SSD  
-
-| azure-docs-pr | docs | edge-developer | sql-docs-pr |
-|  --- | --- | --- | --- |
-| 00:00:50 | 00:00:38 | 00:00:03 | 00:00:54 |
-
-## Contacts
-
-If you meet any problem or have any feedback about this extension, please Contact:
-
-- Jiayin Pei(jipe@microsoft.com)
-- DocFX VNext(docfxvnext@microsoft.com)
-
-
-
 ## Troubleshooting
 
-1. Clone Dependencies failed
+You might encounter the following issues when using the extension.
 
-    GitHub has recently enabled SSO on Microsoft-owned organizations. If you see the below errors, please follow the instructions there to enable SSO on your token so that local validation can pass through.
+### Clone dependencies failed
+
+GitHub has recently enabled SSO on Microsoft-owned organizations. If you see the below errors, please follow the instructions there to enable SSO on your token so that local validation can pass through.
     
     ![clone-failed-sso](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-failed-sso.jpg?raw=true)
 
-1. Clone template Failed
+### Clone template Failed
 
-    When your validation fails with some error message like:
+When your validation fails with some error message like:
     
-    ![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed.png?raw=true)
+![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed.png?raw=true)
 
-    Please try the following solutions:
+Please try the following solutions:
 
-    1. Make sure you can access this repository https://github.com/Microsoft/templates.docs.msft on GitHub, if not, please join the `Microsoft` org by the this [website](https://repos.opensource.microsoft.com/Microsoft/), after that, try again.
+1. Make sure you can access this repository https://github.com/Microsoft/templates.docs.msft on GitHub, if not, please join the `Microsoft` org by the this [website](https://repos.opensource.microsoft.com/Microsoft/), after that, try again.
+1. Try to clone the template repository in a separated terminal by running the following command:
 
-    2. Try to clone the template repository in a separated terminal by running the following command:
-
-    ```bash
-    $ git clone https://github.com/Microsoft/templates.docs.msft
-    ```
-
-    If you have enabled 2FA on GitHub and you run into the following errors when you clone the repository. Please follow the instruction of this [answer](https://stackoverflow.com/a/34919582/8335256).
-    ![clone-template-failed-2FA](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed-2FA.png?raw=true)
-    
-    -->
+   ```bash
+   $ git clone https://github.com/Microsoft/templates.docs.msft
+   ```
+1. If you have enabled 2FA on GitHub and you run into the following errors when you clone the repository, please follow [these instructions](https://stackoverflow.com/a/34919582/8335256).
+   
+   ![clone-template-failed-2FA](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed-2FA.png?raw=true)
