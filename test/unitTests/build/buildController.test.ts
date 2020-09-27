@@ -155,7 +155,7 @@ describe('BuildController', () => {
             new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
-                    `Cannot find '.openpublishing.publish.config.json' file under current workspace folder.`,
+                    `Cannot find '.openpublishing.publish.config.json' file under current workspace folder, please open the root directory of the repository and retry`,
                     ErrorCode.TriggerBuildOnNonDocsRepo
                 ))
         ]);
