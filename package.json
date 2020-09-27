@@ -68,7 +68,7 @@
     "commands": [
       {
         "command": "docs.signIn",
-        "title": "Sign in to Docs",
+        "title": "Sign in to Docs (!This is only available for Microsoft internal user)",
         "category": "Docs"
       },
       {
@@ -78,7 +78,7 @@
       },
       {
         "command": "docs.build",
-        "title": "Validate this workspace folder",
+        "title": "Validate this repository",
         "category": "Docs"
       },
       {
