@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.0 (September 28, 2020)
+### Added
+- Make sign-in optional and Support public contributor.
+### Changed
+- Use `docsmsft` publisher. (#133)
+
 ## 0.1.22 (September 2, 2020)
 ### Added
 - Support validating learn repository. (#115)
