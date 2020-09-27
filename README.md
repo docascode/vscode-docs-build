@@ -32,17 +32,18 @@ The following validations have incosnsistent results between Docs Build validati
 
 You might encounter the following issues when using the extension.
 
-### Clone dependencies failed
-
-GitHub has recently enabled SSO on Microsoft-owned organizations. If you see the below errors, please follow the instructions there to enable SSO on your token so that local validation can pass through.
-    
-    ![clone-failed-sso](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-failed-sso.jpg?raw=true)
-
-### Clone template failed
+### Clone template repository or dependencies failed
 
 When your validation fails with some error message like:
-    
-![clone-template-failed](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed.png?raw=true)
+
+```bash
+fatal: unable to access 'https://github.com/Microsoft/templates.docs.msft/': The requested URL returned error: 403
+git-clone-failed Failure to clone the repository `https://github.com/Microsoft/templates.docs.msft#master`. This could be caused by an incorrect repository URL, please verify the URL on the Docs Portal (https://ops.microsoft.com). This could also be caused by not having the proper permission the repository, please confirm that the GitHub group/team that triggered the build has access to the repository.
+Restore done in 11.77s
+
+  1 Error(s), 0 Warning(s), 0 Suggestion(s)
+Error: running 'docfx restore' failed with exit code: 1
+```
 
 Please try the following solutions:
 
@@ -53,5 +54,18 @@ Please try the following solutions:
    $ git clone https://github.com/Microsoft/templates.docs.msft
    ```
 1. If you have enabled 2FA on GitHub and you run into the following errors when you clone the repository, please follow [these instructions](https://stackoverflow.com/a/34919582/8335256).
-   
-   ![clone-template-failed-2FA](https://github.com/docascode/vscode-docs-build/blob/master/resources/clone-template-failed-2FA.png?raw=true)
+
+   ```bash
+   Cloning into 'templates.docs.msft'...
+   Username for 'https://github.com': 928PJY
+   Password tor 'https: //928PJY@github.com':
+   remote: Invalid username or password.
+   fatal: Authentication failed for https://github. com/Microsoft/templates.docs.msft/'
+   ```
+
+1. GitHub has recently enabled SSO on Microsoft-owned organizations. If you see the below errors, please follow the instructions there to enable SSO on your token so that local validation can pass through.
+   ```bash
+   fatal: unable to access 'https://github.com/Microsoft/templates.docs.msft/': The requested URL returned error: 403
+   remote: The `microsoft' organization has enabled or enforced SAML SSO. To access
+   remote: this repository, visit https://github.com/enterprises/microsoftopensource/sso?authorization_request=AEJANEWOPPW6YTNW5TYNW2K7OBDR3A5PN5ZGOYLONF5GC5DJN5XF62LEZYAF32PCVVRXEZLEMVXHI2LBNRPWSZGODVDHWBVPMNZGKZDFNZ2GSYLML52HS4DFVNHWC5LUNBAWGY3FONZQ
+   ```

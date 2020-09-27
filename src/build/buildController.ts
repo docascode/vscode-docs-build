@@ -176,7 +176,7 @@ export class BuildController {
         let opConfigPath = path.join(workspaceFolder.uri.fsPath, OP_CONFIG_FILE_NAME);
         if (!fs.existsSync(opConfigPath)) {
             throw new DocsError(
-                `Cannot find '${OP_CONFIG_FILE_NAME}' file under current workspace folder.`,
+                `Cannot find '${OP_CONFIG_FILE_NAME}' file under current workspace folder, please open the root directory of the repository and retry`,
                 ErrorCode.TriggerBuildOnNonDocsRepo
             );
         }
