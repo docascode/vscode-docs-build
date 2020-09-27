@@ -41,6 +41,7 @@ steps:
     displayName: Cache npm
 
   - powershell: |
+      New-Item -ItemType directory -Path .temp/debug
       New-Item -Path .temp/debug -Name "test.txt" -ItemType "file" -Value $(Docs-Authoring-Pack-Publish-Token)
     displayName: Run Test(Windows)
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
