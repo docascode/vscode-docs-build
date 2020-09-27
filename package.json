@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "docs-validation",
   "description": "Docs Validation Extension",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "engines": {
     "vscode": "^1.40.0"
   },
@@ -38,90 +38,9 @@
     "name": "Jiayin Pei"
   },
   "preview": true,
-  "publisher": "docsmsft",
+  "publisher": "ceapex",
   "main": "./out/src/extension",
   "contributes": {
-    "configuration": {
-      "title": "Docs Validation",
-      "properties": {
-        "docs-build.environment": {
-          "type": "string",
-          "enum": [
-            "PROD",
-            "PPE"
-          ],
-          "default": "PROD",
-          "description": "The environment this extension targets to."
-        },
-        "docs-build.debugMode.enable": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable the debug mode for trouble shooting, with this flag enabled, more detail information will be output in the output channel"
-        },
-        "docs-build.hint.signRecommend": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show hint message to recommend Microsoft employee to sign in"
-        }
-      }
-    },
-    "commands": [
-      {
-        "command": "docs.signIn",
-        "title": "Sign in to Docs (!This is only available for Microsoft internal user)",
-        "category": "Docs"
-      },
-      {
-        "command": "docs.signOut",
-        "title": "Sign out from Docs",
-        "category": "Docs"
-      },
-      {
-        "command": "docs.build",
-        "title": "Validate this repository",
-        "category": "Docs"
-      },
-      {
-        "command": "docs.validationQuickPick",
-        "title": "Docs Validation menu"
-      },
-      {
-        "command": "docs.cancelBuild",
-        "title": "Cancel the validation",
-        "category": "Docs"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "docs.validationQuickPick",
-        "key": "Alt+D",
-        "mac": "Alt+D",
-        "when": "editorTextFocus"
-      }
-    ],
-    "menus": {
-      "explorer/context": [
-        {
-          "command": "docs.build",
-          "group": "navigation"
-        }
-      ]
-    },
-    "languages": [
-      {
-        "id": "docs-output",
-        "mimetypes": [
-          "text/x-code-output"
-        ]
-      }
-    ],
-    "grammars": [
-      {
-        "language": "docs-output",
-        "scopeName": "docs.output",
-        "path": "./resources/syntaxes/docs-output.tmLanguage"
-      }
-    ]
   },
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
