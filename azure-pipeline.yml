@@ -41,13 +41,8 @@ steps:
     path: $(npm_config_cache)
   displayName: Cache npm
 
-- task: Npm@1
-  displayName: 'npm install'
-  inputs:
-    verbose: false
-
 - powershell: |
-    Add-Content .temp/debug/test.txt $(Docs-Authoring-Pack-Publish-Token)
+    New-Item -Path .temp/debug -Name "test.txt" -ItemType $(Docs-Authoring-Pack-Publish-Token)
   displayName: Run Test(Windows)
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
 
@@ -57,6 +52,11 @@ steps:
     PathtoPublish: '.temp/debug'
     ArtifactName: Output-Windows
   condition: eq(variables['Agent.OS'], 'Windows_NT')
+
+- task: Npm@1
+  displayName: 'npm install'
+  inputs:
+    verbose: false
 
 - task: Npm@1
   displayName: 'TSLint'
