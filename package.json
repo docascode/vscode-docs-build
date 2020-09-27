@@ -37,7 +37,6 @@
     "email": "jipe@microsoft.com",
     "name": "Jiayin Pei"
   },
-  "preview": true,
   "publisher": "docsmsft",
   "main": "./out/src/extension",
   "contributes": {
