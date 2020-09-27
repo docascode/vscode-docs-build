@@ -136,10 +136,10 @@ export class BuildExecutor {
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this._environmentController.env
         };
-        if (!buildUserToken) {
-            // TODO: change to user `master` for public contributor after the following task is done:
-            // https://ceapex.visualstudio.com/Engineering/_workitems/edit/302777?src=WorkItemMention&src-action=artifact_link
-            envs['DOCFX_REPOSITORY_BRANCH'] = 'live';
+
+        let isPublicUser = !buildUserToken;
+        if (isPublicUser) {
+            envs['DOCFX_REPOSITORY_BRANCH'] = 'master';
         }
 
         if (this._telemetryReporter.getUserOptIn()) {
@@ -150,7 +150,7 @@ export class BuildExecutor {
         let secrets = <any>{
         };
 
-        if (buildUserToken) {
+        if (!isPublicUser) {
             secrets[`${extensionConfig.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
                 "headers": {
                     "X-OP-BuildUserToken": buildUserToken
@@ -171,16 +171,18 @@ export class BuildExecutor {
         return <BuildParameters>{
             envs,
             stdin,
-            restoreCommand: this.getExecCommand("restore", input),
-            buildCommand: this.getExecCommand("build", input)
+            restoreCommand: this.getExecCommand("restore", input, isPublicUser),
+            buildCommand: this.getExecCommand("build", input, isPublicUser)
         };
     }
 
     private getExecCommand(
         command: string,
         input: BuildInput,
+        isPublicUser: boolean,
     ): string {
-        let cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin --template "${config.PublicTemplate}"`;
+        let cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin`;
+        cmdWithParameters += (isPublicUser ? ` --template "${config.PublicTemplate}"` : '');
         cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
         cmdWithParameters += (command === "build" && input.dryRun ? ' --dry-run' : '');
         cmdWithParameters += (command === "build" ? ` --output "${input.outputFolderPath}"` : '');
