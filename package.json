@@ -1,7 +1,7 @@
 {
   "name": "docs-build",
   "displayName": "docs-validation",
-  "description": "Docs Validation Extension",
+  "description": "Deprecated!!",
   "version": "0.1.23",
   "engines": {
     "vscode": "^1.40.0"
