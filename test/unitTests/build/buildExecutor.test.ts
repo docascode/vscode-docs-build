@@ -171,7 +171,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(executedCommands, [
                 `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin`,
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --dry-run --output "${defaultOutputPath}"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
@@ -295,7 +295,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --dry-run --output "${defaultOutputPath}"`,
+                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
 
             // Reset environment
@@ -318,7 +318,7 @@ describe('BuildExecutor', () => {
             );
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --output "${defaultOutputPath}"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
 
             // Reset environment
@@ -330,7 +330,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --verbose --dry-run --output "${defaultOutputPath}"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --verbose --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
 
             // Reset environment
@@ -341,7 +341,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, undefined);
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
 
             let stdinInput = <any>JSON.parse(executedStdinInput[0]);
