@@ -184,8 +184,13 @@ export class BuildExecutor {
         let cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin`;
         cmdWithParameters += (isPublicUser ? ` --template "${config.PublicTemplate}"` : '');
         cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
-        cmdWithParameters += (command === "build" && input.dryRun ? ' --dry-run' : '');
-        cmdWithParameters += (command === "build" ? ` --output "${input.outputFolderPath}"` : '');
+
+        if (command === 'build') {
+            if (input.dryRun) {
+                cmdWithParameters += ' --dry-run';
+            }
+            cmdWithParameters += ` --output "${input.outputFolderPath}" --output-type "pagejson"`;
+        }
         return cmdWithParameters;
     }
 }
