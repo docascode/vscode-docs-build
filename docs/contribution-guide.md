@@ -1,6 +1,6 @@
-# Development guide
+# Contribution guide
 
-## First Install
+## Prerequisites
 
 - Node.js (8.11.1 or later)
 - Npm (5.6.0 or later)
