@@ -69,3 +69,13 @@ Please try the following solutions:
    remote: The `microsoft' organization has enabled or enforced SAML SSO. To access
    remote: this repository, visit https://github.com/enterprises/microsoftopensource/sso?authorization_request=AEJANEWOPPW6YTNW5TYNW2K7OBDR3A5PN5ZGOYLONF5GC5DJN5XF62LEZYAF32PCVVRXEZLEMVXHI2LBNRPWSZGODVDHWBVPMNZGKZDFNZ2GSYLML52HS4DFVNHWC5LUNBAWGY3FONZQ
    ```
+
+## License
+
+[MIT](https://raw.githubusercontent.com/docascode/vscode-docs-build/master/LICENSE)
+
+## How to Contribute
+
+[Contribution guideline](https://github.com/docascode/vscode-docs-build/blob/master/docs/contribution-guide.md)
+
+**All contributions are welcome!**
