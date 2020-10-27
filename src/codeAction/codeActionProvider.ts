@@ -2,6 +2,7 @@ import vscode from 'vscode';
 import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
 import { EventStream } from '../common/eventStream';
 import { LearnMoreClicked } from '../common/loggingEvents';
+import config from '../config';
 
 export class CodeActionProvider implements vscode.CodeActionProvider {
 
@@ -17,7 +18,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 
     public static learnMoreAboutCode(eventStream: EventStream, correlationId: string, diagnosticErrorCode: string) {
         eventStream.post(new LearnMoreClicked(correlationId, diagnosticErrorCode));
-        vscode.env.openExternal(vscode.Uri.parse(`https://aka.ms/${diagnosticErrorCode}`));
+        vscode.env.openExternal(vscode.Uri.parse(`${config.LogCodeServiceEndpoint}?logcode=${diagnosticErrorCode}`));
     }
 
     private createCommandCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {

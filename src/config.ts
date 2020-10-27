@@ -36,7 +36,8 @@ const config = {
         PPE: '91c4866b-a41e-4dd1-beaa-d8eba4477219'
     },
     SignInTimeOut: 120000,
-    PublicTemplate: "https://static.docs.com/ui/latest"
+    PublicTemplate: "https://static.docs.com/ui/latest",
+    LogCodeServiceEndpoint: "https://ops-logcode-prod.azurewebsites.net/api/logcode"
 };
 
 export default config;
