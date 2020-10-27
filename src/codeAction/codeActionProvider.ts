@@ -22,7 +22,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
     }
 
     private createCommandCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
-        const action = new vscode.CodeAction('Learn more...', vscode.CodeActionKind.QuickFix);
+        const action = new vscode.CodeAction(`Learn more about '${diagnostic.code}'`, vscode.CodeActionKind.QuickFix);
         action.command = {
             command: 'learnMore',
             title: `Learn more about the error code '${diagnostic.code}'`,
