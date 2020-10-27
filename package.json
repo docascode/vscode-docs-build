@@ -134,7 +134,7 @@
     "prebenchmark": "webpack --mode production",
     "benchmark": "gulp test:benchmark",
     "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose",
-    "pre-commit": "npm run compile & npm run lint"
+    "pre-commit": "npm run test:ut & npm run lint"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
