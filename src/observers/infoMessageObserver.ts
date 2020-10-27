@@ -58,7 +58,8 @@ export class InfoMessageObserver {
     private handleBuildTriggered(event: BuildTriggered) {
         if (!event.signedIn && this._environmentController.enableSignRecommendHint) {
             this.showInfoMessage(
-                `If you are a Microsoft internal user, you are recommended to login to the Docs system by the status-bar, or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`,
+                `If you are a Microsoft internal user, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette,`+
+                ` or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`,
                 new MessageAction(
                     "Don't show this message again",
                     undefined,
