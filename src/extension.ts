@@ -1,4 +1,5 @@
-import vscode from 'vscode';
+import vscode, { Uri } from 'vscode';
+import * as path from 'path';
 import { CredentialController } from './credential/credentialController';
 import { uriHandler, EXTENSION_ID } from './shared';
 import { PlatformInformation } from './common/platformInformation';
@@ -101,6 +102,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
             CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
         vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController)),
+        vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
+            vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, ".logs")));
+        }),
         vscode.languages.registerCodeActionsProvider('*', codeActionProvider, {
             providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
         }),

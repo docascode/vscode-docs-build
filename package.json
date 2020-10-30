@@ -88,6 +88,11 @@
         "command": "docs.cancelBuild",
         "title": "Cancel the validation",
         "category": "Docs"
+      },
+      {
+        "command": "docs.openInstallationDirectory",
+        "title": "Open extension install directory",
+        "category": "Docs"
       }
     ],
     "keybindings": [
