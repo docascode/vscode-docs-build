@@ -26,6 +26,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
                 this.refreshEnv();
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${DEBUG_MODE_CONFIG_NAME}`)) {
                 this._debugMode = this.getDebugMode();
+                this.reloadWindow();
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${SIGN_RECOMMEND_HINT_CONFIG_NAME}`)) {
                 this._enableSignRecommendHint = this.getEnableSignRecommendHint();
             }
@@ -94,5 +95,12 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
             this._eventStream.post(new EnvironmentChanged(newEnv));
         }
         this._environment = newEnv;
+    }
+
+    private async reloadWindow() {
+        let selected = await vscode.window.showInformationMessage("This configuration change requires reloading your current window!", "Reload");
+        if (selected) {
+            vscode.commands.executeCommand('workbench.action.reloadWindow');
+        }
     }
 }

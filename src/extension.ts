@@ -25,6 +25,7 @@ import { QuickPickTriggered, QuickPickCommandSelected } from './common/loggingEv
 import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
+import { DocsLogger } from './common/docsLogger';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -37,10 +38,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const telemetryObserver = new TelemetryObserver(telemetryReporter);
     eventStream.subscribe(telemetryObserver.eventHandler);
 
-    // Output Channel
+    // Output Channel and logger
     const outputChannel = vscode.window.createOutputChannel('Docs Validation');
     const docsOutputChannelObserver = new DocsOutputChannelObserver(outputChannel);
-    const docsLoggerObserver = new DocsLoggerObserver(outputChannel);
+
+    const logger = new DocsLogger(outputChannel, extensionContext, environmentController);
+    const docsLoggerObserver = new DocsLoggerObserver(logger);
     eventStream.subscribe(docsLoggerObserver.eventHandler);
     eventStream.subscribe(docsOutputChannelObserver.eventHandler);
 
@@ -82,6 +85,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     context.subscriptions.push(
         outputChannel,
+        logger,
         telemetryReporter,
         diagnosticController,
         docsStatusBar,
