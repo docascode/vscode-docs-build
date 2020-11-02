@@ -8,7 +8,7 @@
 
 ### Changed
 
-- Add error code in the code action button. (#145)
+- Add error code in the code action button. (#145 #150)
 - Integrate with new log code service API. (#147)
 - Improve new user hint message. (#146)
 
