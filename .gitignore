@@ -10,3 +10,4 @@ coverage/
 dist/
 .temp/
 debug.log
+.logs/

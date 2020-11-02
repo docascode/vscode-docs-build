@@ -53,6 +53,7 @@ Please try the following solutions:
    ```bash
    $ git clone https://github.com/Microsoft/templates.docs.msft
    ```
+
 1. If you have enabled 2FA on GitHub and you run into the following errors when you clone the repository, please follow [these instructions](https://stackoverflow.com/a/34919582/8335256).
 
    ```bash
@@ -73,6 +74,10 @@ Please try the following solutions:
 ## License
 
 [MIT](https://raw.githubusercontent.com/docascode/vscode-docs-build/master/LICENSE)
+
+## Issue
+
+[File a issue](https://github.com/docascode/vscode-docs-build/blob/master/docs/file-issue.md)
 
 ## How to Contribute
 
