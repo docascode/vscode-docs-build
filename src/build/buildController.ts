@@ -157,7 +157,7 @@ export class BuildController {
     private async getValidatedWorkSpace(): Promise<vscode.WorkspaceFolder> {
         let workspaceFolders = vscode.workspace.workspaceFolders;
 
-        if (!workspaceFolders) {
+        if (!workspaceFolders || workspaceFolders.length === 0) {
             throw new DocsError(
                 'You can only trigger the build on a workspace folder.',
                 ErrorCode.TriggerBuildOnNonWorkspace

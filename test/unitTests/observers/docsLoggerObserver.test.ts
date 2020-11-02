@@ -1,16 +1,16 @@
 import assert from 'assert';
-import { OutputChannel } from 'vscode';
 import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
 import { fakedPackage, fakedCredential } from '../../utils/faker';
+import { ILogger } from '../../../src/common/logger';
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;
     let observer: DocsLoggerObserver;
 
-    let logger = <OutputChannel>{
+    let logger = <ILogger>{
         appendLine: (msg: string) => { loggerText += `${msg}\n`; },
         append: (msg: string) => { loggerText += `${msg}`; }
     };
@@ -46,7 +46,7 @@ describe('DocsLoggerObserver', () => {
         it(`CredentialRetrieveFromLocalCredentialManager`, () => {
             let event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true);
             observer.eventHandler(event);
-    
+
             let expectedOutput = `Successfully retrieved user credential from local credential manager:\n`
                 + `    - Platform: GitHub\n`
                 + `    - Account: Faked User\n`

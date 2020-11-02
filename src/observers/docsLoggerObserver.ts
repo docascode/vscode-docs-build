@@ -1,12 +1,13 @@
-import { OutputChannel } from 'vscode';
 import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildCompleted, CancelBuildFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocfxExecutionResult } from '../build/buildResult';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
+import { ILogger } from '../common/logger';
 
 export class DocsLoggerObserver {
     private _downloadProgressDot: number;
-    constructor(private _logger: OutputChannel) { }
+
+    constructor(private _logger: ILogger) { }
 
     // Just for Test
     public get downloadProgressDot() {
