@@ -5,7 +5,6 @@ import { LearnMoreClicked } from '../common/loggingEvents';
 import config from '../config';
 
 export class CodeActionProvider implements vscode.CodeActionProvider {
-
     public static readonly providedCodeActionKinds = [
         vscode.CodeActionKind.QuickFix
     ];
@@ -22,10 +21,10 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
     }
 
     private createCommandCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
-        const action = new vscode.CodeAction(`Learn more about '${diagnostic.code}'`, vscode.CodeActionKind.QuickFix);
+        const action = new vscode.CodeAction(`See doc: '${diagnostic.code}'`, vscode.CodeActionKind.QuickFix);
         action.command = {
             command: 'learnMore',
-            title: `Learn more about the error code '${diagnostic.code}'`,
+            title: `Go to document to learn more about the error code '${diagnostic.code}'`,
             tooltip: `This will open the documentation for the error code '${diagnostic.code}'.`,
             arguments: [diagnostic.code]
         };
