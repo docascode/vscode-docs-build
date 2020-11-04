@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "docs-validation",
   "description": "Docs Validation Extension which enables you to run build validation on a Docs conceptual or Learn repo at authoring time in VS Code",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "engines": {
     "vscode": "^1.40.0"
   },
@@ -201,21 +201,21 @@
       "id": "docfx-win7-x64",
       "name": "docfx",
       "description": "DocFX for Windows (x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta1.441+460a7ac0e8.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta1.520+361066e968.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
       "rid": "win7-x64",
-      "integrity": "FAE158EBFC86362FBB1412C1015DDE30307A34EB07F54876C7D1BC7927C7A82C"
+      "integrity": "1F991DFE4F5B286E5F392DF272F5A213AAB88949CCDFC021FF18FA78C3ADE936"
     },
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
       "description": "DocFX for OSX(x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta1.441+460a7ac0e8.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta1.520+361066e968.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
       "rid": "osx-x64",
-      "integrity": "E667836BDCE890127C4D04587C9825EFAF7511E9AE60F05290777C3A2FBF8847"
+      "integrity": "98ED7B4FFBE7200C64FEF61928FFFB3CE348A5872BE7A63DF7D6158D70373CDD"
     }
   ]
 }
