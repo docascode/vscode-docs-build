@@ -15,7 +15,9 @@ describe("ReportGenerator", () => {
     const testLogPath = path.resolve(__dirname, ".errors.log");
     const fakedErrorLog = `{"message_severity":"info","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
         + `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
-        + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`;
+        + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
+        // expected behavior after adding this new item: do nothing since it will be skipped with "pull_request_only": true
+        + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":true}\n`;
 
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
