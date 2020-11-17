@@ -35,9 +35,10 @@ $ code .
 
 1. Set a breakpoint.
 2. Set `VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN` in [launch.json](../.vscode/launch.json)
-3. Select `Launch extension e2e tests` in the `Run and Debug` Tab.
-4. Press `F5` to run the extension
-5. Check the `Variables`, `Call Stack` and use the `Watch` in the `Run and Debug` Tab.
+3. Run `git submodule update --init` in terminal.
+4. Select `Launch extension e2e tests` in the `Run and Debug` Tab.
+5. Press `F5` to run the extension
+6. Check the `Variables`, `Call Stack` and use the `Watch` in the `Run and Debug` Tab.
 
 ### Debug the UT
 

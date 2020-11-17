@@ -19,6 +19,7 @@ interface ReportItem {
     column: number;
     end_column: number;
     date_time: Date;
+    pull_request_only: boolean;
 }
 
 const severityMap = new Map<MessageSeverity, vscode.DiagnosticSeverity>([
@@ -49,6 +50,10 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
             if (!reportItem.file) {
                 return;
             }
+            if (reportItem.pull_request_only) {
+                return;
+            }
+
             let range = new vscode.Range(
                 convertToZeroBased(reportItem.line),
                 convertToZeroBased(reportItem.column),
