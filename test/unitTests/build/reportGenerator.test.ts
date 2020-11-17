@@ -16,8 +16,6 @@ describe("ReportGenerator", () => {
     const fakedErrorLog = `{"message_severity":"info","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
         + `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
         + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`;
-    const fakedErrorLogWithTruePullRequest =  `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":true}\n`;
-    const fakedErrorLogWithFalsePullRequest =  `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":false}\n`;
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
 
@@ -122,32 +120,23 @@ describe("ReportGenerator", () => {
             new BuildProgress(`Log file found, Generating report...`),
         ]);
     });
-    it("Report with true pull request message found", () => {
+    it("Report with pull request messages found", () => {
+        const fakedErrorLogWithPullRequest =  `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":true}\n`
+            + `{"message_severity":"info","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":false}\n`
+            + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":null}\n`;
         stubFsExistsSync
             .withArgs(path.normalize(testLogPath)).returns(true);
         stubFsReadFileSync
-            .withArgs(path.normalize(testLogPath)).returns(fakedErrorLogWithTruePullRequest);
+            .withArgs(path.normalize(testLogPath)).returns(fakedErrorLogWithPullRequest);
 
         visualizeBuildReport(testRepositoryPath, testLogPath, fakedDiagnosticController, eventStream);
-        // Expected behavior: the diagnositic set should be empty, since the messages with true pull request will be skipped.
-        assert.deepStrictEqual(diagnosticSet, {});
-        assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildProgress(`Log file found, Generating report...`),
-        ]);
-    });
-    it("Report with false pull request message found", () => {
-        stubFsExistsSync
-            .withArgs(path.normalize(testLogPath)).returns(true);
-        stubFsReadFileSync
-            .withArgs(path.normalize(testLogPath)).returns(fakedErrorLogWithFalsePullRequest);
-
-        visualizeBuildReport(testRepositoryPath, testLogPath, fakedDiagnosticController, eventStream);
-        // Expected behavior: the message will show up since only the messages with true pull request will be skipped.
+        // Expected behavior: only the first message with true pull request will be skipped, therefore the second and the third message will show up in the diagnostic set.
         assert.deepStrictEqual(diagnosticSet, {
             [path.normalize(`${testRepositoryPath}/index.md`)]: {
                 uri: expectedFileUri,
                 diagnostics: [
-                    expectedWarningDiagnostic
+                    expectedInfoDiagnostic,
+                    expectedErrorDiagnostic
                 ]
             },
         });
