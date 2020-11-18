@@ -9,7 +9,7 @@ import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeco
 import { BuildExecutor } from './buildExecutor';
 import { OP_CONFIG_FILE_NAME } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
-import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired } from '../common/loggingEvents';
+import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired, CheckIfInternal } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
@@ -111,7 +111,14 @@ export class BuildController {
     }
 
     private async validateUserCredential(credential: Credential) {
+        if (this._environmentController.userType === "undefined") {
+            this._eventStream.post(new CheckIfInternal());
+            throw new DocsError(`Validation needs user type provided, make a choice first`, ErrorCode.UndefinedUserBuild);
+        }
         if (credential.signInStatus !== 'SignedIn') {
+            if (this._environmentController.userType === "internal") {
+                throw new DocsError(`Please sign in first`, ErrorCode.SignedOutInternalUserBuild);
+            }
             return;
         }
 

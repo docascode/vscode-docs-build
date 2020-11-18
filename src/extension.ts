@@ -22,7 +22,7 @@ import config from './config';
 import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
-import { QuickPickTriggered, QuickPickCommandSelected } from './common/loggingEvents';
+import { QuickPickTriggered, QuickPickCommandSelected, CheckIfInternal } from './common/loggingEvents';
 import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
@@ -84,6 +84,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     let codeActionProvider = new CodeActionProvider();
 
+    eventStream.post(new CheckIfInternal());
+
+
     context.subscriptions.push(
         outputChannel,
         logger,
@@ -101,7 +104,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
             CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
-        vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController)),
+        vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController, environmentController)),
         vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
             vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, ".logs")));
         }),
@@ -126,15 +129,33 @@ function getTelemetryReporter(context: ExtensionContext, environmentController: 
     return telemetryReporter;
 }
 
-function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController) {
+function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController, environmentController: DocsEnvironmentController) {
     eventStream.post(new QuickPickTriggered(correlationId));
     const quickPickMenu = vscode.window.createQuickPick();
     const currentSignInStatus = credentialController.credential.signInStatus;
     let pickItems: vscode.QuickPickItem[] = [];
 
+    if (environmentController.userType === "internal") {
+        if (currentSignInStatus === 'SignedOut') {
+            pickItems.push(
+                {
+                    label: '$(sign-in) Sign-in',
+                    description: 'Sign in to Docs (It is required for internal users)',
+                    picked: true
+                }
+            );
+        } else if (currentSignInStatus === 'SignedIn') {
+            pickItems.push(
+                {
+                    label: '$(sign-out) Sign-out',                    
+                    description: 'Sign out from Docs',
+                    picked: true
+                });
+        } 
+    }
     if (buildController.instanceAvailable) {
         pickItems.push(
-            {
+            {                    
                 label: '$(debug-start) Validate',
                 description: 'Trigger a validation on current repository'
             });
@@ -145,23 +166,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                 description: 'Cancel the current validation'
             });
     }
-
-    if (currentSignInStatus === 'SignedOut') {
-        pickItems.push(
-            {
-                label: '$(sign-in) Sign-in',
-                description: 'Sign in to Docs (!This is only available for Microsoft internal user)',
-                picked: true
-            });
-    } else if (currentSignInStatus === 'SignedIn') {
-        pickItems.push(
-            {
-                label: '$(sign-out) Sign-out',
-                description: 'Sign out from Docs',
-                picked: true
-            });
-    }
-
+    
     quickPickMenu.placeholder = "Which command would you like to run?";
     quickPickMenu.items = pickItems;
     quickPickMenu.onDidChangeSelection(selection => {

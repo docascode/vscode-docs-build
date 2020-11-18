@@ -4,7 +4,7 @@ import querystring from 'querystring';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicUserSignIn, PublicUserSignOut, CheckIfInternal } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -64,6 +64,14 @@ export class CredentialController {
     }
 
     public async signIn(correlationId: string): Promise<void> {
+        if (this._environmentController.userType === "undefined") {
+            this._eventStream.post(new CheckIfInternal());
+            return;
+        }
+        if (this._environmentController.userType === "public") {
+            this._eventStream.post(new PublicUserSignIn());
+            return;
+        }
         try {
             this.resetCredential();
             this._signInStatus = 'SigningIn';
@@ -88,6 +96,14 @@ export class CredentialController {
     }
 
     public signOut(correlationId: string) {
+        if (this._environmentController.userType === "undefined") {
+            this._eventStream.post(new CheckIfInternal());
+            return;
+        }
+        if (this._environmentController.userType === "public") {
+            this._eventStream.post(new PublicUserSignOut());
+            return;
+        }
         this._eventStream.post(new UserSignOutTriggered(correlationId));
         try {
             this.resetCredential();

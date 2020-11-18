@@ -5,4 +5,5 @@ export interface EnvironmentController {
     docsRepoType: DocsRepoType;
     debugMode: boolean;
     enableSignRecommendHint: boolean;
+    userType: string;
 }

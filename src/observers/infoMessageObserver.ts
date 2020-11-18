@@ -1,7 +1,7 @@
 import vscode from 'vscode';
 import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, BuildTriggered } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
-import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME } from '../shared';
+import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE } from '../shared';
 import { EnvironmentController } from '../common/environmentController';
 
 export class InfoMessageObserver {
@@ -20,6 +20,7 @@ export class InfoMessageObserver {
                     this.showInfoMessage('Successfully signed out!');
                 }
                 break;
+            // TODO: remove this, and related classes/ objects 
             case EventType.BuildTriggered:
                 this.handleBuildTriggered(<BuildTriggered>event);
                 break;
@@ -27,6 +28,15 @@ export class InfoMessageObserver {
                 if ((<BuildCompleted>event).result === 'Succeeded') {
                     this.handleBuildJobSucceeded();
                 }
+                break;
+            case EventType.CheckIfInternal:
+                this.checkIfInternal();
+                break;
+            case EventType.PublicUserSignIn:
+                this.handlePublicSignIn();
+                break;
+            case EventType.PublicUserSignOut:
+                this.handlePublicSignOut();
                 break;
         }
     }
@@ -37,6 +47,23 @@ export class InfoMessageObserver {
             infoMsg += ` ${action.description}`;
         }
         let input = <MessageAction>(await vscode.window.showInformationMessage(infoMsg, action));
+        if (input) {
+            if (input.command) {
+                vscode.commands.executeCommand(input.command, undefined);
+            } else if (input.callback) {
+                input.callback(input.args);
+            }
+        }
+    }
+
+    private async showInfoMessageWithMultipleChoices(message: string, ...actions: MessageAction[]) {
+        let infoMsg = `[Docs Validation] ${message}`;
+        actions.forEach((action) => {
+            if (action && action.description) {
+                infoMsg += ` ${action.description}`;
+            }
+        });
+        let input = <MessageAction>(await vscode.window.showInformationMessage(infoMsg, ...actions));
         if (input) {
             if (input.command) {
                 vscode.commands.executeCommand(input.command, undefined);
@@ -70,5 +97,46 @@ export class InfoMessageObserver {
                     }
                 ));
         }
+    }
+
+    private checkIfInternal() {
+        if (this._environmentController.userType === "undefined") {
+            this.showInfoMessageWithMultipleChoices(
+                `Are you an internal user?`,
+                new MessageAction(
+                    "Yes",
+                    undefined,
+                    undefined,
+                    () => {
+                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                        extensionConfig.update(USER_TYPE, "internal", true);
+                    }
+                ),
+                new MessageAction(
+                    "No",
+                    undefined,
+                    undefined,
+                    () => {
+                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                        extensionConfig.update(USER_TYPE, "public", true);
+                    }
+                ));
+        }
+    }
+
+    private handlePublicSignIn() {
+        this.showInfoMessage(
+            `Sign in is only available for Microsoft employees`,
+            new MessageAction(
+                "Ok"
+            ));
+    } 
+
+    private handlePublicSignOut() {
+        this.showInfoMessage(
+            `Sign out is only available for Microsoft employees`,
+            new MessageAction(
+                "Ok"
+            ));
     }
 }

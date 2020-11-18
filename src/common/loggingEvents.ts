@@ -72,6 +72,17 @@ export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
 }
 
+export class PublicUserSignIn implements BaseEvent {
+    type = EventType.PublicUserSignIn;
+    constructor() { }
+}
+
+export class PublicUserSignOut implements BaseEvent {
+    type = EventType.PublicUserSignOut;
+    constructor() { }
+}
+
+
 // Build
 export class RepositoryInfoRetrieved implements BaseEvent {
     type = EventType.RepositoryInfoRetrieved;
@@ -243,6 +254,11 @@ export class QuickPickCommandSelected implements BaseEvent {
 export class LearnMoreClicked implements BaseEvent {
     type = EventType.LearnMoreClicked;
     constructor(public correlationId: string, public diagnosticErrorCode: string) { }
+}
+
+export class CheckIfInternal implements BaseEvent {
+    type = EventType.CheckIfInternal;
+    constructor() { }
 }
 
 // Test only

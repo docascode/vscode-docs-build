@@ -61,6 +61,16 @@
           "type": "boolean",
           "default": true,
           "description": "Show hint message to recommend Microsoft employee to sign in"
+        },
+        "docs-build.userType": {
+          "type": "string",
+          "enum": [
+            "undefined",
+            "internal",
+            "public"
+          ],
+          "default": "undefined",
+          "description": "Microsoft internal employee or public constructor"
         }
       }
     },
