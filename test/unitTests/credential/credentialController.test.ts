@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, CheckIfInternal, PublicUserSignIn, PublicUserSignOut } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
@@ -153,6 +153,52 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
+        });
+    });
+
+    describe(`Undefined user`, () => {
+        const tempEventStream = new EventStream();
+        const tempEnvironmentController = <EnvironmentController>{
+            env: 'PROD',
+            docsRepoType: 'GitHub',
+            debugMode: false,
+            enableSignRecommendHint: true,
+            userType: "undefined"
+        };
+        const tempCredentialController = new CredentialController(keyChain, tempEventStream, tempEnvironmentController);
+        const tempEventBus = new TestEventBus(tempEventStream);
+        it(`Undefined user sign-in`, async () => {
+            await tempCredentialController.signIn('fakedCorrelationId');
+            assert.deepStrictEqual(tempEventBus.getEvents(), [new CheckIfInternal()]);
+        });
+
+        it(`Undefined user sign-out`, async () => {
+            tempEventBus.clear();
+            tempCredentialController.signOut('fakedCorrelationId');
+            assert.deepStrictEqual(tempEventBus.getEvents(), [new CheckIfInternal()]);
+        });
+    });
+
+    describe(`Public user`, () => {
+        const tempEventStream = new EventStream();
+        const tempEnvironmentController = <EnvironmentController>{
+            env: 'PROD',
+            docsRepoType: 'GitHub',
+            debugMode: false,
+            enableSignRecommendHint: true,
+            userType: "public"
+        };
+        const tempCredentialController = new CredentialController(keyChain, tempEventStream, tempEnvironmentController);
+        const tempEventBus = new TestEventBus(tempEventStream);
+        it(`Public user sign-in`, async () => {
+            await tempCredentialController.signIn('fakedCorrelationId');
+            assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicUserSignIn()]);
+        });
+
+        it(`Public user sign-out`, async () => {
+            tempEventBus.clear();
+            tempCredentialController.signOut('fakedCorrelationId');
+            assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicUserSignOut()]);
         });
     });
 
