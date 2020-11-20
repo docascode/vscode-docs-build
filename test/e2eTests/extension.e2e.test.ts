@@ -10,6 +10,8 @@ import { uriHandler } from '../../src/shared';
 import { DocfxExecutionResult } from '../../src/build/buildResult';
 import TestEventBus from '../utils/testEventBus';
 import { EventStream } from '../../src/common/eventStream';
+import { EXTENSION_NAME, USER_TYPE } from '../../src/shared';
+import { UserType } from '../../src/common/environmentController';
 
 const detailE2EOutput: any = {};
 
@@ -72,15 +74,14 @@ describe('E2E Test', () => {
     });
 
     it.only('build without sign-in', (done) => {
+        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+        extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
-                    case EventType.CredentialReset:
-                        triggerCommand('docs.build');
-                        break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);
-                    break;
+                        break;
                     case EventType.BuildInstantReleased:
                         dispose.unsubscribe();
                         testEventBus.dispose();
@@ -89,7 +90,7 @@ describe('E2E Test', () => {
                 }
             });
 
-            triggerCommand('docs.signOut');
+            triggerCommand('docs.build');
 
             function finalCheck(event: BuildCompleted) {
                 detailE2EOutput['build without sign-in'] = testEventBus.getEvents();
@@ -118,6 +119,8 @@ describe('E2E Test', () => {
     });
 
     it('Sign in to Docs and trigger build', (done) => {
+        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+        extensionConfig.update(USER_TYPE, UserType.InternalEmployee, true);
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {

@@ -82,7 +82,6 @@ export class PublicUserSignOut implements BaseEvent {
     constructor() { }
 }
 
-
 // Build
 export class RepositoryInfoRetrieved implements BaseEvent {
     type = EventType.RepositoryInfoRetrieved;

@@ -86,7 +86,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     eventStream.post(new CheckIfInternal());
 
-
     context.subscriptions.push(
         outputChannel,
         logger,
