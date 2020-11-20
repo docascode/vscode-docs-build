@@ -1,5 +1,5 @@
 import path from 'path';
-import { EnvironmentController } from '../../src/common/environmentController';
+import { EnvironmentController, UserType } from '../../src/common/environmentController';
 import { AbsolutePathPackage } from '../../src/dependency/package';
 import { SinonSandbox } from 'sinon';
 import { KeyChain } from '../../src/credential/keyChain';
@@ -18,7 +18,7 @@ export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHu
         docsRepoType: docsRepoType || 'GitHub',
         debugMode: false,
         enableSignRecommendHint: true,
-        userType: "internal"
+        userType: UserType.InternalEmployee
     };
 }
 

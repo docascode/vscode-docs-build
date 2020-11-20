@@ -65,11 +65,11 @@
         "docs-build.userType": {
           "type": "string",
           "enum": [
-            "undefined",
-            "internal",
-            "public"
+            "",
+            "Microsoft Internal Employee",
+            "Public Contributor"
           ],
-          "default": "undefined",
+          "default": "",
           "description": "Microsoft internal employee or public constructor"
         }
       }

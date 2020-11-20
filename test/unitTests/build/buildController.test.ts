@@ -17,7 +17,7 @@ import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, Bu
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { Credential } from '../../../src/credential/credentialController';
-import { EnvironmentController } from '../../../src/common/environmentController';
+import { EnvironmentController, UserType } from '../../../src/common/environmentController';
 
 const expectedBuildInput = <BuildInput>{
     buildType: 'FullBuild',
@@ -245,7 +245,7 @@ describe('BuildController', () => {
                 docsRepoType: 'GitHub',
                 debugMode: false,
                 enableSignRecommendHint: true,
-                userType: "undefined"
+                userType: UserType.Unknow
             }, 
             eventStream
         );

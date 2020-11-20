@@ -4,7 +4,7 @@ import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, User
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
-import { EnvironmentController } from '../../../src/common/environmentController';
+import { EnvironmentController, UserType } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
 import { UserInfo, uriHandler } from '../../../src/shared';
@@ -163,7 +163,7 @@ describe('CredentialController', () => {
             docsRepoType: 'GitHub',
             debugMode: false,
             enableSignRecommendHint: true,
-            userType: "undefined"
+            userType: UserType.Unknow
         };
         const tempCredentialController = new CredentialController(keyChain, tempEventStream, tempEnvironmentController);
         const tempEventBus = new TestEventBus(tempEventStream);
@@ -186,7 +186,7 @@ describe('CredentialController', () => {
             docsRepoType: 'GitHub',
             debugMode: false,
             enableSignRecommendHint: true,
-            userType: "public"
+            userType: UserType.PublicContributor
         };
         const tempCredentialController = new CredentialController(keyChain, tempEventStream, tempEnvironmentController);
         const tempEventBus = new TestEventBus(tempEventStream);

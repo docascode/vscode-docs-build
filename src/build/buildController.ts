@@ -14,7 +14,7 @@ import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
-import { EnvironmentController } from '../common/environmentController';
+import { EnvironmentController, UserType } from '../common/environmentController';
 
 export class BuildController {
     private _currentBuildCorrelationId: string;
@@ -111,12 +111,12 @@ export class BuildController {
     }
 
     private async validateUserCredential(credential: Credential) {
-        if (this._environmentController.userType === "undefined") {
+        if (this._environmentController.userType === UserType.Unknow) {
             this._eventStream.post(new CheckIfInternal());
             throw new DocsError(`Validation needs user type provided, make a choice first`, ErrorCode.UndefinedUserBuild);
         }
         if (credential.signInStatus !== 'SignedIn') {
-            if (this._environmentController.userType === "internal") {
+            if (this._environmentController.userType === UserType.InternalEmployee) {
                 throw new DocsError(`Please sign in first`, ErrorCode.SignedOutInternalUserBuild);
             }
             return;

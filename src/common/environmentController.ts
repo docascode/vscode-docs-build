@@ -5,5 +5,12 @@ export interface EnvironmentController {
     docsRepoType: DocsRepoType;
     debugMode: boolean;
     enableSignRecommendHint: boolean;
-    userType: string;
+    userType: UserType;
+}
+
+export enum UserType {
+    InternalEmployee = "Microsoft Internal Employee",
+    PublicContributor = "Public Contributor",
+    Unknow = ""
+
 }

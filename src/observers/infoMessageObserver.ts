@@ -2,7 +2,7 @@ import vscode from 'vscode';
 import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, BuildTriggered } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE } from '../shared';
-import { EnvironmentController } from '../common/environmentController';
+import { EnvironmentController, UserType } from '../common/environmentController';
 
 export class InfoMessageObserver {
     constructor(private _environmentController: EnvironmentController) { }
@@ -100,7 +100,7 @@ export class InfoMessageObserver {
     }
 
     private checkIfInternal() {
-        if (this._environmentController.userType === "undefined") {
+        if (this._environmentController.userType === UserType.Unknow) {
             this.showInfoMessageWithMultipleChoices(
                 `Are you an internal user?`,
                 new MessageAction(
@@ -109,7 +109,7 @@ export class InfoMessageObserver {
                     undefined,
                     () => {
                         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-                        extensionConfig.update(USER_TYPE, "internal", true);
+                        extensionConfig.update(USER_TYPE, UserType.InternalEmployee, true);
                     }
                 ),
                 new MessageAction(
@@ -118,7 +118,7 @@ export class InfoMessageObserver {
                     undefined,
                     () => {
                         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-                        extensionConfig.update(USER_TYPE, "public", true);
+                        extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
                     }
                 ));
         }

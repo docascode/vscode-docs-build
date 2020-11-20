@@ -2,7 +2,7 @@ import vscode from 'vscode';
 import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE } from '../shared';
 import { EnvironmentChanged } from './loggingEvents';
 import { EventStream } from './eventStream';
-import { EnvironmentController } from './environmentController';
+import { EnvironmentController, UserType } from './environmentController';
 import { getRepositoryInfoFromLocalFolder } from '../utils/utils';
 
 export class DocsEnvironmentController implements EnvironmentController, vscode.Disposable {
@@ -11,7 +11,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     private _docsRepoType: DocsRepoType;
     private _configurationChangeListener: vscode.Disposable;
     private _enableSignRecommendHint: boolean;
-    private _userType: string;
+    private _userType: UserType;
 
     constructor(private _eventStream: EventStream) {
     }
@@ -64,7 +64,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
         return this._enableSignRecommendHint;
     }
 
-    public get userType(): string {
+    public get userType(): UserType {
         return this._userType;
     }
 
@@ -83,9 +83,9 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
         return extensionConfig.get<boolean>(SIGN_RECOMMEND_HINT_CONFIG_NAME, true);
     }
 
-    private getUserType(): string {
+    private getUserType(): UserType {
         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-        return extensionConfig.get<string>(USER_TYPE, "undefined");
+        return extensionConfig.get<UserType>(USER_TYPE, UserType.Unknow);
     }
 
     private async getDocsRepoType(): Promise<DocsRepoType> {

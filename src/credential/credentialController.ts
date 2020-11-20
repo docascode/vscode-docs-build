@@ -8,7 +8,7 @@ import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, User
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
-import { EnvironmentController } from '../common/environmentController';
+import { EnvironmentController, UserType } from '../common/environmentController';
 import { TimeOutError } from '../error/timeOutError';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
@@ -64,11 +64,11 @@ export class CredentialController {
     }
 
     public async signIn(correlationId: string): Promise<void> {
-        if (this._environmentController.userType === "undefined") {
+        if (this._environmentController.userType === UserType.Unknow) {
             this._eventStream.post(new CheckIfInternal());
             return;
         }
-        if (this._environmentController.userType === "public") {
+        if (this._environmentController.userType === UserType.PublicContributor) {
             this._eventStream.post(new PublicUserSignIn());
             return;
         }
@@ -96,11 +96,11 @@ export class CredentialController {
     }
 
     public signOut(correlationId: string) {
-        if (this._environmentController.userType === "undefined") {
+        if (this._environmentController.userType === UserType.Unknow) {
             this._eventStream.post(new CheckIfInternal());
             return;
         }
-        if (this._environmentController.userType === "public") {
+        if (this._environmentController.userType === UserType.PublicContributor) {
             this._eventStream.post(new PublicUserSignOut());
             return;
         }

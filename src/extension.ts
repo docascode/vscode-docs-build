@@ -19,7 +19,7 @@ import { BuildStatusBarObserver } from './observers/buildStatusBarObserver';
 import { CodeActionProvider } from './codeAction/codeActionProvider';
 import { ExtensionContext } from './extensionContext';
 import config from './config';
-import { EnvironmentController } from './common/environmentController';
+import { EnvironmentController, UserType } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
 import { QuickPickTriggered, QuickPickCommandSelected, CheckIfInternal } from './common/loggingEvents';
@@ -135,7 +135,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     const currentSignInStatus = credentialController.credential.signInStatus;
     let pickItems: vscode.QuickPickItem[] = [];
 
-    if (environmentController.userType === "internal") {
+    if (environmentController.userType === UserType.InternalEmployee) {
         if (currentSignInStatus === 'SignedOut') {
             pickItems.push(
                 {
