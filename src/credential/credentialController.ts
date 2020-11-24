@@ -92,10 +92,6 @@ export class CredentialController {
     }
 
     public signOut(correlationId: string) {
-        if (this._environmentController.userType === UserType.PublicContributor) {
-            this._eventStream.post(new PublicUserSign('SignOut'));
-            return;
-        }
         this._eventStream.post(new UserSignOutTriggered(correlationId));
         try {
             this.resetCredential();

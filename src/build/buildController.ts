@@ -111,11 +111,11 @@ export class BuildController {
     }
 
     private async validateUserCredential(credential: Credential) {
-        if (credential.signInStatus !== 'SignedIn') {
-            if (this._environmentController.userType === UserType.InternalEmployee) {
-                throw new DocsError(`Please sign in first`, ErrorCode.SignedOutInternalUserBuild);
-            }
+        if (this._environmentController.userType === UserType.PublicContributor) {
             return;
+        }
+        if (credential.signInStatus !== 'SignedIn' && this._environmentController.userType === UserType.InternalEmployee) {
+            throw new DocsError(`Please sign in first`, ErrorCode.SignedOutInternalUserBuild);   
         }
 
         if (!(await this._opBuildAPIClient.validateCredential(credential.userInfo.userToken, this._eventStream))) {

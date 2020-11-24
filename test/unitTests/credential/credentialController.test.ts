@@ -171,12 +171,6 @@ describe('CredentialController', () => {
             await tempCredentialController.signIn('fakedCorrelationId');
             assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicUserSign('SignIn')]);
         });
-
-        it(`Public user sign-out`, async () => {
-            tempEventBus.clear();
-            tempCredentialController.signOut('fakedCorrelationId');
-            assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicUserSign('SignOut')]);
-        });
     });
 
     describe(`User Sign-in With GitHub`, () => {

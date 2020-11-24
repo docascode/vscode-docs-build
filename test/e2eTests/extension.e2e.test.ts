@@ -54,7 +54,7 @@ describe('E2E Test', () => {
         assert.notEqual(extension, undefined);
 
         eventStream = extension.exports.eventStream;
-        environmentController = extension.exports.environmentController;;
+        environmentController = extension.exports.environmentController;
         testEventBus = new TestEventBus(eventStream);
     });
 
@@ -81,6 +81,9 @@ describe('E2E Test', () => {
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
+                    case EventType.CredentialReset:	
+                        triggerCommand('docs.build');	
+                        break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);
                         break;
@@ -92,7 +95,7 @@ describe('E2E Test', () => {
                 }
             });
 
-            triggerCommand('docs.build');
+            triggerCommand('docs.signOut');
 
             function finalCheck(event: BuildCompleted) {
                 detailE2EOutput['build without sign-in'] = testEventBus.getEvents();
