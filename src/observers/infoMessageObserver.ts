@@ -1,8 +1,8 @@
 import vscode from 'vscode';
-import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, BuildTriggered } from '../common/loggingEvents';
+import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, BuildTriggered, PublicUserSign } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
-import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE } from '../shared';
-import { EnvironmentController, UserType } from '../common/environmentController';
+import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE, UserType } from '../shared';
+import { EnvironmentController } from '../common/environmentController';
 
 export class InfoMessageObserver {
     constructor(private _environmentController: EnvironmentController) { }
@@ -29,14 +29,18 @@ export class InfoMessageObserver {
                     this.handleBuildJobSucceeded();
                 }
                 break;
-            case EventType.CheckIfInternal:
+            case EventType.ExtensionActivated:
                 this.checkIfInternal();
                 break;
-            case EventType.PublicUserSignIn:
-                this.handlePublicSignIn();
+            case EventType.TriggerCommandWithUnkownUserType:
+                this.checkIfInternal();
                 break;
-            case EventType.PublicUserSignOut:
-                this.handlePublicSignOut();
+            case EventType.PublicUserSign:
+                if ((<PublicUserSign>event).action === 'SignIn') {
+                    this.handlePublicSignIn();
+                } else {
+                    this.handlePublicSignOut();
+                }
                 break;
         }
     }

@@ -1,4 +1,4 @@
-import { Environment, DocsRepoType } from '../shared';
+import { Environment, DocsRepoType, UserType } from '../shared';
 
 export interface EnvironmentController {
     env: Environment;
@@ -6,11 +6,4 @@ export interface EnvironmentController {
     debugMode: boolean;
     enableSignRecommendHint: boolean;
     userType: UserType;
-}
-
-export enum UserType {
-    InternalEmployee = "Microsoft Internal Employee",
-    PublicContributor = "Public Contributor",
-    Unknow = ""
-
 }

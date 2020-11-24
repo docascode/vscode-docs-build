@@ -34,6 +34,8 @@ export type DocsSignInStatus = 'Initializing' | 'SigningIn' | 'SignedIn' | 'Sign
 
 export type DocsRepoType = 'GitHub' | 'Azure DevOps';
 
+export type SignAction = 'SignIn' | 'SignOut';
+
 export interface UserInfo {
     readonly signType: DocsRepoType;
     readonly userId: string;
@@ -59,4 +61,10 @@ export interface ReportItem {
     restoreDuration: number;
     buildDuration: number;
     isInitialRun: boolean;
+}
+
+export enum UserType {
+    InternalEmployee = "Microsoft Internal Employee",
+    PublicContributor = "Public Contributor",
+    Unknow = ""
 }

@@ -1,14 +1,14 @@
 import vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import querystring from 'querystring';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
+import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicUserSignIn, PublicUserSignOut, CheckIfInternal } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicUserSign } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
-import { EnvironmentController, UserType } from '../common/environmentController';
+import { EnvironmentController } from '../common/environmentController';
 import { TimeOutError } from '../error/timeOutError';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
@@ -64,12 +64,8 @@ export class CredentialController {
     }
 
     public async signIn(correlationId: string): Promise<void> {
-        if (this._environmentController.userType === UserType.Unknow) {
-            this._eventStream.post(new CheckIfInternal());
-            return;
-        }
         if (this._environmentController.userType === UserType.PublicContributor) {
-            this._eventStream.post(new PublicUserSignIn());
+            this._eventStream.post(new PublicUserSign('SignIn'));
             return;
         }
         try {
@@ -96,12 +92,8 @@ export class CredentialController {
     }
 
     public signOut(correlationId: string) {
-        if (this._environmentController.userType === UserType.Unknow) {
-            this._eventStream.post(new CheckIfInternal());
-            return;
-        }
         if (this._environmentController.userType === UserType.PublicContributor) {
-            this._eventStream.post(new PublicUserSignOut());
+            this._eventStream.post(new PublicUserSign('SignOut'));
             return;
         }
         this._eventStream.post(new UserSignOutTriggered(correlationId));

@@ -7,14 +7,14 @@ import { EventStream } from '../common/eventStream';
 import { DiagnosticController } from './diagnosticController';
 import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds, normalizeDriveLetter, getTempOutputFolder } from '../utils/utils';
 import { BuildExecutor } from './buildExecutor';
-import { OP_CONFIG_FILE_NAME } from '../shared';
+import { OP_CONFIG_FILE_NAME, UserType } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
-import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired, CheckIfInternal } from '../common/loggingEvents';
+import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
-import { EnvironmentController, UserType } from '../common/environmentController';
+import { EnvironmentController } from '../common/environmentController';
 
 export class BuildController {
     private _currentBuildCorrelationId: string;
@@ -111,10 +111,6 @@ export class BuildController {
     }
 
     private async validateUserCredential(credential: Credential) {
-        if (this._environmentController.userType === UserType.Unknow) {
-            this._eventStream.post(new CheckIfInternal());
-            throw new DocsError(`Validation needs user type provided, make a choice first`, ErrorCode.UndefinedUserBuild);
-        }
         if (credential.signInStatus !== 'SignedIn') {
             if (this._environmentController.userType === UserType.InternalEmployee) {
                 throw new DocsError(`Please sign in first`, ErrorCode.SignedOutInternalUserBuild);

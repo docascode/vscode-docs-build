@@ -13,11 +13,10 @@ import { BuildInput } from '../../../src/build/buildInput';
 import { BuildController } from '../../../src/build/buildController';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
 import { fakedCredential, getFakedBuildExecutor, defaultLogPath, defaultOutputPath, getFakeEnvironmentController } from '../../utils/faker';
-import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired, CheckIfInternal } from '../../../src/common/loggingEvents';
+import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { Credential } from '../../../src/credential/credentialController';
-import { EnvironmentController, UserType } from '../../../src/common/environmentController';
 
 const expectedBuildInput = <BuildInput>{
     buildType: 'FullBuild',
@@ -230,38 +229,7 @@ describe('BuildController', () => {
                     ErrorCode.SignedOutInternalUserBuild
                 ))
         ]);
-    });
-
-    it('Trigger build before choosing over internal and public', async () => {
-        buildController = new BuildController(
-            getFakedBuildExecutor(
-                DocfxExecutionResult.Succeeded,
-                (correlationId: string, input: BuildInput, buildUserToken: string) => {
-                    tokenUsedForBuild = buildUserToken;
-                }),
-            fakedOPBuildAPIClient, undefined,
-            <EnvironmentController>{
-                env: 'PROD',
-                docsRepoType: 'GitHub',
-                debugMode: false,
-                enableSignRecommendHint: true,
-                userType: UserType.Unknow
-            }, 
-            eventStream
-        );
-        await buildController.build('fakedCorrelationId', <Credential>{
-            signInStatus: 'Initializing'
-        });
-        assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId', false),
-            new CheckIfInternal(),
-            new BuildFailed('fakedCorrelationId', undefined, 1,
-                new DocsError(
-                    `Validation needs user type provided, make a choice first`,
-                    ErrorCode.UndefinedUserBuild
-                ))
-        ]);
-    });                                                
+    });                                               
 
     it('Successfully build', async () => {
         // First time

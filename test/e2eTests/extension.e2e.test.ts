@@ -6,12 +6,11 @@ import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } fro
 import { EventType } from '../../src/common/eventType';
 import { BaseEvent, UserSignInCompleted, BuildCompleted } from '../../src/common/loggingEvents';
 import { createSandbox, SinonSandbox } from 'sinon';
-import { uriHandler } from '../../src/shared';
+import { uriHandler, UserType } from '../../src/shared';
 import { DocfxExecutionResult } from '../../src/build/buildResult';
 import TestEventBus from '../utils/testEventBus';
 import { EventStream } from '../../src/common/eventStream';
-import { EXTENSION_NAME, USER_TYPE } from '../../src/shared';
-import { UserType } from '../../src/common/environmentController';
+import ExtensionExports from '../../src/common/extensionExport';
 
 const detailE2EOutput: any = {};
 
@@ -26,6 +25,7 @@ describe('E2E Test', () => {
     let sinon: SinonSandbox;
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
+    let extension: vscode.Extension<ExtensionExports>;
 
     before(async () => {
         if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
@@ -50,7 +50,7 @@ describe('E2E Test', () => {
             }
         );
 
-        const extension = await ensureExtensionActivatedAndInitializationFinished();
+        extension = await ensureExtensionActivatedAndInitializationFinished();
         assert.notEqual(extension, undefined);
 
         eventStream = extension.exports.eventStream;
@@ -73,9 +73,11 @@ describe('E2E Test', () => {
         fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
     });
 
-    it.only('build without sign-in', (done) => {
-        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-        extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
+    it.only('build without sign-in', async (done) => {
+        const environmentController = extension.exports.environmentController;
+        sinon.stub(environmentController, "userType").get(function getUserType() {
+            return UserType.PublicContributor;
+        });
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
@@ -119,8 +121,10 @@ describe('E2E Test', () => {
     });
 
     it('Sign in to Docs and trigger build', (done) => {
-        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-        extensionConfig.update(USER_TYPE, UserType.InternalEmployee, true);
+        const environmentController = extension.exports.environmentController;
+        sinon.stub(environmentController, "userType").get(function getUserType() {
+            return UserType.InternalEmployee;
+        });
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {

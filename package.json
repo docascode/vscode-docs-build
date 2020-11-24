@@ -70,7 +70,7 @@
             "Public Contributor"
           ],
           "default": "",
-          "description": "Microsoft internal employee or public constructor"
+          "description": "Microsoft internal employee or public contributor"
         }
       }
     },

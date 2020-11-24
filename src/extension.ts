@@ -1,7 +1,7 @@
 import vscode, { Uri } from 'vscode';
 import * as path from 'path';
 import { CredentialController } from './credential/credentialController';
-import { uriHandler, EXTENSION_ID } from './shared';
+import { uriHandler, EXTENSION_ID, UserType } from './shared';
 import { PlatformInformation } from './common/platformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
 import { DocsStatusBarObserver } from './observers/docsStatusBarObserver';
@@ -19,10 +19,10 @@ import { BuildStatusBarObserver } from './observers/buildStatusBarObserver';
 import { CodeActionProvider } from './codeAction/codeActionProvider';
 import { ExtensionContext } from './extensionContext';
 import config from './config';
-import { EnvironmentController, UserType } from './common/environmentController';
+import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
-import { QuickPickTriggered, QuickPickCommandSelected, CheckIfInternal } from './common/loggingEvents';
+import { QuickPickTriggered, QuickPickCommandSelected, ExtensionActivated, TriggerCommandWithUnkownUserType } from './common/loggingEvents';
 import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
@@ -84,7 +84,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     let codeActionProvider = new CodeActionProvider();
 
-    eventStream.post(new CheckIfInternal());
+    eventStream.post(new ExtensionActivated());
 
     context.subscriptions.push(
         outputChannel,
@@ -94,16 +94,30 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         docsStatusBar,
         buildStatusBar,
         environmentController,
-        vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn(getCorrelationId())),
-        vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut(getCorrelationId())),
+        vscode.commands.registerCommand('docs.signIn', () => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                credentialController.signIn(getCorrelationId());
+            }
+        }),
+        vscode.commands.registerCommand('docs.signOut', () => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                credentialController.signOut(getCorrelationId());
+            }
+        }),
         vscode.commands.registerCommand('docs.build', () => {
-            buildController.build(getCorrelationId(), credentialController.credential);
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                buildController.build(getCorrelationId(), credentialController.credential);
+            }
         }),
         vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
         vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
             CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
-        vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController, environmentController)),
+        vscode.commands.registerCommand('docs.validationQuickPick', () => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController, environmentController);
+            }
+        }),
         vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
             vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, ".logs")));
         }),
@@ -118,7 +132,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
             await credentialInitialPromise;
         },
         eventStream,
-        keyChain
+        keyChain,
+        environmentController
     };
 }
 
@@ -126,6 +141,14 @@ function getTelemetryReporter(context: ExtensionContext, environmentController: 
     let key = config.AIKey[environmentController.env];
     let telemetryReporter = new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
     return telemetryReporter;
+}
+
+function checkIfUserTypeSelected(environmentController: EnvironmentController, eventStream: EventStream): boolean {
+    if (!environmentController.userType) {
+        eventStream.post(new TriggerCommandWithUnkownUserType);
+        return false;
+    }
+    return true;
 }
 
 function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController, environmentController: DocsEnvironmentController) {

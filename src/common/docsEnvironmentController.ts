@@ -1,8 +1,8 @@
 import vscode from 'vscode';
-import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE } from '../shared';
+import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE, UserType } from '../shared';
 import { EnvironmentChanged } from './loggingEvents';
 import { EventStream } from './eventStream';
-import { EnvironmentController, UserType } from './environmentController';
+import { EnvironmentController } from './environmentController';
 import { getRepositoryInfoFromLocalFolder } from '../utils/utils';
 
 export class DocsEnvironmentController implements EnvironmentController, vscode.Disposable {

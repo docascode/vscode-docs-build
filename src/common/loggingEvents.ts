@@ -1,7 +1,7 @@
 import { EventType } from './eventType';
 import { Credential } from '../credential/credentialController';
 import { PlatformInformation } from './platformInformation';
-import { Environment } from '../shared';
+import { Environment, SignAction } from '../shared';
 import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { BuildInput } from '../build/buildInput';
 import { AbsolutePathPackage } from '../dependency/package';
@@ -72,14 +72,9 @@ export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
 }
 
-export class PublicUserSignIn implements BaseEvent {
-    type = EventType.PublicUserSignIn;
-    constructor() { }
-}
-
-export class PublicUserSignOut implements BaseEvent {
-    type = EventType.PublicUserSignOut;
-    constructor() { }
+export class PublicUserSign implements BaseEvent {
+    type = EventType.PublicUserSign;
+    constructor(public action: SignAction) { }
 }
 
 // Build
@@ -255,8 +250,13 @@ export class LearnMoreClicked implements BaseEvent {
     constructor(public correlationId: string, public diagnosticErrorCode: string) { }
 }
 
-export class CheckIfInternal implements BaseEvent {
-    type = EventType.CheckIfInternal;
+export class TriggerCommandWithUnkownUserType implements BaseEvent {
+    type = EventType.TriggerCommandWithUnkownUserType;
+    constructor() { }
+}
+
+export class ExtensionActivated implements BaseEvent {
+    type = EventType.ExtensionActivated;
     constructor() { }
 }
 

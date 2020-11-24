@@ -8,8 +8,7 @@ export enum EventType {
     UserSignInCompleted,
     UserSignOutTriggered,
     UserSignOutCompleted,
-    PublicUserSignIn,
-    PublicUserSignOut,
+    PublicUserSign,
 
     // Build
     RepositoryInfoRetrieved,
@@ -52,7 +51,8 @@ export enum EventType {
     QuickPickTriggered,
     QuickPickCommandSelected,
     LearnMoreClicked,
-    CheckIfInternal,
+    TriggerCommandWithUnkownUserType,
+    ExtensionActivated,
 
     // Test only
     RefreshCredential,
