@@ -10,7 +10,7 @@ import { uriHandler, UserType } from '../../src/shared';
 import { DocfxExecutionResult } from '../../src/build/buildResult';
 import TestEventBus from '../utils/testEventBus';
 import { EventStream } from '../../src/common/eventStream';
-import ExtensionExports from '../../src/common/extensionExport';
+import { EnvironmentController } from '../../src/common/environmentController';
 
 const detailE2EOutput: any = {};
 
@@ -25,7 +25,7 @@ describe('E2E Test', () => {
     let sinon: SinonSandbox;
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
-    let extension: vscode.Extension<ExtensionExports>;
+    let environmentController: EnvironmentController;
 
     before(async () => {
         if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
@@ -50,10 +50,11 @@ describe('E2E Test', () => {
             }
         );
 
-        extension = await ensureExtensionActivatedAndInitializationFinished();
+        const extension = await ensureExtensionActivatedAndInitializationFinished();
         assert.notEqual(extension, undefined);
 
         eventStream = extension.exports.eventStream;
+        environmentController = extension.exports.environmentController;;
         testEventBus = new TestEventBus(eventStream);
     });
 
@@ -74,7 +75,6 @@ describe('E2E Test', () => {
     });
 
     it.only('build without sign-in', async (done) => {
-        const environmentController = extension.exports.environmentController;
         sinon.stub(environmentController, "userType").get(function getUserType() {
             return UserType.PublicContributor;
         });
@@ -121,7 +121,6 @@ describe('E2E Test', () => {
     });
 
     it('Sign in to Docs and trigger build', (done) => {
-        const environmentController = extension.exports.environmentController;
         sinon.stub(environmentController, "userType").get(function getUserType() {
             return UserType.InternalEmployee;
         });
