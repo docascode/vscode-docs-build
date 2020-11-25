@@ -81,8 +81,8 @@ describe('E2E Test', () => {
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
-                    case EventType.CredentialReset:	
-                        triggerCommand('docs.build');	
+                    case EventType.CredentialReset:
+                        triggerCommand('docs.build');
                         break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);

@@ -115,7 +115,7 @@ export class BuildController {
             return;
         }
         if (credential.signInStatus !== 'SignedIn' && this._environmentController.userType === UserType.InternalEmployee) {
-            throw new DocsError(`Please sign in first`, ErrorCode.SignedOutInternalUserBuild);   
+            throw new DocsError(`Please sign in first`, ErrorCode.TriggerBuildBeforeSignIn);
         }
 
         if (!(await this._opBuildAPIClient.validateCredential(credential.userInfo.userToken, this._eventStream))) {

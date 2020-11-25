@@ -226,10 +226,10 @@ describe('BuildController', () => {
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
                     `Please sign in first`,
-                    ErrorCode.SignedOutInternalUserBuild
+                    ErrorCode.TriggerBuildBeforeSignIn
                 ))
         ]);
-    });                                               
+    });
 
     it('Successfully build', async () => {
         // First time
