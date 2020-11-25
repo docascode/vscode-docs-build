@@ -74,7 +74,7 @@ describe('E2E Test', () => {
         fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
     });
 
-    it.only('build without sign-in', async (done) => {
+    it.only('build without sign-in', (done) => {
         sinon.stub(environmentController, "userType").get(function getUserType() {
             return UserType.PublicContributor;
         });
