@@ -71,7 +71,7 @@ describe('E2E Test', () => {
         fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
     });
 
-    it.only('build without sign-in', (done) => {
+    it('build without sign-in', (done) => {
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
@@ -80,7 +80,7 @@ describe('E2E Test', () => {
                         break;
                     case EventType.BuildCompleted:
                         finalCheck(<BuildCompleted>event);
-                    break;
+                        break;
                     case EventType.BuildInstantReleased:
                         dispose.unsubscribe();
                         testEventBus.dispose();
