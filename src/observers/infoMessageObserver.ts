@@ -1,5 +1,5 @@
 import vscode from 'vscode';
-import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, BuildTriggered, PublicUserSign } from '../common/loggingEvents';
+import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, BuildTriggered } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE, UserType } from '../shared';
 import { EnvironmentController } from '../common/environmentController';
@@ -30,37 +30,18 @@ export class InfoMessageObserver {
                 }
                 break;
             case EventType.ExtensionActivated:
-                this.checkIfInternal();
+                this.handleExtensionActivated();
                 break;
             case EventType.TriggerCommandWithUnkownUserType:
-                this.checkIfInternal();
+                this.handleCommandWithUnkownUserTypeTriggered();
                 break;
-            case EventType.PublicUserSign:
-                if ((<PublicUserSign>event).action === 'SignIn') {
-                    this.handlePublicSignIn();
-                } else {
-                    this.handlePublicSignOut();
-                }
+            case EventType.PublicUserSignIn:
+                this.handlePublicSignIn();
                 break;
         }
     }
 
-    private async showInfoMessage(message: string, action?: MessageAction) {
-        let infoMsg = `[Docs Validation] ${message}`;
-        if (action && action.description) {
-            infoMsg += ` ${action.description}`;
-        }
-        let input = <MessageAction>(await vscode.window.showInformationMessage(infoMsg, action));
-        if (input) {
-            if (input.command) {
-                vscode.commands.executeCommand(input.command, undefined);
-            } else if (input.callback) {
-                input.callback(input.args);
-            }
-        }
-    }
-
-    private async showInfoMessageWithMultipleChoices(message: string, ...actions: MessageAction[]) {
+    private async showInfoMessage(message: string, ...actions: MessageAction[]) {
         let infoMsg = `[Docs Validation] ${message}`;
         actions.forEach((action) => {
             if (action && action.description) {
@@ -89,7 +70,7 @@ export class InfoMessageObserver {
     private handleBuildTriggered(event: BuildTriggered) {
         if (!event.signedIn && this._environmentController.enableSignRecommendHint) {
             this.showInfoMessage(
-                `If you are a Microsoft internal user, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette,`+
+                `If you are a Microsoft internal user, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette,` +
                 ` or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`,
                 new MessageAction(
                     "Don't show this message again",
@@ -103,12 +84,12 @@ export class InfoMessageObserver {
         }
     }
 
-    private checkIfInternal() {
+    private handleExtensionActivated() {
         if (this._environmentController.userType === UserType.Unknow) {
-            this.showInfoMessageWithMultipleChoices(
-                `Are you an internal user?`,
+            this.showInfoMessage(
+                `Are you a Microsoft employee or public contributor? We need the information to provide better validation experience.`,
                 new MessageAction(
-                    "Yes",
+                    "Microsoft internal employee",
                     undefined,
                     undefined,
                     () => {
@@ -117,7 +98,32 @@ export class InfoMessageObserver {
                     }
                 ),
                 new MessageAction(
-                    "No",
+                    "Public contributor",
+                    undefined,
+                    undefined,
+                    () => {
+                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                        extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
+                    }
+                ));
+        }
+    }
+
+    private handleCommandWithUnkownUserTypeTriggered() {
+        if (this._environmentController.userType === UserType.Unknow) {
+            this.showInfoMessage(
+                `The command you just tried to operate needs your user type provided, please choose first.`,
+                new MessageAction(
+                    "Microsoft internal employee",
+                    undefined,
+                    undefined,
+                    () => {
+                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                        extensionConfig.update(USER_TYPE, UserType.InternalEmployee, true);
+                    }
+                ),
+                new MessageAction(
+                    "Public contributor",
                     undefined,
                     undefined,
                     () => {
@@ -131,14 +137,6 @@ export class InfoMessageObserver {
     private handlePublicSignIn() {
         this.showInfoMessage(
             `Sign in is only available for Microsoft employees`,
-            new MessageAction(
-                "Ok"
-            ));
-    } 
-
-    private handlePublicSignOut() {
-        this.showInfoMessage(
-            `Sign out is only available for Microsoft employees`,
             new MessageAction(
                 "Ok"
             ));

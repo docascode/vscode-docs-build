@@ -225,7 +225,7 @@ describe('BuildController', () => {
             new BuildTriggered('fakedCorrelationId', false),
             new BuildFailed('fakedCorrelationId', undefined, 1,
                 new DocsError(
-                    `Please sign in first`,
+                    `It is required for internal employees to sign in before validation, please sign in first.`,
                     ErrorCode.TriggerBuildBeforeSignIn
                 ))
         ]);

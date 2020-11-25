@@ -91,7 +91,7 @@ describe('InfoMessageObserver', () => {
             let event = new UserSignOutCompleted(`fakedCorrelationId`, true);
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Successfully signed out!`);
-            assert.deepEqual(messageActions, [undefined]);
+            assert.deepEqual(messageActions, []);
         });
     });
 

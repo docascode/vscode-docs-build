@@ -97,6 +97,9 @@ export class DocsLoggerObserver {
             case EventType.PlatformInfoRetrieved:
                 this.handlePlatformInfoRetrieved(<PlatformInfoRetrieved>event);
                 break;
+            case EventType.TriggerCommandWithUnkownUserType:
+                this.handleUserTypeUnknown();
+                break;
         }
     }
 
@@ -293,5 +296,9 @@ export class DocsLoggerObserver {
     private handlePlatformInfoRetrieved(event: PlatformInfoRetrieved) {
         this.appendLine(`Platform: ${event.platformInfo.toString()}`);
         this.appendLine();
+    }
+
+    private handleUserTypeUnknown() {
+        this.appendLine(`You can reset in Settings -> Extensions -> Doc Validation -> User Type`);
     }
 }

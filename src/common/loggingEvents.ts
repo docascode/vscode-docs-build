@@ -1,7 +1,7 @@
 import { EventType } from './eventType';
 import { Credential } from '../credential/credentialController';
 import { PlatformInformation } from './platformInformation';
-import { Environment, SignAction } from '../shared';
+import { Environment } from '../shared';
 import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { BuildInput } from '../build/buildInput';
 import { AbsolutePathPackage } from '../dependency/package';
@@ -72,9 +72,9 @@ export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
 }
 
-export class PublicUserSign implements BaseEvent {
-    type = EventType.PublicUserSign;
-    constructor(public action: SignAction) { }
+export class PublicUserSignIn implements BaseEvent {
+    type = EventType.PublicUserSignIn;
+    constructor() { }
 }
 
 // Build
@@ -129,13 +129,13 @@ export class CancelBuildCompleted implements BaseEvent {
 }
 
 export class CancelBuildSucceeded extends CancelBuildCompleted {
-    constructor(public correlationId: string){
+    constructor(public correlationId: string) {
         super(correlationId, true);
     }
 }
 
 export class CancelBuildFailed extends CancelBuildCompleted {
-    constructor(public correlationId: string, public err?: Error){
+    constructor(public correlationId: string, public err?: Error) {
         super(correlationId, false);
     }
 }

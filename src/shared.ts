@@ -34,8 +34,6 @@ export type DocsSignInStatus = 'Initializing' | 'SigningIn' | 'SignedIn' | 'Sign
 
 export type DocsRepoType = 'GitHub' | 'Azure DevOps';
 
-export type SignAction = 'SignIn' | 'SignOut';
-
 export interface UserInfo {
     readonly signType: DocsRepoType;
     readonly userId: string;
