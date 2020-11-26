@@ -87,7 +87,7 @@ export class InfoMessageObserver {
     private handleExtensionActivated() {
         if (this._environmentController.userType === UserType.Unknow) {
             this.showInfoMessage(
-                `Are you a Microsoft employee or public contributor? We need the information to provide better validation experience.`,
+                `Are you a Microsoft employee or public contributor? We need the information to provide better validation experience. You can change it in Settings -> Extensions -> Doc Validation -> User type.`,
                 new MessageAction(
                     "Microsoft internal employee",
                     undefined,
@@ -112,7 +112,7 @@ export class InfoMessageObserver {
     private handleCommandWithUnkownUserTypeTriggered() {
         if (this._environmentController.userType === UserType.Unknow) {
             this.showInfoMessage(
-                `The command you just tried to operate needs your user type provided, please choose first.`,
+                `The command you just tried to operate needs your user type provided, please choose first. You can change it in Settings -> Extensions -> Doc Validation -> User type.`,
                 new MessageAction(
                     "Microsoft internal employee",
                     undefined,

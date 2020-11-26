@@ -18,9 +18,6 @@ export class DocsOutputChannelObserver {
                     this._channel.show();
                 }
                 break;
-            case EventType.TriggerCommandWithUnkownUserType:
-                this._channel.show();
-                break;
         }
 
     }
