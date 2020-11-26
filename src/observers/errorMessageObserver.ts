@@ -26,6 +26,9 @@ export class ErrorMessageObserver {
                     this.handleBuildFailed(<BuildFailed>event);
                 }
                 break;
+            case EventType.PublicUserSignIn:
+                this.handlePublicUserSignIn();
+                break;
         }
     }
 
@@ -52,6 +55,10 @@ export class ErrorMessageObserver {
                 action = new MessageAction('Sign in', 'docs.signIn');
                 break;
         }
-        this.showErrorMessage(`Validation of current workspace failed (${event.err.message}). Please check the channel output for details`, action);
+        this.showErrorMessage(`Validation of current workspace failed. ${event.err.message} Please check the channel output for details`, action);
+    }
+
+    private handlePublicUserSignIn() {
+        this.showErrorMessage(`Sign in is only available for Microsoft internal employees.`);
     }
 }

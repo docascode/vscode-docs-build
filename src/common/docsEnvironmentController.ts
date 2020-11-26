@@ -85,7 +85,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
 
     private getUserType(): UserType {
         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-        return extensionConfig.get<UserType>(USER_TYPE, UserType.Unknow);
+        return extensionConfig.get<UserType>(USER_TYPE, UserType.Unknown);
     }
 
     private async getDocsRepoType(): Promise<DocsRepoType> {

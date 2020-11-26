@@ -62,7 +62,7 @@ export interface ReportItem {
 }
 
 export enum UserType {
-    InternalEmployee = "Microsoft Internal Employee",
+    MicrosoftInternalEmployee = "Microsoft Internal Employee",
     PublicContributor = "Public Contributor",
-    Unknow = ""
+    Unknown = ""
 }

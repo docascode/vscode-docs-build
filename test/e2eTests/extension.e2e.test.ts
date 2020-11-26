@@ -125,7 +125,7 @@ describe('E2E Test', () => {
 
     it('Sign in to Docs and trigger build', (done) => {
         sinon.stub(environmentController, "userType").get(function getUserType() {
-            return UserType.InternalEmployee;
+            return UserType.MicrosoftInternalEmployee;
         });
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {

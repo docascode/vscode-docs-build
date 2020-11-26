@@ -157,27 +157,27 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     const currentSignInStatus = credentialController.credential.signInStatus;
     let pickItems: vscode.QuickPickItem[] = [];
 
-    if (environmentController.userType === UserType.InternalEmployee) {
+    if (environmentController.userType === UserType.MicrosoftInternalEmployee) {
         if (currentSignInStatus === 'SignedOut') {
             pickItems.push(
                 {
                     label: '$(sign-in) Sign-in',
-                    description: 'Sign in to Docs (It is required for internal users)',
+                    description: 'Sign in to Docs (It is required for Microsoft internal employees)',
                     picked: true
                 }
             );
         } else if (currentSignInStatus === 'SignedIn') {
             pickItems.push(
                 {
-                    label: '$(sign-out) Sign-out',                    
+                    label: '$(sign-out) Sign-out',
                     description: 'Sign out from Docs',
                     picked: true
                 });
-        } 
+        }
     }
     if (buildController.instanceAvailable) {
         pickItems.push(
-            {                    
+            {
                 label: '$(debug-start) Validate',
                 description: 'Trigger a validation on current repository'
             });
@@ -188,7 +188,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                 description: 'Cancel the current validation'
             });
     }
-    
+
     quickPickMenu.placeholder = "Which command would you like to run?";
     quickPickMenu.items = pickItems;
     quickPickMenu.onDidChangeSelection(selection => {

@@ -35,9 +35,6 @@ export class InfoMessageObserver {
             case EventType.TriggerCommandWithUnkownUserType:
                 this.handleCommandWithUnkownUserTypeTriggered();
                 break;
-            case EventType.PublicUserSignIn:
-                this.handlePublicSignIn();
-                break;
         }
     }
 
@@ -70,7 +67,7 @@ export class InfoMessageObserver {
     private handleBuildTriggered(event: BuildTriggered) {
         if (!event.signedIn && this._environmentController.enableSignRecommendHint) {
             this.showInfoMessage(
-                `If you are a Microsoft internal user, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette,` +
+                `If you are a Microsoft internal employee, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette,` +
                 ` or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`,
                 new MessageAction(
                     "Don't show this message again",
@@ -85,16 +82,17 @@ export class InfoMessageObserver {
     }
 
     private handleExtensionActivated() {
-        if (this._environmentController.userType === UserType.Unknow) {
+        if (this._environmentController.userType === UserType.Unknown) {
             this.showInfoMessage(
-                `Are you a Microsoft employee or public contributor? We need the information to provide better validation experience. You can change it in Settings -> Extensions -> Doc Validation -> User type.`,
+                `Are you a Microsoft internal employee or public contributor? We need the information to provide better validation experience. ` +
+                `You are still able to change it by the extension settings (Docs validation -> User type) after this selection`,
                 new MessageAction(
                     "Microsoft internal employee",
                     undefined,
                     undefined,
                     () => {
                         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-                        extensionConfig.update(USER_TYPE, UserType.InternalEmployee, true);
+                        extensionConfig.update(USER_TYPE, UserType.MicrosoftInternalEmployee, true);
                     }
                 ),
                 new MessageAction(
@@ -110,35 +108,26 @@ export class InfoMessageObserver {
     }
 
     private handleCommandWithUnkownUserTypeTriggered() {
-        if (this._environmentController.userType === UserType.Unknow) {
-            this.showInfoMessage(
-                `The command you just tried to operate needs your user type provided, please choose first. You can change it in Settings -> Extensions -> Doc Validation -> User type.`,
-                new MessageAction(
-                    "Microsoft internal employee",
-                    undefined,
-                    undefined,
-                    () => {
-                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-                        extensionConfig.update(USER_TYPE, UserType.InternalEmployee, true);
-                    }
-                ),
-                new MessageAction(
-                    "Public contributor",
-                    undefined,
-                    undefined,
-                    () => {
-                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-                        extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
-                    }
-                ));
-        }
-    }
-
-    private handlePublicSignIn() {
         this.showInfoMessage(
-            `Sign in is only available for Microsoft employees`,
+            `The command you just triggered needs user type information. Please choose either Microsoft internal employee or Public contributor. ` +
+            `You are still able to change it by the extension settings (Docs validation -> User type) after this selection`,
             new MessageAction(
-                "Ok"
+                "Microsoft internal employee",
+                undefined,
+                undefined,
+                () => {
+                    const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                    extensionConfig.update(USER_TYPE, UserType.MicrosoftInternalEmployee, true);
+                }
+            ),
+            new MessageAction(
+                "Public contributor",
+                undefined,
+                undefined,
+                () => {
+                    const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                    extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
+                }
             ));
     }
 }

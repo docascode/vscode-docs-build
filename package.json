@@ -60,7 +60,7 @@
         "docs-build.hint.signRecommend": {
           "type": "boolean",
           "default": true,
-          "description": "Show hint message to recommend Microsoft employee to sign in"
+          "description": "Show hint message to recommend Microsoft internal employees to sign in"
         },
         "docs-build.userType": {
           "type": "string",
@@ -77,7 +77,7 @@
     "commands": [
       {
         "command": "docs.signIn",
-        "title": "Sign in to Docs (!This is only available for Microsoft internal user)",
+        "title": "Sign in to Docs (!This is only available for Microsoft internal employee)",
         "category": "Docs"
       },
       {
