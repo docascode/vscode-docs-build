@@ -32,7 +32,7 @@ export class KeyChain {
     }
 
     public async getUserInfo(): Promise<UserInfo | null> {
-        let userInfoStr = await this._keytar.getPassword(SERVICE_ID, this.userInfoAccountId);
+        const userInfoStr = await this._keytar.getPassword(SERVICE_ID, this.userInfoAccountId);
         if (userInfoStr) {
             return JSON.parse(userInfoStr);
         }

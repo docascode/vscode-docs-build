@@ -10,11 +10,11 @@ describe('DocsOutputChannelObserver', () => {
         showCalled = false;
     });
 
-    let outputChannel = <OutputChannel>{
+    const outputChannel = <OutputChannel>{
         show: () => { showCalled = true; }
     };
 
-    let observer = new DocsOutputChannelObserver(outputChannel);
+    const observer = new DocsOutputChannelObserver(outputChannel);
 
     [
         new BuildInstantAllocated(),

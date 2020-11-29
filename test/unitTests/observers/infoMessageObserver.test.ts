@@ -49,21 +49,21 @@ describe('InfoMessageObserver', () => {
         });
 
         it(`Sign in failed`, () => {
-            let event = new UserSignInCompleted(`fakedCorrelationId`, false, true);
+            const event = new UserSignInCompleted(`fakedCorrelationId`, false, true);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
         });
 
         it(`Sign in succeeded with credential retrieved from cache`, () => {
-            let event = new UserSignInCompleted(`fakedCorrelationId`, true, true);
+            const event = new UserSignInCompleted(`fakedCorrelationId`, true, true);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
         });
 
         it(`Sign in succeeded without credential retrieved from cache`, () => {
-            let event = new UserSignInCompleted(`fakedCorrelationId`, true, false);
+            const event = new UserSignInCompleted(`fakedCorrelationId`, true, false);
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Successfully signed in! Would you like to validate the current workspace folder?`);
             assert.deepEqual(messageActions, [
@@ -79,14 +79,14 @@ describe('InfoMessageObserver', () => {
         });
 
         it(`Sign out failed`, () => {
-            let event = new UserSignOutCompleted(`fakedCorrelationId`, false);
+            const event = new UserSignOutCompleted(`fakedCorrelationId`, false);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
         });
 
         it(`Sign out succeeded`, () => {
-            let event = new UserSignOutCompleted(`fakedCorrelationId`, true);
+            const event = new UserSignOutCompleted(`fakedCorrelationId`, true);
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Successfully signed out!`);
             assert.deepEqual(messageActions, []);
@@ -100,7 +100,7 @@ describe('InfoMessageObserver', () => {
         });
 
         it(`Signed in`, () => {
-            let event = new BuildTriggered(`fakedCorrelationId`, true);
+            const event = new BuildTriggered(`fakedCorrelationId`, true);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
@@ -114,7 +114,7 @@ describe('InfoMessageObserver', () => {
         });
 
         it(`Build succeeded`, () => {
-            let event = new BuildCompleted(`fakedCorrelationId`, DocfxExecutionResult.Succeeded, undefined, undefined);
+            const event = new BuildCompleted(`fakedCorrelationId`, DocfxExecutionResult.Succeeded, undefined, undefined);
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Build finished. Please open the 'Problem' panel to see the results`);
             assert.deepEqual(messageActions, [new MessageAction(
@@ -124,7 +124,7 @@ describe('InfoMessageObserver', () => {
         });
 
         it(`Build fails`, () => {
-            let event = new BuildCompleted(`fakedCorrelationId`, DocfxExecutionResult.Failed, undefined, undefined);
+            const event = new BuildCompleted(`fakedCorrelationId`, DocfxExecutionResult.Failed, undefined, undefined);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
@@ -141,7 +141,7 @@ describe('InfoMessageObserver', () => {
             sinon.stub(environmentController, "userType").get(function getUserType() {
                 return UserType.Unknown;
             });
-            let event = new ExtensionActivated();
+            const event = new ExtensionActivated();
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Are you a Microsoft employee or a public contributor? We need this information to provide a better validation experience. ` +
                 `You can change your selection later if needed in the extension settings (Docs validation -> User type).`);
@@ -153,7 +153,7 @@ describe('InfoMessageObserver', () => {
             sinon.stub(environmentController, "userType").get(function getUserType() {
                 return UserType.MicrosoftEmployee;
             });
-            let event = new ExtensionActivated();
+            const event = new ExtensionActivated();
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);

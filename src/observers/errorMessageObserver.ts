@@ -11,13 +11,13 @@ export class ErrorMessageObserver {
         switch (event.type) {
             case EventType.UserSignInCompleted:
                 if (!(<UserSignInCompleted>event).succeeded) {
-                    let asUserSignInFailed = <UserSignInFailed>event;
+                    const asUserSignInFailed = <UserSignInFailed>event;
                     this.showErrorMessage(`Signing in failed: ${asUserSignInFailed.err.message}`);
                 }
                 break;
             case EventType.UserSignOutCompleted:
                 if (!(<UserSignOutCompleted>event).succeeded) {
-                    let asUserSignOutFailed = <UserSignOutFailed>event;
+                    const asUserSignOutFailed = <UserSignOutFailed>event;
                     this.showErrorMessage(`Signing out failed: ${asUserSignOutFailed.err.message}`);
                 }
                 break;
@@ -45,7 +45,7 @@ export class ErrorMessageObserver {
                 errorMsg += ` ${action.description}`;
             }
         });
-        let input = <MessageAction>(await vscode.window.showErrorMessage(errorMsg, ...actions));
+        const input = <MessageAction>(await vscode.window.showErrorMessage(errorMsg, ...actions));
         if (input) {
             if (input.command) {
                 vscode.commands.executeCommand(input.command, undefined);
@@ -57,7 +57,7 @@ export class ErrorMessageObserver {
 
     private handleBuildFailed(event: BuildFailed) {
         let action: MessageAction;
-        let error = <DocsError>event.err;
+        const error = <DocsError>event.err;
         switch (error.code) {
             case ErrorCode.TriggerBuildWithCredentialExpired:
                 action = new MessageAction('Sign in', 'docs.signIn');
@@ -70,7 +70,7 @@ export class ErrorMessageObserver {
     }
 
     private handleStartLanguageServerFailed(event: StartLanguageServerFailed) {
-        let action = new MessageAction('Sign in', 'docs.signIn');
+        const action = new MessageAction('Sign in', 'docs.signIn');
         this.showErrorMessage(`Start language server failed. ${event.err.message}`, action);
     }
 

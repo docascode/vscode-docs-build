@@ -79,7 +79,7 @@ describe('E2E Test', () => {
             return UserType.PublicContributor;
         });
         (async function () {
-            let dispose = eventStream.subscribe((event: BaseEvent) => {
+            const dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
                     case EventType.CredentialReset:
                         triggerCommand('docs.build');
@@ -128,10 +128,10 @@ describe('E2E Test', () => {
             return UserType.MicrosoftEmployee;
         });
         (async function () {
-            let dispose = eventStream.subscribe((event: BaseEvent) => {
+            const dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
                     case EventType.UserSignInCompleted:
-                        let asUserSignInCompleted = <UserSignInCompleted>event;
+                        const asUserSignInCompleted = <UserSignInCompleted>event;
                         assert.equal(asUserSignInCompleted.succeeded, true);
                         triggerCommand('docs.build');
                         break;
@@ -168,12 +168,12 @@ describe('E2E Test', () => {
 
     function assertDiagnostics(expected: { [key: string]: DiagnosticInfo[]; }) {
         Object.entries(expected).forEach(([file, expectedDiagnostics]) => {
-            let fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", file));
-            let diagnostics = vscode.languages.getDiagnostics(fileUri);
+            const fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", file));
+            const diagnostics = vscode.languages.getDiagnostics(fileUri);
 
-            let expectedDiagnosticsForCurrentFile: Diagnostic[] = [];
+            const expectedDiagnosticsForCurrentFile: Diagnostic[] = [];
             expectedDiagnostics.forEach((item) => {
-                let expectedDiagnostic = new Diagnostic(item.range, item.message, item.severity);
+                const expectedDiagnostic = new Diagnostic(item.range, item.message, item.severity);
                 expectedDiagnostic.code = item.code;
                 expectedDiagnostic.source = 'Docs Validation';
                 expectedDiagnosticsForCurrentFile.push(expectedDiagnostic);

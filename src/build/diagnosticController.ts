@@ -23,7 +23,7 @@ export class DiagnosticController implements vscode.Disposable {
 
     public addDiagnostic(diagnosticItem: DiagnosticItem) {
         if (diagnosticItem) {
-            let uri = vscode.Uri.file(path.resolve(vscode.workspace.rootPath!, diagnosticItem.filePath));
+            const uri = vscode.Uri.file(path.resolve(vscode.workspace.rootPath!, diagnosticItem.filePath));
             this.docsDiagnostics.set(uri, [...this.docsDiagnostics.get(uri)!, diagnosticItem.diagnostic]);
         }
     }

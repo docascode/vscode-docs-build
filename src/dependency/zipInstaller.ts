@@ -21,7 +21,7 @@ export async function InstallZip(buffer: Buffer, destinationInstallPath: Absolut
                 zipFile.readEntry();
 
                 zipFile.on('entry', (entry: yauzl.Entry) => {
-                    let absoluteEntryPath = path.resolve(destinationInstallPath.value, entry.fileName);
+                    const absoluteEntryPath = path.resolve(destinationInstallPath.value, entry.fileName);
 
                     if (entry.fileName.endsWith('/')) {
                         // Directory - create it

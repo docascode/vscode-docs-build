@@ -27,8 +27,8 @@ export class PlatformInformation {
     }
 
     public static async getCurrent(): Promise<PlatformInformation> {
-        let platform = os.platform();
-        let architecture = arch();
+        const platform = os.platform();
+        const architecture = arch();
         let rid: string;
 
         switch (platform) {

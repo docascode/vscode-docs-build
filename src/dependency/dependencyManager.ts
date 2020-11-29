@@ -12,14 +12,14 @@ import { validateDownload } from './downloadValidator';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
 
 export async function ensureRuntimeDependencies(context: ExtensionContext, correlationId: string, platformInfo: PlatformInformation, eventStream: EventStream) {
-    let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
-    let packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, context.extensionPath);
+    const runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
+    const packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, context.extensionPath);
     if (packagesToInstall && packagesToInstall.length > 0) {
-        let start = Date.now();
+        const start = Date.now();
         eventStream.post(new DependencyInstallStarted(correlationId));
         eventStream.post(new PlatformInfoRetrieved(platformInfo));
 
-        let installDependencySucceeded = await installDependencies(correlationId, packagesToInstall, eventStream);
+        const installDependencySucceeded = await installDependencies(correlationId, packagesToInstall, eventStream);
         eventStream.post(new DependencyInstallCompleted(correlationId, installDependencySucceeded, getDurationInSeconds(Date.now() - start)));
         return installDependencySucceeded;
     }
@@ -29,7 +29,7 @@ export async function ensureRuntimeDependencies(context: ExtensionContext, corre
 
 function getAbsolutePathPackagesToInstall(packages: Package[], platformInfo: PlatformInformation, extensionPath: string) {
     if (packages && packages.length > 0) {
-        let absolutePathPackages = packages.map(pkg => AbsolutePathPackage.getAbsolutePathPackage(pkg, extensionPath));
+        const absolutePathPackages = packages.map(pkg => AbsolutePathPackage.getAbsolutePathPackage(pkg, extensionPath));
         return getNonInstalledPackagesForCurrentPlatform(absolutePathPackages, platformInfo);
     }
     return [];
@@ -37,12 +37,12 @@ function getAbsolutePathPackagesToInstall(packages: Package[], platformInfo: Pla
 
 async function installDependencies(correlationId: string, packages: AbsolutePathPackage[], eventStream: EventStream): Promise<boolean> {
     if (packages) {
-        for (let pkg of packages) {
+        for (const pkg of packages) {
             eventStream.post(new PackageInstallStarted(pkg.description));
             fs.mkdirpSync(pkg.installPath.value);
 
             let retryCount = 0;
-            let start = Date.now();
+            const start = Date.now();
             while (retryCount < INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME) {
                 retryCount++;
                 try {
@@ -50,7 +50,7 @@ async function installDependencies(correlationId: string, packages: AbsolutePath
                     await createInstallLockFile(pkg.installPath, InstallFileType.Begin);
 
                     // Download file
-                    let buffer = await downloadFile(pkg.description, pkg.url, eventStream);
+                    const buffer = await downloadFile(pkg.description, pkg.url, eventStream);
 
                     // Check Integrity
                     await validateDownload(eventStream, buffer, pkg.integrity);
@@ -72,7 +72,7 @@ async function installDependencies(correlationId: string, packages: AbsolutePath
                 }
             }
 
-            let packageInstallSucceeded = installFileExists(pkg.installPath, InstallFileType.Finish);
+            const packageInstallSucceeded = installFileExists(pkg.installPath, InstallFileType.Finish);
             eventStream.post(new PackageInstallCompleted(correlationId, pkg, packageInstallSucceeded, retryCount - 1, getDurationInSeconds(Date.now() - start)));
             if (!packageInstallSucceeded) {
                 return false;
@@ -83,7 +83,7 @@ async function installDependencies(correlationId: string, packages: AbsolutePath
 }
 
 function getNonInstalledPackagesForCurrentPlatform(absolutePathPackages: AbsolutePathPackage[], platformInfo: PlatformInformation) {
-    let packagesForCurrentPlatform = getPackagesForCurrentPlatform(absolutePathPackages, platformInfo);
+    const packagesForCurrentPlatform = getPackagesForCurrentPlatform(absolutePathPackages, platformInfo);
     return filterInstalledPackages(packagesForCurrentPlatform);
 }
 
@@ -102,7 +102,7 @@ function filterInstalledPackages(packages: AbsolutePathPackage[]) {
             if (!installFileExists(pkg.installPath, InstallFileType.Finish)) {
                 return true;
             }
-            let installedPackageIntegrity = fs.readFileSync(getInstallLockFilePath(pkg.installPath, InstallFileType.Finish)).toString().trim();
+            const installedPackageIntegrity = fs.readFileSync(getInstallLockFilePath(pkg.installPath, InstallFileType.Finish)).toString().trim();
             if (pkg.integrity !== installedPackageIntegrity) {
                 fs.removeSync(pkg.installPath.value);
                 return true;

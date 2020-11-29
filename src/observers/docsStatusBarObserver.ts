@@ -20,7 +20,7 @@ export class DocsStatusBarObserver extends BaseStatusBarObserver {
                 break;
             case EventType.UserSignInCompleted:
                 if ((<UserSignInCompleted>event).succeeded) {
-                    let asUserSignInSucceeded = <UserSignInSucceeded>event;
+                    const asUserSignInSucceeded = <UserSignInSucceeded>event;
                     this.handleSignedIn(asUserSignInSucceeded.credential);
                 }
                 break;
@@ -35,7 +35,7 @@ export class DocsStatusBarObserver extends BaseStatusBarObserver {
     }
 
     private handleSignedIn(credential: Credential) {
-        let icon = credential.userInfo!.signType === 'GitHub' ? '$(mark-github)' : '$(rocket)';
+        const icon = credential.userInfo!.signType === 'GitHub' ? '$(mark-github)' : '$(rocket)';
         this.setDocsStatusBar(`${icon} ${credential.userInfo!.userName}`, 'docs.validationQuickPick');
     }
 

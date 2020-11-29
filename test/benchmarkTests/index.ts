@@ -15,16 +15,16 @@ const testRound = 3;
 export function run(): Promise<void> {
     return new Promise(async (resolve, reject) => {
         let buildCount = 0;
-        let sinon = createSandbox();
+        const sinon = createSandbox();
         let start: number;
         let restoreStart: number;
         let buildStart: number;
         let restoreDuration = 0;
         let buildDuration = 0;
         let totalDuration = 0;
-        let workspace = vscode.workspace.workspaceFolders[0];
-        let [, url, branch, commit] = await getRepositoryInfoFromLocalFolder(workspace.uri.fsPath);
-        let report = <BenchmarkReport>{
+        const workspace = vscode.workspace.workspaceFolders[0];
+        const [, url, branch, commit] = await getRepositoryInfoFromLocalFolder(workspace.uri.fsPath);
+        const report = <BenchmarkReport>{
             name: workspace.name,
             url,
             branch,
@@ -34,7 +34,7 @@ export function run(): Promise<void> {
         const extension = await ensureExtensionActivatedAndInitializationFinished();
         const { eventStream, keyChain } = extension.exports;
 
-        let subscription = eventStream.subscribe((event: BaseEvent) => {
+        const subscription = eventStream.subscribe((event: BaseEvent) => {
             switch (event.type) {
                 case EventType.UserSignInCompleted:
                     console.log(`Trigger build to restore all the dependency...`);

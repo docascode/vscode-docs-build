@@ -18,7 +18,7 @@ describe('TelemetryObserver', () => {
     let sentEventProperties: any;
     let sentEventMeasurements: any;
 
-    let telemetryReporter = <TelemetryReporter>{
+    const telemetryReporter = <TelemetryReporter>{
         sendTelemetryEvent(eventName: string, properties?: {
             [key: string]: string;
         }, measurements?: {
@@ -54,7 +54,7 @@ describe('TelemetryObserver', () => {
 
     // Sign
     it(`UserSignInTriggered: 'SignIn.Triggered' event should be sent`, () => {
-        let event = new UserSignInTriggered('fakedCorrelationId');
+        const event = new UserSignInTriggered('fakedCorrelationId');
         observer.eventHandler(event);
         assert.equal(sentEventName, 'SignIn.Triggered');
         assert.deepStrictEqual(sentEventProperties, {
@@ -64,7 +64,7 @@ describe('TelemetryObserver', () => {
 
     describe(`UserSignInCompleted: 'SignIn.Completed' event should be sent`, () => {
         it('UserSignInSucceeded', () => {
-            let event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential);
+            const event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential);
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignIn.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -77,7 +77,7 @@ describe('TelemetryObserver', () => {
         });
 
         it('UserSignInFailed', () => {
-            let event = new UserSignInFailed('fakedCorrelationId', new DocsError('Faked error message', ErrorCode.GitHubSignInFailed));
+            const event = new UserSignInFailed('fakedCorrelationId', new DocsError('Faked error message', ErrorCode.GitHubSignInFailed));
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignIn.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -90,7 +90,7 @@ describe('TelemetryObserver', () => {
         });
 
         it('CredentialRetrieveFromLocalCredentialManager', () => {
-            let event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true);
+            const event = new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true);
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignIn.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -104,7 +104,7 @@ describe('TelemetryObserver', () => {
     });
 
     it(`UserSignOutTriggered: 'SignOut.Triggered' event should be sent`, () => {
-        let event = new UserSignOutTriggered('fakedCorrelationId');
+        const event = new UserSignOutTriggered('fakedCorrelationId');
         observer.eventHandler(event);
         assert.equal(sentEventName, 'SignOut.Triggered');
         assert.deepStrictEqual(sentEventProperties, {
@@ -114,7 +114,7 @@ describe('TelemetryObserver', () => {
 
     describe(`UserSignOutCompleted: 'SignOut.Completed' event should be sent`, () => {
         it('UserSignOutSucceeded', () => {
-            let event = new UserSignOutSucceeded('fakedCorrelationId');
+            const event = new UserSignOutSucceeded('fakedCorrelationId');
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignOut.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -124,7 +124,7 @@ describe('TelemetryObserver', () => {
         });
 
         it('UserSignOutFailed', () => {
-            let event = new UserSignOutFailed('fakedCorrelationId', new Error('Faked error message'));
+            const event = new UserSignOutFailed('fakedCorrelationId', new Error('Faked error message'));
             observer.eventHandler(event);
             assert.equal(sentEventName, 'SignOut.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -135,7 +135,7 @@ describe('TelemetryObserver', () => {
     });
 
     it(`BuildTriggered: 'Build.Triggered' event should be sent`, () => {
-        let event = new BuildTriggered('fakedCorrelationId', true);
+        const event = new BuildTriggered('fakedCorrelationId', true);
         observer.eventHandler(event);
         assert.equal(sentEventName, 'Build.Triggered');
         assert.deepStrictEqual(sentEventProperties, {
@@ -145,7 +145,7 @@ describe('TelemetryObserver', () => {
 
     describe(`BuildCompleted: 'Build.Completed' event should be sent`, () => {
         it('BuildSucceeded', () => {
-            let event = new BuildSucceeded(
+            const event = new BuildSucceeded(
                 'FakedCorrelationId',
                 <BuildInput>{
                     buildType: 'FullBuild',
@@ -180,7 +180,7 @@ describe('TelemetryObserver', () => {
         });
 
         it('BuildFailed', () => {
-            let event = new BuildFailed(
+            const event = new BuildFailed(
                 'FakedCorrelationId',
                 <BuildInput>{
                     buildType: 'FullBuild',
@@ -210,7 +210,7 @@ describe('TelemetryObserver', () => {
         });
 
         it('BuildCanceled', () => {
-            let event = new BuildCanceled(
+            const event = new BuildCanceled(
                 'FakedCorrelationId',
                 <BuildInput>{
                     buildType: 'FullBuild',
@@ -240,7 +240,7 @@ describe('TelemetryObserver', () => {
     });
 
     it('CancelBuildTriggered', () => {
-        let event = new CancelBuildTriggered('FakedCorrelationId');
+        const event = new CancelBuildTriggered('FakedCorrelationId');
         observer.eventHandler(event);
 
         assert.equal(sentEventName, 'CancelBuild.Triggered');
@@ -251,7 +251,7 @@ describe('TelemetryObserver', () => {
 
     describe('CancelBuildCompleted', ()=> {
         it('CancelBuildSucceeded', () => {
-            let event = new CancelBuildSucceeded('FakedCorrelationId');
+            const event = new CancelBuildSucceeded('FakedCorrelationId');
             observer.eventHandler(event);
     
             assert.equal(sentEventName, 'CancelBuild.Completed');
@@ -262,7 +262,7 @@ describe('TelemetryObserver', () => {
         });
 
         it('CancelBuildFailed', () => {
-            let event = new CancelBuildFailed('FakedCorrelationId');
+            const event = new CancelBuildFailed('FakedCorrelationId');
             observer.eventHandler(event);
     
             assert.equal(sentEventName, 'CancelBuild.Completed');
@@ -274,7 +274,7 @@ describe('TelemetryObserver', () => {
     });
 
     it(`DependencyInstallStarted: 'InstallDependency.Started' event should be sent`, () => {
-        let event = new DependencyInstallStarted('fakedCorrelationId');
+        const event = new DependencyInstallStarted('fakedCorrelationId');
         observer.eventHandler(event);
         assert.equal(sentEventName, 'InstallDependency.Started');
         assert.deepStrictEqual(sentEventProperties, {
@@ -284,7 +284,7 @@ describe('TelemetryObserver', () => {
 
     describe(`DependencyInstallCompleted: 'InstallDependency.Completed' event should be sent`, () => {
         it(`Succeeded`, () => {
-            let event = new DependencyInstallCompleted('fakedCorrelationId', true, 10);
+            const event = new DependencyInstallCompleted('fakedCorrelationId', true, 10);
             observer.eventHandler(event);
             assert.equal(sentEventName, 'InstallDependency.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -297,7 +297,7 @@ describe('TelemetryObserver', () => {
         });
 
         it(`Failed`, () => {
-            let event = new DependencyInstallCompleted('fakedCorrelationId', false, 10);
+            const event = new DependencyInstallCompleted('fakedCorrelationId', false, 10);
             observer.eventHandler(event);
             assert.equal(sentEventName, 'InstallDependency.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -312,7 +312,7 @@ describe('TelemetryObserver', () => {
 
     describe(`PackageInstallCompleted: 'InstallDependency.Package.Completed' event should be sent`, () => {
         it(`Succeeded`, () => {
-            let event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, true, 1, 10);
+            const event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, true, 1, 10);
             observer.eventHandler(event);
             assert.equal(sentEventName, 'InstallDependency.Package.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -327,7 +327,7 @@ describe('TelemetryObserver', () => {
         });
 
         it(`Failed`, () => {
-            let event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, false, 2, 10);
+            const event = new PackageInstallCompleted('fakedCorrelationId', fakedPackage, false, 2, 10);
             observer.eventHandler(event);
             assert.equal(sentEventName, 'InstallDependency.Package.Completed');
             assert.deepStrictEqual(sentEventProperties, {
@@ -343,7 +343,7 @@ describe('TelemetryObserver', () => {
     });
 
     it(`PackageInstallAttemptFailed: 'InstallDependency.Package.Error' metric should be sent`, () => {
-        let event = new PackageInstallAttemptFailed('fakedCorrelationId', fakedPackage, 1, new DocsError('Faked error msg', ErrorCode.CheckIntegrityFailed));
+        const event = new PackageInstallAttemptFailed('fakedCorrelationId', fakedPackage, 1, new DocsError('Faked error msg', ErrorCode.CheckIntegrityFailed));
         observer.eventHandler(event);
         assert.equal(sentMetricName, 'InstallDependency.Package.Error');
         assert.equal(sentMetricValue, 1);
@@ -355,7 +355,7 @@ describe('TelemetryObserver', () => {
     });
 
     it(`QuickPickTriggered: 'QuickPick.Triggered' event should be sent`, () => {
-        let event = new QuickPickTriggered('fakedCorrelationId');
+        const event = new QuickPickTriggered('fakedCorrelationId');
         observer.eventHandler(event);
         assert.equal(sentEventName, 'QuickPick.Triggered');
         assert.deepStrictEqual(sentEventProperties, {
@@ -364,7 +364,7 @@ describe('TelemetryObserver', () => {
     });
 
     it(`QuickPickCommandSelected: 'QuickPick.CommandSelected' event should be sent`, () => {
-        let event = new QuickPickCommandSelected('fakedCorrelationId', 'fakedCommand');
+        const event = new QuickPickCommandSelected('fakedCorrelationId', 'fakedCommand');
         observer.eventHandler(event);
         assert.equal(sentEventName, 'QuickPick.CommandSelected');
         assert.deepStrictEqual(sentEventProperties, {
@@ -374,7 +374,7 @@ describe('TelemetryObserver', () => {
     });
 
     it(`LearnMoreClick: 'LearnMore.Click' event should be sent`, () => {
-        let event = new LearnMoreClicked('fakedCorrelationId', 'fakedErrorCode');
+        const event = new LearnMoreClicked('fakedCorrelationId', 'fakedErrorCode');
         observer.eventHandler(event);
         assert.equal(sentEventName, 'LearnMore.Clicked');
         assert.deepStrictEqual(sentEventProperties, {

@@ -49,7 +49,7 @@ describe('BuildController', () => {
     let tokenUsedForAPICall: string;
 
     const fakedOPBuildAPIClient = <OPBuildAPIClient>{
-        getProvisionedRepositoryUrlByDocsetNameAndLocale: (docsetName: string, locale: string = 'en-us', opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
+        getProvisionedRepositoryUrlByDocsetNameAndLocale: (docsetName: string, locale = 'en-us', opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
             tokenUsedForAPICall = opBuildUserToken;
             return new Promise((resolve, reject) => {
                 resolve('https://faked.original.repository');
@@ -183,7 +183,7 @@ describe('BuildController', () => {
     });
 
     it('Trigger build when credential expires', async () => {
-        let opBuildAPIClient = <OPBuildAPIClient>{
+        const opBuildAPIClient = <OPBuildAPIClient>{
             validateCredential: (opBuildUserToken: string, eventStream: EventStream): Promise<boolean> => {
                 return new Promise((resolve, reject) => {
                     resolve(false);
@@ -362,7 +362,7 @@ describe('BuildController', () => {
     });
 
     it('Successfully build with getting repo info by docset name', async () => {
-        let opBuildAPIClient = <OPBuildAPIClient>{
+        const opBuildAPIClient = <OPBuildAPIClient>{
             getProvisionedRepositoryUrlByRepositoryUrl: (gitRepoUrl: string, opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
                 return new Promise((resolve, reject) => {
                     resolve(undefined);
@@ -373,7 +373,7 @@ describe('BuildController', () => {
                     resolve(true);
                 });
             },
-            getProvisionedRepositoryUrlByDocsetNameAndLocale: (docsetName: string, locale: string = 'en-us', opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
+            getProvisionedRepositoryUrlByDocsetNameAndLocale: (docsetName: string, locale = 'en-us', opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
                 return new Promise((resolve, reject) => {
                     resolve('https://faked.original.repository');
                 });
@@ -404,8 +404,8 @@ describe('BuildController', () => {
     });
 
     it('Trigger two builds at the same time', async () => {
-        let firstBuildPromise = buildController.build('fakedCorrelationId1', fakedCredential);
-        let secondBuildPromise = buildController.build('fakedCorrelationId2', fakedCredential);
+        const firstBuildPromise = buildController.build('fakedCorrelationId1', fakedCredential);
+        const secondBuildPromise = buildController.build('fakedCorrelationId2', fakedCredential);
         await Promise.all([firstBuildPromise, secondBuildPromise]);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId1', true),
@@ -470,7 +470,7 @@ describe('BuildController', () => {
     });
 
     it('Build Cancelled', async () => {
-        let buildPromise = buildController.build('fakedCorrelationId', fakedCredential);
+        const buildPromise = buildController.build('fakedCorrelationId', fakedCredential);
         setTimeout(() => { buildController.cancelBuild(); }, 5);
         await buildPromise;
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -506,7 +506,7 @@ describe('BuildController', () => {
     });
 
     it('Start language server when credential expires', async () => {
-        let opBuildAPIClient = <OPBuildAPIClient>{
+        const opBuildAPIClient = <OPBuildAPIClient>{
             validateCredential: (opBuildUserToken: string, eventStream: EventStream): Promise<boolean> => {
                 return new Promise((resolve, reject) => {
                     resolve(false);

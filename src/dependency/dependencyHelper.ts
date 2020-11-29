@@ -10,7 +10,7 @@ export enum InstallFileType {
 }
 
 export function getInstallLockFilePath(installFolderPath: AbsolutePath, installFileType: InstallFileType): string {
-    let lockFileName = `install.lock.${installFileType}`;
+    const lockFileName = `install.lock.${installFileType}`;
     return path.resolve(installFolderPath.value, lockFileName);
 }
 
@@ -22,7 +22,7 @@ export function deleteInstallLockFile(installFolderPath: AbsolutePath, installFi
     fs.removeSync(getInstallLockFilePath(installFolderPath, installFileType));
 }
 
-export async function createInstallLockFile(installFolderPath: AbsolutePath, installFileType: InstallFileType, content: string = ''): Promise<void> {
+export async function createInstallLockFile(installFolderPath: AbsolutePath, installFileType: InstallFileType, content = ''): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         fs.writeFile(getInstallLockFilePath(installFolderPath, installFileType), content, err => {
             if (err) {

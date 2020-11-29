@@ -7,7 +7,7 @@ import { ErrorCode } from "../error/errorCode";
 export function validateDownload(eventStream: EventStream, buffer: Buffer, integrity: string) {
     eventStream.post(new DownloadValidating());
     if (integrity && integrity.length > 0) {
-        let downloadFileIntegrity = getBufferIntegrityHash(buffer);
+        const downloadFileIntegrity = getBufferIntegrityHash(buffer);
         if(downloadFileIntegrity !== integrity.toUpperCase()){
             throw new DocsError(`Integrity check failed.`, ErrorCode.CheckIntegrityFailed);
         }
@@ -15,8 +15,8 @@ export function validateDownload(eventStream: EventStream, buffer: Buffer, integ
 }
 
 function getBufferIntegrityHash(buffer: Buffer): string {
-    let hash = crypto.createHash('sha256');
+    const hash = crypto.createHash('sha256');
     hash.update(buffer);
-    let value = hash.digest('hex').toUpperCase();
+    const value = hash.digest('hex').toUpperCase();
     return value;
 }

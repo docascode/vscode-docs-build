@@ -7,7 +7,7 @@ export class ExtensionContext {
     public readonly extensionVersion: string;
 
     constructor(context: vscode.ExtensionContext) {
-        let packageJsonPath = context.asAbsolutePath('./package.json');
+        const packageJsonPath = context.asAbsolutePath('./package.json');
         this.packageJson = safelyReadJsonFile(packageJsonPath);
         this.extensionPath = context.extensionPath;
         this.extensionVersion = this.packageJson.version;

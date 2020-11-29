@@ -17,8 +17,8 @@ import * as appInsights from 'applicationinsights';
 
 export default class TelemetryReporter {
     private appInsightsClient: appInsights.TelemetryClient | undefined;
-    private firstParty: boolean = false;
-    private userOptIn: boolean = false;
+    private firstParty = false;
+    private userOptIn = false;
     private _extension: vscode.Extension<any> | undefined;
     private readonly configListener: vscode.Disposable;
 
@@ -189,7 +189,7 @@ export default class TelemetryReporter {
 
         if (anonymizeFilePaths) {
             const cleanUpIndexes: [number, number][] = [];
-            for (let regexp of cleanupPatterns) {
+            for (const regexp of cleanupPatterns) {
                 while (true) {
                     const result = regexp.exec(stack);
                     if (!result) {
@@ -221,7 +221,7 @@ export default class TelemetryReporter {
         }
 
         // sanitize with configured cleanup patterns
-        for (let regexp of cleanupPatterns) {
+        for (const regexp of cleanupPatterns) {
             updatedStack = updatedStack.replace(regexp, '');
         }
         return updatedStack;

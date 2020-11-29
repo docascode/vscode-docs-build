@@ -10,7 +10,7 @@ describe('DocsStatusBarObserver', () => {
     let environmentController: EnvironmentController;
     let observer: DocsStatusBarObserver;
 
-    let statusBarItem = <StatusBarItem>{
+    const statusBarItem = <StatusBarItem>{
         show: () => { showCalled = true; }
     };
 
@@ -27,7 +27,7 @@ describe('DocsStatusBarObserver', () => {
     });
 
     it(`Initialization: Status bar is shown with 'Initializing' text`, () => {
-        let event = new CredentialInitializing();
+        const event = new CredentialInitializing();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(play) Docs Validation: Initializing`);
@@ -36,7 +36,7 @@ describe('DocsStatusBarObserver', () => {
     });
 
     it(`User Signing in: Status bar is shown with 'Signing In' text`, () => {
-        let event = new UserSignInTriggered('FakedCorrelationId');
+        const event = new UserSignInTriggered('FakedCorrelationId');
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(play) Docs Validation: Signing in`);
@@ -45,7 +45,7 @@ describe('DocsStatusBarObserver', () => {
     });
 
     it(`User Signed In: Status bar is shown with user info`, () => {
-        let event = new UserSignInSucceeded('FakedCorrelationId', fakedCredential);
+        const event = new UserSignInSucceeded('FakedCorrelationId', fakedCredential);
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(play) Docs Validation: $(mark-github) Faked User`);
@@ -54,7 +54,7 @@ describe('DocsStatusBarObserver', () => {
     });
 
     it(`Reset User Info: Status bar is shown with 'Sign-in to Docs' text`, () => {
-        let event = new CredentialReset();
+        const event = new CredentialReset();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(play) Docs Validation`);
@@ -67,7 +67,7 @@ describe('DocsStatusBarObserver', () => {
         setEnvToPPE(environmentController);
 
         // Test
-        let event = new CredentialInitializing();
+        const event = new CredentialInitializing();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(play) Docs Validation(PPE): Initializing`);

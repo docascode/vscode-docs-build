@@ -29,9 +29,9 @@ export class MockHttpsServer {
     }
 
     public static async CreateMockHttpsServer(): Promise<MockHttpsServer> {
-        let port = await getPort();
+        const port = await getPort();
 
-        let server = new ServerMock(undefined, {
+        const server = new ServerMock(undefined, {
             host: "localhost",
             port: port,
             key: fs.readFileSync(path.resolve(__dirname, "../../../testAssets/key.pem")),

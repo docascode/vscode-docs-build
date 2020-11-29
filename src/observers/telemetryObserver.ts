@@ -82,7 +82,7 @@ export class TelemetryObserver {
         let signInType: DocsRepoType;
         let errorCode: string;
         if (event.succeeded) {
-            let userInfo = (<UserSignInSucceeded>event).credential.userInfo;
+            const userInfo = (<UserSignInSucceeded>event).credential.userInfo;
             signInType = userInfo.signType;
         } else {
             errorCode = this.getErrorCode((<UserSignInFailed>event).err);
@@ -138,14 +138,14 @@ export class TelemetryObserver {
         let restoreTimeInSeconds: number;
         let buildTimeInSeconds: number;
 
-        let buildInput = event.buildInput;
+        const buildInput = event.buildInput;
         if (buildInput) {
             buildType = buildInput.buildType;
             localRepositoryUrl = buildInput.localRepositoryUrl;
             originalRepositoryUrl = buildInput.originalRepositoryUrl;
         }
         if (event.result === DocfxExecutionResult.Succeeded) {
-            let buildResult = (<BuildSucceeded>event).buildResult;
+            const buildResult = (<BuildSucceeded>event).buildResult;
             isRestoreSkipped = buildResult.isRestoreSkipped;
             restoreTimeInSeconds = buildResult.restoreTimeInSeconds;
             buildTimeInSeconds = buildResult.buildTimeInSeconds;

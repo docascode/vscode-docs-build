@@ -10,7 +10,7 @@ export class InfoMessageObserver {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.UserSignInCompleted:
-                let asUserSignInCompleted = <UserSignInCompleted>event;
+                const asUserSignInCompleted = <UserSignInCompleted>event;
                 if (asUserSignInCompleted.succeeded && !asUserSignInCompleted.retrievedFromCache) {
                     this.showInfoMessage('Successfully signed in!', new MessageAction('Validate', 'docs.build', 'Would you like to validate the current workspace folder?'));
                 }
@@ -38,7 +38,7 @@ export class InfoMessageObserver {
                 infoMsg += ` ${action.description}`;
             }
         });
-        let input = <MessageAction>(await vscode.window.showInformationMessage(infoMsg, ...actions));
+        const input = <MessageAction>(await vscode.window.showInformationMessage(infoMsg, ...actions));
         if (input) {
             if (input.command) {
                 vscode.commands.executeCommand(input.command, undefined);

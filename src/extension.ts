@@ -48,41 +48,41 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     eventStream.subscribe(docsLoggerObserver.eventHandler);
     eventStream.subscribe(docsOutputChannelObserver.eventHandler);
 
-    let runtimeDependenciesInstalled = await ensureRuntimeDependencies(extensionContext, getCorrelationId(), platformInformation, eventStream);
+    const runtimeDependenciesInstalled = await ensureRuntimeDependencies(extensionContext, getCorrelationId(), platformInformation, eventStream);
     if (!runtimeDependenciesInstalled) {
         throw new Error('Installation of run-time dependencies failed. Please restart Visual Studio Code to re-trigger the installation.');
     }
 
     // Message 
-    let errorMessageObserver = new ErrorMessageObserver();
-    let infoMessageObserver = new InfoMessageObserver(environmentController);
+    const errorMessageObserver = new ErrorMessageObserver();
+    const infoMessageObserver = new InfoMessageObserver(environmentController);
     eventStream.subscribe(errorMessageObserver.eventHandler);
     eventStream.subscribe(infoMessageObserver.eventHandler);
 
     // Credential component initialize
-    let keyChain = new KeyChain(environmentController);
-    let credentialController = new CredentialController(keyChain, eventStream, environmentController);
+    const keyChain = new KeyChain(environmentController);
+    const credentialController = new CredentialController(keyChain, eventStream, environmentController);
     eventStream.subscribe(credentialController.eventHandler);
     // Initialize credential
-    let credentialInitialPromise = credentialController.initialize(getCorrelationId());
+    const credentialInitialPromise = credentialController.initialize(getCorrelationId());
 
     // Docs Status bar
-    let docsStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);
-    let docsStatusBarObserver = new DocsStatusBarObserver(docsStatusBar, environmentController);
+    const docsStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);
+    const docsStatusBarObserver = new DocsStatusBarObserver(docsStatusBar, environmentController);
     eventStream.subscribe(docsStatusBarObserver.eventHandler);
 
     // Build component initialize
-    let diagnosticController = new DiagnosticController();
-    let opBuildAPIClient = new OPBuildAPIClient(environmentController);
-    let buildExecutor = new BuildExecutor(extensionContext, platformInformation, environmentController, eventStream, telemetryReporter);
-    let buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, environmentController, eventStream);
+    const diagnosticController = new DiagnosticController();
+    const opBuildAPIClient = new OPBuildAPIClient(environmentController);
+    const buildExecutor = new BuildExecutor(extensionContext, platformInformation, environmentController, eventStream, telemetryReporter);
+    const buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, environmentController, eventStream);
 
     // Build status bar
-    let buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
-    let buildStatusBarObserver = new BuildStatusBarObserver(buildStatusBar);
+    const buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
+    const buildStatusBarObserver = new BuildStatusBarObserver(buildStatusBar);
     eventStream.subscribe(buildStatusBarObserver.eventHandler);
 
-    let codeActionProvider = new CodeActionProvider();
+    const codeActionProvider = new CodeActionProvider();
 
     context.subscriptions.push(
         outputChannel,
@@ -146,8 +146,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 }
 
 function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController): TelemetryReporter {
-    let key = config.AIKey[environmentController.env];
-    let telemetryReporter = new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
+    const key = config.AIKey[environmentController.env];
+    const telemetryReporter = new TelemetryReporter(EXTENSION_ID, context.extensionVersion, key);
     return telemetryReporter;
 }
 
@@ -163,7 +163,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     eventStream.post(new QuickPickTriggered(correlationId));
     const quickPickMenu = vscode.window.createQuickPick();
     const currentSignInStatus = credentialController.credential.signInStatus;
-    let pickItems: vscode.QuickPickItem[] = [];
+    const pickItems: vscode.QuickPickItem[] = [];
 
     if (environmentController.userType === UserType.MicrosoftEmployee) {
         if (currentSignInStatus === 'SignedOut') {
