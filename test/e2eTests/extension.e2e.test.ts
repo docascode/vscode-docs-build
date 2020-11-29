@@ -131,8 +131,7 @@ describe('E2E Test', () => {
             const dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
                     case EventType.UserSignInCompleted:
-                        const asUserSignInCompleted = <UserSignInCompleted>event;
-                        assert.equal(asUserSignInCompleted.succeeded, true);
+                        assert.equal((<UserSignInCompleted>event).succeeded, true);
                         triggerCommand('docs.build');
                         break;
                     case EventType.BuildCompleted:

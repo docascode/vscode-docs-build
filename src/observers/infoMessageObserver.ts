@@ -8,9 +8,10 @@ export class InfoMessageObserver {
     constructor(private _environmentController: EnvironmentController) { }
 
     public eventHandler = (event: BaseEvent) => {
+        let asUserSignInCompleted;
         switch (event.type) {
             case EventType.UserSignInCompleted:
-                const asUserSignInCompleted = <UserSignInCompleted>event;
+                asUserSignInCompleted = <UserSignInCompleted>event;
                 if (asUserSignInCompleted.succeeded && !asUserSignInCompleted.retrievedFromCache) {
                     this.showInfoMessage('Successfully signed in!', new MessageAction('Validate', 'docs.build', 'Would you like to validate the current workspace folder?'));
                 }
