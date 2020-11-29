@@ -10,7 +10,7 @@ export class DocsLogger implements ILogger, vscode.Disposable {
 
     constructor(private _outputChannel: vscode.OutputChannel, context: ExtensionContext, environmentController: EnvironmentController) {
         if (environmentController.debugMode) {
-            const currentFormattedTime = new Date().toISOString().replace(/T/, '-').replace(/\:/gm, '-').replace(/\..+/, '');
+            const currentFormattedTime = new Date().toISOString().replace(/T/, '-').replace(/:/gm, '-').replace(/\..+/, '');
             const logFolder = path.resolve(context.extensionPath, '.logs');
             const logPath = path.resolve(logFolder, `${currentFormattedTime}-${vscode.workspace.name}.log`);
             fs.ensureDirSync(logFolder);
