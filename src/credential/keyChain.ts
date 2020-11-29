@@ -13,6 +13,7 @@ function getNodeModule<T>(moduleName: string): T {
     try {
         return vscodeRequire(moduleName);
     } catch (err) {
+        // swallow error
     }
     return undefined;
 }
