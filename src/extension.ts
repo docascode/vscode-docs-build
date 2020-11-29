@@ -222,5 +222,3 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     quickPickMenu.onDidHide(() => quickPickMenu.dispose());
     quickPickMenu.show();
 }
-
-export function deactivate() { }

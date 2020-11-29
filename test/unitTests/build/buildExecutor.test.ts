@@ -101,9 +101,6 @@ describe('BuildExecutor', () => {
         testEventBus.clear();
     });
 
-    afterEach(() => {
-    });
-
     after(() => {
         sinon.restore();
         testEventBus.dispose();

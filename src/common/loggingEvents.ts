@@ -222,7 +222,6 @@ export class DownloadSizeObtained implements BaseEvent {
 
 export class DownloadValidating implements BaseEvent {
     type = EventType.DownloadValidating;
-    constructor() { }
 }
 
 export class ZipFileInstalling implements BaseEvent {

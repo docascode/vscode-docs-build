@@ -112,9 +112,6 @@ describe('BuildController', () => {
             .resolves(['GitHub', 'https://faked.repository', undefined, undefined, undefined]);
     });
 
-    afterEach(() => {
-    });
-
     after(() => {
         sinon.restore();
     });
