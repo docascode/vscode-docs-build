@@ -4,17 +4,39 @@
         "node": true
     },
     "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
+        "eslint:recommended"
     ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "ecmaVersion": 12,
-        "sourceType": "module"
-    },
-    "plugins": [
-        "@typescript-eslint"
-    ],
-    "rules": {
-    }
+    "overrides": [
+        {
+            "files":[
+                "**/*.ts"
+            ],
+            "extends": [
+                "plugin:@typescript-eslint/recommended"
+            ],
+            "parser": "@typescript-eslint/parser",
+            "parserOptions": {
+                "ecmaVersion": 12,
+                "sourceType": "module"
+            },
+            "plugins": [
+                "@typescript-eslint"
+            ],
+            "rules": {
+                "@typescript-eslint/ban-types": "off",
+                "@typescript-eslint/explicit-module-boundary-types": "off",
+                "@typescript-eslint/no-empty-function": "off",
+                "@typescript-eslint/no-explicit-any": "off",
+                "@typescript-eslint/no-non-null-assertion": "off",
+                "@typescript-eslint/no-unused-vars": "off",
+                "@typescript-eslint/no-var-requires": "off",
+                "no-async-promise-executor": "off",
+                "no-case-declarations": "off",
+                "no-constant-condition": "off",
+                "no-empty": "off",
+                "no-useless-escape": "off",
+                "prefer-const": "off"
+            }
+        }
+    ]
 }
