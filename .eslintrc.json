@@ -4,12 +4,14 @@
         "node": true
     },
     "plugins": [
-        "import"
+        "import",
+        "node"
     ],
     "extends": [
         "eslint:recommended",
         "plugin:import/errors",
-        "plugin:import/warnings"
+        "plugin:import/warnings",
+        "plugin:node/recommended"
     ],
     "settings": {
         "import/core-modules": [
@@ -39,7 +41,30 @@
                 "@typescript-eslint/no-explicit-any": "off",
                 "@typescript-eslint/no-non-null-assertion": "off",
                 "@typescript-eslint/no-unused-vars": "off",
-                "no-async-promise-executor": "off"
+                "no-async-promise-executor": "off",
+                "node/no-unsupported-features/es-syntax": [
+                    "error",
+                    {
+                        "ignores": [
+                            "modules"
+                        ]
+                    }
+                ],
+                "node/no-missing-import": ["error", {
+                    "tryExtensions": [".js", ".ts"],
+                    "allowModules": ["vscode"]
+                }]
+            }
+        },
+        {
+            "files":[
+                "gulpfile.ts",
+                "test/**/*.ts",
+                "tasks/*.ts"
+            ],
+            "rules": {
+                "node/no-unpublished-import": "off",
+                "node/no-unpublished-require": "off"
             }
         }
     ]

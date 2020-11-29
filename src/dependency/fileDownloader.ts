@@ -1,5 +1,5 @@
 import https from 'https';
-import { parse as parseUrl } from 'url';
+import { URL } from 'url';
 import { DownloadStarted, DownloadSizeObtained, DownloadProgress } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';
 import { DocsError } from '../error/docsError';
@@ -12,11 +12,11 @@ export async function downloadFile(description: string, urlString: string, event
 }
 
 async function downloadCore(urlString: string, eventStream: EventStream, strictSSL = true): Promise<Buffer> {
-    const url = parseUrl(urlString);
+    const url = new URL(urlString);
     // TODO: Apply network settings(proxy, strictSSL..)
     const options: https.RequestOptions = {
         host: url.hostname,
-        path: url.path,
+        path: url.pathname,
         port: url.port,
         rejectUnauthorized: strictSSL
     };

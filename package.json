@@ -4,6 +4,7 @@
   "description": "Docs Validation Extension which enables you to run build validation on a Docs conceptual or Learn repo at authoring time in VS Code",
   "version": "0.2.4",
   "engines": {
+    "node": ">=10",
     "vscode": "^1.40.0"
   },
   "categories": [
@@ -165,7 +166,9 @@
     "codecov": "^3.7.1",
     "eslint": "^7.15.0",
     "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
     "get-port": "^5.1.0",
+    "glob": "^7.1.6",
     "gulp": "^4.0.2",
     "mocha": "^8.1.3",
     "mocha-typescript": "^1.1.17",
@@ -185,7 +188,6 @@
     "@types/du": "^1.0.0",
     "@types/fs-extra": "^8.0.1",
     "@types/git-url-parse": "^9.0.0",
-    "@types/keytar": "^4.4.0",
     "@types/mkdirp": "^0.5.2",
     "@types/ps-tree": "^1.1.0",
     "@types/request": "^2.48.4",
@@ -197,6 +199,7 @@
     "fs-extra": "^8.1.0",
     "git-url-parse": "^11.1.2",
     "husky": "^4.3.0",
+    "keytar": "^7.2.0",
     "mkdirp": "^0.5.1",
     "ms-rest-azure": "^3.0.0",
     "ps-tree": "^1.2.0",

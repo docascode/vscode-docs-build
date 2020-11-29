@@ -4,6 +4,7 @@ import path from 'path';
 import { rootPath, testAssetsPath, defaultOutputPath } from './projectPaths';
 import { runTests } from 'vscode-test';
 
+// eslint-disable-next-line node/no-missing-require
 require('./benchmarkTestTask');
 
 gulp.task('test:e2e', async () => {

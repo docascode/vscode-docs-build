@@ -3,7 +3,7 @@ import path from 'path';
 import { execSync, ExecSyncOptions } from 'child_process';
 import { rootPath, benchmarkTestAssetsPath } from './projectPaths';
 import { basicAuth } from '../src/utils/utils';
-import gitUrlParse = require('git-url-parse');
+import gitUrlParse from 'git-url-parse';
 
 export function convertBenchmarkResultToMarkdown(result: any): string {
     let header = '|';
