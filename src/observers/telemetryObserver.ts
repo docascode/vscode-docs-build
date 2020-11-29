@@ -172,6 +172,7 @@ export class TelemetryObserver {
     }
 
     private handleDocfxRestoreCompleted(event: DocfxRestoreCompleted) {
+        // eslint-disable-next-line promise/catch-or-return
         getFolderSizeInMB(path.join(os.homedir(), '.docfx')).then(cacheSize =>
             this._reporter.sendTelemetryEvent(
                 'BuildCacheSize',
