@@ -190,7 +190,7 @@ export default class TelemetryReporter {
         if (anonymizeFilePaths) {
             const cleanUpIndexes: [number, number][] = [];
             for (const regexp of cleanupPatterns) {
-                while (true) {
+                for (;;) {
                     const result = regexp.exec(stack);
                     if (!result) {
                         break;
@@ -204,7 +204,7 @@ export default class TelemetryReporter {
             let lastIndex = 0;
             updatedStack = '';
 
-            while (true) {
+            for (;;) {
                 const result = fileRegex.exec(stack);
                 if (!result) {
                     break;
