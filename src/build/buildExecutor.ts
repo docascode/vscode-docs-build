@@ -1,4 +1,3 @@
-import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/package';
@@ -202,7 +201,7 @@ export class BuildExecutor {
         };
 
         if (!isPublicUser) {
-            secrets[`${extensionConfig.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
+            secrets[`${config.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
                 "headers": {
                     "X-OP-BuildUserToken": buildUserToken
                 }

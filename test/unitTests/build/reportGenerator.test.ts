@@ -1,12 +1,11 @@
 import assert from 'assert';
 import fs from 'fs-extra';
 import path from 'path';
-import vscode from 'vscode';
 import { EventStream } from '../../../src/common/eventStream';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
-import { Uri, Diagnostic, Range } from 'vscode';
+import { Uri, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
 import { visualizeBuildReport } from '../../../src/build/reportGenerator';
 import { BuildProgress } from '../../../src/common/loggingEvents';
 
@@ -38,9 +37,9 @@ describe("ReportGenerator", () => {
         }
     };
 
-    const expectedInfoDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, vscode.DiagnosticSeverity.Hint);
-    const expectedWarningDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, vscode.DiagnosticSeverity.Warning);
-    const expectedErrorDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, vscode.DiagnosticSeverity.Error);
+    const expectedInfoDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, DiagnosticSeverity.Hint);
+    const expectedWarningDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, DiagnosticSeverity.Warning);
+    const expectedErrorDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, DiagnosticSeverity.Error);
     expectedInfoDiagnostic.code = 'author-missing';
     expectedInfoDiagnostic.source = 'Docs Validation';
     expectedWarningDiagnostic.code = 'author-missing';
