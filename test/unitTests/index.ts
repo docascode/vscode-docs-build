@@ -38,6 +38,7 @@ export async function run(): Promise<void> {
 }
 
 function setupCoverage() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const NYC = require('nyc');
     const nyc = new NYC({
         cwd: path.join(__dirname, '..', '..', '..'),

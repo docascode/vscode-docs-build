@@ -1,4 +1,5 @@
 import os from 'os';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const arch = require('arch');
 
 export class PlatformInformation {

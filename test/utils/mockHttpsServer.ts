@@ -3,6 +3,7 @@ import getPort from 'get-port';
 import fs from 'fs-extra';
 import path from 'path';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const ServerMock = require('mock-http-server');
 
 export class MockHttpsServer {
