@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered, ExtensionActivated, TriggerCommandWithUnkownUserType, PublicUserSignIn } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
@@ -373,5 +373,35 @@ describe('DocsLoggerObserver', () => {
 
         let expectedOutput = `Platform: faked-platform, faked-arch\n\n`;
         assert.equal(loggerText, expectedOutput);
+    });
+
+    describe('Extension Activated', () => {
+        it(`Extension Activated`, () => {
+            let event = new ExtensionActivated();
+            observer.eventHandler(event);
+
+            let expectedOutput = `Extension activated.\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
+    });
+
+    describe('Command triggered with unknown user type', () => {
+        it(`Command triggered with unknown user type`, () => {
+            let event = new TriggerCommandWithUnkownUserType();
+            observer.eventHandler(event);
+
+            let expectedOutput = `Command triggered when user type is unknown.\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
+    });
+
+    describe('Public user sign in', () => {
+        it(`Public user sign in`, () => {
+            let event = new PublicUserSignIn();
+            observer.eventHandler(event);
+
+            let expectedOutput = `Sign in failed: Sign in is only available for Microsoft employees.\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
     });
 });
