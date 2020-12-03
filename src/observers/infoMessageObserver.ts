@@ -32,9 +32,6 @@ export class InfoMessageObserver {
             case EventType.ExtensionActivated:
                 this.handleExtensionActivated();
                 break;
-            case EventType.TriggerCommandWithUnkownUserType:
-                this.handleCommandWithUnkownUserTypeTriggered();
-                break;
         }
     }
 
@@ -105,29 +102,5 @@ export class InfoMessageObserver {
                     }
                 ));
         }
-    }
-
-    private handleCommandWithUnkownUserTypeTriggered() {
-        this.showInfoMessage(
-            `The command you triggered needs user type information. Please choose either Microsoft employee or Public contributor. ` +
-            `You can change your selection later if needed in the extension settings (Docs validation -> User type).`,
-            new MessageAction(
-                "Microsoft employee",
-                undefined,
-                undefined,
-                () => {
-                    const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-                    extensionConfig.update(USER_TYPE, UserType.MicrosoftEmployee, true);
-                }
-            ),
-            new MessageAction(
-                "Public contributor",
-                undefined,
-                undefined,
-                () => {
-                    const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-                    extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
-                }
-            ));
     }
 }
