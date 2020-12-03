@@ -4,9 +4,9 @@
 
 ### Changed
 
-- Add user role (Microsoft employee/ public contributor) checking.
-- Use latest docfx: 3.0.0-beta1.599+2532899be6.
-- Remove `PullRequestOnly` messages from diagnostic channel.
+- Add user role (Microsoft employee/ public contributor) checking. (#157)
+- Use latest docfx: 3.0.0-beta1.599+2532899be6. (#156)
+- Remove `PullRequestOnly` messages from diagnostic channel. (#152)
 
 ## 0.2.2 (November 4, 2020)
 
