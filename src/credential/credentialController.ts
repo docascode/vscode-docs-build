@@ -1,10 +1,10 @@
 import vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import querystring from 'querystring';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler } from '../shared';
+import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicUserSignIn } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -64,12 +64,16 @@ export class CredentialController {
     }
 
     public async signIn(correlationId: string): Promise<void> {
+        if (this._environmentController.userType === UserType.PublicContributor) {
+            this._eventStream.post(new PublicUserSignIn());
+            return;
+        }
         try {
             this.resetCredential();
             this._signInStatus = 'SigningIn';
             this._eventStream.post(new UserSignInTriggered(correlationId));
             let userInfo;
-            if(this._environmentController.docsRepoType === 'GitHub') {
+            if (this._environmentController.docsRepoType === 'GitHub') {
                 this._eventStream.post(new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'));
                 userInfo = await this.signInWithGitHub();
             } else {
@@ -131,7 +135,7 @@ export class CredentialController {
 
     private async signInWithGitHub(): Promise<UserInfo | null> {
         const authConfig = extensionConfig.auth[this._environmentController.env];
-        const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/github-authenticate?${querystring.stringify({response_mode : "query"})}`));
+        const callbackUri = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/github-authenticate?${querystring.stringify({ response_mode: "query" })}`));
         const githubQuery = querystring.stringify({
             client_id: authConfig.GitHubOauthClientId,
             redirect_uri: authConfig.GitHubOauthRedirectUrl,
@@ -176,7 +180,7 @@ export class CredentialController {
     private async signInWithAzureDevOps(): Promise<UserInfo | null> {
         const authConfig = extensionConfig.auth[this._environmentController.env];
         const callbackUri = await vscode.env.asExternalUri(
-            vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/azure-devops-authenticate?${querystring.stringify({response_mode : "query"})}`));
+            vscode.Uri.parse(`${vscode.env.uriScheme}://${EXTENSION_ID}/azure-devops-authenticate?${querystring.stringify({ response_mode: "query" })}`));
         const azureDevOpsQuery = querystring.stringify({
             client_id: authConfig.AzureDevOpsOauthClientId,
             redirect_uri: authConfig.AzureDevOpsRedirectUrl,

@@ -1,7 +1,7 @@
 import vscode, { Uri } from 'vscode';
 import * as path from 'path';
 import { CredentialController } from './credential/credentialController';
-import { uriHandler, EXTENSION_ID } from './shared';
+import { uriHandler, EXTENSION_ID, UserType } from './shared';
 import { PlatformInformation } from './common/platformInformation';
 import { ensureRuntimeDependencies } from './dependency/dependencyManager';
 import { DocsStatusBarObserver } from './observers/docsStatusBarObserver';
@@ -22,7 +22,7 @@ import config from './config';
 import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
-import { QuickPickTriggered, QuickPickCommandSelected } from './common/loggingEvents';
+import { QuickPickTriggered, QuickPickCommandSelected, ExtensionActivated, TriggerCommandWithUnkownUserType } from './common/loggingEvents';
 import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
@@ -84,6 +84,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     let codeActionProvider = new CodeActionProvider();
 
+    eventStream.post(new ExtensionActivated());
+
     context.subscriptions.push(
         outputChannel,
         logger,
@@ -92,16 +94,30 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         docsStatusBar,
         buildStatusBar,
         environmentController,
-        vscode.commands.registerCommand('docs.signIn', () => credentialController.signIn(getCorrelationId())),
-        vscode.commands.registerCommand('docs.signOut', () => credentialController.signOut(getCorrelationId())),
+        vscode.commands.registerCommand('docs.signIn', () => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                credentialController.signIn(getCorrelationId());
+            }
+        }),
+        vscode.commands.registerCommand('docs.signOut', () => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                credentialController.signOut(getCorrelationId());
+            }
+        }),
         vscode.commands.registerCommand('docs.build', () => {
-            buildController.build(getCorrelationId(), credentialController.credential);
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                buildController.build(getCorrelationId(), credentialController.credential);
+            }
         }),
         vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
         vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
             CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
         }),
-        vscode.commands.registerCommand('docs.validationQuickPick', () => createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController)),
+        vscode.commands.registerCommand('docs.validationQuickPick', () => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController, environmentController);
+            }
+        }),
         vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
             vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, ".logs")));
         }),
@@ -116,7 +132,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
             await credentialInitialPromise;
         },
         eventStream,
-        keyChain
+        keyChain,
+        environmentController
     };
 }
 
@@ -126,12 +143,38 @@ function getTelemetryReporter(context: ExtensionContext, environmentController: 
     return telemetryReporter;
 }
 
-function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController) {
+function checkIfUserTypeSelected(environmentController: EnvironmentController, eventStream: EventStream): boolean {
+    if (!environmentController.userType) {
+        eventStream.post(new TriggerCommandWithUnkownUserType);
+        return false;
+    }
+    return true;
+}
+
+function createQuickPickMenu(correlationId: string, eventStream: EventStream, credentialController: CredentialController, buildController: BuildController, environmentController: DocsEnvironmentController) {
     eventStream.post(new QuickPickTriggered(correlationId));
     const quickPickMenu = vscode.window.createQuickPick();
     const currentSignInStatus = credentialController.credential.signInStatus;
     let pickItems: vscode.QuickPickItem[] = [];
 
+    if (environmentController.userType === UserType.MicrosoftEmployee) {
+        if (currentSignInStatus === 'SignedOut') {
+            pickItems.push(
+                {
+                    label: '$(sign-in) Sign-in',
+                    description: 'Sign in to Docs (It is required for Microsoft employees)',
+                    picked: true
+                }
+            );
+        } else if (currentSignInStatus === 'SignedIn') {
+            pickItems.push(
+                {
+                    label: '$(sign-out) Sign-out',
+                    description: 'Sign out from Docs',
+                    picked: true
+                });
+        }
+    }
     if (buildController.instanceAvailable) {
         pickItems.push(
             {
@@ -143,22 +186,6 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
             {
                 label: '$(debug-stop) Cancel Build',
                 description: 'Cancel the current validation'
-            });
-    }
-
-    if (currentSignInStatus === 'SignedOut') {
-        pickItems.push(
-            {
-                label: '$(sign-in) Sign-in',
-                description: 'Sign in to Docs (!This is only available for Microsoft internal user)',
-                picked: true
-            });
-    } else if (currentSignInStatus === 'SignedIn') {
-        pickItems.push(
-            {
-                label: '$(sign-out) Sign-out',
-                description: 'Sign out from Docs',
-                picked: true
             });
     }
 

@@ -1,11 +1,11 @@
 import assert from 'assert';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInCompleted, UserSignOutCompleted, BuildTriggered, BuildCompleted } from '../../../src/common/loggingEvents';
+import { UserSignInCompleted, UserSignOutCompleted, BuildTriggered, BuildCompleted, ExtensionActivated } from '../../../src/common/loggingEvents';
 import { getFakeEnvironmentController } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { InfoMessageObserver } from '../../../src/observers/infoMessageObserver';
 import { SinonSandbox, createSandbox } from 'sinon';
-import { MessageAction } from '../../../src/shared';
+import { MessageAction, UserType } from '../../../src/shared';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
 
 describe('InfoMessageObserver', () => {
@@ -91,7 +91,7 @@ describe('InfoMessageObserver', () => {
             let event = new UserSignOutCompleted(`fakedCorrelationId`, true);
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Successfully signed out!`);
-            assert.deepEqual(messageActions, [undefined]);
+            assert.deepEqual(messageActions, []);
         });
     });
 
@@ -122,7 +122,7 @@ describe('InfoMessageObserver', () => {
         it(`EnableSignRecommendHint as true`, () => {
             let event = new BuildTriggered(`fakedCorrelationId`, false);
             observer.eventHandler(event);
-            assert.equal(messageToShow, `[Docs Validation] If you are a Microsoft internal user, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette, or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`);
+            assert.equal(messageToShow, `[Docs Validation] If you are a Microsoft employee, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette, or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`);
             assert.deepEqual(messageActions[0].title, "Don't show this message again");
         });
     });
@@ -148,6 +148,25 @@ describe('InfoMessageObserver', () => {
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
+        });
+    });
+
+    describe(`Extension activated`, () => {
+        beforeEach(() => {
+            messageToShow = undefined;
+            messageActions = [];
+        });
+
+        it(`User type unknown`, () => {
+            sinon.stub(environmentController, "userType").get(function getUserType() {
+                return UserType.Unknown;
+            });
+            let event = new ExtensionActivated();
+            observer.eventHandler(event);
+            assert.equal(messageToShow, `[Docs Validation] Are you a Microsoft employee or a public contributor? We need this information to provide a better validation experience. ` +
+                `You can change your selection later if needed in the extension settings (Docs validation -> User type).`);
+            assert.deepEqual(messageActions[0].title, "Microsoft employee");
+            assert.deepEqual(messageActions[1].title, "Public contributor");
         });
     });
 });

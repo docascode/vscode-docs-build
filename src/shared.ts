@@ -17,6 +17,8 @@ export const DEBUG_MODE_CONFIG_NAME = 'debugMode.enable';
 
 export const SIGN_RECOMMEND_HINT_CONFIG_NAME = 'hint.signRecommend';
 
+export const USER_TYPE = 'userType';
+
 // Environment
 export type Environment = 'PROD' | 'PPE';
 
@@ -57,4 +59,10 @@ export interface ReportItem {
     restoreDuration: number;
     buildDuration: number;
     isInitialRun: boolean;
+}
+
+export enum UserType {
+    MicrosoftEmployee = "Microsoft Employee",
+    PublicContributor = "Public Contributor",
+    Unknown = ""
 }

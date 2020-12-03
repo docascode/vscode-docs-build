@@ -6,10 +6,11 @@ import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } fro
 import { EventType } from '../../src/common/eventType';
 import { BaseEvent, UserSignInCompleted, BuildCompleted } from '../../src/common/loggingEvents';
 import { createSandbox, SinonSandbox } from 'sinon';
-import { uriHandler } from '../../src/shared';
+import { uriHandler, UserType } from '../../src/shared';
 import { DocfxExecutionResult } from '../../src/build/buildResult';
 import TestEventBus from '../utils/testEventBus';
 import { EventStream } from '../../src/common/eventStream';
+import { EnvironmentController } from '../../src/common/environmentController';
 
 const detailE2EOutput: any = {};
 
@@ -24,6 +25,7 @@ describe('E2E Test', () => {
     let sinon: SinonSandbox;
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
+    let environmentController: EnvironmentController;
 
     before(async () => {
         if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
@@ -52,6 +54,7 @@ describe('E2E Test', () => {
         assert.notEqual(extension, undefined);
 
         eventStream = extension.exports.eventStream;
+        environmentController = extension.exports.environmentController;
         testEventBus = new TestEventBus(eventStream);
     });
 
@@ -72,6 +75,9 @@ describe('E2E Test', () => {
     });
 
     it('build without sign-in', (done) => {
+        sinon.stub(environmentController, "userType").get(function getUserType() {
+            return UserType.PublicContributor;
+        });
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
@@ -118,6 +124,9 @@ describe('E2E Test', () => {
     });
 
     it('Sign in to Docs and trigger build', (done) => {
+        sinon.stub(environmentController, "userType").get(function getUserType() {
+            return UserType.MicrosoftEmployee;
+        });
         (async function () {
             let dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {

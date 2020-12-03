@@ -223,25 +223,12 @@ describe('BuildController', () => {
         });
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', false),
-            new BuildProgress('Retrieving repository information for current workspace folder...'),
-            new BuildProgress('Trying to get provisioned repository information...'),
-            new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
-            new BuildInstantAllocated(),
-            new BuildStarted('fakedWorkspaceFolder'),
-            new BuildSucceeded(
-                'fakedCorrelationId',
-                expectedBuildInput,
-                1,
-                <BuildResult>{
-                    result: DocfxExecutionResult.Succeeded,
-                    isRestoreSkipped: false
-                }
-            ),
-            new BuildInstantReleased(),
+            new BuildFailed('fakedCorrelationId', undefined, 1,
+                new DocsError(
+                    `Microsoft employees must sign in before validating.`,
+                    ErrorCode.TriggerBuildBeforeSignIn
+                ))
         ]);
-        assert.equal(visualizeBuildReportCalled, true);
-        assert.equal(tokenUsedForBuild, undefined);
-        assert.equal(tokenUsedForAPICall, undefined);
     });
 
     it('Successfully build', async () => {

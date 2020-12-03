@@ -1,13 +1,13 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicUserSignIn } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
-import { UserInfo, uriHandler } from '../../../src/shared';
+import { UserInfo, uriHandler, UserType } from '../../../src/shared';
 import { getFakeEnvironmentController, setupKeyChain, fakedCredential } from '../../utils/faker';
 import extensionConfig from '../../../src/config';
 import { DocsError } from '../../../src/error/docsError';
@@ -153,6 +153,23 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
+        });
+    });
+
+    describe(`Public contributor`, () => {
+        const tempEventStream = new EventStream();
+        const tempEnvironmentController = <EnvironmentController>{
+            env: 'PROD',
+            docsRepoType: 'GitHub',
+            debugMode: false,
+            enableSignRecommendHint: true,
+            userType: UserType.PublicContributor
+        };
+        const tempCredentialController = new CredentialController(keyChain, tempEventStream, tempEnvironmentController);
+        const tempEventBus = new TestEventBus(tempEventStream);
+        it(`Public contributor sign-in`, async () => {
+            await tempCredentialController.signIn('fakedCorrelationId');
+            assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicUserSignIn()]);
         });
     });
 

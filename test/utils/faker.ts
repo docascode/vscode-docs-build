@@ -3,7 +3,7 @@ import { EnvironmentController } from '../../src/common/environmentController';
 import { AbsolutePathPackage } from '../../src/dependency/package';
 import { SinonSandbox } from 'sinon';
 import { KeyChain } from '../../src/credential/keyChain';
-import { UserInfo, DocsRepoType } from '../../src/shared';
+import { UserInfo, DocsRepoType, UserType } from '../../src/shared';
 import { Credential } from '../../src/credential/credentialController';
 import { ExtensionContext } from '../../src/extensionContext';
 import { PlatformInformation } from '../../src/common/platformInformation';
@@ -18,6 +18,7 @@ export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHu
         docsRepoType: docsRepoType || 'GitHub',
         debugMode: false,
         enableSignRecommendHint: true,
+        userType: UserType.MicrosoftEmployee
     };
 }
 

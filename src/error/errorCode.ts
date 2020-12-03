@@ -19,6 +19,7 @@ export enum ErrorCode {
     TriggerBuildOnWorkspaceWithMultipleFolders = 'TriggerBuildOnWorkspaceWithMultipleFolders',
     RunDocfxFailed = 'RunDocfxFailed',
     GenerateReportFailed = 'GenerateReportFailed',
+    TriggerBuildBeforeSignIn = 'TriggerBuildBeforeSignIn',
 
     // Install Dependency
     CreateInstallLockFileFailed = 'CreateInstallLockFileFailed',

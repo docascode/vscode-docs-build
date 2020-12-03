@@ -72,6 +72,11 @@ export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
 }
 
+export class PublicUserSignIn implements BaseEvent {
+    type = EventType.PublicUserSignIn;
+    constructor() { }
+}
+
 // Build
 export class RepositoryInfoRetrieved implements BaseEvent {
     type = EventType.RepositoryInfoRetrieved;
@@ -124,13 +129,13 @@ export class CancelBuildCompleted implements BaseEvent {
 }
 
 export class CancelBuildSucceeded extends CancelBuildCompleted {
-    constructor(public correlationId: string){
+    constructor(public correlationId: string) {
         super(correlationId, true);
     }
 }
 
 export class CancelBuildFailed extends CancelBuildCompleted {
-    constructor(public correlationId: string, public err?: Error){
+    constructor(public correlationId: string, public err?: Error) {
         super(correlationId, false);
     }
 }
@@ -243,6 +248,16 @@ export class QuickPickCommandSelected implements BaseEvent {
 export class LearnMoreClicked implements BaseEvent {
     type = EventType.LearnMoreClicked;
     constructor(public correlationId: string, public diagnosticErrorCode: string) { }
+}
+
+export class TriggerCommandWithUnkownUserType implements BaseEvent {
+    type = EventType.TriggerCommandWithUnkownUserType;
+    constructor() { }
+}
+
+export class ExtensionActivated implements BaseEvent {
+    type = EventType.ExtensionActivated;
+    constructor() { }
 }
 
 // Test only

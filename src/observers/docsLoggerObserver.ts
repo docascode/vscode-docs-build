@@ -31,6 +31,9 @@ export class DocsLoggerObserver {
             case EventType.UserSignInProgress:
                 this.handleUserSignInProgress(<UserSignInProgress>event);
                 break;
+            case EventType.PublicUserSignIn:
+                this.handlePublicUserSignIn();
+                break;
             // Build
             case EventType.RepositoryInfoRetrieved:
                 this.handleRepositoryInfoRetrieved(<RepositoryInfoRetrieved>event);
@@ -97,6 +100,12 @@ export class DocsLoggerObserver {
             case EventType.PlatformInfoRetrieved:
                 this.handlePlatformInfoRetrieved(<PlatformInfoRetrieved>event);
                 break;
+            case EventType.ExtensionActivated:
+                this.handleExtensionActivated();
+                break;
+            case EventType.TriggerCommandWithUnkownUserType:
+                this.handleTriggerCommandWithUnkownUserType();
+                break;
         }
     }
 
@@ -137,6 +146,10 @@ export class DocsLoggerObserver {
     private handleUserSignInProgress(event: UserSignInProgress) {
         let tag = event.tag ? `[${event.tag}] ` : '';
         this.appendLine(`${tag}${event.message}`);
+    }
+
+    private handlePublicUserSignIn() {
+        this.appendLine(`Sign in failed: Sign in is only available for Microsoft employees.`);
     }
 
     // Build
@@ -293,5 +306,13 @@ export class DocsLoggerObserver {
     private handlePlatformInfoRetrieved(event: PlatformInfoRetrieved) {
         this.appendLine(`Platform: ${event.platformInfo.toString()}`);
         this.appendLine();
+    }
+
+    private handleExtensionActivated() {
+        this.appendLine(`Extension activated.`);
+    }
+
+    private handleTriggerCommandWithUnkownUserType() {
+        this.appendLine(`Command triggered when user type is unknown.`);
     }
 }

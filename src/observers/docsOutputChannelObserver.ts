@@ -18,6 +18,6 @@ export class DocsOutputChannelObserver {
                     this._channel.show();
                 }
                 break;
-            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 import vscode from 'vscode';
 import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted, BuildTriggered } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
-import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME } from '../shared';
+import { MessageAction, EXTENSION_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE, UserType } from '../shared';
 import { EnvironmentController } from '../common/environmentController';
 
 export class InfoMessageObserver {
@@ -20,6 +20,7 @@ export class InfoMessageObserver {
                     this.showInfoMessage('Successfully signed out!');
                 }
                 break;
+            // TODO: remove this, and related classes/ objects 
             case EventType.BuildTriggered:
                 this.handleBuildTriggered(<BuildTriggered>event);
                 break;
@@ -28,15 +29,20 @@ export class InfoMessageObserver {
                     this.handleBuildJobSucceeded();
                 }
                 break;
+            case EventType.ExtensionActivated:
+                this.handleExtensionActivated();
+                break;
         }
     }
 
-    private async showInfoMessage(message: string, action?: MessageAction) {
+    private async showInfoMessage(message: string, ...actions: MessageAction[]) {
         let infoMsg = `[Docs Validation] ${message}`;
-        if (action && action.description) {
-            infoMsg += ` ${action.description}`;
-        }
-        let input = <MessageAction>(await vscode.window.showInformationMessage(infoMsg, action));
+        actions.forEach((action) => {
+            if (action && action.description) {
+                infoMsg += ` ${action.description}`;
+            }
+        });
+        let input = <MessageAction>(await vscode.window.showInformationMessage(infoMsg, ...actions));
         if (input) {
             if (input.command) {
                 vscode.commands.executeCommand(input.command, undefined);
@@ -58,7 +64,7 @@ export class InfoMessageObserver {
     private handleBuildTriggered(event: BuildTriggered) {
         if (!event.signedIn && this._environmentController.enableSignRecommendHint) {
             this.showInfoMessage(
-                `If you are a Microsoft internal user, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette,`+
+                `If you are a Microsoft employee, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette,` +
                 ` or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`,
                 new MessageAction(
                     "Don't show this message again",
@@ -67,6 +73,32 @@ export class InfoMessageObserver {
                     () => {
                         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
                         extensionConfig.update(SIGN_RECOMMEND_HINT_CONFIG_NAME, false, true);
+                    }
+                ));
+        }
+    }
+
+    private handleExtensionActivated() {
+        if (this._environmentController.userType === UserType.Unknown) {
+            this.showInfoMessage(
+                `Are you a Microsoft employee or a public contributor? We need this information to provide a better validation experience. ` +
+                `You can change your selection later if needed in the extension settings (Docs validation -> User type).`,
+                new MessageAction(
+                    "Microsoft employee",
+                    undefined,
+                    undefined,
+                    () => {
+                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                        extensionConfig.update(USER_TYPE, UserType.MicrosoftEmployee, true);
+                    }
+                ),
+                new MessageAction(
+                    "Public contributor",
+                    undefined,
+                    undefined,
+                    () => {
+                        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+                        extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
                     }
                 ));
         }

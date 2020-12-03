@@ -7,7 +7,7 @@ import { EventStream } from '../common/eventStream';
 import { DiagnosticController } from './diagnosticController';
 import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds, normalizeDriveLetter, getTempOutputFolder } from '../utils/utils';
 import { BuildExecutor } from './buildExecutor';
-import { OP_CONFIG_FILE_NAME } from '../shared';
+import { OP_CONFIG_FILE_NAME, UserType } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
 import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
@@ -111,8 +111,11 @@ export class BuildController {
     }
 
     private async validateUserCredential(credential: Credential) {
-        if (credential.signInStatus !== 'SignedIn') {
+        if (this._environmentController.userType === UserType.PublicContributor) {
             return;
+        }
+        if (credential.signInStatus !== 'SignedIn' && this._environmentController.userType === UserType.MicrosoftEmployee) {
+            throw new DocsError(`Microsoft employees must sign in before validating.`, ErrorCode.TriggerBuildBeforeSignIn);
         }
 
         if (!(await this._opBuildAPIClient.validateCredential(credential.userInfo.userToken, this._eventStream))) {
