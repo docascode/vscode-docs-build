@@ -18,7 +18,7 @@ export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHu
         docsRepoType: docsRepoType || 'GitHub',
         debugMode: false,
         enableSignRecommendHint: true,
-        userType: UserType.MicrosoftInternalEmployee
+        userType: UserType.MicrosoftEmployee
     };
 }
 

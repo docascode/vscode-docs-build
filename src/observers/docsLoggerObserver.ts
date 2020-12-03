@@ -149,7 +149,7 @@ export class DocsLoggerObserver {
     }
 
     private handlePublicUserSignIn() {
-        this.appendLine(`Sign in failed: Sign in is only available for Microsoft internal employees.`);
+        this.appendLine(`Sign in failed: Sign in is only available for Microsoft employees.`);
     }
 
     // Build

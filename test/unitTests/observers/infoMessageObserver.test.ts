@@ -122,7 +122,7 @@ describe('InfoMessageObserver', () => {
         it(`EnableSignRecommendHint as true`, () => {
             let event = new BuildTriggered(`fakedCorrelationId`, false);
             observer.eventHandler(event);
-            assert.equal(messageToShow, `[Docs Validation] If you are a Microsoft internal employee, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette, or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`);
+            assert.equal(messageToShow, `[Docs Validation] If you are a Microsoft employee, you are recommended to login to the Docs system by clicking 'Docs Validation' in the status bar and 'Sign-in' in command palette, or you may get some validation errors if some non-live data (e.g. UID, moniker) has been used.`);
             assert.deepEqual(messageActions[0].title, "Don't show this message again");
         });
     });

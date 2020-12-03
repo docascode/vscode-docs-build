@@ -157,12 +157,12 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     const currentSignInStatus = credentialController.credential.signInStatus;
     let pickItems: vscode.QuickPickItem[] = [];
 
-    if (environmentController.userType === UserType.MicrosoftInternalEmployee) {
+    if (environmentController.userType === UserType.MicrosoftEmployee) {
         if (currentSignInStatus === 'SignedOut') {
             pickItems.push(
                 {
                     label: '$(sign-in) Sign-in',
-                    description: 'Sign in to Docs (It is required for Microsoft internal employees)',
+                    description: 'Sign in to Docs (It is required for Microsoft employees)',
                     picked: true
                 }
             );

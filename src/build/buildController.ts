@@ -114,8 +114,8 @@ export class BuildController {
         if (this._environmentController.userType === UserType.PublicContributor) {
             return;
         }
-        if (credential.signInStatus !== 'SignedIn' && this._environmentController.userType === UserType.MicrosoftInternalEmployee) {
-            throw new DocsError(`It is required for Microsoft internal employees to sign in before validation, please sign in first.`, ErrorCode.TriggerBuildBeforeSignIn);
+        if (credential.signInStatus !== 'SignedIn' && this._environmentController.userType === UserType.MicrosoftEmployee) {
+            throw new DocsError(`Microsoft employees must sign in before validating.`, ErrorCode.TriggerBuildBeforeSignIn);
         }
 
         if (!(await this._opBuildAPIClient.validateCredential(credential.userInfo.userToken, this._eventStream))) {

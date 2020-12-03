@@ -60,24 +60,24 @@
         "docs-build.hint.signRecommend": {
           "type": "boolean",
           "default": true,
-          "description": "Show hint message to recommend Microsoft internal employees to sign in"
+          "description": "Show hint message to recommend Microsoft employees to sign in"
         },
         "docs-build.userType": {
           "type": "string",
           "enum": [
             "",
-            "Microsoft Internal Employee",
+            "Microsoft Employee",
             "Public Contributor"
           ],
           "default": "",
-          "description": "Microsoft internal employee or public contributor"
+          "description": "Microsoft employee or public contributor"
         }
       }
     },
     "commands": [
       {
         "command": "docs.signIn",
-        "title": "Sign in to Docs (!This is only available for Microsoft internal employee)",
+        "title": "Sign in to Docs (!This is only available for Microsoft employee)",
         "category": "Docs"
       },
       {
