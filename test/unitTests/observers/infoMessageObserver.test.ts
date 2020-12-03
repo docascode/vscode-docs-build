@@ -168,7 +168,5 @@ describe('InfoMessageObserver', () => {
             assert.deepEqual(messageActions[0].title, "Microsoft employee");
             assert.deepEqual(messageActions[1].title, "Public contributor");
         });
-
-
     });
 });
