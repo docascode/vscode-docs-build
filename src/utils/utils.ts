@@ -2,7 +2,7 @@ import vscode from 'vscode';
 import path from 'path';
 import fs from 'fs-extra';
 import gitUrlParse from 'git-url-parse';
-import simpleGit from 'simple-git/promise';
+import simpleGit from 'simple-git';
 import uuid from 'uuid/v1';
 import du from 'du';
 import psTree from 'ps-tree';
