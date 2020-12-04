@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.4 (December 4, 2020)
+
+### Changed
+
+- Remove sign in recommendation hint (#159)
+
 ## 0.2.3 (December 3, 2020)
 
 ### Changed
