@@ -15,8 +15,6 @@ export const ENVIRONMENT_CONFIG_NAME = 'environment';
 
 export const DEBUG_MODE_CONFIG_NAME = 'debugMode.enable';
 
-export const SIGN_RECOMMEND_HINT_CONFIG_NAME = 'hint.signRecommend';
-
 export const USER_TYPE = 'userType';
 
 // Environment

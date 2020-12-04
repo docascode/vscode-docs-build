@@ -1,5 +1,5 @@
 import vscode from 'vscode';
-import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, SIGN_RECOMMEND_HINT_CONFIG_NAME, USER_TYPE, UserType } from '../shared';
+import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, USER_TYPE, UserType } from '../shared';
 import { EnvironmentChanged } from './loggingEvents';
 import { EventStream } from './eventStream';
 import { EnvironmentController } from './environmentController';
@@ -10,7 +10,6 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     private _debugMode: boolean;
     private _docsRepoType: DocsRepoType;
     private _configurationChangeListener: vscode.Disposable;
-    private _enableSignRecommendHint: boolean;
     private _userType: UserType;
 
     constructor(private _eventStream: EventStream) {
@@ -19,7 +18,6 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     public async initialize() {
         this._environment = this.getEnv();
         this._debugMode = this.getDebugMode();
-        this._enableSignRecommendHint = this.getEnableSignRecommendHint();
         this._docsRepoType = await this.getDocsRepoType();
         this._userType = this.getUserType();
 
@@ -29,8 +27,6 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${DEBUG_MODE_CONFIG_NAME}`)) {
                 this._debugMode = this.getDebugMode();
                 this.reloadWindow();
-            } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${SIGN_RECOMMEND_HINT_CONFIG_NAME}`)) {
-                this._enableSignRecommendHint = this.getEnableSignRecommendHint();
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${USER_TYPE}`)) {
                 this._userType = this.getUserType();
             }
@@ -60,10 +56,6 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
         return this._debugMode;
     }
 
-    public get enableSignRecommendHint(): boolean {
-        return this._enableSignRecommendHint;
-    }
-
     public get userType(): UserType {
         return this._userType;
     }
@@ -76,11 +68,6 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     private getDebugMode(): boolean {
         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
         return extensionConfig.get<boolean>(DEBUG_MODE_CONFIG_NAME, false);
-    }
-
-    private getEnableSignRecommendHint(): boolean {
-        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
-        return extensionConfig.get<boolean>(SIGN_RECOMMEND_HINT_CONFIG_NAME, true);
     }
 
     private getUserType(): UserType {
