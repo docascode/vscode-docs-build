@@ -57,11 +57,6 @@
           "default": false,
           "description": "Enable the debug mode for trouble shooting, with this flag enabled, more detail information will be output in the output channel"
         },
-        "docs-build.hint.signRecommend": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show hint message to recommend Microsoft employees to sign in"
-        },
         "docs-build.userType": {
           "type": "string",
           "enum": [
