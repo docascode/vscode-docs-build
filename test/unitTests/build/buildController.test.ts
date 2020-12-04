@@ -17,6 +17,8 @@ import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, Bu
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { Credential } from '../../../src/credential/credentialController';
+import { EnvironmentController } from '../../../src/common/environmentController';
+import { UserType } from '../../../src/shared';
 
 const expectedBuildInput = <BuildInput>{
     buildType: 'FullBuild',
@@ -231,7 +233,7 @@ describe('BuildController', () => {
         ]);
     });
 
-    it('Successfully build', async () => {
+    it('Successfully build by Microsoft employee', async () => {
         // First time
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -262,6 +264,45 @@ describe('BuildController', () => {
         await buildController.build('fakedCorrelationId', fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
+            new BuildInstantAllocated(),
+            new BuildStarted('fakedWorkspaceFolder'),
+            new BuildSucceeded(
+                'fakedCorrelationId',
+                expectedBuildInput,
+                1,
+                <BuildResult>{
+                    result: DocfxExecutionResult.Succeeded,
+                    isRestoreSkipped: false
+                }
+            ),
+            new BuildInstantReleased(),
+        ]);
+        assert.equal(visualizeBuildReportCalled, true);
+    });
+
+    it('Successfully build by public contributor', async () => {
+        const tempEnvironmentController: EnvironmentController = {
+            env: 'PROD',
+            docsRepoType: 'GitHub',
+            debugMode: false,
+            enableSignRecommendHint: true,
+            userType: UserType.PublicContributor
+        };
+        buildController = new BuildController(
+            getFakedBuildExecutor(
+                DocfxExecutionResult.Succeeded,
+                (correlationId: string, input: BuildInput, buildUserToken: string) => {
+                    tokenUsedForBuild = buildUserToken;
+                }),
+            fakedOPBuildAPIClient, undefined,
+            tempEnvironmentController, eventStream
+        );
+        await buildController.build('fakedCorrelationId', fakedCredential);
+        assert.deepStrictEqual(testEventBus.getEvents(), [
+            new BuildTriggered('fakedCorrelationId', true),
+            new BuildProgress('Retrieving repository information for current workspace folder...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
+            new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
             new BuildInstantAllocated(),
             new BuildStarted('fakedWorkspaceFolder'),
             new BuildSucceeded(
