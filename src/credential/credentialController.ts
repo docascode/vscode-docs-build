@@ -4,7 +4,7 @@ import querystring from 'querystring';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicUserSignIn } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -65,7 +65,7 @@ export class CredentialController {
 
     public async signIn(correlationId: string): Promise<void> {
         if (this._environmentController.userType === UserType.PublicContributor) {
-            this._eventStream.post(new PublicUserSignIn());
+            this._eventStream.post(new PublicContributorSignIn());
             return;
         }
         try {

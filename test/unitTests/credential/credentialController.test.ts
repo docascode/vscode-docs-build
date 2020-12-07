@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicUserSignIn } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
@@ -168,7 +168,7 @@ describe('CredentialController', () => {
         const tempEventBus = new TestEventBus(tempEventStream);
         it(`Public contributor sign-in`, async () => {
             await tempCredentialController.signIn('fakedCorrelationId');
-            assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicUserSignIn()]);
+            assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicContributorSignIn()]);
         });
     });
 

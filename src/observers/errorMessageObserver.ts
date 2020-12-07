@@ -26,8 +26,8 @@ export class ErrorMessageObserver {
                     this.handleBuildFailed(<BuildFailed>event);
                 }
                 break;
-            case EventType.PublicUserSignIn:
-                this.handlePublicUserSignIn();
+            case EventType.PublicContributorSignIn:
+                this.handlePublicContributorSignIn();
                 break;
             case EventType.TriggerCommandWithUnkownUserType:
                 this.handleCommandWithUnkownUserTypeTriggered();
@@ -59,11 +59,14 @@ export class ErrorMessageObserver {
             case ErrorCode.TriggerBuildWithCredentialExpired:
                 action = new MessageAction('Sign in', 'docs.signIn');
                 break;
+            case ErrorCode.TriggerBuildBeforeSignIn:
+                action = new MessageAction('Sign in', 'docs.signIn');
+                break;
         }
         this.showErrorMessage(`Repository validation failed. ${event.err.message} Check the channel output for details`, action);
     }
 
-    private handlePublicUserSignIn() {
+    private handlePublicContributorSignIn() {
         this.showErrorMessage(`Sign in is only available for Microsoft employees.`);
     }
 
