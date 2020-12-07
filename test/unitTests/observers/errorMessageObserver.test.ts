@@ -9,7 +9,7 @@ import { ErrorMessageObserver } from '../../../src/observers/errorMessageObserve
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 
-describe.only('ErrorMessageObserver', () => {
+describe('ErrorMessageObserver', () => {
     let sinon: SinonSandbox;
 
     let messageToShow: string;
