@@ -1,12 +1,10 @@
 import assert from 'assert';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInCompleted, UserSignOutCompleted, BuildTriggered, BuildCompleted, ExtensionActivated, UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnkownUserType } from '../../../src/common/loggingEvents';
-import { fakedBuildInput, fakedCredential, getFakeEnvironmentController } from '../../utils/faker';
-import { EnvironmentController } from '../../../src/common/environmentController';
-import { InfoMessageObserver } from '../../../src/observers/infoMessageObserver';
+import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnkownUserType } from '../../../src/common/loggingEvents';
+import { fakedBuildInput, fakedCredential } from '../../utils/faker';
 import { SinonSandbox, createSandbox } from 'sinon';
-import { MessageAction, UserType } from '../../../src/shared';
-import { BuildResult, DocfxExecutionResult } from '../../../src/build/buildResult';
+import { MessageAction } from '../../../src/shared';
+import { BuildResult } from '../../../src/build/buildResult';
 import { ErrorMessageObserver } from '../../../src/observers/errorMessageObserver';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
