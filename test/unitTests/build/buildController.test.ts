@@ -285,7 +285,6 @@ describe('BuildController', () => {
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
-            enableSignRecommendHint: true,
             userType: UserType.PublicContributor
         };
         buildController = new BuildController(
