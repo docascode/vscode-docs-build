@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Use latest docfx: 3.0.0-beta1.615+4834671603. (#160)
 - Remove sign in recommendation hint (#159)
 
 ## 0.2.3 (December 3, 2020)
