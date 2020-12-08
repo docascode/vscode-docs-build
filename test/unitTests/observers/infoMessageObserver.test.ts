@@ -148,5 +148,15 @@ describe('InfoMessageObserver', () => {
             assert.deepEqual(messageActions[0].title, "Microsoft employee");
             assert.deepEqual(messageActions[1].title, "Public contributor");
         });
+
+        it(`User type received`, () => {
+            sinon.stub(environmentController, "userType").get(function getUserType() {
+                return UserType.MicrosoftEmployee;
+            });
+            let event = new ExtensionActivated();
+            observer.eventHandler(event);
+            assert.equal(messageToShow, undefined);
+            assert.deepEqual(messageActions, []);
+        });
     });
 });
