@@ -72,8 +72,8 @@ export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
 }
 
-export class PublicUserSignIn implements BaseEvent {
-    type = EventType.PublicUserSignIn;
+export class PublicContributorSignIn implements BaseEvent {
+    type = EventType.PublicContributorSignIn;
     constructor() { }
 }
 

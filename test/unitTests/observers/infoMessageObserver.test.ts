@@ -10,7 +10,6 @@ import { DocfxExecutionResult } from '../../../src/build/buildResult';
 
 describe('InfoMessageObserver', () => {
     let sinon: SinonSandbox;
-    // let stubShowInformationMessage: SinonStub;
 
     let messageToShow: string;
     let messageActions: MessageItem[];
@@ -24,7 +23,6 @@ describe('InfoMessageObserver', () => {
 
         sinon = createSandbox();
 
-        // stubShowInformationMessage =
         sinon
             .stub(vscode.window, 'showInformationMessage')
             .callsFake((message: string, ...items: any[]) => {

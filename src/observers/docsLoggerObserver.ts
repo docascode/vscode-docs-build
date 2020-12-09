@@ -31,8 +31,8 @@ export class DocsLoggerObserver {
             case EventType.UserSignInProgress:
                 this.handleUserSignInProgress(<UserSignInProgress>event);
                 break;
-            case EventType.PublicUserSignIn:
-                this.handlePublicUserSignIn();
+            case EventType.PublicContributorSignIn:
+                this.handlePublicContributorSignIn();
                 break;
             // Build
             case EventType.RepositoryInfoRetrieved:
@@ -148,7 +148,7 @@ export class DocsLoggerObserver {
         this.appendLine(`${tag}${event.message}`);
     }
 
-    private handlePublicUserSignIn() {
+    private handlePublicContributorSignIn() {
         this.appendLine(`Sign in failed: Sign in is only available for Microsoft employees.`);
     }
 
