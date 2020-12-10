@@ -42,7 +42,7 @@ export interface UserInfo {
     readonly userToken: string;
 }
 
-export type ActionType = 'Validation' | 'StartServer';
+export type ActionType = 'Build' | 'StartServer';
 
 // Global variables
 export const uriHandler = new UriEventHandler();
