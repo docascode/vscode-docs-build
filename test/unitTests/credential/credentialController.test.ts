@@ -32,7 +32,7 @@ describe('CredentialController', () => {
     let stubCredentialControllerInitialize: SinonStub;
     let stubOpenExternal: SinonStub;
     let stubConfigTimeout: SinonStub;
-    let stubVScodeCommand: SinonStub;
+    let stubVSCodeExecuteCommand: SinonStub;
 
     let eventStream: EventStream;
     let environmentController: EnvironmentController;
@@ -175,8 +175,12 @@ describe('CredentialController', () => {
 
     describe('User type changes', () => {
         before(() => {
-            stubVScodeCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow');
+            stubVSCodeExecuteCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow').returns(undefined);
         });
+        afterEach(() => {
+            stubVSCodeExecuteCommand.reset();
+        });
+
         it(`User type changes to public contributor`, () => {
             let event = new UserTypeChange(UserType.PublicContributor);
             credentialController.eventHandler(event);
@@ -184,7 +188,7 @@ describe('CredentialController', () => {
             let credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
-            assert(stubVScodeCommand.calledOnce);
+            assert(stubVSCodeExecuteCommand.calledOnce);
         });
 
         it(`User type changes to Microsoft employee`, () => {
@@ -192,7 +196,7 @@ describe('CredentialController', () => {
             credentialController.eventHandler(event);
 
             assert.deepStrictEqual(testEventBus.getEvents(), []);
-            assert(stubVScodeCommand.calledTwice);
+            assert(stubVSCodeExecuteCommand.calledOnce);
         });
     });
 
