@@ -17,6 +17,7 @@ import { setTimeout } from 'timers';
 import { EventType } from '../../../src/common/eventType';
 import { Subscription } from 'rxjs';
 import { BuildType, BuildInput } from '../../../src/build/buildInput';
+import { UserType } from '../../../src/shared';
 
 describe('BuildExecutor', () => {
     let sinon: SinonSandbox;
@@ -338,6 +339,9 @@ describe('BuildExecutor', () => {
         });
 
         it('Build without credential', async () => {
+            sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
+                return UserType.PublicContributor;
+            });
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, undefined);
 
             assert.deepStrictEqual(executedCommands, [
