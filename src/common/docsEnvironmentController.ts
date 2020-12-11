@@ -29,9 +29,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
                 this.reloadWindow();
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${USER_TYPE}`)) {
                 this._userType = this.getUserType();
-                if (this._userType === UserType.PublicContributor) {
-                    this._eventStream.post(new UserTypeChange(UserType.PublicContributor));
-                }
+                this._eventStream.post(new UserTypeChange(this._userType));
             }
         });
     }

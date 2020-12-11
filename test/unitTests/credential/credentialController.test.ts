@@ -128,6 +128,17 @@ describe('CredentialController', () => {
         assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
     });
 
+    it(`User type changes`, () => {
+        let event = new UserTypeChange(UserType.PublicContributor);
+        let stubVScodeCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow');
+        credentialController.eventHandler(event);
+
+        let credential = credentialController.credential;
+        AssertCredentialReset(credential);
+        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
+        assert(stubVScodeCommand.calledOnce);
+    });
+
     describe(`Initialize`, () => {
         it(`Should be 'SignedIn' status if the user info can be retrieved from keyChain`, async () => {
             // Prepare
@@ -169,17 +180,6 @@ describe('CredentialController', () => {
         it(`Public contributor sign-in`, async () => {
             await tempCredentialController.signIn('fakedCorrelationId');
             assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicContributorSignIn()]);
-        });
-
-        it(`User type changes to public contributor`, () => {
-            let event = new UserTypeChange(UserType.PublicContributor);
-            let stubVscodeCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow');
-            credentialController.eventHandler(event);
-
-            let credential = credentialController.credential;
-            AssertCredentialReset(credential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
-            assert(stubVscodeCommand.calledOnce);
         });
     });
 
