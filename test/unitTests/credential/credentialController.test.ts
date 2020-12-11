@@ -171,7 +171,7 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicContributorSignIn()]);
         });
 
-        it(`User type change to public contributor`, () => {
+        it(`User type changes to public contributor`, () => {
             let event = new UserTypeChange(UserType.PublicContributor);
             let stubVscodeCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow');
             credentialController.eventHandler(event);
