@@ -12,6 +12,7 @@ import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
 import config from '../config';
 import TelemetryReporter from '../telemetryReporter';
+import { UserType } from '../shared';
 
 interface BuildParameters {
     restoreCommand: string;
@@ -137,7 +138,7 @@ export class BuildExecutor {
             'DOCS_ENVIRONMENT': this._environmentController.env
         };
 
-        let isPublicUser = !buildUserToken;
+        let isPublicUser = this._environmentController.userType === UserType.PublicContributor;
         if (isPublicUser) {
             envs['DOCFX_REPOSITORY_BRANCH'] = 'master';
         }

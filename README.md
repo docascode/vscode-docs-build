@@ -14,7 +14,7 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 1. Open a Docs conceptual or Learn repo in VS Code with the extension installed.
 1. If you're a Microsoft employee, optionally sign in in by clicking **Docs Validation** from the VS Code status bar. You can still use the extension without signing in, but sign in is recommended to use the most recent build information for private repos.
-1. Trigger a build by clicking **Yes** when prompted after sign in, by clicking **Docs Validation** on the status bar then clicking **Validate** from the drop-down menu, or by right-clicking any file in the repo and selecting **Validate this workspace folder**.
+1. Trigger a build by clicking **Yes** when prompted after sign in, by clicking **Docs Validation** on the status bar then clicking **Validate** from the drop-down menu, or by right-clicking any file in the repo and selecting **Validate this repository**.
 1. Build validation will run locally and all results will be output to the Problems pane.
 
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/vscode-docs-build.gif?raw=true)

@@ -9,6 +9,7 @@ export enum EventType {
     UserSignOutTriggered,
     UserSignOutCompleted,
     PublicContributorSignIn,
+    UserTypeChange,
 
     // Build
     RepositoryInfoRetrieved,

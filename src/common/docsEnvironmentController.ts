@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, USER_TYPE, UserType } from '../shared';
-import { EnvironmentChanged } from './loggingEvents';
+import { EnvironmentChanged, UserTypeChange } from './loggingEvents';
 import { EventStream } from './eventStream';
 import { EnvironmentController } from './environmentController';
 import { getRepositoryInfoFromLocalFolder } from '../utils/utils';
@@ -29,6 +29,9 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
                 this.reloadWindow();
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${USER_TYPE}`)) {
                 this._userType = this.getUserType();
+                if (this._userType === UserType.PublicContributor) {
+                    this._eventStream.post(new UserTypeChange(UserType.PublicContributor));
+                }
             }
         });
     }

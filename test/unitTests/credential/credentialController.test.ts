@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, UserTypeChange } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
@@ -169,6 +169,17 @@ describe('CredentialController', () => {
         it(`Public contributor sign-in`, async () => {
             await tempCredentialController.signIn('fakedCorrelationId');
             assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicContributorSignIn()]);
+        });
+
+        it(`User type change to public contributor`, () => {
+            let event = new UserTypeChange(UserType.PublicContributor);
+            let stubVscodeCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow');
+            credentialController.eventHandler(event);
+
+            let credential = credentialController.credential;
+            AssertCredentialReset(credential);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
+            assert(stubVscodeCommand.calledOnce);
         });
     });
 
