@@ -50,10 +50,10 @@ export class CredentialController {
                 this.resetCredential();
                 break;
             case EventType.UserTypeChange:
-                if ((<UserTypeChange>event).newUserType === UserType.PublicContributor) {
+                if ((<UserTypeChange>event).newUserType !== UserType.MicrosoftEmployee) {
                     this.resetCredential();
-                    vscode.commands.executeCommand('workbench.action.reloadWindow');
                 }
+                vscode.commands.executeCommand('workbench.action.reloadWindow');
         }
     }
 

@@ -32,6 +32,7 @@ describe('CredentialController', () => {
     let stubCredentialControllerInitialize: SinonStub;
     let stubOpenExternal: SinonStub;
     let stubConfigTimeout: SinonStub;
+    let stubVScodeCommand: SinonStub;
 
     let eventStream: EventStream;
     let environmentController: EnvironmentController;
@@ -128,17 +129,6 @@ describe('CredentialController', () => {
         assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
     });
 
-    it(`User type changes`, () => {
-        let event = new UserTypeChange(UserType.PublicContributor);
-        let stubVScodeCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow');
-        credentialController.eventHandler(event);
-
-        let credential = credentialController.credential;
-        AssertCredentialReset(credential);
-        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
-        assert(stubVScodeCommand.calledOnce);
-    });
-
     describe(`Initialize`, () => {
         it(`Should be 'SignedIn' status if the user info can be retrieved from keyChain`, async () => {
             // Prepare
@@ -180,6 +170,29 @@ describe('CredentialController', () => {
         it(`Public contributor sign-in`, async () => {
             await tempCredentialController.signIn('fakedCorrelationId');
             assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicContributorSignIn()]);
+        });
+    });
+
+    describe('User type changes', () => {
+        before(() => {
+            stubVScodeCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow');
+        });
+        it(`User type changes to public contributor`, () => {
+            let event = new UserTypeChange(UserType.PublicContributor);
+            credentialController.eventHandler(event);
+
+            let credential = credentialController.credential;
+            AssertCredentialReset(credential);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
+            assert(stubVScodeCommand.calledOnce);
+        });
+
+        it(`User type changes to Microsoft employee`, () => {
+            let event = new UserTypeChange(UserType.MicrosoftEmployee);
+            credentialController.eventHandler(event);
+
+            assert.deepStrictEqual(testEventBus.getEvents(), []);
+            assert(stubVScodeCommand.calledTwice);
         });
     });
 
@@ -266,8 +279,6 @@ describe('CredentialController', () => {
             ]);
         });
     });
-
-
 
     describe(`User signing in With Azure DevOps`, () => {
         before(() => { environmentController.docsRepoType = 'Azure DevOps'; });
