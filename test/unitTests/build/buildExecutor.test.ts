@@ -11,13 +11,14 @@ import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtension
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import { BuildExecutor } from '../../../src/build/buildExecutor';
-import { DocfxRestoreStarted, DocfxRestoreCompleted, DocfxBuildStarted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
+import { DocfxRestoreStarted, DocfxRestoreCompleted, DocfxBuildStarted, DocfxBuildCompleted, BuildProgress } from '../../../src/common/loggingEvents';
 import { DocfxExecutionResult, BuildResult } from '../../../src/build/buildResult';
 import { setTimeout } from 'timers';
 import { EventType } from '../../../src/common/eventType';
 import { Subscription } from 'rxjs';
 import { BuildType, BuildInput } from '../../../src/build/buildInput';
 import { UserType } from '../../../src/shared';
+import { LanguageClient } from "vscode-languageclient";
 
 describe('BuildExecutor', () => {
     let sinon: SinonSandbox;
@@ -366,6 +367,45 @@ describe('BuildExecutor', () => {
 
             // Reset environment
             fakedEnvironmentController.debugMode = false;
+        });
+    });
+
+    describe('Language Client', () => {
+        before(() => {
+            sinon.stub(LanguageClient.prototype, 'registerProposedFeatures').callsFake(() => {
+                return;
+            });
+            sinon.stub(LanguageClient.prototype, 'start').callsFake(() => {
+                return undefined;
+            });
+        });
+
+        it('Public contributor', async () => {
+            sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
+                return UserType.PublicContributor;
+            });
+            buildExecutor.startLanguageServer(fakedBuildInput, undefined);
+            assert.deepStrictEqual(testEventBus.getEvents(),
+                [new BuildProgress(
+                    `command: docfx.exe, ` +
+                    `args: serve --language-server --template https://static.docs.com/ui/latest, ` +
+                    `options: {"DOCFX_REPOSITORY_URL":"https://faked.original.repository","DOCS_ENVIRONMENT":"PROD","DOCFX_REPOSITORY_BRANCH":"master","APPINSIGHTS_INSTRUMENTATIONKEY":"4424c909-fdd9-4229-aecb-ad2a52b039e6"} ` +
+                    `d:\\workspace\\shanluo\\vscode-docs-build\\.temp\\fakedExtensionPath\\.docfx`
+                )]);
+        });
+
+        it('Microsoft employee', async () => {
+            sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
+                return UserType.MicrosoftEmployee;
+            });
+            buildExecutor.startLanguageServer(fakedBuildInput, 'fakeToken');
+            assert.deepStrictEqual(testEventBus.getEvents(),
+                [new BuildProgress(
+                    `command: docfx.exe, ` +
+                    `args: serve --language-server, ` +
+                    `options: {"DOCFX_REPOSITORY_URL":"https://faked.original.repository","DOCS_ENVIRONMENT":"PROD","APPINSIGHTS_INSTRUMENTATIONKEY":"4424c909-fdd9-4229-aecb-ad2a52b039e6","X-OP-BuildUserToken":"fakeToken"} ` +
+                    `d:\\workspace\\shanluo\\vscode-docs-build\\.temp\\fakedExtensionPath\\.docfx`
+                )]);
         });
     });
 });

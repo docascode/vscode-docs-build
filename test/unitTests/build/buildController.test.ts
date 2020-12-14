@@ -13,7 +13,7 @@ import { BuildInput } from '../../../src/build/buildInput';
 import { BuildController } from '../../../src/build/buildController';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
 import { fakedCredential, getFakedBuildExecutor, defaultLogPath, defaultOutputPath, getFakeEnvironmentController } from '../../utils/faker';
-import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired } from '../../../src/common/loggingEvents';
+import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired, StartServerFailed } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { Credential } from '../../../src/credential/credentialController';
@@ -490,5 +490,47 @@ describe('BuildController', () => {
             new BuildInstantReleased(),
         ]);
         assert.equal(visualizeBuildReportCalled, false);
+    });
+
+    it('Start language server without sign-in', async () => {
+        await buildController.startDocfxLanguageServer(<Credential>{
+            signInStatus: 'Initializing'
+        });
+        assert.deepStrictEqual(testEventBus.getEvents(), [
+            new StartServerFailed(
+                new DocsError(
+                    `Microsoft employees must sign in before validating.`,
+                    ErrorCode.TriggerBuildBeforeSignIn
+                ))
+        ]);
+    });
+
+    it('Start language server when credential expires', async () => {
+        let opBuildAPIClient = <OPBuildAPIClient>{
+            validateCredential: (opBuildUserToken: string, eventStream: EventStream): Promise<boolean> => {
+                return new Promise((resolve, reject) => {
+                    resolve(false);
+                });
+            }
+        };
+        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream);
+        await buildController.startDocfxLanguageServer(fakedCredential);
+        assert.deepStrictEqual(testEventBus.getEvents(), [
+            new CredentialExpired(),
+            new StartServerFailed(
+                new DocsError(
+                    `Credential has expired. Please sign in again to continue.`,
+                    ErrorCode.TriggerBuildWithCredentialExpired
+                ))
+        ]);
+    });
+
+    it('Start language server succeeds', async () => {
+        await buildController.startDocfxLanguageServer(fakedCredential);
+        assert.deepStrictEqual(testEventBus.getEvents(), [
+            new BuildProgress('Retrieving repository information for current workspace folder...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
+            new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository')
+        ]);
     });
 });
