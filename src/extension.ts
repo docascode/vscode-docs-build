@@ -117,7 +117,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
                 createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController, environmentController);
             }
         }),
-        vscode.commands.registerCommand('docs.startServer', () => {
+        vscode.commands.registerCommand('docs.enableRealTimtValidation', () => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
                 buildController.startDocfxLanguageServer(credentialController.credential);
             }

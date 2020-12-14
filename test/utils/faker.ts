@@ -148,6 +148,10 @@ export function getFakedBuildExecutor(docfxExecutionResult: DocfxExecutionResult
             buildCancelled = true;
             return Promise.resolve();
         },
-        startLanguageServer: (input: BuildInput, buildUserToken: string) => { }
+        startLanguageServer: (input: BuildInput, buildUserToken: string) => {
+            if (setRunBuildFuncParameters) {
+                setRunBuildFuncParameters(undefined, input, buildUserToken);
+            }
+        }
     };
 }

@@ -100,7 +100,7 @@
         "category": "Docs"
       },
       {
-        "command": "docs.startServer",
+        "command": "docs.enableRealTimtValidation",
         "title": "Enable real-time validation",
         "category": "Docs"
       }

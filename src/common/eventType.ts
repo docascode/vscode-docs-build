@@ -56,7 +56,7 @@ export enum EventType {
     ExtensionActivated,
 
     // Language Server
-    StartServerFailed,
+    StartLanguageServerFailed,
 
     // Test only
     RefreshCredential,

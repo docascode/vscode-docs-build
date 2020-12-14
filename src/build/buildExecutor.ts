@@ -83,7 +83,7 @@ export class BuildExecutor {
     public startLanguageServer(input: BuildInput, buildUserToken: string) {
         let buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
         if (buildUserToken) {
-            buildParameters.envs["X-OP-BuildUserToken"] = buildUserToken;
+            buildParameters.envs['DOCS_OPS_TOKEN'] = buildUserToken;
         }
         let command = this._binary;
         let args = buildParameters.serveArgs;
@@ -103,7 +103,7 @@ export class BuildExecutor {
 
         let clientOptions: LanguageClientOptions = {};
 
-        this._eventStream.post(new BuildProgress(`command: ${command}, args: ${args.join(' ')}, options: ${JSON.stringify(options.env)} ${options.cwd}`));
+        this._eventStream.post(new BuildProgress(`command: ${command}, args: ${args.join(' ')}`));
         const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
         client.registerProposedFeatures();
         this._disposable = client.start();
@@ -217,7 +217,7 @@ export class BuildExecutor {
             stdin,
             restoreCommand: this.getExecCommand("restore", input, isPublicUser),
             buildCommand: this.getExecCommand("build", input, isPublicUser),
-            serveArgs: this.getServeExecArgs(input, isPublicUser)
+            serveArgs: this.getExecCommand("serve", input, isPublicUser).split(" ")
         };
     }
 
@@ -226,7 +226,12 @@ export class BuildExecutor {
         input: BuildInput,
         isPublicUser: boolean,
     ): string {
-        let cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin`;
+        let cmdWithParameters: string;
+        if (command === 'serve') {
+            cmdWithParameters = `${command} --language-server "${input.localRepositoryPath}"`;
+        } else {
+            cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin`;
+        }
         cmdWithParameters += (isPublicUser ? ` --template "${config.PublicTemplate}"` : '');
         cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
 
@@ -237,12 +242,5 @@ export class BuildExecutor {
             cmdWithParameters += ` --output "${input.outputFolderPath}" --output-type "pagejson"`;
         }
         return cmdWithParameters;
-    }
-
-    private getServeExecArgs(input: BuildInput, isPublicUser: boolean): string[] {
-        let cmdWithParameters = 'serve --language-server';
-        cmdWithParameters += (isPublicUser ? ` --template ${config.PublicTemplate}` : '');
-        cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
-        return cmdWithParameters.split(" ");
     }
 }

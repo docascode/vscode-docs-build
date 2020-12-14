@@ -1,6 +1,6 @@
 import assert from 'assert';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnkownUserType } from '../../../src/common/loggingEvents';
+import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnkownUserType, StartLanguageServerFailed } from '../../../src/common/loggingEvents';
 import { fakedBuildInput, fakedCredential } from '../../utils/faker';
 import { SinonSandbox, createSandbox } from 'sinon';
 import { MessageAction } from '../../../src/shared';
@@ -124,5 +124,26 @@ describe('ErrorMessageObserver', () => {
         assert.equal(messageToShow, '[Docs Validation] The command you triggered needs user type information. Please choose either Microsoft employee or Public contributor. You can change your selection later if needed in the extension settings (Docs validation -> User type).');
         assert.deepEqual(messageActions[0].title, "Microsoft employee");
         assert.deepEqual(messageActions[1].title, "Public contributor");
+    });
+
+    describe(`Start language server`, () => {
+        beforeEach(() => {
+            messageToShow = undefined;
+            messageActions = [];
+        });
+
+        it(`Start language server failed since credential expires`, () => {
+            let event = new StartLanguageServerFailed(new DocsError("Credential expired", ErrorCode.TriggerBuildWithCredentialExpired));
+            observer.eventHandler(event);
+            assert.equal(messageToShow, '[Docs Validation] Start language server failed. Credential expired');
+            assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
+        });
+
+        it(`Build failed since not signed in`, () => {
+            let event = new StartLanguageServerFailed(new DocsError("Without sign in", ErrorCode.TriggerBuildBeforeSignIn));
+            observer.eventHandler(event);
+            assert.equal(messageToShow, '[Docs Validation] Start language server failed. Without sign in');
+            assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
+        });
     });
 });

@@ -13,7 +13,7 @@ import { BuildInput } from '../../../src/build/buildInput';
 import { BuildController } from '../../../src/build/buildController';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
 import { fakedCredential, getFakedBuildExecutor, defaultLogPath, defaultOutputPath, getFakeEnvironmentController } from '../../utils/faker';
-import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired, StartServerFailed } from '../../../src/common/loggingEvents';
+import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired, StartLanguageServerFailed } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { Credential } from '../../../src/credential/credentialController';
@@ -497,7 +497,7 @@ describe('BuildController', () => {
             signInStatus: 'Initializing'
         });
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new StartServerFailed(
+            new StartLanguageServerFailed(
                 new DocsError(
                     `Microsoft employees must sign in before validating.`,
                     ErrorCode.TriggerBuildBeforeSignIn
@@ -517,7 +517,7 @@ describe('BuildController', () => {
         await buildController.startDocfxLanguageServer(fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new CredentialExpired(),
-            new StartServerFailed(
+            new StartLanguageServerFailed(
                 new DocsError(
                     `Credential has expired. Please sign in again to continue.`,
                     ErrorCode.TriggerBuildWithCredentialExpired
@@ -532,5 +532,6 @@ describe('BuildController', () => {
             new BuildProgress('Trying to get provisioned repository information...'),
             new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository')
         ]);
+        assert.equal(tokenUsedForBuild, 'faked-token');
     });
 });
