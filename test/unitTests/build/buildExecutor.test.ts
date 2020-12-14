@@ -243,6 +243,7 @@ describe('BuildExecutor', () => {
         it('Build Cancelled', (done) => {
             mockExecuteDocfx(0, 0);
             killProcessTreeFuncCalled = false;
+            // eslint-disable-next-line prefer-const
             let buildPromise: Promise<BuildResult>;
 
             subscription = eventStream.subscribe((event) => {
