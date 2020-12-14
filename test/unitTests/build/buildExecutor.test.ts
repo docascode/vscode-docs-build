@@ -390,7 +390,7 @@ describe('BuildExecutor', () => {
                     `command: docfx.exe, ` +
                     `args: serve --language-server --template https://static.docs.com/ui/latest, ` +
                     `options: {"DOCFX_REPOSITORY_URL":"https://faked.original.repository","DOCS_ENVIRONMENT":"PROD","DOCFX_REPOSITORY_BRANCH":"master","APPINSIGHTS_INSTRUMENTATIONKEY":"4424c909-fdd9-4229-aecb-ad2a52b039e6"} ` +
-                    `d:\\workspace\\shanluo\\vscode-docs-build\\.temp\\fakedExtensionPath\\.docfx`
+                    `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`
                 )]);
         });
 
@@ -404,7 +404,7 @@ describe('BuildExecutor', () => {
                     `command: docfx.exe, ` +
                     `args: serve --language-server, ` +
                     `options: {"DOCFX_REPOSITORY_URL":"https://faked.original.repository","DOCS_ENVIRONMENT":"PROD","APPINSIGHTS_INSTRUMENTATIONKEY":"4424c909-fdd9-4229-aecb-ad2a52b039e6","X-OP-BuildUserToken":"fakeToken"} ` +
-                    `d:\\workspace\\shanluo\\vscode-docs-build\\.temp\\fakedExtensionPath\\.docfx`
+                    `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`
                 )]);
         });
     });
