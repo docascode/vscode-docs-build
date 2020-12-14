@@ -23,7 +23,7 @@ import { UserType } from '../shared';
 interface BuildParameters {
     restoreCommand: string;
     buildCommand: string;
-    serveArgs: string[];
+    serveCommand: string[];
     envs: any;
     stdin: string;
 }
@@ -86,7 +86,7 @@ export class BuildExecutor {
             buildParameters.envs['DOCS_OPS_TOKEN'] = buildUserToken;
         }
         let command = this._binary;
-        let args = buildParameters.serveArgs;
+        let args = buildParameters.serveCommand;
         let options = { env: buildParameters.envs, cwd: this._cwd };
         let serverOptions: ServerOptions = {
             run: {
@@ -217,7 +217,7 @@ export class BuildExecutor {
             stdin,
             restoreCommand: this.getExecCommand("restore", input, isPublicUser),
             buildCommand: this.getExecCommand("build", input, isPublicUser),
-            serveArgs: this.getExecCommand("serve", input, isPublicUser).split(" ")
+            serveCommand: this.getExecCommand("serve", input, isPublicUser).split(" ")
         };
     }
 

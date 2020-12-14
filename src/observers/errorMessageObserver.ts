@@ -56,7 +56,7 @@ export class ErrorMessageObserver {
     }
 
     private handleBuildFailed(event: BuildFailed) {
-        let action = new MessageAction('Sign in', 'docs.signIn');
+        let action: MessageAction;
         let error = <DocsError>event.err;
         switch (error.code) {
             case ErrorCode.TriggerBuildWithCredentialExpired:
