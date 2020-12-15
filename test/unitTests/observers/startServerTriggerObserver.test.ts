@@ -27,7 +27,7 @@ describe('StartServerTriggerObserver', () => {
             enableRealTimeValidation: false
         });
         observer.eventHandler(event);
-        assert(spy.withArgs('docs.startServer').notCalled);
+        assert(spy.withArgs('docs.enableRealTimeValidation').notCalled);
     });
 
     it('Real-time validation enabled with unknown user type', () => {
@@ -39,7 +39,7 @@ describe('StartServerTriggerObserver', () => {
             enableRealTimeValidation: true
         });
         observer.eventHandler(event);
-        assert(spy.withArgs('docs.startServer').notCalled);
+        assert(spy.withArgs('docs.enableRealTimeValidation').notCalled);
     });
 
     it('Real-time validation enabled with user type selected', () => {
@@ -51,6 +51,6 @@ describe('StartServerTriggerObserver', () => {
             enableRealTimeValidation: true
         });
         observer.eventHandler(event);
-        assert(spy.withArgs('docs.startServer').calledOnce);
+        assert(spy.withArgs('docs.enableRealTimeValidation').calledOnce);
     });
 });

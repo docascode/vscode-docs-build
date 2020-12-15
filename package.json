@@ -106,7 +106,7 @@
         "category": "Docs"
       },
       {
-        "command": "docs.enableRealTimtValidation",
+        "command": "docs.enableRealTimeValidation",
         "title": "Enable real-time validation",
         "category": "Docs"
       }

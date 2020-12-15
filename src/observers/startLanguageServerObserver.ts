@@ -10,7 +10,7 @@ export class StartLanguageServerObserver {
         switch (event.type) {
             case EventType.ExtensionActivated:
                 if (this._environmentController.userType && this._environmentController.enableRealTimeValidation) {
-                    vscode.commands.executeCommand('docs.startServer');
+                    vscode.commands.executeCommand('docs.enableRealTimeValidation');
                 }
                 break;
         }
