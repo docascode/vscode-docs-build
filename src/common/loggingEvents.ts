@@ -265,6 +265,11 @@ export class ExtensionActivated implements BaseEvent {
     constructor() { }
 }
 
+export class StartLanguageServerFailed implements BaseEvent {
+    type = EventType.StartLanguageServerFailed;
+    constructor(public err: Error) { }
+}
+
 // Test only
 export class RefreshCredential implements BaseEvent {
     type = EventType.RefreshCredential;

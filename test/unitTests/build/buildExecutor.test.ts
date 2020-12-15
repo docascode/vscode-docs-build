@@ -11,13 +11,14 @@ import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtension
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import { BuildExecutor } from '../../../src/build/buildExecutor';
-import { DocfxRestoreStarted, DocfxRestoreCompleted, DocfxBuildStarted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
+import { DocfxRestoreStarted, DocfxRestoreCompleted, DocfxBuildStarted, DocfxBuildCompleted, BuildProgress } from '../../../src/common/loggingEvents';
 import { DocfxExecutionResult, BuildResult } from '../../../src/build/buildResult';
 import { setTimeout } from 'timers';
 import { EventType } from '../../../src/common/eventType';
 import { Subscription } from 'rxjs';
 import { BuildType, BuildInput } from '../../../src/build/buildInput';
 import { UserType } from '../../../src/shared';
+import { LanguageClient } from "vscode-languageclient";
 
 describe('BuildExecutor', () => {
     let sinon: SinonSandbox;
@@ -366,6 +367,53 @@ describe('BuildExecutor', () => {
 
             // Reset environment
             fakedEnvironmentController.debugMode = false;
+        });
+    });
+
+    describe('Language Client', () => {
+        let stubRegisterProposedFeatures: SinonStub;
+        let stubStart: SinonStub;
+        before(() => {
+            stubRegisterProposedFeatures = sinon.stub(LanguageClient.prototype, 'registerProposedFeatures');
+            stubStart = sinon.stub(LanguageClient.prototype, 'start');
+            stubRegisterProposedFeatures.callsFake(() => {
+                return;
+            });
+            stubStart.callsFake(() => {
+                return undefined;
+            });
+        });
+        afterEach(() => {
+            stubRegisterProposedFeatures.reset();
+            stubStart.reset();
+        });
+
+        it('Public contributor', async () => {
+            sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
+                return UserType.PublicContributor;
+            });
+            buildExecutor.startLanguageServer(fakedBuildInput, undefined);
+            assert.deepStrictEqual(testEventBus.getEvents(),
+                [new BuildProgress(
+                    `Starting language server using command: docfx.exe ` +
+                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --template "${publicTemplateURL}"`
+                )]);
+            assert(stubRegisterProposedFeatures.calledOnce);
+            assert(stubStart.calledOnce);
+        });
+
+        it('Microsoft employee', async () => {
+            sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
+                return UserType.MicrosoftEmployee;
+            });
+            buildExecutor.startLanguageServer(fakedBuildInput, 'fakeToken');
+            assert.deepStrictEqual(testEventBus.getEvents(),
+                [new BuildProgress(
+                    `Starting language server using command: docfx.exe ` +
+                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}"`
+                )]);
+            assert(stubRegisterProposedFeatures.calledOnce);
+            assert(stubStart.calledOnce);
         });
     });
 });

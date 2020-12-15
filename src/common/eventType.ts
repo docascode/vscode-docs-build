@@ -55,6 +55,9 @@ export enum EventType {
     TriggerCommandWithUnkownUserType,
     ExtensionActivated,
 
+    // Language Server
+    StartLanguageServerFailed,
+
     // Test only
     RefreshCredential,
 }

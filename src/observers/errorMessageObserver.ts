@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { EventType } from '../common/eventType';
-import { BaseEvent, UserSignInFailed, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed } from '../common/loggingEvents';
+import { BaseEvent, UserSignInFailed, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed, StartLanguageServerFailed } from '../common/loggingEvents';
 import { MessageAction, EXTENSION_NAME, USER_TYPE, UserType } from '../shared';
 import { ErrorCode } from '../error/errorCode';
 import { DocsError } from '../error/docsError';
@@ -31,6 +31,9 @@ export class ErrorMessageObserver {
                 break;
             case EventType.TriggerCommandWithUnkownUserType:
                 this.handleCommandWithUnkownUserTypeTriggered();
+                break;
+            case EventType.StartLanguageServerFailed:
+                this.handleStartLanguageServerFailed(<StartLanguageServerFailed>event);
                 break;
         }
     }
@@ -64,6 +67,11 @@ export class ErrorMessageObserver {
                 break;
         }
         this.showErrorMessage(`Repository validation failed. ${event.err.message} Check the channel output for details`, action);
+    }
+
+    private handleStartLanguageServerFailed(event: StartLanguageServerFailed) {
+        let action = new MessageAction('Sign in', 'docs.signIn');
+        this.showErrorMessage(`Start language server failed. ${event.err.message}`, action);
     }
 
     private handlePublicContributorSignIn() {

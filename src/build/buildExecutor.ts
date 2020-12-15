@@ -2,7 +2,7 @@ import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/package';
-import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted } from '../common/loggingEvents';
+import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted, BuildProgress } from '../common/loggingEvents';
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
@@ -12,11 +12,18 @@ import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
 import config from '../config';
 import TelemetryReporter from '../telemetryReporter';
+import {
+    LanguageClient,
+    LanguageClientOptions,
+    ServerOptions,
+    Disposable
+} from "vscode-languageclient";
 import { UserType } from '../shared';
 
 interface BuildParameters {
     restoreCommand: string;
     buildCommand: string;
+    serveCommand: string;
     envs: any;
     stdin: string;
 }
@@ -26,6 +33,7 @@ export class BuildExecutor {
     private _binary: string;
     private _runningChildProcess: ChildProcess;
     private static SKIP_RESTORE: boolean = false;
+    private _disposable: Disposable;
 
     constructor(
         context: ExtensionContext,
@@ -39,6 +47,12 @@ export class BuildExecutor {
         let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
         this._cwd = absolutePackage.installPath.value;
         this._binary = absolutePackage.binary;
+    }
+
+    dispose() {
+        if (this._disposable) {
+            this._disposable.dispose();
+        }
     }
 
     public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> {
@@ -64,6 +78,42 @@ export class BuildExecutor {
         buildResult.result = await this.build(buildParameters);
         buildResult.buildTimeInSeconds = getDurationInSeconds(Date.now() - buildStart);
         return buildResult;
+    }
+
+    public startLanguageServer(input: BuildInput, buildUserToken: string) {
+        let buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
+        if (this._environmentController.userType === UserType.MicrosoftEmployee) {
+            buildParameters.envs['DOCS_OPS_TOKEN'] = buildUserToken;
+        }
+        let command = this._binary;
+        let args = buildParameters.serveCommand.split(" ");
+        let options = { env: buildParameters.envs, cwd: this._cwd };
+        let optionsWithFullEnvironment = {
+            ...options,
+            env: {
+                ...process.env,
+                ...options.env
+            }
+        };
+        let serverOptions: ServerOptions = {
+            run: {
+                command,
+                args,
+                options: optionsWithFullEnvironment
+            },
+            debug: {
+                command,
+                args,
+                options: optionsWithFullEnvironment
+            },
+        };
+
+        let clientOptions: LanguageClientOptions = {};
+
+        this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${args.join(' ')}`));
+        const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
+        client.registerProposedFeatures();
+        this._disposable = client.start();
     }
 
     public async cancelBuild() {
@@ -173,7 +223,8 @@ export class BuildExecutor {
             envs,
             stdin,
             restoreCommand: this.getExecCommand("restore", input, isPublicUser),
-            buildCommand: this.getExecCommand("build", input, isPublicUser)
+            buildCommand: this.getExecCommand("build", input, isPublicUser),
+            serveCommand: this.getExecCommand("serve", input, isPublicUser)
         };
     }
 
@@ -182,7 +233,12 @@ export class BuildExecutor {
         input: BuildInput,
         isPublicUser: boolean,
     ): string {
-        let cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin`;
+        let cmdWithParameters: string;
+        if (command === 'serve') {
+            cmdWithParameters = `${command} --language-server "${input.localRepositoryPath}"`;
+        } else {
+            cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin`;
+        }
         cmdWithParameters += (isPublicUser ? ` --template "${config.PublicTemplate}"` : '');
         cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
 

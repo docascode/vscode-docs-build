@@ -84,8 +84,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     let codeActionProvider = new CodeActionProvider();
 
-    eventStream.post(new ExtensionActivated());
-
     context.subscriptions.push(
         outputChannel,
         logger,
@@ -94,6 +92,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         docsStatusBar,
         buildStatusBar,
         environmentController,
+        buildExecutor,
         vscode.commands.registerCommand('docs.signIn', () => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
                 credentialController.signIn(getCorrelationId());
@@ -118,6 +117,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
                 createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController, environmentController);
             }
         }),
+        vscode.commands.registerCommand('docs.enableRealTimtValidation', () => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                buildController.startDocfxLanguageServer(credentialController.credential);
+            }
+        }),
         vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
             vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, ".logs")));
         }),
@@ -126,6 +130,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         }),
         vscode.window.registerUriHandler(uriHandler)
     );
+
+    credentialInitialPromise.then(() => {
+        eventStream.post(new ExtensionActivated());
+    });
 
     return {
         initializationFinished: async () => {
