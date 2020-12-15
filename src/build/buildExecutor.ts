@@ -45,7 +45,6 @@ export class BuildExecutor {
         const buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === this._platformInfo.rid);
         const absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
         this._cwd = absolutePackage.installPath.value;
-        //this._cwd = 'D:\\workspace\\shanluo\\docfx\\src\\docfx\\bin\\Debug\\netcoreapp3.1';
         this._binary = absolutePackage.binary;
     }
 
@@ -110,7 +109,7 @@ export class BuildExecutor {
 
         const clientOptions: LanguageClientOptions = {};
 
-        this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${args.join(' ')}`));
+        this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${buildParameters.serveCommand}`));
         const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
         client.registerProposedFeatures();
         this._disposable = client.start();
