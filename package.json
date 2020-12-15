@@ -68,10 +68,17 @@
           "default": "",
           "description": "Microsoft employee or public contributor"
         },
+<<<<<<< HEAD
         "docs-build.realTimeValidation.automaticallyEnable": {
           "type": "boolean",
           "default": false,
           "description": "With this checked, the real-time validation will be automatically enabled once the opened repository is a valid Docs repository."
+=======
+        "docs-build.realTimeValidation.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable real-time validation"
+>>>>>>> fdc5c10 (from last pr)
         }
       }
     },
