@@ -131,6 +131,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         vscode.window.registerUriHandler(uriHandler)
     );
 
+    // eslint-disable-next-line promise/catch-or-return, promise/always-return
     credentialInitialPromise.then(() => {
         eventStream.post(new ExtensionActivated());
     });
