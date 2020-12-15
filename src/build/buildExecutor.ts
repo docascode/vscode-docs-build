@@ -23,7 +23,7 @@ import { UserType } from '../shared';
 interface BuildParameters {
     restoreCommand: string;
     buildCommand: string;
-    serveCommand: string[];
+    serveCommand: string;
     envs: any;
     stdin: string;
 }
@@ -82,28 +82,35 @@ export class BuildExecutor {
 
     public startLanguageServer(input: BuildInput, buildUserToken: string) {
         let buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
-        if (buildUserToken) {
+        if (this._environmentController.userType === UserType.MicrosoftEmployee) {
             buildParameters.envs['DOCS_OPS_TOKEN'] = buildUserToken;
         }
         let command = this._binary;
-        let args = buildParameters.serveCommand;
+        let args = buildParameters.serveCommand.split(" ");
         let options = { env: buildParameters.envs, cwd: this._cwd };
+        let optionsWithFullEnvironment = {
+            ...options,
+            env: {
+                ...process.env,
+                ...options.env
+            }
+        };
         let serverOptions: ServerOptions = {
             run: {
                 command,
                 args,
-                options
+                options: optionsWithFullEnvironment
             },
             debug: {
                 command,
                 args,
-                options
+                options: optionsWithFullEnvironment
             },
         };
 
         let clientOptions: LanguageClientOptions = {};
 
-        this._eventStream.post(new BuildProgress(`command: ${command}, args: ${args.join(' ')}`));
+        this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${args.join(' ')}`));
         const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
         client.registerProposedFeatures();
         this._disposable = client.start();
@@ -217,7 +224,7 @@ export class BuildExecutor {
             stdin,
             restoreCommand: this.getExecCommand("restore", input, isPublicUser),
             buildCommand: this.getExecCommand("build", input, isPublicUser),
-            serveCommand: this.getExecCommand("serve", input, isPublicUser).split(" ")
+            serveCommand: this.getExecCommand("serve", input, isPublicUser)
         };
     }
 

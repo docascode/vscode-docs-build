@@ -371,13 +371,21 @@ describe('BuildExecutor', () => {
     });
 
     describe('Language Client', () => {
+        let stubRegisterProposedFeatures: SinonStub;
+        let stubStart: SinonStub;
         before(() => {
-            sinon.stub(LanguageClient.prototype, 'registerProposedFeatures').callsFake(() => {
+            stubRegisterProposedFeatures = sinon.stub(LanguageClient.prototype, 'registerProposedFeatures');
+            stubStart = sinon.stub(LanguageClient.prototype, 'start');
+            stubRegisterProposedFeatures.callsFake(() => {
                 return;
             });
-            sinon.stub(LanguageClient.prototype, 'start').callsFake(() => {
+            stubStart.callsFake(() => {
                 return undefined;
             });
+        });
+        afterEach(() => {
+            stubRegisterProposedFeatures.reset();
+            stubStart.reset();
         });
 
         it('Public contributor', async () => {
@@ -387,9 +395,11 @@ describe('BuildExecutor', () => {
             buildExecutor.startLanguageServer(fakedBuildInput, undefined);
             assert.deepStrictEqual(testEventBus.getEvents(),
                 [new BuildProgress(
-                    `command: docfx.exe, ` +
-                    `args: serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --template "${publicTemplateURL}"`
+                    `Starting language server using command: docfx.exe ` +
+                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --template "${publicTemplateURL}"`
                 )]);
+            assert(stubRegisterProposedFeatures.calledOnce);
+            assert(stubStart.calledOnce);
         });
 
         it('Microsoft employee', async () => {
@@ -399,9 +409,11 @@ describe('BuildExecutor', () => {
             buildExecutor.startLanguageServer(fakedBuildInput, 'fakeToken');
             assert.deepStrictEqual(testEventBus.getEvents(),
                 [new BuildProgress(
-                    `command: docfx.exe, ` +
-                    `args: serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}"`
+                    `Starting language server using command: docfx.exe ` +
+                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}"`
                 )]);
+            assert(stubRegisterProposedFeatures.calledOnce);
+            assert(stubStart.calledOnce);
         });
     });
 });
