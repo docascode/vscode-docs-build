@@ -67,4 +67,4 @@ $ code .
 - `npm run test`: Run all the test including E2E test(**requires two tokens be set by environment variable**) and Unit test
 - `npm run test:unit`: Run Unit test
 - `npm run benchmark`: Run benchmark
-- `npm run lint`: Run tslint
+- `npm run lint`: Run ESLint

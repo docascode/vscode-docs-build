@@ -13,7 +13,6 @@ import { setupKeyChain } from '../utils/faker';
 const testRound = 3;
 
 export function run(): Promise<void> {
-    // tslint:disable-next-line: promise-must-complete
     return new Promise(async (resolve, reject) => {
         let buildCount = 0;
         let sinon = createSandbox();

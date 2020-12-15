@@ -1,7 +1,6 @@
 /*---------------------------------------------------------
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
-/* tslint:disable */
 'use strict';
 
 // Import this file from `vscode-extension-telemetry` for two reasons
@@ -28,7 +27,6 @@ export default class TelemetryReporter {
 
     private logStream: fs.WriteStream | undefined;
 
-    // tslint:disable-next-line
     constructor(private extensionId: string, private extensionVersion: string, key: string, firstParty?: boolean) {
         this.firstParty = !!firstParty;
 
