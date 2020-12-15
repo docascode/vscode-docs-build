@@ -1,6 +1,6 @@
 import { SinonSandbox, createSandbox } from 'sinon';
 import { EnvironmentController } from '../../../src/common/environmentController';
-import { StartServerTriggerObserver } from '../../../src/observers/startServerTriggerObserver';
+import { StartLanguageServerObserver } from '../../../src/observers/startLanguageServerObserver';
 import vscode from 'vscode';
 import { UserType } from '../../../src/shared';
 import { ExtensionActivated } from '../../../src/common/loggingEvents';
@@ -8,7 +8,7 @@ import assert from 'assert';
 
 describe('StartServerTriggerObserver', () => {
     let sinon: SinonSandbox;
-    let observer: StartServerTriggerObserver;
+    let observer: StartLanguageServerObserver;
     let event: ExtensionActivated;
     let spy: any;
 
@@ -19,7 +19,7 @@ describe('StartServerTriggerObserver', () => {
     });
 
     it('Real-time validation disabled', () => {
-        observer = new StartServerTriggerObserver(<EnvironmentController>{
+        observer = new StartLanguageServerObserver(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
@@ -31,7 +31,7 @@ describe('StartServerTriggerObserver', () => {
     });
 
     it('Real-time validation enabled with unknown user type', () => {
-        observer = new StartServerTriggerObserver(<EnvironmentController>{
+        observer = new StartLanguageServerObserver(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
@@ -43,7 +43,7 @@ describe('StartServerTriggerObserver', () => {
     });
 
     it('Real-time validation enabled with user type selected', () => {
-        observer = new StartServerTriggerObserver(<EnvironmentController>{
+        observer = new StartLanguageServerObserver(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,

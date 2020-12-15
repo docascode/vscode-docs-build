@@ -3,7 +3,7 @@ import vscode from 'vscode';
 import { EventType } from '../common/eventType';
 import { EnvironmentController } from '../common/environmentController';
 
-export class StartServerTriggerObserver {
+export class StartLanguageServerObserver {
     constructor(private _environmentController: EnvironmentController) { }
 
     public eventHandler = (event: BaseEvent) => {
