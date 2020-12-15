@@ -67,6 +67,11 @@
           ],
           "default": "",
           "description": "Microsoft employee or public contributor"
+        },
+        "docs-build.realTimeValidation.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable single-file real-time validation"
         }
       }
     },

@@ -108,6 +108,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
                 buildController.build(getCorrelationId(), credentialController.credential);
             }
         }),
+        vscode.commands.registerCommand('docs.startServer', () => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                buildController.startDocfxLanguageServer(credentialController.credential);
+            }
+        }),
         vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
         vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
             CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);

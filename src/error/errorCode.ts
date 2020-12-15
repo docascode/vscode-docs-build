@@ -20,6 +20,8 @@ export enum ErrorCode {
     RunDocfxFailed = 'RunDocfxFailed',
     GenerateReportFailed = 'GenerateReportFailed',
     TriggerBuildBeforeSignIn = 'TriggerBuildBeforeSignIn',
+    StartLanguageServerBeforeSignIn = 'StartLanguageServerBeforeSignIn',
+    StartLanguageServerWithCredentialExpired = 'StartLanguageServerWithCredentialExpired',
 
     // Install Dependency
     CreateInstallLockFileFailed = 'CreateInstallLockFileFailed',

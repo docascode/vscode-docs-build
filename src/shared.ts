@@ -17,6 +17,8 @@ export const DEBUG_MODE_CONFIG_NAME = 'debugMode.enable';
 
 export const USER_TYPE = 'userType';
 
+export const ENABLE_REAL_TIME_VALIDATION = 'realTimeValidation.enable';
+
 // Environment
 export type Environment = 'PROD' | 'PPE';
 
@@ -39,6 +41,8 @@ export interface UserInfo {
     readonly userEmail: string;
     readonly userToken: string;
 }
+
+export type ActionType = 'Validation' | 'StartServer';
 
 // Global variables
 export const uriHandler = new UriEventHandler();
