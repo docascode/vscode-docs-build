@@ -17,7 +17,7 @@ export const DEBUG_MODE_CONFIG_NAME = 'debugMode.enable';
 
 export const USER_TYPE = 'userType';
 
-export const ENABLE_REAL_TIME_VALIDATION = 'realTimeValidation.enable';
+export const ENABLE_REAL_TIME_VALIDATION = 'realTimeValidation.automaticallyEnable';
 
 // Environment
 export type Environment = 'PROD' | 'PPE';

@@ -27,7 +27,7 @@ import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
 import { DocsLogger } from './common/docsLogger';
-import { StartLanguageServerObserver } from './observers/startLanguageServerObserver';
+import { LanguageServerManager } from './observers/languageServerManager';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -86,7 +86,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const codeActionProvider = new CodeActionProvider();
 
     // Start language server
-    const startServerTriggerObserver = new StartLanguageServerObserver(environmentController);
+    const startServerTriggerObserver = new LanguageServerManager(environmentController);
     eventStream.subscribe(startServerTriggerObserver.eventHandler);
 
     context.subscriptions.push(

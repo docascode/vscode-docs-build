@@ -16,7 +16,7 @@ import {
     LanguageClientOptions,
     ServerOptions,
     Disposable
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 import { UserType } from '../shared';
 
 interface BuildParameters {

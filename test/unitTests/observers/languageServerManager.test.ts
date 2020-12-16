@@ -1,14 +1,14 @@
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import { EnvironmentController } from '../../../src/common/environmentController';
-import { StartLanguageServerObserver } from '../../../src/observers/startLanguageServerObserver';
+import { LanguageServerManager } from '../../../src/observers/languageServerManager';
 import vscode from 'vscode';
 import { UserType } from '../../../src/shared';
 import { ExtensionActivated } from '../../../src/common/loggingEvents';
 import assert from 'assert';
 
-describe('StartLanguageServerObserver', () => {
+describe('LanguageServerManager', () => {
     let sinon: SinonSandbox;
-    let observer: StartLanguageServerObserver;
+    let observer: LanguageServerManager;
     let stubExecuteCommand: SinonStub;
 
     before(() => {
@@ -17,7 +17,7 @@ describe('StartLanguageServerObserver', () => {
     });
 
     it('Real-time validation disabled', () => {
-        observer = new StartLanguageServerObserver(<EnvironmentController>{
+        observer = new LanguageServerManager(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
@@ -29,7 +29,7 @@ describe('StartLanguageServerObserver', () => {
     });
 
     it('Real-time validation enabled with unknown user type', () => {
-        observer = new StartLanguageServerObserver(<EnvironmentController>{
+        observer = new LanguageServerManager(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
@@ -41,7 +41,7 @@ describe('StartLanguageServerObserver', () => {
     });
 
     it('Real-time validation enabled with user type selected', () => {
-        observer = new StartLanguageServerObserver(<EnvironmentController>{
+        observer = new LanguageServerManager(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
