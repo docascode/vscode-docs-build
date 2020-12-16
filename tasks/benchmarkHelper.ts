@@ -5,6 +5,7 @@ import { rootPath, benchmarkTestAssetsPath } from './projectPaths';
 import { basicAuth } from '../src/utils/utils';
 import gitUrlParse from 'git-url-parse';
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function convertBenchmarkResultToMarkdown(result: any): string {
     let header = '|';
     let separator = '| ';

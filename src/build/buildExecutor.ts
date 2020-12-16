@@ -48,7 +48,7 @@ export class BuildExecutor {
         this._binary = absolutePackage.binary;
     }
 
-    dispose() {
+    dispose(): void {
         if (this._disposable) {
             this._disposable.dispose();
         }
@@ -79,7 +79,7 @@ export class BuildExecutor {
         return buildResult;
     }
 
-    public startLanguageServer(input: BuildInput, buildUserToken: string) {
+    public startLanguageServer(input: BuildInput, buildUserToken: string): void {
         const buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
         if (this._environmentController.userType === UserType.MicrosoftEmployee) {
             buildParameters.envs['DOCS_OPS_TOKEN'] = buildUserToken;
@@ -115,7 +115,7 @@ export class BuildExecutor {
         this._disposable = client.start();
     }
 
-    public async cancelBuild() {
+    public async cancelBuild(): Promise<void> {
         if (this._runningChildProcess) {
             this._runningChildProcess.kill('SIGKILL');
             if (this._platformInfo.isWindows()) {

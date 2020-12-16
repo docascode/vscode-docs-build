@@ -13,15 +13,15 @@ export class DiagnosticController implements vscode.Disposable {
         this.docsDiagnostics = vscode.languages.createDiagnosticCollection('Docs');
     }
 
-    public reset() {
+    public reset(): void {
         this.docsDiagnostics.clear();
     }
 
-    public setDiagnostic(uri: vscode.Uri, diagnostics: vscode.Diagnostic[]) {
+    public setDiagnostic(uri: vscode.Uri, diagnostics: vscode.Diagnostic[]): void {
         this.docsDiagnostics.set(uri, diagnostics);
     }
 
-    public addDiagnostic(diagnosticItem: DiagnosticItem) {
+    public addDiagnostic(diagnosticItem: DiagnosticItem): void {
         if (diagnosticItem) {
             const uri = vscode.Uri.file(path.resolve(vscode.workspace.rootPath!, diagnosticItem.filePath));
             this.docsDiagnostics.set(uri, [...this.docsDiagnostics.get(uri)!, diagnosticItem.diagnostic]);
@@ -32,7 +32,7 @@ export class DiagnosticController implements vscode.Disposable {
         return this.docsDiagnostics.get(uri);
     }
 
-    public deleteDiagnostic(uri: vscode.Uri) {
+    public deleteDiagnostic(uri: vscode.Uri): void {
         this.docsDiagnostics.delete(uri);
     }
 

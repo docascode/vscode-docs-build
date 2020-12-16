@@ -32,7 +32,7 @@ const severityMap = new Map<MessageSeverity, vscode.DiagnosticSeverity>([
 type MessageSeverity = "error" | "warning" | "info" | "suggestion";
 type LogItemType = 'system' | ' user';
 
-export function visualizeBuildReport(repositoryPath: string, logPath: string, diagnosticController: DiagnosticController, eventStream: EventStream) {
+export function visualizeBuildReport(repositoryPath: string, logPath: string, diagnosticController: DiagnosticController, eventStream: EventStream): void {
     try {
         diagnosticController.reset();
 

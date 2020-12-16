@@ -7,7 +7,7 @@ import { EnvironmentController } from '../common/environmentController';
 export class InfoMessageObserver {
     constructor(private _environmentController: EnvironmentController) { }
 
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         let asUserSignInCompleted;
         switch (event.type) {
             case EventType.UserSignInCompleted:

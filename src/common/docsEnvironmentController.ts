@@ -15,7 +15,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     constructor(private _eventStream: EventStream) {
     }
 
-    public async initialize() {
+    public async initialize(): Promise<void> {
         this._environment = this.getEnv();
         this._debugMode = this.getDebugMode();
         this._docsRepoType = await this.getDocsRepoType();

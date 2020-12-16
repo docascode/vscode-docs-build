@@ -10,7 +10,7 @@ export class DocsStatusBarObserver extends BaseStatusBarObserver {
         super(statusBarItem);
     }
 
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
             case EventType.CredentialInitializing:
                 this.setDocsStatusBar(`Initializing`);

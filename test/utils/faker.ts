@@ -1,7 +1,7 @@
 import path from 'path';
 import { EnvironmentController } from '../../src/common/environmentController';
 import { AbsolutePathPackage } from '../../src/dependency/package';
-import { SinonSandbox } from 'sinon';
+import { SinonStub, SinonSandbox } from 'sinon';
 import { KeyChain } from '../../src/credential/keyChain';
 import { UserInfo, DocsRepoType, UserType } from '../../src/shared';
 import { Credential } from '../../src/credential/credentialController';
@@ -21,11 +21,11 @@ export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHu
     };
 }
 
-export function setEnvToPROD(environmentController: EnvironmentController) {
+export function setEnvToPROD(environmentController: EnvironmentController): void {
     environmentController.env = 'PROD';
 }
 
-export function setEnvToPPE(environmentController: EnvironmentController) {
+export function setEnvToPPE(environmentController: EnvironmentController): void {
     environmentController.env = 'PPE';
 }
 
@@ -49,15 +49,15 @@ export function getFakedTelemetryReporter(): TelemetryReporter {
     };
 }
 
-export function setTelemetryUserOptInToTrue(telemetryReporter: TelemetryReporter) {
+export function setTelemetryUserOptInToTrue(telemetryReporter: TelemetryReporter): void {
     telemetryReporter.getUserOptIn = () => true;
 }
 
-export function setTelemetryUserOptInToFalse(telemetryReporter: TelemetryReporter) {
+export function setTelemetryUserOptInToFalse(telemetryReporter: TelemetryReporter): void {
     telemetryReporter.getUserOptIn = () => false;
 }
 
-export function setupKeyChain(sinon: SinonSandbox, keyChain: KeyChain, userInfo: UserInfo) {
+export function setupKeyChain(sinon: SinonSandbox, keyChain: KeyChain, userInfo: UserInfo): SinonStub<[], Promise<UserInfo>> {
     return sinon.stub(keyChain, 'getUserInfo').resolves(userInfo);
 }
 

@@ -19,7 +19,7 @@ export default class TestEventBus {
         this.eventBus = [];
     }
 
-    public dispose() {
+    public dispose(): void {
         this.subscription.unsubscribe();
     }
 }

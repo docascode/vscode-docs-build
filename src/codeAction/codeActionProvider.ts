@@ -15,7 +15,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
             .map(diagnostic => this.createCommandCodeAction(diagnostic));
     }
 
-    public static learnMoreAboutCode(eventStream: EventStream, correlationId: string, diagnosticErrorCode: string) {
+    public static learnMoreAboutCode(eventStream: EventStream, correlationId: string, diagnosticErrorCode: string): void {
         eventStream.post(new LearnMoreClicked(correlationId, diagnosticErrorCode));
         vscode.env.openExternal(vscode.Uri.parse(`${config.LogCodeServiceEndpoint}?logcode=${diagnosticErrorCode}`));
     }

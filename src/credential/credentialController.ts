@@ -40,7 +40,7 @@ export class CredentialController {
 
     constructor(private _keyChain: KeyChain, private _eventStream: EventStream, private _environmentController: EnvironmentController) { }
 
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
             case EventType.EnvironmentChanged:
             case EventType.RefreshCredential:
@@ -96,7 +96,7 @@ export class CredentialController {
         }
     }
 
-    public signOut(correlationId: string) {
+    public signOut(correlationId: string): void {
         this._eventStream.post(new UserSignOutTriggered(correlationId));
         try {
             this.resetCredential();
