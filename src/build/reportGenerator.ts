@@ -42,10 +42,10 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
         }
         eventStream.post(new BuildProgress(`Log file found, Generating report...`));
 
-        let report = fs.readFileSync(logPath).toString().split('\n').filter(item => item);
-        let diagnosticsSet = new Map<string, any>();
+        const report = fs.readFileSync(logPath).toString().split('\n').filter(item => item);
+        const diagnosticsSet = new Map<string, any>();
         report.forEach(item => {
-            let reportItem = <ReportItem>JSON.parse(item);
+            const reportItem = <ReportItem>JSON.parse(item);
 
             if (!reportItem.file) {
                 return;
@@ -54,16 +54,16 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
                 return;
             }
 
-            let range = new vscode.Range(
+            const range = new vscode.Range(
                 convertToZeroBased(reportItem.line),
                 convertToZeroBased(reportItem.column),
                 convertToZeroBased(reportItem.end_line),
                 convertToZeroBased(reportItem.end_column));
-            let diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
+            const diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
             diagnostic.code = reportItem.code;
             diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
 
-            let sourceFile = reportItem.file;
+            const sourceFile = reportItem.file;
             if (!diagnosticsSet.has(sourceFile)) {
                 diagnosticsSet.set(sourceFile, {
                     uri: vscode.Uri.file(path.resolve(repositoryPath, sourceFile)),
@@ -73,7 +73,7 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
             diagnosticsSet.get(sourceFile).diagnostics.push(diagnostic);
 
             function convertToZeroBased(num: number) {
-                let zeroBased = num - 1;
+                const zeroBased = num - 1;
                 return zeroBased < 0 ? 0 : zeroBased;
             }
         });

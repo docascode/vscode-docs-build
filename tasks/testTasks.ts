@@ -1,9 +1,10 @@
-import cp from 'child_process';
 import gulp from 'gulp';
 import path from 'path';
 import { rootPath, testAssetsPath, defaultOutputPath } from './projectPaths';
 import { runTests } from 'vscode-test';
+import simpleGit from 'simple-git';
 
+// eslint-disable-next-line node/no-missing-require
 require('./benchmarkTestTask');
 
 gulp.task('test:e2e', async () => {
@@ -12,7 +13,8 @@ gulp.task('test:e2e', async () => {
     const testRepoPath = path.join(testAssetsPath, "vscode-docs-build-e2e-test");
 
     // Initialize Submodule
-    cp.execSync('git submodule update --init', { cwd: rootPath });
+    const git = simpleGit(rootPath);
+    await git.submoduleUpdate(['--init']);
 
     const githubToken = process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN;
     if (!githubToken) {

@@ -12,19 +12,19 @@ export async function run(): Promise<void> {
 
     const testsRoot = path.resolve(__dirname, '.');
 
-    let files = glob.sync('**/**.test.js', { cwd: testsRoot });
+    const files = glob.sync('**/**.test.js', { cwd: testsRoot });
 
     // Add files to the test suite
     files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
 
     try {
-        await new Promise((c, e) => {
+        await new Promise((resolve, reject) => {
             // Run the mocha test
             mocha.run(failures => {
                 if (failures > 0) {
-                    e(new Error(`${failures} tests failed.`));
+                    reject(new Error(`${failures} tests failed.`));
                 } else {
-                    c();
+                    resolve();
                 }
             });
         });
@@ -38,6 +38,7 @@ export async function run(): Promise<void> {
 }
 
 function setupCoverage() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const NYC = require('nyc');
     const nyc = new NYC({
         cwd: path.join(__dirname, '..', '..', '..'),

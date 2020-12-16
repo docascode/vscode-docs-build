@@ -49,8 +49,8 @@ describe(`fileDownloader`, () => {
         }
     ].forEach(elem => {
         it(elem.description, async () => {
-            let buffer = await downloadFile(downloadDescription, getUrl(elem.urlPath), eventStream, false);
-            let text = buffer.toString();
+            const buffer = await downloadFile(downloadDescription, getUrl(elem.urlPath), eventStream, false);
+            const text = buffer.toString();
 
             assert.equal(text, correctResourceContent, 'File is downloaded');
             assert.deepStrictEqual(eventBus.getEvents(), [
@@ -63,7 +63,7 @@ describe(`fileDownloader`, () => {
 
     it(`Download Fails if the response status code is not 301, 302 or 200`, async () => {
         let errorThrown = false;
-        let errorUrl = getUrl(errorUrlPath);
+        const errorUrl = getUrl(errorUrlPath);
 
         try {
             await downloadFile(downloadDescription, errorUrl, eventStream, false);

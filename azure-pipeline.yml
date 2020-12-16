@@ -47,7 +47,7 @@ steps:
     verbose: false
 
 - task: Npm@1
-  displayName: 'TSLint'
+  displayName: 'Lint'
   inputs:
     command: custom
     verbose: false

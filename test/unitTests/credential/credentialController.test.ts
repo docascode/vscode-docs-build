@@ -121,10 +121,10 @@ describe('CredentialController', () => {
     });
 
     it('CredentialExpired: Credential should be reset', () => {
-        let event = new CredentialExpired();
+        const event = new CredentialExpired();
         credentialController.eventHandler(event);
 
-        let credential = credentialController.credential;
+        const credential = credentialController.credential;
         AssertCredentialReset(credential);
         assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
     });
@@ -138,7 +138,7 @@ describe('CredentialController', () => {
             await credentialController.initialize('fakedCorrelationId');
 
             // Assert
-            let credential = credentialController.credential;
+            const credential = credentialController.credential;
             assert.deepStrictEqual(credential, fakedCredential);
             assert.deepStrictEqual(testEventBus.getEvents(), [new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true)]);
         });
@@ -151,7 +151,7 @@ describe('CredentialController', () => {
             await credentialController.initialize('fakedCorrelationId');
 
             // Assert
-            let credential = credentialController.credential;
+            const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
         });
@@ -182,17 +182,17 @@ describe('CredentialController', () => {
         });
 
         it(`User type changes to public contributor`, () => {
-            let event = new UserTypeChange(UserType.PublicContributor);
+            const event = new UserTypeChange(UserType.PublicContributor);
             credentialController.eventHandler(event);
 
-            let credential = credentialController.credential;
+            const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
             assert(stubVSCodeExecuteCommand.calledOnce);
         });
 
         it(`User type changes to Microsoft employee`, () => {
-            let event = new UserTypeChange(UserType.MicrosoftEmployee);
+            const event = new UserTypeChange(UserType.MicrosoftEmployee);
             credentialController.eventHandler(event);
 
             assert.deepStrictEqual(testEventBus.getEvents(), []);
@@ -218,15 +218,15 @@ describe('CredentialController', () => {
             await credentialController.signIn('fakedCorrelationId');
 
             // Assert
-            let credential = credentialController.credential;
-            let expectedUserInfo = <UserInfo>{
+            const credential = credentialController.credential;
+            const expectedUserInfo = <UserInfo>{
                 signType: 'GitHub',
                 userId: 'faked-github-id',
                 userEmail: 'fake-github@microsoft.com',
                 userName: 'Fake-User-GitHub',
                 userToken: 'fake-github-token'
             };
-            let expectedCredential = <Credential>{
+            const expectedCredential = <Credential>{
                 signInStatus: 'SignedIn',
                 userInfo: expectedUserInfo
             };
@@ -249,7 +249,7 @@ describe('CredentialController', () => {
             await credentialController.signIn('fakedCorrelationId');
 
             // Assert
-            let credential = credentialController.credential;
+            const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
@@ -272,7 +272,7 @@ describe('CredentialController', () => {
             await credentialController.signIn('fakedCorrelationId');
 
             // Assert
-            let credential = credentialController.credential;
+            const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
@@ -304,15 +304,15 @@ describe('CredentialController', () => {
             await credentialController.signIn('fakedCorrelationId');
 
             // Assert
-            let credential = credentialController.credential;
-            let expectedUserInfo = <UserInfo>{
+            const credential = credentialController.credential;
+            const expectedUserInfo = <UserInfo>{
                 signType: 'Azure DevOps',
                 userId: 'faked-azure-devops-id',
                 userEmail: 'fake-azure-devops@microsoft.com',
                 userName: 'Fake-User-Azure-DevOps',
                 userToken: 'fake-azure-devops-token'
             };
-            let expectedCredential = <Credential>{
+            const expectedCredential = <Credential>{
                 signInStatus: 'SignedIn',
                 userInfo: expectedUserInfo
             };
@@ -335,7 +335,7 @@ describe('CredentialController', () => {
             await credentialController.signIn('fakedCorrelationId');
 
             // Assert
-            let credential = credentialController.credential;
+            const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
@@ -358,7 +358,7 @@ describe('CredentialController', () => {
             await credentialController.signIn('fakedCorrelationId');
 
             // Assert
-            let credential = credentialController.credential;
+            const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
@@ -379,7 +379,7 @@ describe('CredentialController', () => {
         credentialController.signOut('fakedCorrelationId');
 
         // Assert
-        let credential = credentialController.credential;
+        const credential = credentialController.credential;
         AssertCredentialReset(credential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true),

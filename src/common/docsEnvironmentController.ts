@@ -77,7 +77,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     private async getDocsRepoType(): Promise<DocsRepoType> {
-        let activeWorkSpaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
+        const activeWorkSpaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
         if (activeWorkSpaceFolder) {
             try {
                 const [docsRepoType] = await getRepositoryInfoFromLocalFolder(activeWorkSpaceFolder.uri.fsPath);
@@ -90,7 +90,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     private refreshEnv() {
-        let newEnv = this.getEnv();
+        const newEnv = this.getEnv();
 
         if (this._environment && this._environment !== newEnv) {
             this._eventStream.post(new EnvironmentChanged(newEnv));
@@ -99,7 +99,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     private async reloadWindow() {
-        let selected = await vscode.window.showInformationMessage("This configuration change requires reloading your current window!", "Reload");
+        const selected = await vscode.window.showInformationMessage("This configuration change requires reloading your current window!", "Reload");
         if (selected) {
             vscode.commands.executeCommand('workbench.action.reloadWindow');
         }

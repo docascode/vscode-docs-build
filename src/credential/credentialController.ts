@@ -114,7 +114,7 @@ export class CredentialController {
     }
 
     private async refreshCredential(correlationId: string): Promise<void> {
-        let userInfo = await this._keyChain.getUserInfo();
+        const userInfo = await this._keyChain.getUserInfo();
         if (userInfo) {
             this._signInStatus = 'SignedIn';
             this._userInfo = userInfo;
@@ -154,7 +154,7 @@ export class CredentialController {
         // Note: vscode Uri is buggy when the query string value contains &
         // https://github.com/microsoft/vscode/pull/83060/files
         // Use <any> cast here to bypass vscode URL conversion.
-        let opened = await vscode.env.openExternal(<any>signInUrl);
+        const opened = await vscode.env.openExternal(<any>signInUrl);
         if (!opened) {
             // User decline to open external URL to sign in
             throw new DocsError(`Signing in with GitHub failed: please allow to open external URL to sign in`, ErrorCode.GitHubSignInExternalUrlDeclined);
@@ -177,7 +177,7 @@ export class CredentialController {
                 }
             });
         } catch (err) {
-            let errorCode = err instanceof TimeOutError ? ErrorCode.GitHubSignInTimeOut : ErrorCode.GitHubSignInFailed;
+            const errorCode = err instanceof TimeOutError ? ErrorCode.GitHubSignInTimeOut : ErrorCode.GitHubSignInFailed;
             throw new DocsError(`Signing in with GitHub failed: ${err.message}`, errorCode, err);
         }
     }
@@ -198,7 +198,7 @@ export class CredentialController {
         const signInUrl = await this.getSignInUrl(azureDevOpsSignInUrl);
 
         // Use <any> cast here to bypass vscode URL conversion.
-        let opened = await vscode.env.openExternal(<any>signInUrl);
+        const opened = await vscode.env.openExternal(<any>signInUrl);
         if (!opened) {
             // User decline to open external URL to sign in
             throw new DocsError(`Signing in with Azure DevOps failed: please allow to open external URL to sign in`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined);
@@ -221,7 +221,7 @@ export class CredentialController {
                 }
             });
         } catch (err) {
-            let errorCode = err instanceof TimeOutError ? ErrorCode.AzureDevOpsSignInTimeOut : ErrorCode.AzureDevOpsSignInFailed;
+            const errorCode = err instanceof TimeOutError ? ErrorCode.AzureDevOpsSignInTimeOut : ErrorCode.AzureDevOpsSignInFailed;
             throw new DocsError(`Signing in with Azure DevOps failed: ${err.message}`, errorCode, err);
         }
     }

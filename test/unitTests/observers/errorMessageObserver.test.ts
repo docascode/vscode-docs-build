@@ -48,14 +48,14 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Sign in failed`, () => {
-            let event = new UserSignInFailed(`fakedCorrelationId`, new Error("faked message"));
+            const event = new UserSignInFailed(`fakedCorrelationId`, new Error("faked message"));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Signing in failed: faked message');
             assert.deepEqual(messageActions, []);
         });
 
         it(`Sign in succeeded`, () => {
-            let event = new UserSignInSucceeded(`fakedCorrelationId`, fakedCredential, true);
+            const event = new UserSignInSucceeded(`fakedCorrelationId`, fakedCredential, true);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
@@ -69,14 +69,14 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Sign out failed`, () => {
-            let event = new UserSignOutFailed(`fakedCorrelationId`, new Error("faked message"));
+            const event = new UserSignOutFailed(`fakedCorrelationId`, new Error("faked message"));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Signing out failed: faked message');
             assert.deepEqual(messageActions, []);
         });
 
         it(`Sign out succeeded`, () => {
-            let event = new UserSignOutSucceeded(`fakedCorrelationId`);
+            const event = new UserSignOutSucceeded(`fakedCorrelationId`);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
@@ -90,21 +90,21 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Build succeeded`, () => {
-            let event = new BuildSucceeded(`fakedCorrelationId`, fakedBuildInput, 0, <BuildResult>{});
+            const event = new BuildSucceeded(`fakedCorrelationId`, fakedBuildInput, 0, <BuildResult>{});
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
         });
 
         it(`Build failed since credential expires`, () => {
-            let event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message", ErrorCode.TriggerBuildWithCredentialExpired));
+            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message", ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Repository validation failed. faked message Check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 
         it(`Build failed since not signed in`, () => {
-            let event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message", ErrorCode.TriggerBuildBeforeSignIn));
+            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message", ErrorCode.TriggerBuildBeforeSignIn));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Repository validation failed. faked message Check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
@@ -112,14 +112,14 @@ describe('ErrorMessageObserver', () => {
     });
 
     it(`Public contributor sign in`, () => {
-        let event = new PublicContributorSignIn();
+        const event = new PublicContributorSignIn();
         observer.eventHandler(event);
         assert.equal(messageToShow, '[Docs Validation] Sign in is only available for Microsoft employees.');
         assert.deepEqual(messageActions, []);
     });
 
     it(`Trigger command with unkown user type`, () => {
-        let event = new TriggerCommandWithUnkownUserType();
+        const event = new TriggerCommandWithUnkownUserType();
         observer.eventHandler(event);
         assert.equal(messageToShow, '[Docs Validation] The command you triggered needs user type information. Please choose either Microsoft employee or Public contributor. You can change your selection later if needed in the extension settings (Docs validation -> User type).');
         assert.deepEqual(messageActions[0].title, "Microsoft employee");
@@ -133,14 +133,14 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Start language server failed since credential expires`, () => {
-            let event = new StartLanguageServerFailed(new DocsError("Credential expired", ErrorCode.TriggerBuildWithCredentialExpired));
+            const event = new StartLanguageServerFailed(new DocsError("Credential expired", ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Start language server failed. Credential expired');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 
         it(`Build failed since not signed in`, () => {
-            let event = new StartLanguageServerFailed(new DocsError("Without sign in", ErrorCode.TriggerBuildBeforeSignIn));
+            const event = new StartLanguageServerFailed(new DocsError("Without sign in", ErrorCode.TriggerBuildBeforeSignIn));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Start language server failed. Without sign in');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);

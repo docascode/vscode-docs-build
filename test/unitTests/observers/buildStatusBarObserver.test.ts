@@ -7,7 +7,7 @@ describe('BuildStatusBarObserver', () => {
     let showCalled: boolean;
     let observer: BuildStatusBarObserver;
 
-    let statusBarItem = <StatusBarItem>{
+    const statusBarItem = <StatusBarItem>{
         show: () => { showCalled = true; }
     };
 
@@ -23,7 +23,7 @@ describe('BuildStatusBarObserver', () => {
     });
 
     it(`BuildInstantAllocated: Status bar is shown with '$(sync~spin)' text`, () => {
-        let event = new BuildInstantAllocated();
+        const event = new BuildInstantAllocated();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(sync~spin)`);
@@ -32,7 +32,7 @@ describe('BuildStatusBarObserver', () => {
     });
 
     it(`BuildInstantReleased: Status bar is shown with '$(sync)' text`, () => {
-        let event = new BuildInstantReleased();
+        const event = new BuildInstantReleased();
         observer.eventHandler(event);
         assert.equal(showCalled, true);
         assert.equal(statusBarItem.text, `$(sync)`);

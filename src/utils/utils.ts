@@ -2,7 +2,7 @@ import vscode from 'vscode';
 import path from 'path';
 import fs from 'fs-extra';
 import gitUrlParse from 'git-url-parse';
-import simpleGit from 'simple-git/promise';
+import simpleGit from 'simple-git';
 import uuid from 'uuid/v1';
 import du from 'du';
 import psTree from 'ps-tree';
@@ -38,20 +38,20 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
     if (!fs.existsSync(repositoryPath)) {
         throw new Error(`Path (${repositoryPath}) does not exist on the current machine`);
     }
-    let repository = simpleGit(repositoryPath);
+    const repository = simpleGit(repositoryPath);
     if (!(await repository.checkIsRepo())) {
         throw new Error(`Current workspace folder is not a valid git folder`);
     }
 
-    let remote = (await repository.listRemote(['--get-url', 'origin'])).trim();
+    const remote = (await repository.listRemote(['--get-url', 'origin'])).trim();
     if (remote === 'origin') {
         // If origin not existed, `origin` string will be return
         throw new Error('Cannot get remote `origin` of current repository');
     }
 
-    let branch = await repository.revparse(['--abbrev-ref', 'HEAD']);
+    const branch = await repository.revparse(['--abbrev-ref', 'HEAD']);
 
-    let commit = await repository.revparse(['HEAD']);
+    const commit = await repository.revparse(['HEAD']);
 
     const [docsRepoType, normalizedRepositoryUrl, locale] = parseRemoteUrl(remote);
 
@@ -61,7 +61,7 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
 function parseRemoteUrl(url: string): [DocsRepoType, string, string] {
     const repository = gitUrlParse(url);
     const docsRepoType = repository.resource.startsWith('github.com') ? 'GitHub' : 'Azure DevOps';
-    let match = /^.+?(?<locale>\.[a-z]{2,4}-[a-z]{2,4}(-[a-z]{2,4})?|\.loc)?$/g.exec(repository.name);
+    const match = /^.+?(?<locale>\.[a-z]{2,4}-[a-z]{2,4}(-[a-z]{2,4})?|\.loc)?$/g.exec(repository.name);
     let locale = 'en-us';
     if(match && match.groups && match.groups.locale) {
         locale = match.groups.locale.substring(1);
@@ -70,7 +70,7 @@ function parseRemoteUrl(url: string): [DocsRepoType, string, string] {
 }
 
 export function basicAuth(token: string) {
-    let buff = Buffer.from(`user:${token}`);
+    const buff = Buffer.from(`user:${token}`);
     return buff.toString('base64');
 }
 
@@ -86,7 +86,7 @@ export function getDurationInSeconds(ms: number) {
 }
 
 function pad(num: number, size: number) {
-    let s = String(num);
+    const s = String(num);
     return s.padStart(size, '0');
 }
 
@@ -103,7 +103,7 @@ export async function getFolderSizeInMB(folderPath: string): Promise<number> {
         return 0;
     }
 
-    let size = Math.floor(await du(folderPath) / 1024 / 1024);
+    const size = Math.floor(await du(folderPath) / 1024 / 1024);
     return size;
 }
 
@@ -124,7 +124,7 @@ export async function killProcessTree(pid: number, signal?: string | number) {
 }
 
 export function getTempOutputFolder() {
-    let randomFolder = Math.random().toString(36).substring(7);
+    const randomFolder = Math.random().toString(36).substring(7);
     return path.join(tempDirectory, randomFolder);
 }
 

@@ -74,7 +74,6 @@ export class CredentialExpired implements BaseEvent {
 
 export class PublicContributorSignIn implements BaseEvent {
     type = EventType.PublicContributorSignIn;
-    constructor() { }
 }
 
 export class UserTypeChange implements BaseEvent {
@@ -222,7 +221,6 @@ export class DownloadSizeObtained implements BaseEvent {
 
 export class DownloadValidating implements BaseEvent {
     type = EventType.DownloadValidating;
-    constructor() { }
 }
 
 export class ZipFileInstalling implements BaseEvent {
@@ -257,12 +255,10 @@ export class LearnMoreClicked implements BaseEvent {
 
 export class TriggerCommandWithUnkownUserType implements BaseEvent {
     type = EventType.TriggerCommandWithUnkownUserType;
-    constructor() { }
 }
 
 export class ExtensionActivated implements BaseEvent {
     type = EventType.ExtensionActivated;
-    constructor() { }
 }
 
 export class StartLanguageServerFailed implements BaseEvent {

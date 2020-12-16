@@ -41,7 +41,7 @@ export class OPBuildAPIClient {
             });
     }
 
-    public async getProvisionedRepositoryUrlByDocsetNameAndLocale(docsetName: string, locale: string = 'en-us', opBuildUserToken: string, eventStream: EventStream): Promise<string> {
+    public async getProvisionedRepositoryUrlByDocsetNameAndLocale(docsetName: string, locale = 'en-us', opBuildUserToken: string, eventStream: EventStream): Promise<string> {
         const requestUrl = `${this.APIBaseUrl}/v2/Repositories/ProvisionedRepositoryUrlByDocsetNameAndLocale`
             + `?${querystring.stringify({
                 docsetName,

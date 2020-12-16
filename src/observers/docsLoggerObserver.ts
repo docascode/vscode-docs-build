@@ -120,7 +120,7 @@ export class DocsLoggerObserver {
     // Sign
     private handleUserSignInCompleted(event: UserSignInCompleted) {
         if (event.succeeded) {
-            let asUserSignInSucceeded = <UserSignInSucceeded>event;
+            const asUserSignInSucceeded = <UserSignInSucceeded>event;
             if (asUserSignInSucceeded.retrievedFromCache) {
                 this.appendLine(`Successfully retrieved user credential from local credential manager:`);
             } else {
@@ -144,7 +144,7 @@ export class DocsLoggerObserver {
     }
 
     private handleUserSignInProgress(event: UserSignInProgress) {
-        let tag = event.tag ? `[${event.tag}] ` : '';
+        const tag = event.tag ? `[${event.tag}] ` : '';
         this.appendLine(`${tag}${event.message}`);
     }
 
@@ -289,7 +289,7 @@ export class DocsLoggerObserver {
         if (event.downloadPercentage === 100) {
             this.appendLine(` Done!`);
         } else {
-            let newDownloadProgressDot = Math.ceil(event.downloadPercentage / 5);
+            const newDownloadProgressDot = Math.ceil(event.downloadPercentage / 5);
             this.append('.'.repeat(newDownloadProgressDot - this._downloadProgressDot));
             this._downloadProgressDot = newDownloadProgressDot;
         }

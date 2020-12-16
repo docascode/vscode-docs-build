@@ -14,7 +14,7 @@ export function executeDocfx(
     stdinInput?: string,
 ): cp.ChildProcess {
 
-    let optionsWithFullEnvironment = {
+    const optionsWithFullEnvironment = {
         ...options,
         env: {
             ...process.env,

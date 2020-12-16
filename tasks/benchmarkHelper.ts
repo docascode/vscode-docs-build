@@ -3,7 +3,7 @@ import path from 'path';
 import { execSync, ExecSyncOptions } from 'child_process';
 import { rootPath, benchmarkTestAssetsPath } from './projectPaths';
 import { basicAuth } from '../src/utils/utils';
-import gitUrlParse = require('git-url-parse');
+import gitUrlParse from 'git-url-parse';
 
 export function convertBenchmarkResultToMarkdown(result: any): string {
     let header = '|';
@@ -18,7 +18,7 @@ export function convertBenchmarkResultToMarkdown(result: any): string {
 }
 
 export function downloadLatestTestRepo(repository: gitUrlParse.GitUrl, branch: string, token: string): void {
-    let dest = path.join(benchmarkTestAssetsPath, repository.name);
+    const dest = path.join(benchmarkTestAssetsPath, repository.name);
 
     try {
         if (!fs.existsSync(path.join(dest, '.git'))) {
@@ -37,7 +37,7 @@ export function downloadLatestTestRepo(repository: gitUrlParse.GitUrl, branch: s
 }
 
 function execGit(command: string, token?: string, options?: ExecSyncOptions): void {
-    let optionsWithDefaultValue = <ExecSyncOptions>{
+    const optionsWithDefaultValue = <ExecSyncOptions>{
         cwd: rootPath,
         stdio: 'inherit',
         ...options

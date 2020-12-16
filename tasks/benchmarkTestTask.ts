@@ -3,7 +3,7 @@ import gulp from 'gulp';
 import path from 'path';
 import glob from 'glob';
 import { runTests } from "vscode-test";
-import gitUrlParse = require('git-url-parse');
+import gitUrlParse from 'git-url-parse';
 import { rootPath, benchmarkTestAssetsPath, benchmarkTestReportsPath } from './projectPaths';
 import { safelyReadJsonFile, formatDuration } from '../src/utils/utils';
 import { BenchmarkReport } from '../src/shared';
@@ -36,9 +36,9 @@ gulp.task('test:benchmark:runTest', async () => {
     fs.ensureDirSync(benchmarkTestReportsPath);
     fs.emptyDirSync(benchmarkTestReportsPath);
 
-    for (let repo of benchmarkTestRepos) {
+    for (const repo of benchmarkTestRepos) {
         // Prepare test repository
-        let repository = gitUrlParse(repo.url);
+        const repository = gitUrlParse(repo.url);
         console.log(`Running benchmark test on repository ${repository.name}...`);
 
         const testWorkspace = path.resolve(benchmarkTestAssetsPath, repository.name);
@@ -56,11 +56,11 @@ gulp.task('test:benchmark:runTest', async () => {
 });
 
 gulp.task('test:benchmark:generateReport', async () => {
-    let reports = glob.sync('**', { cwd: benchmarkTestReportsPath });
-    let result: any = {};
+    const reports = glob.sync('**', { cwd: benchmarkTestReportsPath });
+    const result: any = {};
     console.log(`${reports.length} reports found`);
     reports.forEach(r => {
-        let report = <BenchmarkReport>safelyReadJsonFile(path.join(benchmarkTestReportsPath, r));
+        const report = <BenchmarkReport>safelyReadJsonFile(path.join(benchmarkTestReportsPath, r));
         console.log(`Parsing report for repository ${report.name}...`);
         console.log(`  This test is running against commit: ${report.commit}`);
         let duration = 0;
@@ -73,8 +73,8 @@ gulp.task('test:benchmark:generateReport', async () => {
                 count++;
             }
         });
-        let averageDuration = Math.floor(duration / count);
-        let formattedDuration = formatDuration(averageDuration);
+        const averageDuration = Math.floor(duration / count);
+        const formattedDuration = formatDuration(averageDuration);
         console.log(`  ${count} build round, average time: ${formattedDuration}(${averageDuration}ms)`);
         result[report.name] = formattedDuration;
     });

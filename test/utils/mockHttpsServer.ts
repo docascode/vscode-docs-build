@@ -3,7 +3,7 @@ import getPort from 'get-port';
 import fs from 'fs-extra';
 import path from 'path';
 
-// tslint:disable-next-line: variable-name
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const ServerMock = require('mock-http-server');
 
 export class MockHttpsServer {
@@ -30,9 +30,9 @@ export class MockHttpsServer {
     }
 
     public static async CreateMockHttpsServer(): Promise<MockHttpsServer> {
-        let port = await getPort();
+        const port = await getPort();
 
-        let server = new ServerMock(undefined, {
+        const server = new ServerMock(undefined, {
             host: "localhost",
             port: port,
             key: fs.readFileSync(path.resolve(__dirname, "../../../testAssets/key.pem")),

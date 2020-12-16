@@ -1,4 +1,3 @@
-import extensionConfig from '../config';
 import { PlatformInformation } from '../common/platformInformation';
 import { ChildProcess } from 'child_process';
 import { Package, AbsolutePathPackage } from '../dependency/package';
@@ -32,7 +31,7 @@ export class BuildExecutor {
     private _cwd: string;
     private _binary: string;
     private _runningChildProcess: ChildProcess;
-    private static SKIP_RESTORE: boolean = false;
+    private static SKIP_RESTORE = false;
     private _disposable: Disposable;
 
     constructor(
@@ -42,9 +41,9 @@ export class BuildExecutor {
         private _eventStream: EventStream,
         private _telemetryReporter: TelemetryReporter
     ) {
-        let runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
-        let buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === this._platformInfo.rid);
-        let absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
+        const runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
+        const buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === this._platformInfo.rid);
+        const absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
         this._cwd = absolutePackage.installPath.value;
         this._binary = absolutePackage.binary;
     }
@@ -56,16 +55,16 @@ export class BuildExecutor {
     }
 
     public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> {
-        let buildResult = <BuildResult>{
+        const buildResult = <BuildResult>{
             result: DocfxExecutionResult.Succeeded,
             isRestoreSkipped: BuildExecutor.SKIP_RESTORE
         };
 
-        let buildParameters = this.getBuildParameters(correlationId, input, buildUserToken);
+        const buildParameters = this.getBuildParameters(correlationId, input, buildUserToken);
 
         if (!BuildExecutor.SKIP_RESTORE) {
-            let restoreStart = Date.now();
-            let result = await this.restore(correlationId, buildParameters);
+            const restoreStart = Date.now();
+            const result = await this.restore(correlationId, buildParameters);
             if (result !== 'Succeeded') {
                 buildResult.result = result;
                 return buildResult;
@@ -74,28 +73,28 @@ export class BuildExecutor {
             buildResult.restoreTimeInSeconds = getDurationInSeconds(Date.now() - restoreStart);
         }
 
-        let buildStart = Date.now();
+        const buildStart = Date.now();
         buildResult.result = await this.build(buildParameters);
         buildResult.buildTimeInSeconds = getDurationInSeconds(Date.now() - buildStart);
         return buildResult;
     }
 
     public startLanguageServer(input: BuildInput, buildUserToken: string) {
-        let buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
+        const buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
         if (this._environmentController.userType === UserType.MicrosoftEmployee) {
             buildParameters.envs['DOCS_OPS_TOKEN'] = buildUserToken;
         }
-        let command = this._binary;
-        let args = buildParameters.serveCommand.split(" ");
-        let options = { env: buildParameters.envs, cwd: this._cwd };
-        let optionsWithFullEnvironment = {
+        const command = this._binary;
+        const args = buildParameters.serveCommand.split(" ");
+        const options = { env: buildParameters.envs, cwd: this._cwd };
+        const optionsWithFullEnvironment = {
             ...options,
             env: {
                 ...process.env,
                 ...options.env
             }
         };
-        let serverOptions: ServerOptions = {
+        const serverOptions: ServerOptions = {
             run: {
                 command,
                 args,
@@ -108,7 +107,7 @@ export class BuildExecutor {
             },
         };
 
-        let clientOptions: LanguageClientOptions = {};
+        const clientOptions: LanguageClientOptions = {};
 
         this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${args.join(' ')}`));
         const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
@@ -182,13 +181,13 @@ export class BuildExecutor {
         input: BuildInput,
         buildUserToken: string,
     ): BuildParameters {
-        let envs: any = {
+        const envs: any = {
             'DOCFX_CORRELATION_ID': correlationId,
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this._environmentController.env
         };
 
-        let isPublicUser = this._environmentController.userType === UserType.PublicContributor;
+        const isPublicUser = this._environmentController.userType === UserType.PublicContributor;
         if (isPublicUser) {
             envs['DOCFX_REPOSITORY_BRANCH'] = 'master';
         }
@@ -198,11 +197,11 @@ export class BuildExecutor {
             envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this._environmentController.env];
         }
 
-        let secrets = <any>{
+        const secrets = <any>{
         };
 
         if (!isPublicUser) {
-            secrets[`${extensionConfig.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
+            secrets[`${config.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
                 "headers": {
                     "X-OP-BuildUserToken": buildUserToken
                 }
@@ -215,7 +214,7 @@ export class BuildExecutor {
                 }
             };
         }
-        let stdin = JSON.stringify({
+        const stdin = JSON.stringify({
             "http": secrets
         });
 

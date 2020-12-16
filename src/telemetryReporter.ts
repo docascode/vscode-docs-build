@@ -1,7 +1,6 @@
 /*---------------------------------------------------------
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
-/* tslint:disable */
 'use strict';
 
 // Import this file from `vscode-extension-telemetry` for two reasons
@@ -18,8 +17,8 @@ import * as appInsights from 'applicationinsights';
 
 export default class TelemetryReporter {
     private appInsightsClient: appInsights.TelemetryClient | undefined;
-    private firstParty: boolean = false;
-    private userOptIn: boolean = false;
+    private firstParty = false;
+    private userOptIn = false;
     private _extension: vscode.Extension<any> | undefined;
     private readonly configListener: vscode.Disposable;
 
@@ -28,7 +27,6 @@ export default class TelemetryReporter {
 
     private logStream: fs.WriteStream | undefined;
 
-    // tslint:disable-next-line
     constructor(private extensionId: string, private extensionVersion: string, key: string, firstParty?: boolean) {
         this.firstParty = !!firstParty;
 
@@ -191,8 +189,8 @@ export default class TelemetryReporter {
 
         if (anonymizeFilePaths) {
             const cleanUpIndexes: [number, number][] = [];
-            for (let regexp of cleanupPatterns) {
-                while (true) {
+            for (const regexp of cleanupPatterns) {
+                for (;;) {
                     const result = regexp.exec(stack);
                     if (!result) {
                         break;
@@ -201,12 +199,12 @@ export default class TelemetryReporter {
                 }
             }
 
-            const nodeModulesRegex = /^[\\\/]?(node_modules|node_modules\.asar)[\\\/]/;
-            const fileRegex = /(file:\/\/)?([a-zA-Z]:(\\\\|\\|\/)|(\\\\|\\|\/))?([\w-\._]+(\\\\|\\|\/))+[\w-\._]*/g;
+            const nodeModulesRegex = /^[\\/]?(node_modules|node_modules\.asar)[\\/]/;
+            const fileRegex = /(file:\/\/)?([a-zA-Z]:(\\\\|\\|\/)|(\\\\|\\|\/))?([\w-._]+(\\\\|\\|\/))+[\w-._]*/g;
             let lastIndex = 0;
             updatedStack = '';
 
-            while (true) {
+            for (;;) {
                 const result = fileRegex.exec(stack);
                 if (!result) {
                     break;
@@ -223,7 +221,7 @@ export default class TelemetryReporter {
         }
 
         // sanitize with configured cleanup patterns
-        for (let regexp of cleanupPatterns) {
+        for (const regexp of cleanupPatterns) {
             updatedStack = updatedStack.replace(regexp, '');
         }
         return updatedStack;

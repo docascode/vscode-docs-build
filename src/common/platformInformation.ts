@@ -1,4 +1,5 @@
 import os from 'os';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const arch = require('arch');
 
 export class PlatformInformation {
@@ -27,8 +28,8 @@ export class PlatformInformation {
     }
 
     public static async getCurrent(): Promise<PlatformInformation> {
-        let platform = os.platform();
-        let architecture = arch();
+        const platform = os.platform();
+        const architecture = arch();
         let rid: string;
 
         switch (platform) {

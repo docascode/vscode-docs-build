@@ -101,9 +101,6 @@ describe('BuildExecutor', () => {
         testEventBus.clear();
     });
 
-    afterEach(() => {
-    });
-
     after(() => {
         sinon.restore();
         testEventBus.dispose();
@@ -113,7 +110,7 @@ describe('BuildExecutor', () => {
         it('Restore failed', async () => {
             mockExecuteDocfx(2, 0);
 
-            let buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
+            const buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxRestoreStarted(),
@@ -136,10 +133,10 @@ describe('BuildExecutor', () => {
             mockExecuteDocfx(0, 0);
             killProcessTreeFuncCalled = false;
 
-            let buildPromise = buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
+            const buildPromise = buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
             setTimeout(async () => {
                 await buildExecutor.cancelBuild();
-                let buildResult = await buildPromise;
+                const buildResult = await buildPromise;
                 assert.deepStrictEqual(testEventBus.getEvents(), [
                     new DocfxRestoreStarted(),
                     new DocfxRestoreCompleted('fakedCorrelationId', DocfxExecutionResult.Canceled, 0),
@@ -166,7 +163,7 @@ describe('BuildExecutor', () => {
         });
 
         it('First Time to run build successfully', async () => {
-            let buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
+            const buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.equal(buildResult.result, DocfxExecutionResult.Succeeded);
             assert.equal(buildResult.isRestoreSkipped, false);
@@ -198,13 +195,13 @@ describe('BuildExecutor', () => {
             assert.equal(executedStdinInput.length, 2);
             assert.notEqual(executedStdinInput[0], undefined);
             assert.notEqual(executedStdinInput[1], undefined);
-            let firstExecutedStdinInput = <any>JSON.parse(executedStdinInput[0]);
+            const firstExecutedStdinInput = <any>JSON.parse(executedStdinInput[0]);
             assert.deepStrictEqual(firstExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
                 "headers": {
                     "X-OP-BuildUserToken": "faked-build-token"
                 }
             });
-            let secondExecutedStdinInput = <any>JSON.parse(executedStdinInput[1]);
+            const secondExecutedStdinInput = <any>JSON.parse(executedStdinInput[1]);
             assert.deepStrictEqual(secondExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
                 "headers": {
                     "X-OP-BuildUserToken": "faked-build-token"
@@ -220,7 +217,7 @@ describe('BuildExecutor', () => {
         });
 
         it('Second time to trigger build successfully', async () => {
-            let buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
+            const buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.equal(buildResult.result, DocfxExecutionResult.Succeeded);
             assert.equal(buildResult.isRestoreSkipped, true);
@@ -233,7 +230,7 @@ describe('BuildExecutor', () => {
         it('Build Failed', async () => {
             mockExecuteDocfx(0, 2);
 
-            let buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
+            const buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.equal(buildResult.result, DocfxExecutionResult.Failed);
             assert.equal(buildResult.isRestoreSkipped, true);
@@ -246,6 +243,7 @@ describe('BuildExecutor', () => {
         it('Build Cancelled', (done) => {
             mockExecuteDocfx(0, 0);
             killProcessTreeFuncCalled = false;
+            // eslint-disable-next-line prefer-const
             let buildPromise: Promise<BuildResult>;
 
             subscription = eventStream.subscribe((event) => {
@@ -349,7 +347,7 @@ describe('BuildExecutor', () => {
                 `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
 
-            let stdinInput = <any>JSON.parse(executedStdinInput[0]);
+            const stdinInput = <any>JSON.parse(executedStdinInput[0]);
             assert.equal(stdinInput.http["https://op-build-prod.azurewebsites.net"], undefined);
 
             assert.deepStrictEqual(executedOptions, [

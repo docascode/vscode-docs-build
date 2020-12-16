@@ -1,5 +1,5 @@
 import https from 'https';
-import { parse as parseUrl } from 'url';
+import { URL } from 'url';
 import { DownloadStarted, DownloadSizeObtained, DownloadProgress } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';
 import { DocsError } from '../error/docsError';
@@ -12,20 +12,20 @@ export async function downloadFile(description: string, urlString: string, event
 }
 
 async function downloadCore(urlString: string, eventStream: EventStream, strictSSL = true): Promise<Buffer> {
-    const url = parseUrl(urlString);
+    const url = new URL(urlString);
     // TODO: Apply network settings(proxy, strictSSL..)
     const options: https.RequestOptions = {
         host: url.hostname,
-        path: url.path,
+        path: url.pathname,
         port: url.port,
         rejectUnauthorized: strictSSL
     };
 
-    let buffers: any[] = [];
+    const buffers: any[] = [];
 
     try {
         return await new Promise<Buffer>((resolve, reject) => {
-            let request = https.request(options, response => {
+            const request = https.request(options, response => {
                 if (response.statusCode === 301 || response.statusCode === 302) {
                     // Redirect - download from new location
                     return resolve(downloadCore(response.headers.location!, eventStream, strictSSL));
@@ -35,7 +35,7 @@ async function downloadCore(urlString: string, eventStream: EventStream, strictS
                     return reject(new Error(`Invalid status code (${response.statusCode})`));
                 }
 
-                let packageSize = parseInt(response.headers['content-length']!, 10);
+                const packageSize = parseInt(response.headers['content-length']!, 10);
                 let downloadedBytes = 0;
                 let downloadPercentage = 0;
 
@@ -45,7 +45,7 @@ async function downloadCore(urlString: string, eventStream: EventStream, strictS
                     downloadedBytes += data.length;
                     buffers.push(data);
 
-                    let newPercentage = Math.ceil(100 * (downloadedBytes / packageSize));
+                    const newPercentage = Math.ceil(100 * (downloadedBytes / packageSize));
                     if (newPercentage !== downloadPercentage) {
                         downloadPercentage = newPercentage;
                         eventStream.post(new DownloadProgress(downloadPercentage));
@@ -53,7 +53,7 @@ async function downloadCore(urlString: string, eventStream: EventStream, strictS
                 });
 
                 response.on('end', () => {
-                    let buffer = Buffer.concat(buffers);
+                    const buffer = Buffer.concat(buffers);
                     resolve(buffer);
                 });
 
