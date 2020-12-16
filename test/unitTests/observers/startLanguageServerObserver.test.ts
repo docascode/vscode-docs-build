@@ -1,4 +1,4 @@
-import { SinonSandbox, createSandbox } from 'sinon';
+import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { StartLanguageServerObserver } from '../../../src/observers/startLanguageServerObserver';
 import vscode from 'vscode';
@@ -6,16 +6,17 @@ import { UserType } from '../../../src/shared';
 import { ExtensionActivated } from '../../../src/common/loggingEvents';
 import assert from 'assert';
 
-describe('StartServerTriggerObserver', () => {
+describe('StartLanguageServerObserver', () => {
     let sinon: SinonSandbox;
     let observer: StartLanguageServerObserver;
-    let event: ExtensionActivated;
-    let spy: any;
+    let stubExecuteCommand: SinonStub;
 
     before(() => {
         sinon = createSandbox();
-        spy = sinon.spy(vscode.commands, 'executeCommand');
-        event = new ExtensionActivated();
+        stubExecuteCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('docs.enableRealTimeValidation');
+    });
+    afterEach(() => {
+        stubExecuteCommand.reset();
     });
 
     it('Real-time validation disabled', () => {
@@ -26,8 +27,8 @@ describe('StartServerTriggerObserver', () => {
             userType: UserType.MicrosoftEmployee,
             enableRealTimeValidation: false
         });
-        observer.eventHandler(event);
-        assert(spy.withArgs('docs.enableRealTimeValidation').notCalled);
+        observer.eventHandler(new ExtensionActivated());
+        assert(stubExecuteCommand.notCalled);
     });
 
     it('Real-time validation enabled with unknown user type', () => {
@@ -38,8 +39,8 @@ describe('StartServerTriggerObserver', () => {
             userType: UserType.Unknown,
             enableRealTimeValidation: true
         });
-        observer.eventHandler(event);
-        assert(spy.withArgs('docs.enableRealTimeValidation').notCalled);
+        observer.eventHandler(new ExtensionActivated());
+        assert(stubExecuteCommand.notCalled);
     });
 
     it('Real-time validation enabled with user type selected', () => {
@@ -50,7 +51,7 @@ describe('StartServerTriggerObserver', () => {
             userType: UserType.PublicContributor,
             enableRealTimeValidation: true
         });
-        observer.eventHandler(event);
-        assert(spy.withArgs('docs.enableRealTimeValidation').calledOnce);
+        observer.eventHandler(new ExtensionActivated());
+        assert(stubExecuteCommand.calledOnce);
     });
 });

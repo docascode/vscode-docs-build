@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { EventType } from '../common/eventType';
-import { BaseEvent, UserSignInFailed, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed, StartLanguageServerFailed } from '../common/loggingEvents';
+import { BaseEvent, UserSignInFailed, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed, StartLanguageServerCompleted } from '../common/loggingEvents';
 import { MessageAction, EXTENSION_NAME, USER_TYPE, UserType } from '../shared';
 import { ErrorCode } from '../error/errorCode';
 import { DocsError } from '../error/docsError';
@@ -32,8 +32,10 @@ export class ErrorMessageObserver {
             case EventType.TriggerCommandWithUnknownUserType:
                 this.handleCommandWithUnknownUserTypeTriggered();
                 break;
-            case EventType.StartLanguageServerFailed:
-                this.handleStartLanguageServerFailed(<StartLanguageServerFailed>event);
+            case EventType.StartLanguageServerCompleted:
+                if (!(<StartLanguageServerCompleted>event).succeeded) {
+                    this.handleStartLanguageServerFailed(<StartLanguageServerCompleted>event);
+                }
                 break;
         }
     }
@@ -69,9 +71,20 @@ export class ErrorMessageObserver {
         this.showErrorMessage(`Repository validation failed. ${event.err.message} Check the channel output for details`, action);
     }
 
-    private handleStartLanguageServerFailed(event: StartLanguageServerFailed) {
-        const action = new MessageAction('Sign in', 'docs.signIn');
-        this.showErrorMessage(`Start language server failed. ${event.err.message}`, action);
+    private handleStartLanguageServerFailed(event: StartLanguageServerCompleted) {
+        let action: MessageAction;
+        let error = <DocsError>event.err;
+        if (error) {
+            switch (error.code) {
+                case ErrorCode.TriggerBuildWithCredentialExpired:
+                    action = new MessageAction('Sign in', 'docs.signIn');
+                    break;
+                case ErrorCode.TriggerBuildBeforeSignIn:
+                    action = new MessageAction('Sign in', 'docs.signIn');
+                    break;
+            }
+        }
+        this.showErrorMessage(`Enable real-time validation failed. ${event.err.message} Check the channel output for details`, action);
     }
 
     private handlePublicContributorSignIn() {

@@ -261,9 +261,9 @@ export class ExtensionActivated implements BaseEvent {
     type = EventType.ExtensionActivated;
 }
 
-export class StartLanguageServerFailed implements BaseEvent {
-    type = EventType.StartLanguageServerFailed;
-    constructor(public err: Error) { }
+export class StartLanguageServerCompleted implements BaseEvent {
+    type = EventType.StartLanguageServerCompleted;
+    constructor(public succeeded: boolean, public err?: Error) { }
 }
 
 // Test only

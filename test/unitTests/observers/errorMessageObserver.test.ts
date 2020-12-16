@@ -1,6 +1,6 @@
 import assert from 'assert';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnknownUserType, StartLanguageServerFailed } from '../../../src/common/loggingEvents';
+import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnknownUserType, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
 import { fakedBuildInput, fakedCredential } from '../../utils/faker';
 import { SinonSandbox, createSandbox } from 'sinon';
 import { MessageAction } from '../../../src/shared';
@@ -132,18 +132,25 @@ describe('ErrorMessageObserver', () => {
             messageActions = [];
         });
 
-        it(`Start language server failed since credential expires`, () => {
-            const event = new StartLanguageServerFailed(new DocsError("Credential expired", ErrorCode.TriggerBuildWithCredentialExpired));
+        it(`Start language server fails since credential expires`, () => {
+            let event = new StartLanguageServerCompleted(false, new DocsError('fake error', ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
-            assert.equal(messageToShow, '[Docs Validation] Start language server failed. Credential expired');
+            assert.equal(messageToShow, '[Docs Validation] Enable real-time validation failed. fake error Check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 
-        it(`Build failed since not signed in`, () => {
-            const event = new StartLanguageServerFailed(new DocsError("Without sign in", ErrorCode.TriggerBuildBeforeSignIn));
+        it(`Start language server fails since not signed in`, () => {
+            let event = new StartLanguageServerCompleted(false, new DocsError('fake error', ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
-            assert.equal(messageToShow, '[Docs Validation] Start language server failed. Without sign in');
+            assert.equal(messageToShow, '[Docs Validation] Enable real-time validation failed. fake error Check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
+        });
+
+        it(`Start language server succeeds`, () => {
+            let event = new StartLanguageServerCompleted(true);
+            observer.eventHandler(event);
+            assert.equal(messageToShow, undefined);
+            assert.deepEqual(messageActions, []);
         });
     });
 });

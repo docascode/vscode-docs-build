@@ -9,7 +9,7 @@ import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeco
 import { BuildExecutor } from './buildExecutor';
 import { OP_CONFIG_FILE_NAME, UserType } from '../shared';
 import { visualizeBuildReport } from './reportGenerator';
-import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired, StartLanguageServerFailed } from '../common/loggingEvents';
+import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired, StartLanguageServerCompleted } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
@@ -92,8 +92,9 @@ export class BuildController {
             await this.validateUserCredential(credential);
             buildInput = await this.getBuildInput(credential);
             this._buildExecutor.startLanguageServer(buildInput, credential.userInfo?.userToken);
+            this._eventStream.post(new StartLanguageServerCompleted(true));
         } catch (err) {
-            this._eventStream.post(new StartLanguageServerFailed(err));
+            this._eventStream.post(new StartLanguageServerCompleted(false, err));
             return;
         }
     }
