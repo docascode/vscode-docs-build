@@ -8,7 +8,7 @@ import assert from 'assert';
 
 describe('LanguageServerManager', () => {
     let sinon: SinonSandbox;
-    let observer: LanguageServerManager;
+    let manager: LanguageServerManager;
     let stubExecuteCommand: SinonStub;
 
     before(() => {
@@ -17,38 +17,38 @@ describe('LanguageServerManager', () => {
     });
 
     it('Real-time validation disabled', () => {
-        observer = new LanguageServerManager(<EnvironmentController>{
+        manager = new LanguageServerManager(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
             userType: UserType.MicrosoftEmployee,
             enableRealTimeValidation: false
         });
-        observer.eventHandler(new ExtensionActivated());
+        manager.eventHandler(new ExtensionActivated());
         assert(stubExecuteCommand.notCalled);
     });
 
     it('Real-time validation enabled with unknown user type', () => {
-        observer = new LanguageServerManager(<EnvironmentController>{
+        manager = new LanguageServerManager(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
             userType: UserType.Unknown,
             enableRealTimeValidation: true
         });
-        observer.eventHandler(new ExtensionActivated());
+        manager.eventHandler(new ExtensionActivated());
         assert(stubExecuteCommand.notCalled);
     });
 
     it('Real-time validation enabled with user type selected', () => {
-        observer = new LanguageServerManager(<EnvironmentController>{
+        manager = new LanguageServerManager(<EnvironmentController>{
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
             userType: UserType.PublicContributor,
             enableRealTimeValidation: true
         });
-        observer.eventHandler(new ExtensionActivated());
+        manager.eventHandler(new ExtensionActivated());
         assert(stubExecuteCommand.calledOnce);
     });
 });
