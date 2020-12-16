@@ -23,7 +23,7 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 ## Known issues
 
-The following validations have incosnsistent results between Docs Build validation and local validation.
+The following validations have inconsistent results between Docs Build validation and local validation.
 
 - bookmark-not-found: The rendering information required to validate bookmarks in schema-based content isn't available publicly, so if you aren't signed in as a Microsoft employee you might not get all broken bookmark results.
 - author-not-found and ms-author-invalid: These validations require external API calls that aren't supported locally at this time, so no results will be returned for them.
