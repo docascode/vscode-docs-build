@@ -86,7 +86,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const codeActionProvider = new CodeActionProvider();
 
     // Start language server
-    let startServerTriggerObserver = new StartLanguageServerObserver(environmentController);
+    const startServerTriggerObserver = new StartLanguageServerObserver(environmentController);
     eventStream.subscribe(startServerTriggerObserver.eventHandler);
 
     context.subscriptions.push(
