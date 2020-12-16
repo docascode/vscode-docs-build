@@ -1,6 +1,6 @@
 import assert from 'assert';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnkownUserType, StartLanguageServerFailed } from '../../../src/common/loggingEvents';
+import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnknownUserType, StartLanguageServerFailed } from '../../../src/common/loggingEvents';
 import { fakedBuildInput, fakedCredential } from '../../utils/faker';
 import { SinonSandbox, createSandbox } from 'sinon';
 import { MessageAction } from '../../../src/shared';
@@ -118,8 +118,8 @@ describe('ErrorMessageObserver', () => {
         assert.deepEqual(messageActions, []);
     });
 
-    it(`Trigger command with unkown user type`, () => {
-        const event = new TriggerCommandWithUnkownUserType();
+    it(`Trigger command with unknown user type`, () => {
+        const event = new TriggerCommandWithUnknownUserType();
         observer.eventHandler(event);
         assert.equal(messageToShow, '[Docs Validation] The command you triggered needs user type information. Please choose either Microsoft employee or Public contributor. You can change your selection later if needed in the extension settings (Docs validation -> User type).');
         assert.deepEqual(messageActions[0].title, "Microsoft employee");

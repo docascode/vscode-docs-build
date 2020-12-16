@@ -103,8 +103,8 @@ export class DocsLoggerObserver {
             case EventType.ExtensionActivated:
                 this.handleExtensionActivated();
                 break;
-            case EventType.TriggerCommandWithUnkownUserType:
-                this.handleTriggerCommandWithUnkownUserType();
+            case EventType.TriggerCommandWithUnknownUserType:
+                this.handleTriggerCommandWithUnknownUserType();
                 break;
         }
     }
@@ -312,7 +312,7 @@ export class DocsLoggerObserver {
         this.appendLine(`Extension activated.`);
     }
 
-    private handleTriggerCommandWithUnkownUserType() {
+    private handleTriggerCommandWithUnknownUserType() {
         this.appendLine(`Command triggered when user type is unknown.`);
     }
 }

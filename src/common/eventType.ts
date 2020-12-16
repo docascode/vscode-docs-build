@@ -52,7 +52,7 @@ export enum EventType {
     QuickPickTriggered,
     QuickPickCommandSelected,
     LearnMoreClicked,
-    TriggerCommandWithUnkownUserType,
+    TriggerCommandWithUnknownUserType,
     ExtensionActivated,
 
     // Language Server

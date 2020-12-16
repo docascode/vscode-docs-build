@@ -253,8 +253,8 @@ export class LearnMoreClicked implements BaseEvent {
     constructor(public correlationId: string, public diagnosticErrorCode: string) { }
 }
 
-export class TriggerCommandWithUnkownUserType implements BaseEvent {
-    type = EventType.TriggerCommandWithUnkownUserType;
+export class TriggerCommandWithUnknownUserType implements BaseEvent {
+    type = EventType.TriggerCommandWithUnknownUserType;
 }
 
 export class ExtensionActivated implements BaseEvent {
