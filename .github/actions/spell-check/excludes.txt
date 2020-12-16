@@ -1,0 +1,11 @@
+^\.docfx/
+^\.benchmark/
+^\.logs/
+^\.nyc_output/
+^\.vscode/
+^\.vscode-test/
+^\.coverage/
+^\.temp/
+^\.github/actions/spell-check/
+^\.gitignore$
+out/
