@@ -18,7 +18,7 @@ import { EventType } from '../../../src/common/eventType';
 import { Subscription } from 'rxjs';
 import { BuildType, BuildInput } from '../../../src/build/buildInput';
 import { UserType } from '../../../src/shared';
-import { LanguageClient } from "vscode-languageclient";
+import { LanguageClient } from "vscode-languageclient/node";
 
 describe('BuildExecutor', () => {
     let sinon: SinonSandbox;

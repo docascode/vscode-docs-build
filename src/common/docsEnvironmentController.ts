@@ -1,6 +1,6 @@
 import vscode from 'vscode';
-import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, USER_TYPE, UserType } from '../shared';
 import { EnvironmentChanged, UserTypeChange } from './loggingEvents';
+import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, USER_TYPE, UserType, ENABLE_AUTOMATIC_REAL_TIME_VALIDATION } from '../shared';
 import { EventStream } from './eventStream';
 import { EnvironmentController } from './environmentController';
 import { getRepositoryInfoFromLocalFolder } from '../utils/utils';
@@ -11,6 +11,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     private _docsRepoType: DocsRepoType;
     private _configurationChangeListener: vscode.Disposable;
     private _userType: UserType;
+    private _enableAutomaticRealTimeValidation: boolean;
 
     constructor(private _eventStream: EventStream) {
     }
@@ -20,6 +21,7 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
         this._debugMode = this.getDebugMode();
         this._docsRepoType = await this.getDocsRepoType();
         this._userType = this.getUserType();
+        this._enableAutomaticRealTimeValidation = this.getEnableAutomaticRealTimeValidation();
 
         this._configurationChangeListener = vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
             if (event.affectsConfiguration(`${EXTENSION_NAME}.${ENVIRONMENT_CONFIG_NAME}`)) {
@@ -30,6 +32,8 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${USER_TYPE}`)) {
                 this._userType = this.getUserType();
                 this._eventStream.post(new UserTypeChange(this._userType));
+            } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${ENABLE_AUTOMATIC_REAL_TIME_VALIDATION}`)) {
+                this._enableAutomaticRealTimeValidation = this.getEnableAutomaticRealTimeValidation();
             }
         });
     }
@@ -61,6 +65,10 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
         return this._userType;
     }
 
+    public get enableAutomaticRealTimeValidation(): boolean {
+        return this._enableAutomaticRealTimeValidation;
+    }
+
     private getEnv(): Environment {
         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
         return extensionConfig.get<Environment>(ENVIRONMENT_CONFIG_NAME, 'PROD');
@@ -74,6 +82,11 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     private getUserType(): UserType {
         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
         return extensionConfig.get<UserType>(USER_TYPE, UserType.Unknown);
+    }
+
+    private getEnableAutomaticRealTimeValidation(): boolean {
+        const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
+        return extensionConfig.get<boolean>(ENABLE_AUTOMATIC_REAL_TIME_VALIDATION, false);
     }
 
     private async getDocsRepoType(): Promise<DocsRepoType> {

@@ -63,7 +63,7 @@ function parseRemoteUrl(url: string): [DocsRepoType, string, string] {
     const docsRepoType = repository.resource.startsWith('github.com') ? 'GitHub' : 'Azure DevOps';
     const match = /^.+?(?<locale>\.[a-z]{2,4}-[a-z]{2,4}(-[a-z]{2,4})?|\.loc)?$/g.exec(repository.name);
     let locale = 'en-us';
-    if(match && match.groups && match.groups.locale) {
+    if (match && match.groups && match.groups.locale) {
         locale = match.groups.locale.substring(1);
     }
     return [docsRepoType, `https://${repository.resource}/${repository.full_name}`, locale];
@@ -107,7 +107,7 @@ export async function getFolderSizeInMB(folderPath: string): Promise<number> {
     return size;
 }
 
-export async function killProcessTree(pid: number, signal?: string | number): Promise<unknown> {
+export async function killProcessTree(pid: number, signal?: string | number): Promise<void> {
     return new Promise((resolve, reject) => {
         signal = signal || 'SIGKILL';
         psTree(pid, function (err, children: psTree.PS[]) {

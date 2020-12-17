@@ -16,7 +16,7 @@ import {
     LanguageClientOptions,
     ServerOptions,
     Disposable
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 import { UserType } from '../shared';
 
 interface BuildParameters {
@@ -109,7 +109,7 @@ export class BuildExecutor {
 
         const clientOptions: LanguageClientOptions = {};
 
-        this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${args.join(' ')}`));
+        this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${buildParameters.serveCommand}`));
         const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
         client.registerProposedFeatures();
         this._disposable = client.start();

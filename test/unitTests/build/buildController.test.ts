@@ -282,7 +282,8 @@ describe('BuildController', () => {
             env: 'PROD',
             docsRepoType: 'GitHub',
             debugMode: false,
-            userType: UserType.PublicContributor
+            userType: UserType.PublicContributor,
+            enableAutomaticRealTimeValidation: false
         };
         buildController = new BuildController(
             getFakedBuildExecutor(
