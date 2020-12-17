@@ -27,11 +27,7 @@ import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
 import { DocsLogger } from './common/docsLogger';
-<<<<<<< HEAD
 import { LanguageServerManager } from './build/languageServerManager';
-=======
-import { StartLanguageServerObserver } from './observers/startLanguageServerObserver';
->>>>>>> fdc5c10 (from last pr)
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -87,19 +83,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const buildStatusBarObserver = new BuildStatusBarObserver(buildStatusBar);
     eventStream.subscribe(buildStatusBarObserver.eventHandler);
 
-<<<<<<< HEAD
     const codeActionProvider = new CodeActionProvider();
 
     // Start language server
     const languageServerManager = new LanguageServerManager(environmentController);
     eventStream.subscribe(languageServerManager.eventHandler);
-=======
-    // Start language server
-    let startServerTriggerObserver = new StartLanguageServerObserver(environmentController);
-    eventStream.subscribe(startServerTriggerObserver.eventHandler);
-
-    let codeActionProvider = new CodeActionProvider();
->>>>>>> fdc5c10 (from last pr)
 
     context.subscriptions.push(
         outputChannel,

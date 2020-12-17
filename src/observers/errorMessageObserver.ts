@@ -34,7 +34,7 @@ export class ErrorMessageObserver {
                 break;
             case EventType.StartLanguageServerCompleted:
                 if (!(<StartLanguageServerCompleted>event).succeeded) {
-                    this.handleStartLanguageServerFailed(<StartLanguageServerCompleted>event);
+                    this.handleBuildFailed(<StartLanguageServerCompleted>event);
                 }
                 break;
         }
@@ -57,34 +57,33 @@ export class ErrorMessageObserver {
         }
     }
 
-    private handleBuildFailed(event: BuildFailed) {
+    private handleBuildFailed(event: BaseEvent) {
         let action: MessageAction;
-        const error = <DocsError>event.err;
-        switch (error.code) {
-            case ErrorCode.TriggerBuildWithCredentialExpired:
-                action = new MessageAction('Sign in', 'docs.signIn');
+        let errorMessage: string;
+        let error: Error;
+        switch (event.type) {
+            case EventType.BuildCompleted:
+                error = (<BuildFailed>event).err;
+                errorMessage = `Repository validation failed. `;
                 break;
-            case ErrorCode.TriggerBuildBeforeSignIn:
-                action = new MessageAction('Sign in', 'docs.signIn');
+            case EventType.StartLanguageServerCompleted:
+                error = (<StartLanguageServerCompleted>event).err;
+                errorMessage = `Enable real-time validation failed. `;
                 break;
         }
-        this.showErrorMessage(`Repository validation failed. ${event.err.message} Check the channel output for details`, action);
-    }
-
-    private handleStartLanguageServerFailed(event: StartLanguageServerCompleted) {
-        let action: MessageAction;
-        let error = <DocsError>event.err;
         if (error) {
-            switch (error.code) {
+            switch ((<DocsError>error).code) {
                 case ErrorCode.TriggerBuildWithCredentialExpired:
                     action = new MessageAction('Sign in', 'docs.signIn');
+                    errorMessage += `${error.message} Check the channel output for details`;
                     break;
                 case ErrorCode.TriggerBuildBeforeSignIn:
                     action = new MessageAction('Sign in', 'docs.signIn');
+                    errorMessage += `${error.message} Check the channel output for details`;
                     break;
             }
         }
-        this.showErrorMessage(`Enable real-time validation failed. ${event.err.message} Check the channel output for details`, action);
+        this.showErrorMessage(errorMessage, action);
     }
 
     private handlePublicContributorSignIn() {

@@ -133,21 +133,21 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Start language server fails since credential expires`, () => {
-            let event = new StartLanguageServerCompleted(false, new DocsError('fake error', ErrorCode.TriggerBuildWithCredentialExpired));
+            const event = new StartLanguageServerCompleted(false, new DocsError('fake error', ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Enable real-time validation failed. fake error Check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 
         it(`Start language server fails since not signed in`, () => {
-            let event = new StartLanguageServerCompleted(false, new DocsError('fake error', ErrorCode.TriggerBuildWithCredentialExpired));
+            const event = new StartLanguageServerCompleted(false, new DocsError('fake error', ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Enable real-time validation failed. fake error Check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 
         it(`Start language server succeeds`, () => {
-            let event = new StartLanguageServerCompleted(true);
+            const event = new StartLanguageServerCompleted(true);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
