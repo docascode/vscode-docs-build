@@ -2,32 +2,39 @@ import { BaseEvent, StartLanguageServerCompleted, UserSignInCompleted } from '..
 import vscode from 'vscode';
 import { EventType } from '../common/eventType';
 import { EnvironmentController } from '../common/environmentController';
+import { LanguageServerStatus } from '../shared';
 
 export class LanguageServerManager {
-    private _languageServerStarted = false;
+    private _languageServerStatus: LanguageServerStatus = 'Idle';
     constructor(private _environmentController: EnvironmentController) { }
 
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.ExtensionActivated:
-                if (this._environmentController.userType && this._environmentController.enableAutomaticRealTimeValidation) {
+                if (this._environmentController.userType && this.readyToStartLanguageServer()) {
+                    this._languageServerStatus = 'Starting';
                     vscode.commands.executeCommand('docs.enableRealTimeValidation');
                 }
                 break;
             case EventType.StartLanguageServerCompleted:
                 if ((<StartLanguageServerCompleted>event).succeeded) {
-                    this._languageServerStarted = true;
+                    this._languageServerStatus = 'Running';
                 }
                 break;
             case EventType.UserSignInCompleted:
-                if ((<UserSignInCompleted>event).succeeded && this._environmentController.enableAutomaticRealTimeValidation && !this._languageServerStarted) {
+                if ((<UserSignInCompleted>event).succeeded && this.readyToStartLanguageServer()) {
+                    this._languageServerStatus = 'Starting';
                     vscode.commands.executeCommand('docs.enableRealTimeValidation');
                 }
                 break;
         }
     }
 
-    public getLanguageServerStarted(): boolean {
-        return this._languageServerStarted;
+    public getLanguageServerStatus(): LanguageServerStatus {
+        return this._languageServerStatus;
+    }
+
+    private readyToStartLanguageServer(): boolean {
+        return this._environmentController.enableAutomaticRealTimeValidation && this._languageServerStatus === 'Idle';
     }
 }
