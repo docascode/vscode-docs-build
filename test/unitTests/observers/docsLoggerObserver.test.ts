@@ -1,10 +1,12 @@
 import assert from 'assert';
-import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered, ExtensionActivated, TriggerCommandWithUnknownUserType, PublicContributorSignIn } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered, ExtensionActivated, TriggerCommandWithUnknownUserType, PublicContributorSignIn, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
 import { fakedPackage, fakedCredential } from '../../utils/faker';
 import { ILogger } from '../../../src/common/logger';
+import { DocsError } from '../../../src/error/docsError';
+import { ErrorCode } from '../../../src/error/errorCode';
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;
@@ -401,6 +403,24 @@ describe('DocsLoggerObserver', () => {
             observer.eventHandler(event);
 
             const expectedOutput = `Sign in failed: Sign in is only available for Microsoft employees.\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
+    });
+
+    describe('Handle Start language server completed', () => {
+        it(`Handle Start language server succeeds`, () => {
+            const event = new StartLanguageServerCompleted(true);
+            observer.eventHandler(event);
+
+            const expectedOutput = `Successfully start language server.\n\n`;
+            assert.equal(loggerText, expectedOutput);
+        });
+
+        it(`Handle Start language server fails`, () => {
+            const event = new StartLanguageServerCompleted(false, new DocsError('fakeError', ErrorCode.TriggerBuildBeforeSignIn));
+            observer.eventHandler(event);
+
+            const expectedOutput = `Failed to start language server: fakeError\n\n`;
             assert.equal(loggerText, expectedOutput);
         });
     });

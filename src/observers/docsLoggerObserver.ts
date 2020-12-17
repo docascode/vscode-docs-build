@@ -1,4 +1,4 @@
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildCompleted, CancelBuildFailed } from '../common/loggingEvents';
+import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildCompleted, CancelBuildFailed, StartLanguageServerCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { DocfxExecutionResult } from '../build/buildResult';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
@@ -105,6 +105,9 @@ export class DocsLoggerObserver {
                 break;
             case EventType.TriggerCommandWithUnknownUserType:
                 this.handleTriggerCommandWithUnknownUserType();
+                break;
+            case EventType.StartLanguageServerCompleted:
+                this.handleStartLanguageServerCompleted(<StartLanguageServerCompleted>event);
                 break;
         }
     }
@@ -314,5 +317,16 @@ export class DocsLoggerObserver {
 
     private handleTriggerCommandWithUnknownUserType() {
         this.appendLine(`Command triggered when user type is unknown.`);
+    }
+
+    private handleStartLanguageServerCompleted(event: StartLanguageServerCompleted) {
+        if (event.succeeded) {
+            this.appendLine(`Successfully start language server.`);
+        } else {
+            if (event.err) {
+                this.appendLine(`Failed to start language server: ${event.err.message}`);
+            }
+        }
+        this.appendLine();
     }
 }
