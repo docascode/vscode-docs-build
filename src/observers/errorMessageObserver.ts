@@ -29,8 +29,8 @@ export class ErrorMessageObserver {
             case EventType.PublicContributorSignIn:
                 this.handlePublicContributorSignIn();
                 break;
-            case EventType.TriggerCommandWithUnkownUserType:
-                this.handleCommandWithUnkownUserTypeTriggered();
+            case EventType.TriggerCommandWithUnknownUserType:
+                this.handleCommandWithUnknownUserTypeTriggered();
                 break;
             case EventType.StartLanguageServerFailed:
                 this.handleStartLanguageServerFailed(<StartLanguageServerFailed>event);
@@ -78,7 +78,7 @@ export class ErrorMessageObserver {
         this.showErrorMessage(`Sign in is only available for Microsoft employees.`);
     }
 
-    private handleCommandWithUnkownUserTypeTriggered() {
+    private handleCommandWithUnknownUserTypeTriggered() {
         this.showErrorMessage(
             `The command you triggered needs user type information. Please choose either Microsoft employee or Public contributor. ` +
             `You can change your selection later if needed in the extension settings (Docs validation -> User type).`,

@@ -22,7 +22,7 @@ import config from './config';
 import { EnvironmentController } from './common/environmentController';
 import { TelemetryObserver } from './observers/telemetryObserver';
 import { getCorrelationId } from './utils/utils';
-import { QuickPickTriggered, QuickPickCommandSelected, ExtensionActivated, TriggerCommandWithUnkownUserType } from './common/loggingEvents';
+import { QuickPickTriggered, QuickPickCommandSelected, ExtensionActivated, TriggerCommandWithUnknownUserType } from './common/loggingEvents';
 import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
@@ -159,7 +159,7 @@ function getTelemetryReporter(context: ExtensionContext, environmentController: 
 
 function checkIfUserTypeSelected(environmentController: EnvironmentController, eventStream: EventStream): boolean {
     if (!environmentController.userType) {
-        eventStream.post(new TriggerCommandWithUnkownUserType);
+        eventStream.post(new TriggerCommandWithUnknownUserType);
         return false;
     }
     return true;

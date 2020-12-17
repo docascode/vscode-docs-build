@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered, ExtensionActivated, TriggerCommandWithUnkownUserType, PublicContributorSignIn } from '../../../src/common/loggingEvents';
+import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered, ExtensionActivated, TriggerCommandWithUnknownUserType, PublicContributorSignIn } from '../../../src/common/loggingEvents';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
@@ -387,7 +387,7 @@ describe('DocsLoggerObserver', () => {
 
     describe('Command triggered with unknown user type', () => {
         it(`Command triggered with unknown user type`, () => {
-            const event = new TriggerCommandWithUnkownUserType();
+            const event = new TriggerCommandWithUnknownUserType();
             observer.eventHandler(event);
 
             const expectedOutput = `Command triggered when user type is unknown.\n`;
