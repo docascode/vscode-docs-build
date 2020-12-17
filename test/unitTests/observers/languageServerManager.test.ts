@@ -1,6 +1,6 @@
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import { EnvironmentController } from '../../../src/common/environmentController';
-import { LanguageServerManager } from '../../../src/observers/languageServerManager';
+import { LanguageServerManager } from '../../../src/build/languageServerManager';
 import vscode from 'vscode';
 import { UserType } from '../../../src/shared';
 import { ExtensionActivated } from '../../../src/common/loggingEvents';
@@ -22,7 +22,7 @@ describe('LanguageServerManager', () => {
             docsRepoType: 'GitHub',
             debugMode: false,
             userType: UserType.MicrosoftEmployee,
-            enableRealTimeValidation: false
+            enableAutomaticRealTimeValidation: false
         });
         manager.eventHandler(new ExtensionActivated());
         assert(stubExecuteCommand.notCalled);
@@ -34,7 +34,7 @@ describe('LanguageServerManager', () => {
             docsRepoType: 'GitHub',
             debugMode: false,
             userType: UserType.Unknown,
-            enableRealTimeValidation: true
+            enableAutomaticRealTimeValidation: true
         });
         manager.eventHandler(new ExtensionActivated());
         assert(stubExecuteCommand.notCalled);
@@ -46,7 +46,7 @@ describe('LanguageServerManager', () => {
             docsRepoType: 'GitHub',
             debugMode: false,
             userType: UserType.PublicContributor,
-            enableRealTimeValidation: true
+            enableAutomaticRealTimeValidation: true
         });
         manager.eventHandler(new ExtensionActivated());
         assert(stubExecuteCommand.calledOnce);

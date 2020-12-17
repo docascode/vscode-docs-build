@@ -27,7 +27,7 @@ import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
 import { DocsLogger } from './common/docsLogger';
-import { LanguageServerManager } from './observers/languageServerManager';
+import { LanguageServerManager } from './build/languageServerManager';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();

@@ -9,7 +9,7 @@ export class LanguageServerManager {
     public eventHandler = (event: BaseEvent) => {
         switch (event.type) {
             case EventType.ExtensionActivated:
-                if (this._environmentController.userType && this._environmentController.enableRealTimeValidation) {
+                if (this._environmentController.userType && this._environmentController.enableAutomaticRealTimeValidation) {
                     vscode.commands.executeCommand('docs.enableRealTimeValidation');
                 }
                 break;

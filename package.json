@@ -71,7 +71,7 @@
         "docs-build.realTimeValidation.automaticallyEnable": {
           "type": "boolean",
           "default": false,
-          "description": "Automatically enable real-time validation"
+          "description": "With this checked, the real-time validation will be automatically enabled once the opened repository is a valid Docs repository."
         }
       }
     },
