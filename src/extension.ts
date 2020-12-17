@@ -27,6 +27,7 @@ import TelemetryReporter from './telemetryReporter';
 import { OPBuildAPIClient } from './build/opBuildAPIClient';
 import { BuildExecutor } from './build/buildExecutor';
 import { DocsLogger } from './common/docsLogger';
+import { LanguageServerManager } from './build/languageServerManager';
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
@@ -84,6 +85,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     const codeActionProvider = new CodeActionProvider();
 
+    // Start language server
+    const languageServerManager = new LanguageServerManager(environmentController);
+    eventStream.subscribe(languageServerManager.eventHandler);
+
     context.subscriptions.push(
         outputChannel,
         logger,
@@ -117,7 +122,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
                 createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController, environmentController);
             }
         }),
-        vscode.commands.registerCommand('docs.enableRealTimtValidation', () => {
+        vscode.commands.registerCommand('docs.enableRealTimeValidation', () => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
                 buildController.startDocfxLanguageServer(credentialController.credential);
             }

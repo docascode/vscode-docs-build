@@ -5,4 +5,5 @@ export interface EnvironmentController {
     docsRepoType: DocsRepoType;
     debugMode: boolean;
     userType: UserType;
+    enableAutomaticRealTimeValidation: boolean;
 }
