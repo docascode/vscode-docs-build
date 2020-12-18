@@ -10,7 +10,7 @@ export class DocsLoggerObserver {
     constructor(private _logger: ILogger) { }
 
     // Just for Test
-    public get downloadProgressDot() {
+    public get downloadProgressDot(): number {
         return this._downloadProgressDot;
     }
 
@@ -19,7 +19,7 @@ export class DocsLoggerObserver {
         this._downloadProgressDot = value;
     }
 
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
             // Sign
             case EventType.UserSignInCompleted:

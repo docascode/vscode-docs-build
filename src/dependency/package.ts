@@ -22,7 +22,7 @@ export class AbsolutePathPackage {
         public installPath?: AbsolutePath) {
     }
 
-    public static getAbsolutePathPackage(pkg: Package, extensionPath: string) {
+    public static getAbsolutePathPackage(pkg: Package, extensionPath: string): AbsolutePathPackage {
         return new AbsolutePathPackage(
             pkg.id,
             pkg.name,

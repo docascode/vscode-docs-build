@@ -6,7 +6,7 @@ import { DocfxExecutionResult } from '../build/buildResult';
 export class DocsOutputChannelObserver {
     constructor(private _channel: OutputChannel) { }
 
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
             case EventType.BuildInstantAllocated:
             case EventType.UserSignInTriggered:

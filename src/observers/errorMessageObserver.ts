@@ -7,7 +7,7 @@ import { DocsError } from '../error/docsError';
 import { DocfxExecutionResult } from '../build/buildResult';
 
 export class ErrorMessageObserver {
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
             case EventType.UserSignInCompleted:
                 if (!(<UserSignInCompleted>event).succeeded) {

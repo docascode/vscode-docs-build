@@ -12,7 +12,7 @@ import path from 'path';
 export class TelemetryObserver {
     constructor(private _reporter: TelemetryReporter) { }
 
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
             // Sign
             case EventType.UserSignInTriggered:

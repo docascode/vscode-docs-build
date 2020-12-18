@@ -11,7 +11,7 @@ import { getDurationInSeconds } from '../utils/utils';
 import { validateDownload } from './downloadValidator';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
 
-export async function ensureRuntimeDependencies(context: ExtensionContext, correlationId: string, platformInfo: PlatformInformation, eventStream: EventStream) {
+export async function ensureRuntimeDependencies(context: ExtensionContext, correlationId: string, platformInfo: PlatformInformation, eventStream: EventStream): Promise<boolean> {
     const runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
     const packagesToInstall = getAbsolutePathPackagesToInstall(runtimeDependencies, platformInfo, context.extensionPath);
     if (packagesToInstall && packagesToInstall.length > 0) {

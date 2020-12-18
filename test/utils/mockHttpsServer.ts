@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
 import getPort from 'get-port';
 import fs from 'fs-extra';
@@ -9,7 +10,7 @@ const ServerMock = require('mock-http-server');
 export class MockHttpsServer {
     constructor(private server: any, public baseUrl: string) { }
 
-    public addRequestHandler(method: string, path: string, replyStatus: number, replyHeaders?: any, replyBody?: any) {
+    public addRequestHandler(method: string, path: string, replyStatus: number, replyHeaders?: any, replyBody?: any): void {
         this.server.on({
             method,
             path,
@@ -21,11 +22,11 @@ export class MockHttpsServer {
         });
     }
 
-    public async start() {
+    public async start(): Promise<unknown> {
         return new Promise((resolve) => this.server.start(resolve));
     }
 
-    public async stop() {
+    public async stop(): Promise<unknown> {
         return new Promise((resolve) => this.server.stop(resolve));
     }
 

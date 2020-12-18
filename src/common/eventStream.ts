@@ -8,7 +8,7 @@ export class EventStream {
         this.sink = new Subject<BaseEvent>();
     }
 
-    public post(event: BaseEvent) {
+    public post(event: BaseEvent): void {
         this.sink.next(event);
     }
 

@@ -9,7 +9,7 @@ import psTree from 'ps-tree';
 import { DocsRepoType } from '../shared';
 import tempDirectory from 'temp-dir';
 
-export function parseQuery(uri: vscode.Uri) {
+export function parseQuery(uri: vscode.Uri): any {
     return uri.query.split('&').reduce((prev: any, current) => {
         const queryString = current.split('=');
         prev[queryString[0]] = queryString[1];
@@ -17,7 +17,7 @@ export function parseQuery(uri: vscode.Uri) {
     }, {});
 }
 
-export async function delay<T = void>(ms: number, result?: T) {
+export async function delay<T = void>(ms: number, result?: T): Promise<T> {
     return new Promise<T>((resolve, reject) => setTimeout(() => {
         if (result instanceof Error) {
             reject(result);
@@ -27,7 +27,7 @@ export async function delay<T = void>(ms: number, result?: T) {
     }, ms));
 }
 
-export function safelyReadJsonFile(filePath: string) {
+export function safelyReadJsonFile(filePath: string): any {
     if (!fs.existsSync(filePath)) {
         throw new Error(`'${filePath}' does not exist`);
     }
@@ -69,19 +69,19 @@ function parseRemoteUrl(url: string): [DocsRepoType, string, string] {
     return [docsRepoType, `https://${repository.resource}/${repository.full_name}`, locale];
 }
 
-export function basicAuth(token: string) {
+export function basicAuth(token: string): string {
     const buff = Buffer.from(`user:${token}`);
     return buff.toString('base64');
 }
 
-export function formatDuration(ms: number) {
+export function formatDuration(ms: number): string {
     const hours = Math.floor(ms / 3600000);
     const minutes = Math.floor((ms % 3600000) / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
     return `${pad(hours, 2)}:${pad(minutes, 2)}:${pad(seconds, 2)}`;
 }
 
-export function getDurationInSeconds(ms: number) {
+export function getDurationInSeconds(ms: number): number {
     return Math.floor(ms / 1000);
 }
 
@@ -90,7 +90,7 @@ function pad(num: number, size: number) {
     return s.padStart(size, '0');
 }
 
-export function trimEndSlash(str: string) {
+export function trimEndSlash(str: string): string {
     return str.replace(/\/*$/g, '');
 }
 
@@ -123,12 +123,12 @@ export async function killProcessTree(pid: number, signal?: string | number): Pr
     });
 }
 
-export function getTempOutputFolder() {
+export function getTempOutputFolder(): string {
     const randomFolder = Math.random().toString(36).substring(7);
     return path.join(tempDirectory, randomFolder);
 }
 
-export function normalizeDriveLetter(filePath: string) {
+export function normalizeDriveLetter(filePath: string): string {
     if (process.platform === 'win32') {
         return filePath.replace(/^([A-Z]):/, (match, driver) => `${driver.toLowerCase()}:`);
     } else {

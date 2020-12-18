@@ -4,7 +4,7 @@ import { DocsError } from "../error/docsError";
 import { DownloadValidating } from "../common/loggingEvents";
 import { ErrorCode } from "../error/errorCode";
 
-export function validateDownload(eventStream: EventStream, buffer: Buffer, integrity: string) {
+export function validateDownload(eventStream: EventStream, buffer: Buffer, integrity: string): void {
     eventStream.post(new DownloadValidating());
     if (integrity && integrity.length > 0) {
         const downloadFileIntegrity = getBufferIntegrityHash(buffer);

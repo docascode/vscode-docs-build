@@ -22,7 +22,7 @@ export class DocsLogger implements ILogger, vscode.Disposable {
         }
     }
 
-    dispose() {
+    dispose(): void {
         if (this._fileLogger) {
             this._fileLogger.end("=====================");
         }

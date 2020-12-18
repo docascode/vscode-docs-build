@@ -3,7 +3,7 @@ import { EventType } from "../common/eventType";
 import { BaseEvent } from "../common/loggingEvents";
 
 export class BuildStatusBarObserver extends BaseStatusBarObserver {
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
             case EventType.BuildInstantAllocated:
                 this.setAndShowStatusBar(`$(sync~spin)`, undefined, undefined, 'Validating the current workspace folder');
