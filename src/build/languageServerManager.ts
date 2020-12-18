@@ -8,7 +8,7 @@ export class LanguageServerManager {
     private _languageServerStatus: LanguageServerStatus = 'Idle';
     constructor(private _environmentController: EnvironmentController) { }
 
-    public eventHandler = (event: BaseEvent) => {
+    public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
             case EventType.ExtensionActivated:
                 if (this._environmentController.userType && this.readyToStartLanguageServer()) {
@@ -19,6 +19,8 @@ export class LanguageServerManager {
             case EventType.StartLanguageServerCompleted:
                 if ((<StartLanguageServerCompleted>event).succeeded) {
                     this._languageServerStatus = 'Running';
+                } else {
+                    this._languageServerStatus = 'Idle';
                 }
                 break;
             case EventType.UserSignInCompleted:
@@ -30,6 +32,7 @@ export class LanguageServerManager {
         }
     }
 
+    // For test only
     public getLanguageServerStatus(): LanguageServerStatus {
         return this._languageServerStatus;
     }

@@ -58,19 +58,24 @@ export class ErrorMessageObserver {
     }
 
     private handleBuildFailed(event: BaseEvent) {
-        let action: MessageAction;
         let errorMessage: string;
         let error: Error;
         switch (event.type) {
             case EventType.BuildCompleted:
                 error = (<BuildFailed>event).err;
                 errorMessage = `Repository validation failed. `;
+                this.setAndShowErrorMessage(error, errorMessage);
                 break;
             case EventType.StartLanguageServerCompleted:
                 error = (<StartLanguageServerCompleted>event).err;
                 errorMessage = `Enable real-time validation failed. `;
+                this.setAndShowErrorMessage(error, errorMessage);
                 break;
         }
+    }
+
+    private setAndShowErrorMessage(error: Error, errorMessage: string) {
+        let action: MessageAction;
         if (error) {
             switch ((<DocsError>error).code) {
                 case ErrorCode.TriggerBuildWithCredentialExpired:

@@ -7,15 +7,11 @@ import { ExtensionActivated, StartLanguageServerCompleted, UserSignInCompleted }
 import assert from 'assert';
 
 describe('LanguageServerManager', () => {
-    let sinon: SinonSandbox;
-    let manager: LanguageServerManager;
-    let stubVSCodeExecuteCommand: SinonStub;
+    const sinon: SinonSandbox = createSandbox();
+    const stubVSCodeExecuteCommand: SinonStub = sinon.stub(vscode.commands, 'executeCommand');
     const fakeCorrelationId = 'fakeCorrelationId';
+    let manager: LanguageServerManager;
 
-    before(() => {
-        sinon = createSandbox();
-        stubVSCodeExecuteCommand = sinon.stub(vscode.commands, 'executeCommand');
-    });
     afterEach(() => {
         stubVSCodeExecuteCommand.reset();
     });
@@ -70,6 +66,19 @@ describe('LanguageServerManager', () => {
         assert(manager.getLanguageServerStatus() === 'Idle');
         manager.eventHandler(new StartLanguageServerCompleted(true));
         assert(manager.getLanguageServerStatus() === 'Running');
+    });
+
+    it('Handle start language server fails', () => {
+        manager = new LanguageServerManager(<EnvironmentController>{
+            env: 'PROD',
+            docsRepoType: 'GitHub',
+            debugMode: false,
+            userType: UserType.MicrosoftEmployee,
+            enableAutomaticRealTimeValidation: true
+        });
+        assert(manager.getLanguageServerStatus() === 'Idle');
+        manager.eventHandler(new StartLanguageServerCompleted(false));
+        assert(manager.getLanguageServerStatus() === 'Idle');
     });
 
     it('Handle user sign-in succeeds when language server is running', () => {
