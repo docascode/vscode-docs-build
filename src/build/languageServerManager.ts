@@ -12,8 +12,7 @@ export class LanguageServerManager {
         switch (event.type) {
             case EventType.ExtensionActivated:
                 if (this._environmentController.userType && this.readyToStartLanguageServer()) {
-                    this._languageServerStatus = 'Starting';
-                    vscode.commands.executeCommand('docs.enableRealTimeValidation');
+                    this.tryToStartLanguageServer();
                 }
                 break;
             case EventType.StartLanguageServerCompleted:
@@ -25,8 +24,7 @@ export class LanguageServerManager {
                 break;
             case EventType.UserSignInCompleted:
                 if ((<UserSignInCompleted>event).succeeded && this.readyToStartLanguageServer()) {
-                    this._languageServerStatus = 'Starting';
-                    vscode.commands.executeCommand('docs.enableRealTimeValidation');
+                    this.tryToStartLanguageServer();
                 }
                 break;
         }
@@ -39,5 +37,10 @@ export class LanguageServerManager {
 
     private readyToStartLanguageServer(): boolean {
         return this._environmentController.enableAutomaticRealTimeValidation && this._languageServerStatus === 'Idle';
+    }
+
+    private tryToStartLanguageServer(): void {
+        this._languageServerStatus = 'Starting';
+        vscode.commands.executeCommand('docs.enableRealTimeValidation');
     }
 }

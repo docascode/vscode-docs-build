@@ -34,7 +34,7 @@ export class ErrorMessageObserver {
                 break;
             case EventType.StartLanguageServerCompleted:
                 if (!(<StartLanguageServerCompleted>event).succeeded) {
-                    this.handleBuildFailed(<StartLanguageServerCompleted>event);
+                    this.handleStartServerFailed(<StartLanguageServerCompleted>event);
                 }
                 break;
         }
@@ -57,21 +57,16 @@ export class ErrorMessageObserver {
         }
     }
 
-    private handleBuildFailed(event: BaseEvent) {
-        let errorMessage: string;
-        let error: Error;
-        switch (event.type) {
-            case EventType.BuildCompleted:
-                error = (<BuildFailed>event).err;
-                errorMessage = `Repository validation failed. `;
-                this.setAndShowErrorMessage(error, errorMessage);
-                break;
-            case EventType.StartLanguageServerCompleted:
-                error = (<StartLanguageServerCompleted>event).err;
-                errorMessage = `Enable real-time validation failed. `;
-                this.setAndShowErrorMessage(error, errorMessage);
-                break;
-        }
+    private handleBuildFailed(event: BuildFailed) {
+        const errorMessage = `Repository validation failed. `;
+        const error: Error = event.err;
+        this.setAndShowErrorMessage(error, errorMessage);
+    }
+
+    private handleStartServerFailed(event: StartLanguageServerCompleted) {
+        const errorMessage = `Enable real-time validation failed. `;
+        const error: Error = event.err;
+        this.setAndShowErrorMessage(error, errorMessage);
     }
 
     private setAndShowErrorMessage(error: Error, errorMessage: string) {
