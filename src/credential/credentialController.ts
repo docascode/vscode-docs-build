@@ -54,6 +54,7 @@ export class CredentialController {
                     this.resetCredential();
                 }
                 vscode.commands.executeCommand('workbench.action.reloadWindow');
+                break;
         }
     }
 

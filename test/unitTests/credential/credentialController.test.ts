@@ -175,10 +175,13 @@ describe('CredentialController', () => {
 
     describe('User type changes', () => {
         before(() => {
-            stubVSCodeExecuteCommand = sinon.stub(vscode.commands, 'executeCommand').withArgs('workbench.action.reloadWindow').returns(undefined);
+            stubVSCodeExecuteCommand = sinon.stub(vscode.commands, 'executeCommand');
         });
         afterEach(() => {
             stubVSCodeExecuteCommand.reset();
+        });
+        after(() => {
+            stubVSCodeExecuteCommand.restore();
         });
 
         it(`User type changes to public contributor`, () => {
@@ -188,7 +191,7 @@ describe('CredentialController', () => {
             const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
-            assert(stubVSCodeExecuteCommand.calledOnce);
+            assert(stubVSCodeExecuteCommand.withArgs('workbench.action.reloadWindow').calledOnce);
         });
 
         it(`User type changes to Microsoft employee`, () => {
@@ -196,7 +199,7 @@ describe('CredentialController', () => {
             credentialController.eventHandler(event);
 
             assert.deepStrictEqual(testEventBus.getEvents(), []);
-            assert(stubVSCodeExecuteCommand.calledOnce);
+            assert(stubVSCodeExecuteCommand.withArgs('workbench.action.reloadWindow').calledOnce);
         });
     });
 

@@ -13,7 +13,7 @@ import { BuildInput } from '../../../src/build/buildInput';
 import { BuildController } from '../../../src/build/buildController';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
 import { fakedCredential, getFakedBuildExecutor, defaultLogPath, defaultOutputPath, getFakeEnvironmentController } from '../../utils/faker';
-import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired, StartLanguageServerFailed } from '../../../src/common/loggingEvents';
+import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { Credential } from '../../../src/credential/credentialController';
@@ -490,12 +490,24 @@ describe('BuildController', () => {
         assert.equal(visualizeBuildReportCalled, false);
     });
 
+    it('Start language server succeeds', async () => {
+        await buildController.startDocfxLanguageServer(fakedCredential);
+        assert.deepStrictEqual(testEventBus.getEvents(), [
+            new BuildProgress('Retrieving repository information for current workspace folder...'),
+            new BuildProgress('Trying to get provisioned repository information...'),
+            new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository'),
+            new StartLanguageServerCompleted(true)
+        ]);
+        assert.equal(tokenUsedForBuild, 'faked-token');
+    });
+
     it('Start language server without sign-in', async () => {
         await buildController.startDocfxLanguageServer(<Credential>{
             signInStatus: 'Initializing'
         });
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new StartLanguageServerFailed(
+            new StartLanguageServerCompleted(
+                false,
                 new DocsError(
                     `Microsoft employees must sign in before validating.`,
                     ErrorCode.TriggerBuildBeforeSignIn
@@ -515,21 +527,12 @@ describe('BuildController', () => {
         await buildController.startDocfxLanguageServer(fakedCredential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new CredentialExpired(),
-            new StartLanguageServerFailed(
+            new StartLanguageServerCompleted(
+                false,
                 new DocsError(
                     `Credential has expired. Please sign in again to continue.`,
                     ErrorCode.TriggerBuildWithCredentialExpired
                 ))
         ]);
-    });
-
-    it('Start language server succeeds', async () => {
-        await buildController.startDocfxLanguageServer(fakedCredential);
-        assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildProgress('Retrieving repository information for current workspace folder...'),
-            new BuildProgress('Trying to get provisioned repository information...'),
-            new RepositoryInfoRetrieved('https://faked.repository', 'https://faked.original.repository')
-        ]);
-        assert.equal(tokenUsedForBuild, 'faked-token');
     });
 });
