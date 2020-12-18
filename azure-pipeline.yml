@@ -42,7 +42,7 @@ steps:
   displayName: Cache npm
 
 - task: Npm@1
-  displayName: 'npm install'
+  displayName: 'npm ci'
   inputs:
     verbose: false
 
