@@ -225,21 +225,21 @@
       "id": "docfx-win7-x64",
       "name": "docfx",
       "description": "DocFX for Windows (x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta1.615+4834671603.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta1.662+cb32f115f5.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
       "rid": "win7-x64",
-      "integrity": "1A20CA8475E43BE01725CE6A250B9083369269C7D19C704E396F268B41587721"
+      "integrity": "54569BD0372C2283AA0338D9166B29692B593A3876275C8DC215E47D423A735D"
     },
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
       "description": "DocFX for OSX(x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta1.615+4834671603.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta1.662+cb32f115f5.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
       "rid": "osx-x64",
-      "integrity": "BDB592384E322C5C19575E8E7C19E9C25B25A3C18EC62E3DC14B5F25486C57FD"
+      "integrity": "4DE254FB940FC49AFA330FBEBE2BAB12A85551C5FC65BB02DB40495C537888F7"
     }
   ]
 }
