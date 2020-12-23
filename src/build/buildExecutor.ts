@@ -86,6 +86,8 @@ export class BuildExecutor {
         }
         const command = this._binary;
         const args = buildParameters.serveCommand.split(" ");
+        args.forEach((arg, i) => args[i] = arg.replace(/^["'](.+(?=["']$))["']$/, '$1'));
+
         const options = { env: buildParameters.envs, cwd: this._cwd };
         const optionsWithFullEnvironment = {
             ...options,
