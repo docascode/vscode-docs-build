@@ -46,14 +46,6 @@ steps:
   inputs:
     verbose: false
 
-- task: Npm@1
-  displayName: 'Lint'
-  inputs:
-    command: custom
-    verbose: false
-    customCommand: run lint
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
-
 - bash: |
     npm run test
   displayName: Run Test(Mac)
