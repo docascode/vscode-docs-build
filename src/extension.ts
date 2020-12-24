@@ -86,7 +86,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const codeActionProvider = new CodeActionProvider();
 
     // Start language server
-    const languageServerManager = new LanguageServerManager(environmentController);
+    const languageServerManager = new LanguageServerManager(environmentController, buildController, credentialController);
     eventStream.subscribe(languageServerManager.eventHandler);
 
     context.subscriptions.push(
@@ -124,7 +124,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         }),
         vscode.commands.registerCommand('docs.enableRealTimeValidation', () => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
-                buildController.startDocfxLanguageServer(credentialController.credential);
+                languageServerManager.startLanguageServer();
             }
         }),
         vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
