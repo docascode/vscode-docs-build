@@ -1,7 +1,7 @@
 import vscode from 'vscode';
 import fs from 'fs-extra';
 import path from 'path';
-import { Credential } from '../credential/credentialController';
+import { CredentialController } from '../credential/credentialController';
 import { OPBuildAPIClient } from './opBuildAPIClient';
 import { EventStream } from '../common/eventStream';
 import { DiagnosticController } from './diagnosticController';
@@ -27,6 +27,7 @@ export class BuildController {
         private _diagnosticController: DiagnosticController,
         private _environmentController: EnvironmentController,
         private _eventStream: EventStream,
+        private _credentialController: CredentialController
     ) {
         this._instanceAvailable = true;
     }
@@ -35,14 +36,14 @@ export class BuildController {
         return this._instanceAvailable;
     }
 
-    public async build(correlationId: string, credential: Credential): Promise<void> {
+    public async build(correlationId: string): Promise<void> {
         let buildInput: BuildInput;
-        this._eventStream.post(new BuildTriggered(correlationId, !!credential.userInfo));
+        this._eventStream.post(new BuildTriggered(correlationId, !!this._credentialController.credential.userInfo));
         const start = Date.now();
 
         try {
-            await this.validateUserCredential(credential);
-            buildInput = await this.getBuildInput(credential);
+            await this.validateUserCredential();
+            buildInput = await this.getBuildInput();
             fs.emptyDirSync(this._buildInput.outputFolderPath);
             fs.removeSync(this._buildInput.logPath);
             this.setAvailableFlag();
@@ -54,7 +55,7 @@ export class BuildController {
         try {
             this._currentBuildCorrelationId = correlationId;
             this._eventStream.post(new BuildStarted(buildInput.workspaceFolderName));
-            const buildResult = await this._buildExecutor.RunBuild(correlationId, buildInput, credential.userInfo?.userToken);
+            const buildResult = await this._buildExecutor.RunBuild(correlationId, buildInput, this._credentialController.credential.userInfo?.userToken);
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             switch (buildResult.result) {
                 case DocfxExecutionResult.Succeeded:
@@ -85,13 +86,13 @@ export class BuildController {
         }
     }
 
-    public async startDocfxLanguageServer(credential: Credential): Promise<void> {
+    public async startDocfxLanguageServer(): Promise<void> {
         let buildInput: BuildInput;
 
         try {
-            await this.validateUserCredential(credential);
-            buildInput = await this.getBuildInput(credential);
-            this._buildExecutor.startLanguageServer(buildInput, credential.userInfo?.userToken);
+            await this.validateUserCredential();
+            buildInput = await this.getBuildInput();
+            this._buildExecutor.startLanguageServer(buildInput, this._credentialController.credential.userInfo?.userToken);
             this._eventStream.post(new StartLanguageServerCompleted(true));
         } catch (err) {
             this._eventStream.post(new StartLanguageServerCompleted(false, err));
@@ -124,21 +125,21 @@ export class BuildController {
         this._eventStream.post(new BuildInstantReleased());
     }
 
-    private async validateUserCredential(credential: Credential) {
+    private async validateUserCredential() {
         if (this._environmentController.userType === UserType.PublicContributor) {
             return;
         }
-        if (credential.signInStatus !== 'SignedIn' && this._environmentController.userType === UserType.MicrosoftEmployee) {
+        if (this._credentialController.credential.signInStatus !== 'SignedIn' && this._environmentController.userType === UserType.MicrosoftEmployee) {
             throw new DocsError(`Microsoft employees must sign in before validating.`, ErrorCode.TriggerBuildBeforeSignIn);
         }
 
-        if (!(await this._opBuildAPIClient.validateCredential(credential.userInfo.userToken, this._eventStream))) {
+        if (!(await this._opBuildAPIClient.validateCredential(this._credentialController.credential.userInfo.userToken, this._eventStream))) {
             this._eventStream.post(new CredentialExpired());
             throw new DocsError(`Credential has expired. Please sign in again to continue.`, ErrorCode.TriggerBuildWithCredentialExpired);
         }
     }
 
-    private async getBuildInput(credential: Credential): Promise<BuildInput> {
+    private async getBuildInput(): Promise<BuildInput> {
         if (this._buildInput) {
             return this._buildInput;
         }
@@ -148,7 +149,7 @@ export class BuildController {
         const localRepositoryPath = activeWorkSpaceFolder.uri.fsPath;
 
         try {
-            const [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, credential.userInfo?.userToken);
+            const [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, this._credentialController.credential.userInfo?.userToken);
             const dryRun = this.needDryRun(activeWorkSpaceFolder.uri.fsPath);
             const outputFolderPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER || getTempOutputFolder());
             const logPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_LOG_PATH || path.join(outputFolderPath, '.errors.log'));

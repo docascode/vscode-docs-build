@@ -76,7 +76,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const diagnosticController = new DiagnosticController();
     const opBuildAPIClient = new OPBuildAPIClient(environmentController);
     const buildExecutor = new BuildExecutor(extensionContext, platformInformation, environmentController, eventStream, telemetryReporter);
-    const buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, environmentController, eventStream);
+    const buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, environmentController, eventStream, credentialController);
 
     // Build status bar
     const buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
@@ -86,7 +86,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const codeActionProvider = new CodeActionProvider();
 
     // Start language server
-    const languageServerManager = new LanguageServerManager(environmentController, buildController, credentialController);
+    const languageServerManager = new LanguageServerManager(environmentController, buildController);
     eventStream.subscribe(languageServerManager.eventHandler);
 
     context.subscriptions.push(
@@ -110,7 +110,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         }),
         vscode.commands.registerCommand('docs.build', () => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
-                buildController.build(getCorrelationId(), credentialController.credential);
+                buildController.build(getCorrelationId());
             }
         }),
         vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
@@ -216,7 +216,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                     credentialController.signOut(getCorrelationId());
                     break;
                 case '$(debug-start) Validate':
-                    buildController.build(getCorrelationId(), credentialController.credential);
+                    buildController.build(getCorrelationId());
                     break;
                 case '$(debug-stop) Cancel Build':
                     buildController.cancelBuild();

@@ -5,7 +5,6 @@ import { UserType } from '../../../src/shared';
 import { ExtensionActivated, StartLanguageServerCompleted, UserSignInCompleted } from '../../../src/common/loggingEvents';
 import assert from 'assert';
 import { BuildController } from '../../../src/build/buildController';
-import { CredentialController } from '../../../src/credential/credentialController';
 
 describe('LanguageServerManager', () => {
     const sinon: SinonSandbox = createSandbox();
@@ -15,10 +14,6 @@ describe('LanguageServerManager', () => {
             return;
         }
     };
-    const fakeCredentialController = <CredentialController>{
-        credential: undefined
-    }
-
     const spyStartLanguageServer: SinonSpy = sinon.spy(fakeBuildController, 'startDocfxLanguageServer');
 
     let manager: LanguageServerManager;
@@ -38,8 +33,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.MicrosoftEmployee,
             enableAutomaticRealTimeValidation: false
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         manager.eventHandler(new ExtensionActivated());
         assert(spyStartLanguageServer.notCalled);
     });
@@ -52,8 +46,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.Unknown,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         manager.eventHandler(new ExtensionActivated());
         assert(spyStartLanguageServer.notCalled);
     });
@@ -66,8 +59,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.PublicContributor,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         manager.eventHandler(new ExtensionActivated());
         assert(spyStartLanguageServer.calledOnce);
     });
@@ -80,8 +72,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.MicrosoftEmployee,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         assert(manager.getLanguageServerStatus() === 'Idle');
         manager.eventHandler(new StartLanguageServerCompleted(true));
         assert(manager.getLanguageServerStatus() === 'Running');
@@ -95,8 +86,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.MicrosoftEmployee,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         assert(manager.getLanguageServerStatus() === 'Idle');
         manager.eventHandler(new StartLanguageServerCompleted(false));
         assert(manager.getLanguageServerStatus() === 'Idle');
@@ -110,8 +100,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.MicrosoftEmployee,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         manager.eventHandler(new StartLanguageServerCompleted(true));
         manager.eventHandler(new UserSignInCompleted(fakeCorrelationId, true));
         assert(spyStartLanguageServer.notCalled);
@@ -125,8 +114,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.MicrosoftEmployee,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         assert(manager.getLanguageServerStatus() === 'Idle');
         manager.eventHandler(new UserSignInCompleted(fakeCorrelationId, true));
         assert(spyStartLanguageServer.calledOnce);
@@ -140,8 +128,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.MicrosoftEmployee,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         assert(manager.getLanguageServerStatus() === 'Idle');
         manager.eventHandler(new UserSignInCompleted(fakeCorrelationId, false));
         assert(manager.getLanguageServerStatus() === 'Idle');
@@ -156,8 +143,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.MicrosoftEmployee,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         manager.eventHandler(new StartLanguageServerCompleted(true));
         manager.startLanguageServer();
         assert(spyStartLanguageServer.notCalled);
@@ -172,8 +158,7 @@ describe('LanguageServerManager', () => {
             userType: UserType.MicrosoftEmployee,
             enableAutomaticRealTimeValidation: true
         },
-            fakeBuildController,
-            fakeCredentialController);
+            fakeBuildController);
         manager.startLanguageServer();
         assert(spyStartLanguageServer.calledOnce);
         assert(manager.getLanguageServerStatus() === 'Starting');

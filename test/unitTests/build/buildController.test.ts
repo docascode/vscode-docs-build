@@ -12,13 +12,13 @@ import { BuildResult, DocfxExecutionResult } from '../../../src/build/buildResul
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildController } from '../../../src/build/buildController';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
-import { fakedCredential, getFakedBuildExecutor, defaultLogPath, defaultOutputPath, getFakeEnvironmentController } from '../../utils/faker';
+import { fakedCredentialController, getFakedBuildExecutor, defaultLogPath, defaultOutputPath, getFakeEnvironmentController, fakedCredential } from '../../utils/faker';
 import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
-import { Credential } from '../../../src/credential/credentialController';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { UserType } from '../../../src/shared';
+import { Credential } from '../../../src/credential/credentialController'
 
 const expectedBuildInput = <BuildInput>{
     buildType: 'FullBuild',
@@ -79,7 +79,8 @@ describe('BuildController', () => {
                     tokenUsedForBuild = buildUserToken;
                 }),
             fakedOPBuildAPIClient, undefined,
-            fakeEnvironmentController, eventStream
+            fakeEnvironmentController, eventStream,
+            fakedCredentialController
         );
         tokenUsedForBuild = undefined;
         tokenUsedForAPICall = undefined;
@@ -121,7 +122,7 @@ describe('BuildController', () => {
             return [{}, {}];
         });
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
@@ -135,7 +136,7 @@ describe('BuildController', () => {
     it('Trigger build on non-workspace', async () => {
         stubWorkspaceFolders = sinon.stub(vscode.workspace, "workspaceFolders").get(() => undefined);
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
@@ -149,7 +150,7 @@ describe('BuildController', () => {
     it('Trigger build on non-Docs repository', async () => {
         stubExistsSync.withArgs(fakedOpConfigPath).returns(false);
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
@@ -167,7 +168,7 @@ describe('BuildController', () => {
             }
         });
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildFailed('fakedCorrelationId', undefined, 1,
@@ -187,9 +188,9 @@ describe('BuildController', () => {
                 });
             }
         };
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream);
+        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new CredentialExpired(),
@@ -204,7 +205,7 @@ describe('BuildController', () => {
     it('Trigger build on invalid docs repository', async () => {
         stubGetRepositoryInfoFromLocalFolder.throws(new Error('Faked error msg'));
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -217,9 +218,10 @@ describe('BuildController', () => {
     });
 
     it('Trigger build before signed in', async () => {
-        await buildController.build('fakedCorrelationId', <Credential>{
-            signInStatus: 'Initializing'
+        const stubCredential = sinon.stub(fakedCredentialController, 'credential').get(() => {
+            return <Credential>{ signInStatus: 'Initializing' };
         });
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', false),
             new BuildFailed('fakedCorrelationId', undefined, 1,
@@ -228,11 +230,12 @@ describe('BuildController', () => {
                     ErrorCode.TriggerBuildBeforeSignIn
                 ))
         ]);
+        stubCredential.restore();
     });
 
     it('Successfully build by Microsoft employee', async () => {
         // First time
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -258,7 +261,7 @@ describe('BuildController', () => {
         // Second time
         testEventBus.clear();
         visualizeBuildReportCalled = false;
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildInstantAllocated(),
@@ -292,9 +295,10 @@ describe('BuildController', () => {
                     tokenUsedForBuild = buildUserToken;
                 }),
             fakedOPBuildAPIClient, undefined,
-            tempEnvironmentController, eventStream
+            tempEnvironmentController, eventStream,
+            fakedCredentialController
         );
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -328,7 +332,7 @@ describe('BuildController', () => {
             }, {}]
         });
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -377,9 +381,9 @@ describe('BuildController', () => {
                 });
             },
         };
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream);
+        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -402,8 +406,8 @@ describe('BuildController', () => {
     });
 
     it('Trigger two builds at the same time', async () => {
-        const firstBuildPromise = buildController.build('fakedCorrelationId1', fakedCredential);
-        const secondBuildPromise = buildController.build('fakedCorrelationId2', fakedCredential);
+        const firstBuildPromise = buildController.build('fakedCorrelationId1');
+        const secondBuildPromise = buildController.build('fakedCorrelationId2');
         await Promise.all([firstBuildPromise, secondBuildPromise]);
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId1', true),
@@ -440,9 +444,9 @@ describe('BuildController', () => {
     });
 
     it('Build Failed', async () => {
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Failed), fakedOPBuildAPIClient, undefined, fakeEnvironmentController, eventStream);
+        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Failed), fakedOPBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
 
-        await buildController.build('fakedCorrelationId', fakedCredential);
+        await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildTriggered('fakedCorrelationId', true),
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -464,11 +468,11 @@ describe('BuildController', () => {
         assert.equal(visualizeBuildReportCalled, false);
 
         // Reset environment
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), fakedOPBuildAPIClient, undefined, fakeEnvironmentController, eventStream);
+        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), fakedOPBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
     });
 
     it('Build Cancelled', async () => {
-        const buildPromise = buildController.build('fakedCorrelationId', fakedCredential);
+        const buildPromise = buildController.build('fakedCorrelationId');
         setTimeout(() => { buildController.cancelBuild(); }, 5);
         await buildPromise;
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -491,7 +495,7 @@ describe('BuildController', () => {
     });
 
     it('Start language server succeeds', async () => {
-        await buildController.startDocfxLanguageServer(fakedCredential);
+        await buildController.startDocfxLanguageServer();
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildProgress('Retrieving repository information for current workspace folder...'),
             new BuildProgress('Trying to get provisioned repository information...'),
@@ -502,9 +506,10 @@ describe('BuildController', () => {
     });
 
     it('Start language server without sign-in', async () => {
-        await buildController.startDocfxLanguageServer(<Credential>{
-            signInStatus: 'Initializing'
+        const stubCredential = sinon.stub(fakedCredential, 'signInStatus').get(() => {
+            return 'Initializing';
         });
+        await buildController.startDocfxLanguageServer();
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new StartLanguageServerCompleted(
                 false,
@@ -513,6 +518,7 @@ describe('BuildController', () => {
                     ErrorCode.TriggerBuildBeforeSignIn
                 ))
         ]);
+        stubCredential.restore();
     });
 
     it('Start language server when credential expires', async () => {
@@ -523,8 +529,8 @@ describe('BuildController', () => {
                 });
             }
         };
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream);
-        await buildController.startDocfxLanguageServer(fakedCredential);
+        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
+        await buildController.startDocfxLanguageServer();
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new CredentialExpired(),
             new StartLanguageServerCompleted(

@@ -4,7 +4,7 @@ import { AbsolutePathPackage } from '../../src/dependency/package';
 import { SinonStub, SinonSandbox } from 'sinon';
 import { KeyChain } from '../../src/credential/keyChain';
 import { UserInfo, DocsRepoType, UserType } from '../../src/shared';
-import { Credential } from '../../src/credential/credentialController';
+import { Credential, CredentialController } from '../../src/credential/credentialController';
 import { ExtensionContext } from '../../src/extensionContext';
 import { PlatformInformation } from '../../src/common/platformInformation';
 import TelemetryReporter from '../../src/telemetryReporter';
@@ -81,6 +81,10 @@ export const fakedCredential = <Credential>{
         userName: 'Faked User',
         userToken: 'faked-token'
     }
+};
+
+export const fakedCredentialController = <CredentialController>{
+    credential: fakedCredential
 };
 
 export const tempFolder = path.resolve(__dirname, '../../../.temp');

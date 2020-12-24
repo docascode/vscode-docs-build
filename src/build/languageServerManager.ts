@@ -3,11 +3,10 @@ import { EventType } from '../common/eventType';
 import { EnvironmentController } from '../common/environmentController';
 import { LanguageServerStatus } from '../shared';
 import { BuildController } from './buildController';
-import { CredentialController } from '../credential/credentialController';
 
 export class LanguageServerManager {
     private _languageServerStatus: LanguageServerStatus = 'Idle';
-    constructor(private _environmentController: EnvironmentController, private _buildController: BuildController, private _credentialController: CredentialController) { }
+    constructor(private _environmentController: EnvironmentController, private _buildController: BuildController) { }
 
     public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
@@ -39,7 +38,7 @@ export class LanguageServerManager {
     public startLanguageServer(): void {
         if (this._languageServerStatus === 'Idle') {
             this._languageServerStatus = 'Starting';
-            this._buildController.startDocfxLanguageServer(this._credentialController.credential);
+            this._buildController.startDocfxLanguageServer();
         }
     }
 }
