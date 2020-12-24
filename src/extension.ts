@@ -64,8 +64,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const keyChain = new KeyChain(environmentController);
     const credentialController = new CredentialController(keyChain, eventStream, environmentController);
     eventStream.subscribe(credentialController.eventHandler);
-    // Initialize credential
-    const credentialInitialPromise = credentialController.initialize(getCorrelationId());
 
     // Docs Status bar
     const docsStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);
@@ -135,6 +133,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         }),
         vscode.window.registerUriHandler(uriHandler)
     );
+
+    // Initialize credential
+    const credentialInitialPromise = credentialController.initialize(getCorrelationId());
 
     // eslint-disable-next-line promise/catch-or-return, promise/always-return
     credentialInitialPromise.then(() => {

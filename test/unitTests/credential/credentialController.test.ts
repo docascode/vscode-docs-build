@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, UserTypeChange } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
@@ -32,7 +32,6 @@ describe('CredentialController', () => {
     let stubCredentialControllerInitialize: SinonStub;
     let stubOpenExternal: SinonStub;
     let stubConfigTimeout: SinonStub;
-    let stubVSCodeExecuteCommand: SinonStub;
 
     let eventStream: EventStream;
     let environmentController: EnvironmentController;
@@ -155,6 +154,21 @@ describe('CredentialController', () => {
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
         });
+
+        it(`Should be 'SignedOut' status if the user type is not Microsoft employee`, async () => {
+            const stubUserType = sinon.stub(environmentController, 'userType').get(() => {
+                return UserType.PublicContributor;
+            });
+
+            // Act
+            await credentialController.initialize('fakedCorrelationId');
+
+            // Assert
+            const credential = credentialController.credential;
+            AssertCredentialReset(credential);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
+            stubUserType.restore();
+        });
     });
 
     describe(`Public contributor`, () => {
@@ -170,36 +184,6 @@ describe('CredentialController', () => {
         it(`Public contributor sign-in`, async () => {
             await tempCredentialController.signIn('fakedCorrelationId');
             assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicContributorSignIn()]);
-        });
-    });
-
-    describe('User type changes', () => {
-        before(() => {
-            stubVSCodeExecuteCommand = sinon.stub(vscode.commands, 'executeCommand');
-        });
-        afterEach(() => {
-            stubVSCodeExecuteCommand.reset();
-        });
-        after(() => {
-            stubVSCodeExecuteCommand.restore();
-        });
-
-        it(`User type changes to public contributor`, () => {
-            const event = new UserTypeChange(UserType.PublicContributor);
-            credentialController.eventHandler(event);
-
-            const credential = credentialController.credential;
-            AssertCredentialReset(credential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialReset()]);
-            assert(stubVSCodeExecuteCommand.withArgs('workbench.action.reloadWindow').calledOnce);
-        });
-
-        it(`User type changes to Microsoft employee`, () => {
-            const event = new UserTypeChange(UserType.MicrosoftEmployee);
-            credentialController.eventHandler(event);
-
-            assert.deepStrictEqual(testEventBus.getEvents(), []);
-            assert(stubVSCodeExecuteCommand.withArgs('workbench.action.reloadWindow').calledOnce);
         });
     });
 

@@ -1,5 +1,5 @@
 import vscode from 'vscode';
-import { EnvironmentChanged, UserTypeChange } from './loggingEvents';
+import { EnvironmentChanged } from './loggingEvents';
 import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, USER_TYPE, UserType, ENABLE_AUTOMATIC_REAL_TIME_VALIDATION } from '../shared';
 import { EventStream } from './eventStream';
 import { EnvironmentController } from './environmentController';
@@ -31,9 +31,10 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
                 this.reloadWindow();
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${USER_TYPE}`)) {
                 this._userType = this.getUserType();
-                this._eventStream.post(new UserTypeChange(this._userType));
+                this.reloadWindow();
             } else if (event.affectsConfiguration(`${EXTENSION_NAME}.${ENABLE_AUTOMATIC_REAL_TIME_VALIDATION}`)) {
                 this._enableAutomaticRealTimeValidation = this.getEnableAutomaticRealTimeValidation();
+                this.reloadWindow();
             }
         });
     }

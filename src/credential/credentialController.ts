@@ -4,7 +4,7 @@ import querystring from 'querystring';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn, UserTypeChange } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -48,12 +48,6 @@ export class CredentialController {
                 break;
             case EventType.CredentialExpired:
                 this.resetCredential();
-                break;
-            case EventType.UserTypeChange:
-                if ((<UserTypeChange>event).newUserType !== UserType.MicrosoftEmployee) {
-                    this.resetCredential();
-                }
-                vscode.commands.executeCommand('workbench.action.reloadWindow');
                 break;
         }
     }
@@ -115,6 +109,10 @@ export class CredentialController {
     }
 
     private async refreshCredential(correlationId: string): Promise<void> {
+        if (this._environmentController.userType !== UserType.MicrosoftEmployee) {
+            this.resetCredential();
+            return;
+        }
         const userInfo = await this._keyChain.getUserInfo();
         if (userInfo) {
             this._signInStatus = 'SignedIn';
