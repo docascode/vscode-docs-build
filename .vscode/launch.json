@@ -18,6 +18,10 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ],
+            "env": {
+                // Fill in the folder which contains the docfx you want to attach, like 'E:/docfx/src/docfx/bin/Debug/net5.0'
+                "LOCAL_ATTACH_DOCFX_FOLDER_PATH": "",
+            },
             "preLaunchTask": "npm: watch"
         },
         {

@@ -44,7 +44,7 @@ export class BuildExecutor {
         const runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
         const buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === this._platformInfo.rid);
         const absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
-        this._cwd = absolutePackage.installPath.value;
+        this._cwd = process.env.LOCAL_ATTACH_DOCFX_FOLDER_PATH ? process.env.LOCAL_ATTACH_DOCFX_FOLDER_PATH : absolutePackage.installPath.value;
         this._binary = absolutePackage.binary;
     }
 
