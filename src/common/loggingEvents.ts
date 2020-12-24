@@ -1,7 +1,7 @@
 import { EventType } from './eventType';
 import { Credential } from '../credential/credentialController';
 import { PlatformInformation } from './platformInformation';
-import { Environment, UserType } from '../shared';
+import { Environment } from '../shared';
 import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { BuildInput } from '../build/buildInput';
 import { AbsolutePathPackage } from '../dependency/package';
@@ -74,11 +74,6 @@ export class CredentialExpired implements BaseEvent {
 
 export class PublicContributorSignIn implements BaseEvent {
     type = EventType.PublicContributorSignIn;
-}
-
-export class UserTypeChange implements BaseEvent {
-    type = EventType.UserTypeChange;
-    constructor(public newUserType: UserType) { }
 }
 
 // Build
