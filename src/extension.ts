@@ -60,17 +60,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     eventStream.subscribe(errorMessageObserver.eventHandler);
     eventStream.subscribe(infoMessageObserver.eventHandler);
 
+    // Docs Status bar
+    const docsStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);
+    const docsStatusBarObserver = new DocsStatusBarObserver(docsStatusBar, environmentController);
+    eventStream.subscribe(docsStatusBarObserver.eventHandler);
+
     // Credential component initialize
     const keyChain = new KeyChain(environmentController);
     const credentialController = new CredentialController(keyChain, eventStream, environmentController);
     eventStream.subscribe(credentialController.eventHandler);
     // Initialize credential
     const credentialInitialPromise = credentialController.initialize(getCorrelationId());
-
-    // Docs Status bar
-    const docsStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE + 1);
-    const docsStatusBarObserver = new DocsStatusBarObserver(docsStatusBar, environmentController);
-    eventStream.subscribe(docsStatusBarObserver.eventHandler);
 
     // Build component initialize
     const diagnosticController = new DiagnosticController();

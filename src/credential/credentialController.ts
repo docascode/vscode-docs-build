@@ -109,11 +109,11 @@ export class CredentialController {
     }
 
     private async refreshCredential(correlationId: string): Promise<void> {
-        const userInfo = await this._keyChain.getUserInfo();
         if (this._environmentController.userType !== UserType.MicrosoftEmployee) {
             this.resetCredential();
             return;
         }
+        const userInfo = await this._keyChain.getUserInfo();
         if (userInfo) {
             this._signInStatus = 'SignedIn';
             this._userInfo = userInfo;
