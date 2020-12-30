@@ -33,6 +33,9 @@ export class InfoMessageObserver {
             case EventType.ExtensionActivated:
                 this.handleExtensionActivated();
                 break;
+            case EventType.CredentialExpiredDuringLanguageServerRunning:
+                this.handleCredentialExpiredWhenLanguageServerRunning();
+                break;
         }
     }
 
@@ -86,5 +89,11 @@ export class InfoMessageObserver {
                     }
                 ));
         }
+    }
+
+    private handleCredentialExpiredWhenLanguageServerRunning() {
+        const action = new MessageAction('Sign in', 'docs.signIn');
+        const message = 'Credential Expired, please sign in again.';
+        this.showInfoMessage(message, action);
     }
 }

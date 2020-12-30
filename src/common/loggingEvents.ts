@@ -261,6 +261,10 @@ export class StartLanguageServerCompleted implements BaseEvent {
     constructor(public succeeded: boolean, public err?: Error) { }
 }
 
+export class CredentialExpiredDuringLanguageServerRunning implements BaseEvent {
+    type = EventType.CredentialExpiredDuringLanguageServerRunning;
+}
+
 // Test only
 export class RefreshCredential implements BaseEvent {
     type = EventType.RefreshCredential;

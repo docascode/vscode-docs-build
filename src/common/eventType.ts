@@ -56,6 +56,7 @@ export enum EventType {
 
     // Language Server
     StartLanguageServerCompleted = 'StartLanguageServerCompleted',
+    CredentialExpiredDuringLanguageServerRunning = 'CredentialExpiredDuringLanguageServerRunning',
 
     // Test only
     RefreshCredential = 'RefreshCredential',

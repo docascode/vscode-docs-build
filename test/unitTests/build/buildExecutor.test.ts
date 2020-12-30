@@ -19,6 +19,7 @@ import { Subscription } from 'rxjs';
 import { BuildType, BuildInput } from '../../../src/build/buildInput';
 import { UserType } from '../../../src/shared';
 import { LanguageClient } from "vscode-languageclient/node";
+import { CredentialExpiryHandler } from '../../../src/credential/credentialExpiryHandler';
 
 describe('BuildExecutor', () => {
     let sinon: SinonSandbox;
