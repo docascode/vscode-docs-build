@@ -18,18 +18,18 @@ export class UserSignInTriggered implements BaseEvent {
 
 export class UserSignInCompleted implements BaseEvent {
     type = EventType.UserSignInCompleted;
-    constructor(public correlationId: string, public succeeded: boolean, public retrievedFromCache: boolean = false) { }
+    constructor(public correlationId: string, public succeeded: boolean, public retrievedFromCache: boolean = false, public isFullRepoValidation: boolean = false) { }
 }
 
 export class UserSignInSucceeded extends UserSignInCompleted {
-    constructor(public correlationId: string, public credential: Credential, public retrievedFromCache: boolean = false) {
-        super(correlationId, true, retrievedFromCache);
+    constructor(public correlationId: string, public credential: Credential, public retrievedFromCache: boolean = false, public isFullRepoValidation: boolean = false) {
+        super(correlationId, true, retrievedFromCache, isFullRepoValidation);
     }
 }
 
 export class UserSignInFailed extends UserSignInCompleted {
-    constructor(public correlationId: string, public err: Error) {
-        super(correlationId, false);
+    constructor(public correlationId: string, public err: Error, public isFullRepoValidation: boolean = false) {
+        super(correlationId, false, false, isFullRepoValidation);
     }
 }
 

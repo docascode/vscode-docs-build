@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, BuildCompleted, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
@@ -13,6 +13,7 @@ import extensionConfig from '../../../src/config';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { TimeOutError } from '../../../src/error/timeOutError';
+import { DocfxExecutionResult } from '../../../src/build/buildResult';
 
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'docsmsft.docs-build',
@@ -25,6 +26,8 @@ const fakedAzureDevOpsCallbackURL = <vscode.Uri>{
     path: '/azure-devops-authenticate',
     query: 'id=faked-azure-devops-id&name=Fake-User-Azure-DevOps&email=fake-azure-devops@microsoft.com&X-OP-BuildUserToken=fake-azure-devops-token'
 };
+
+const fakedCorrelationId = 'fakedCorrelationId';
 
 describe('CredentialController', () => {
     let sinon: SinonSandbox;
@@ -134,12 +137,12 @@ describe('CredentialController', () => {
             setupAvailableKeyChain();
 
             // Act
-            await credentialController.initialize('fakedCorrelationId');
+            await credentialController.initialize(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
             assert.deepStrictEqual(credential, fakedCredential);
-            assert.deepStrictEqual(testEventBus.getEvents(), [new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true)]);
+            assert.deepStrictEqual(testEventBus.getEvents(), [new UserSignInSucceeded(fakedCorrelationId, fakedCredential, true)]);
         });
 
         it(`Should be 'SignedOut' status if the user info can not be retrieved from keyChain`, async () => {
@@ -147,7 +150,7 @@ describe('CredentialController', () => {
             setupUnavailableKeyChain();
 
             // Act
-            await credentialController.initialize('fakedCorrelationId');
+            await credentialController.initialize(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
@@ -161,7 +164,7 @@ describe('CredentialController', () => {
             });
 
             // Act
-            await credentialController.initialize('fakedCorrelationId');
+            await credentialController.initialize(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
@@ -182,13 +185,13 @@ describe('CredentialController', () => {
         const tempCredentialController = new CredentialController(keyChain, tempEventStream, tempEnvironmentController);
         const tempEventBus = new TestEventBus(tempEventStream);
         it(`Public contributor sign-in`, async () => {
-            await tempCredentialController.signIn('fakedCorrelationId');
+            await tempCredentialController.signIn(fakedCorrelationId);
             assert.deepStrictEqual(tempEventBus.getEvents(), [new PublicContributorSignIn()]);
         });
     });
 
     describe(`User Sign-in With GitHub`, () => {
-        it(`Sign-in successfully`, async () => {
+        it(`Sign-in successfully for full-repo validation`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
                 function (target: vscode.Uri): Thenable<boolean> {
@@ -200,9 +203,10 @@ describe('CredentialController', () => {
                     });
                 }
             );
+            credentialController.eventHandler(new BuildCompleted(fakedCorrelationId, DocfxExecutionResult.Failed, undefined, 1));
 
             // act
-            await credentialController.signIn('fakedCorrelationId');
+            await credentialController.signIn(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
@@ -222,9 +226,50 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(setUserInfo, expectedUserInfo);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
-                new UserSignInSucceeded('fakedCorrelationId', expectedCredential)
+                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, true)
+            ]);
+        });
+
+        it(`Sign-in successfully for real-time validation`, async () => {
+            // Prepare
+            stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
+                function (target: vscode.Uri): Thenable<boolean> {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            uriHandler.handleUri(fakedGitHubCallbackURL);
+                        }, 10);
+                        resolve(true);
+                    });
+                }
+            );
+            credentialController.eventHandler(new StartLanguageServerCompleted(false, undefined));
+
+            // act
+            await credentialController.signIn(fakedCorrelationId);
+
+            // Assert
+            const credential = credentialController.credential;
+            const expectedUserInfo = <UserInfo>{
+                signType: 'GitHub',
+                userId: 'faked-github-id',
+                userEmail: 'fake-github@microsoft.com',
+                userName: 'Fake-User-GitHub',
+                userToken: 'fake-github-token'
+            };
+            const expectedCredential = <Credential>{
+                signInStatus: 'SignedIn',
+                userInfo: expectedUserInfo
+            };
+            assert.deepStrictEqual(credential, expectedCredential);
+            assert.equal(isSetUserInfoCalled, true);
+            assert.deepStrictEqual(setUserInfo, expectedUserInfo);
+            assert.deepStrictEqual(testEventBus.getEvents(), [
+                new CredentialReset(),
+                new UserSignInTriggered(fakedCorrelationId),
+                new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
+                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, false)
             ]);
         });
 
@@ -233,17 +278,17 @@ describe('CredentialController', () => {
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(false);
 
             // Act
-            await credentialController.signIn('fakedCorrelationId');
+            await credentialController.signIn(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with GitHub failed: please allow to open external URL to sign in`, ErrorCode.GitHubSignInExternalUrlDeclined)),
+                new UserSignInFailed(fakedCorrelationId, new DocsError(`Signing in with GitHub failed: please allow to open external URL to sign in`, ErrorCode.GitHubSignInExternalUrlDeclined)),
             ]);
         });
 
@@ -256,17 +301,17 @@ describe('CredentialController', () => {
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(true);
 
             // Act
-            await credentialController.signIn('fakedCorrelationId');
+            await credentialController.signIn(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with GitHub failed: Timed out`, ErrorCode.GitHubSignInTimeOut, new TimeOutError('Timed out'))),
+                new UserSignInFailed(fakedCorrelationId, new DocsError(`Signing in with GitHub failed: Timed out`, ErrorCode.GitHubSignInTimeOut, new TimeOutError('Timed out'))),
             ]);
         });
     });
@@ -288,7 +333,7 @@ describe('CredentialController', () => {
             );
 
             // act
-            await credentialController.signIn('fakedCorrelationId');
+            await credentialController.signIn(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
@@ -308,9 +353,9 @@ describe('CredentialController', () => {
             assert.deepStrictEqual(setUserInfo, expectedUserInfo);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'),
-                new UserSignInSucceeded('fakedCorrelationId', expectedCredential)
+                new UserSignInSucceeded(fakedCorrelationId, expectedCredential)
             ]);
         });
 
@@ -319,17 +364,17 @@ describe('CredentialController', () => {
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(false);
 
             // Act
-            await credentialController.signIn('fakedCorrelationId');
+            await credentialController.signIn(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with Azure DevOps failed: please allow to open external URL to sign in`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined)),
+                new UserSignInFailed(fakedCorrelationId, new DocsError(`Signing in with Azure DevOps failed: please allow to open external URL to sign in`, ErrorCode.AzureDevOpsSignInExternalUrlDeclined)),
             ]);
         });
 
@@ -342,17 +387,17 @@ describe('CredentialController', () => {
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').resolves(true);
 
             // Act
-            await credentialController.signIn('fakedCorrelationId');
+            await credentialController.signIn(fakedCorrelationId);
 
             // Assert
             const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new CredentialReset(),
-                new UserSignInTriggered('fakedCorrelationId'),
+                new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with Azure DevOps account...`, 'Sign-in'),
                 new CredentialReset(),
-                new UserSignInFailed('fakedCorrelationId', new DocsError(`Signing in with Azure DevOps failed: Timed out`, ErrorCode.AzureDevOpsSignInTimeOut, new TimeOutError('Timed out'))),
+                new UserSignInFailed(fakedCorrelationId, new DocsError(`Signing in with Azure DevOps failed: Timed out`, ErrorCode.AzureDevOpsSignInTimeOut, new TimeOutError('Timed out'))),
             ]);
         });
     });
@@ -360,19 +405,19 @@ describe('CredentialController', () => {
     it(`User sign-out`, async () => {
         // Sign-in first
         setupAvailableKeyChain();
-        await credentialController.initialize('fakedCorrelationId');
+        await credentialController.initialize(fakedCorrelationId);
 
         // Act - Sign-out
-        credentialController.signOut('fakedCorrelationId');
+        credentialController.signOut(fakedCorrelationId);
 
         // Assert
         const credential = credentialController.credential;
         AssertCredentialReset(credential);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new UserSignInSucceeded('fakedCorrelationId', fakedCredential, true),
-            new UserSignOutTriggered('fakedCorrelationId'),
+            new UserSignInSucceeded(fakedCorrelationId, fakedCredential, true),
+            new UserSignOutTriggered(fakedCorrelationId),
             new CredentialReset(),
-            new UserSignOutSucceeded('fakedCorrelationId')
+            new UserSignOutSucceeded(fakedCorrelationId)
         ]);
     });
 });

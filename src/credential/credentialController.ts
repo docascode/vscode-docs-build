@@ -4,7 +4,7 @@ import querystring from 'querystring';
 import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn, BuildCompleted, StartLanguageServerCompleted } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -12,6 +12,7 @@ import { EnvironmentController } from '../common/environmentController';
 import { TimeOutError } from '../error/timeOutError';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
+import { DocfxExecutionResult } from '../build/buildResult';
 
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
     let uriEventListener: vscode.Disposable;
@@ -37,6 +38,7 @@ export interface Credential {
 export class CredentialController {
     private _signInStatus: DocsSignInStatus;
     private _userInfo: UserInfo;
+    private _isFullRepoValidation: boolean;
 
     constructor(private _keyChain: KeyChain, private _eventStream: EventStream, private _environmentController: EnvironmentController) { }
 
@@ -48,6 +50,16 @@ export class CredentialController {
                 break;
             case EventType.CredentialExpired:
                 this.resetCredential();
+                break;
+            case EventType.BuildCompleted:
+                if ((<BuildCompleted>event).result === DocfxExecutionResult.Failed) {
+                    this._isFullRepoValidation = true;
+                }
+                break;
+            case EventType.StartLanguageServerCompleted:
+                if (!(<StartLanguageServerCompleted>event).succeeded) {
+                    this._isFullRepoValidation = false;
+                }
                 break;
         }
     }
@@ -84,10 +96,10 @@ export class CredentialController {
             this._signInStatus = 'SignedIn';
             this._userInfo = userInfo;
             await this._keyChain.setUserInfo(userInfo);
-            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential));
+            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential, false, this._isFullRepoValidation));
         } catch (err) {
             this.resetCredential();
-            this._eventStream.post(new UserSignInFailed(correlationId, err));
+            this._eventStream.post(new UserSignInFailed(correlationId, err, this._isFullRepoValidation));
         }
     }
 
@@ -117,7 +129,7 @@ export class CredentialController {
         if (userInfo) {
             this._signInStatus = 'SignedIn';
             this._userInfo = userInfo;
-            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential, true));
+            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential, true, this._isFullRepoValidation));
         } else {
             this.resetCredential();
         }

@@ -62,13 +62,20 @@ describe('InfoMessageObserver', () => {
             assert.deepEqual(messageActions, []);
         });
 
-        it(`Sign in succeeded without credential retrieved from cache`, () => {
-            const event = new UserSignInCompleted(`fakedCorrelationId`, true, false);
+        it(`Sign in succeeded without credential retrieved from cache for full-repo validation`, () => {
+            const event = new UserSignInCompleted(`fakedCorrelationId`, true, false, true);
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Successfully signed in! Would you like to validate the current workspace folder?`);
             assert.deepEqual(messageActions, [
                 new MessageAction('Validate', 'docs.build', 'Would you like to validate the current workspace folder?')
             ]);
+        });
+
+        it(`Sign in succeeded without credential retrieved from cache for real-time validation`, () => {
+            const event = new UserSignInCompleted(`fakedCorrelationId`, true, false, false);
+            observer.eventHandler(event);
+            assert.equal(messageToShow, undefined);
+            assert.deepEqual(messageActions, []);
         });
     });
 
