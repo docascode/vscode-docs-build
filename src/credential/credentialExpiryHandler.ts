@@ -6,7 +6,7 @@ import { delay } from '../utils/utils';
 import config from '../config';
 import { TimeOutError } from '../error/timeOutError';
 import { Subscription } from "rxjs";
-import { UserCredentialRefreshRequest_Type, UserCredentialRefreshResponse, UserCredentialRefreshParams, CredentialRefreshResponse } from '../requestTypes';
+import { UserCredentialRefreshRequest_Type, UserCredentialRefreshResponse, UserCredentialRefreshParams } from '../requestTypes';
 import { EnvironmentController } from "../common/environmentController";
 
 export class CredentialExpiryHandler {
@@ -26,9 +26,15 @@ export class CredentialExpiryHandler {
         if (params.url && params.url.startsWith(config.OPBuildAPIEndPoint[this._environmentController.env])) {
             this._eventStream.post(new CredentialExpiredDuringLanguageServerRunning());
             try {
-                const token = await this.getRefreshedToken();
+                const builderToken = await this.getRefreshedToken();
                 return <UserCredentialRefreshResponse>{
-                    result: <CredentialRefreshResponse>{ headers: { [params.url]: token } }
+                    result: {
+                        [config.OPBuildAPIEndPoint[this._environmentController.env]]: {
+                            'headers': {
+                                ['X-OP-BuildUserToken']: builderToken
+                            }
+                        }
+                    }
                 };
             } catch (err) {
                 return <UserCredentialRefreshResponse>{

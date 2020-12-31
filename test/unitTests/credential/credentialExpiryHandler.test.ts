@@ -2,7 +2,7 @@ import { createSandbox, SinonSandbox, SinonStub } from "sinon";
 import { LanguageClient, ResponseError } from "vscode-languageclient/node";
 import { EventStream } from "../../../src/common/eventStream"
 import { CredentialExpiryHandler } from "../../../src/credential/credentialExpiryHandler";
-import { UserCredentialRefreshParams, UserCredentialRefreshResponse, CredentialRefreshResponse } from "../../../src/requestTypes";
+import { UserCredentialRefreshParams, UserCredentialRefreshResponse } from "../../../src/requestTypes";
 import TestEventBus from '../../utils/testEventBus';
 import assert from 'assert';
 import { CredentialExpiredDuringLanguageServerRunning, UserSignInFailed, UserSignInSucceeded, BaseEvent } from "../../../src/common/loggingEvents";
@@ -73,8 +73,10 @@ describe(('Handle credential expiry during language server is running'), () => {
         assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpiredDuringLanguageServerRunning(), signInSucceedsEvent]);
         assert.deepStrictEqual(result, <UserCredentialRefreshResponse>
             {
-                result: <CredentialRefreshResponse>{
-                    headers: { [credentialExpiryParam.url]: fakeToken }
+                result: {
+                    [credentialExpiryParam.url]: {
+                        'headers': { 'X-OP-BuildUserToken': fakeToken }
+                    }
                 }
             });
     });

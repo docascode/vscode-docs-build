@@ -192,7 +192,7 @@ export class BuildExecutor {
         if (!isPublicUser) {
             secrets[`${config.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
                 "headers": {
-                    "X-OP-BuildUserToken": buildUserToken
+                    'X-OP-BuildUserToken': buildUserToken
                 }
             };
         }

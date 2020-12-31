@@ -7,10 +7,6 @@ export interface UserCredentialRefreshParams {
 }
 
 export interface UserCredentialRefreshResponse {
-    result?: CredentialRefreshResponse;
+    result?: Object;
     error?: ResponseError<void>;
-}
-
-export interface CredentialRefreshResponse {
-    headers: Object;
 }
