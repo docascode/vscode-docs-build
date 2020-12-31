@@ -1,18 +1,19 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, StartLanguageServerCompleted, BuildFailed } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, StartLanguageServerCompleted, BuildFailed, BuildCompleted } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
-import { UserInfo, uriHandler, UserType } from '../../../src/shared';
+import { UserInfo, uriHandler, UserType, SignInReason } from '../../../src/shared';
 import { getFakeEnvironmentController, setupKeyChain, fakedCredential } from '../../utils/faker';
 import extensionConfig from '../../../src/config';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { TimeOutError } from '../../../src/error/timeOutError';
+import { DocfxExecutionResult } from '../../../src/build/buildResult';
 
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'docsmsft.docs-build',
@@ -189,6 +190,51 @@ describe('CredentialController', () => {
         });
     });
 
+    describe(`Handle validation failed events`, () => {
+        let tempCredentialController: CredentialController;
+        const signInError = new DocsError('error', ErrorCode.TriggerBuildBeforeSignIn);
+        const notSignInError = new DocsError('error', ErrorCode.TriggerBuildOnInvalidDocsRepo);
+
+        beforeEach(() => {
+            tempCredentialController = new CredentialController(keyChain, eventStream, environmentController);
+        });
+
+        it(`Handle build succeeded`, () => {
+            tempCredentialController.eventHandler(new BuildCompleted(fakedCorrelationId, DocfxExecutionResult.Succeeded, undefined, 1));
+            assertSignInReason(undefined);
+        });
+
+        it(`Handle build failed not caused by sign in error`, () => {
+            tempCredentialController.eventHandler(new BuildFailed(fakedCorrelationId, undefined, 1, notSignInError));
+            assertSignInReason(undefined);
+        });
+
+        it(`Handle build failed caused by sign in error`, () => {
+            tempCredentialController.eventHandler(new BuildFailed(fakedCorrelationId, undefined, 1, signInError));
+            assertSignInReason('FullRepoValidation');
+        });
+
+        it(`Handle start server succeeded`, () => {
+            tempCredentialController.eventHandler(new StartLanguageServerCompleted(true));
+            assertSignInReason(undefined);
+        });
+
+        it(`Handle start server failed not caused by sign in error`, () => {
+            tempCredentialController.eventHandler(new StartLanguageServerCompleted(false, notSignInError));
+            assertSignInReason(undefined);
+        });
+
+        it(`Handle start server failed caused by sign in error`, () => {
+            tempCredentialController.eventHandler(new StartLanguageServerCompleted(false, signInError));
+            assertSignInReason('RealTimeValidation');
+        });
+
+        function assertSignInReason(reason: SignInReason) {
+            // @ts-ignore
+            assert.equal(tempCredentialController._signInReason, reason);
+        }
+    });
+
     describe(`User Sign-in With GitHub`, () => {
         const signInError = new DocsError('errorMessage', ErrorCode.TriggerBuildBeforeSignIn);
         it(`Sign-in successfully for full-repo validation`, async () => {
@@ -230,6 +276,9 @@ describe('CredentialController', () => {
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
                 new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, 'FullRepoValidation')
             ]);
+
+            // @ts-ignore
+            assert.equal(credentialController._signInReason, undefined);
         });
 
         it(`Sign-in successfully for real-time validation`, async () => {
@@ -271,6 +320,9 @@ describe('CredentialController', () => {
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
                 new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, 'RealTimeValidation')
             ]);
+
+            // @ts-ignore
+            assert.equal(credentialController._signInReason, undefined);
         });
 
         it(`Sign-in with GitHub failed`, async () => {
