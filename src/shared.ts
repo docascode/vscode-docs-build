@@ -36,6 +36,8 @@ export type LanguageServerStatus = 'Idle' | 'Starting' | 'Running';
 
 export type DocsRepoType = 'GitHub' | 'Azure DevOps';
 
+export type SignInReason = 'FullRepoValidation' | 'RealTimeValidation';
+
 export interface UserInfo {
     readonly signType: DocsRepoType;
     readonly userId: string;

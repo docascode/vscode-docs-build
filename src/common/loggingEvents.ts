@@ -1,7 +1,7 @@
 import { EventType } from './eventType';
 import { Credential } from '../credential/credentialController';
 import { PlatformInformation } from './platformInformation';
-import { Environment } from '../shared';
+import { Environment, SignInReason } from '../shared';
 import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { BuildInput } from '../build/buildInput';
 import { AbsolutePathPackage } from '../dependency/package';
@@ -18,18 +18,18 @@ export class UserSignInTriggered implements BaseEvent {
 
 export class UserSignInCompleted implements BaseEvent {
     type = EventType.UserSignInCompleted;
-    constructor(public correlationId: string, public succeeded: boolean, public retrievedFromCache: boolean = false, public isFullRepoValidation: boolean = false) { }
+    constructor(public correlationId: string, public succeeded: boolean, public retrievedFromCache: boolean = false, public signInReason?: SignInReason) { }
 }
 
 export class UserSignInSucceeded extends UserSignInCompleted {
-    constructor(public correlationId: string, public credential: Credential, public retrievedFromCache: boolean = false, public isFullRepoValidation: boolean = false) {
-        super(correlationId, true, retrievedFromCache, isFullRepoValidation);
+    constructor(public correlationId: string, public credential: Credential, public retrievedFromCache: boolean = false, public signInReason?: SignInReason) {
+        super(correlationId, true, retrievedFromCache, signInReason);
     }
 }
 
 export class UserSignInFailed extends UserSignInCompleted {
-    constructor(public correlationId: string, public err: Error, public isFullRepoValidation: boolean = false) {
-        super(correlationId, false, false, isFullRepoValidation);
+    constructor(public correlationId: string, public err: Error, public signInReason?: SignInReason) {
+        super(correlationId, false, false, signInReason);
     }
 }
 

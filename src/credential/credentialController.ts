@@ -1,10 +1,10 @@
 import vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import querystring from 'querystring';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType } from '../shared';
+import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType, SignInReason } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn, BuildCompleted, StartLanguageServerCompleted } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn, BuildCompleted, StartLanguageServerCompleted, BuildFailed } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -38,7 +38,7 @@ export interface Credential {
 export class CredentialController {
     private _signInStatus: DocsSignInStatus;
     private _userInfo: UserInfo;
-    private _isFullRepoValidation: boolean;
+    private _signInReason: SignInReason;
 
     constructor(private _keyChain: KeyChain, private _eventStream: EventStream, private _environmentController: EnvironmentController) { }
 
@@ -53,12 +53,16 @@ export class CredentialController {
                 break;
             case EventType.BuildCompleted:
                 if ((<BuildCompleted>event).result === DocfxExecutionResult.Failed) {
-                    this._isFullRepoValidation = true;
+                    if (this.isSignInError((<BuildFailed>event).err)) {
+                        this._signInReason = 'FullRepoValidation';
+                    }
                 }
                 break;
             case EventType.StartLanguageServerCompleted:
                 if (!(<StartLanguageServerCompleted>event).succeeded) {
-                    this._isFullRepoValidation = false;
+                    if (this.isSignInError((<StartLanguageServerCompleted>event).err)) {
+                        this._signInReason = 'RealTimeValidation';
+                    }
                 }
                 break;
         }
@@ -96,10 +100,12 @@ export class CredentialController {
             this._signInStatus = 'SignedIn';
             this._userInfo = userInfo;
             await this._keyChain.setUserInfo(userInfo);
-            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential, false, this._isFullRepoValidation));
+            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential, false, this._signInReason));
+            this.resetSignInReason();
         } catch (err) {
             this.resetCredential();
-            this._eventStream.post(new UserSignInFailed(correlationId, err, this._isFullRepoValidation));
+            this._eventStream.post(new UserSignInFailed(correlationId, err, this._signInReason));
+            this.resetSignInReason();
         }
     }
 
@@ -129,7 +135,7 @@ export class CredentialController {
         if (userInfo) {
             this._signInStatus = 'SignedIn';
             this._userInfo = userInfo;
-            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential, true, this._isFullRepoValidation));
+            this._eventStream.post(new UserSignInSucceeded(correlationId, this.credential, true));
         } else {
             this.resetCredential();
         }
@@ -235,5 +241,17 @@ export class CredentialController {
             const errorCode = err instanceof TimeOutError ? ErrorCode.AzureDevOpsSignInTimeOut : ErrorCode.AzureDevOpsSignInFailed;
             throw new DocsError(`Signing in with Azure DevOps failed: ${err.message}`, errorCode, err);
         }
+    }
+
+    private isSignInError(error: Error): boolean {
+        if (error === undefined) {
+            return false;
+        }
+        const errorCode = (<DocsError>error).code;
+        return errorCode === ErrorCode.TriggerBuildBeforeSignIn || errorCode === ErrorCode.TriggerBuildWithCredentialExpired;
+    }
+
+    private resetSignInReason(): void {
+        this._signInReason = undefined;
     }
 }

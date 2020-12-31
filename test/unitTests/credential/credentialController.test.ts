@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, BuildCompleted, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, StartLanguageServerCompleted, BuildFailed } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
@@ -13,7 +13,6 @@ import extensionConfig from '../../../src/config';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { TimeOutError } from '../../../src/error/timeOutError';
-import { DocfxExecutionResult } from '../../../src/build/buildResult';
 
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'docsmsft.docs-build',
@@ -191,6 +190,7 @@ describe('CredentialController', () => {
     });
 
     describe(`User Sign-in With GitHub`, () => {
+        const signInError = new DocsError('errorMessage', ErrorCode.TriggerBuildBeforeSignIn);
         it(`Sign-in successfully for full-repo validation`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
@@ -203,7 +203,7 @@ describe('CredentialController', () => {
                     });
                 }
             );
-            credentialController.eventHandler(new BuildCompleted(fakedCorrelationId, DocfxExecutionResult.Failed, undefined, 1));
+            credentialController.eventHandler(new BuildFailed(fakedCorrelationId, undefined, 1, signInError));
 
             // act
             await credentialController.signIn(fakedCorrelationId);
@@ -228,7 +228,7 @@ describe('CredentialController', () => {
                 new CredentialReset(),
                 new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
-                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, true)
+                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, 'FullRepoValidation')
             ]);
         });
 
@@ -244,7 +244,7 @@ describe('CredentialController', () => {
                     });
                 }
             );
-            credentialController.eventHandler(new StartLanguageServerCompleted(false, undefined));
+            credentialController.eventHandler(new StartLanguageServerCompleted(false, signInError));
 
             // act
             await credentialController.signIn(fakedCorrelationId);
@@ -269,7 +269,7 @@ describe('CredentialController', () => {
                 new CredentialReset(),
                 new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
-                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, false)
+                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, 'RealTimeValidation')
             ]);
         });
 
