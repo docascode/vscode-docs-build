@@ -22,7 +22,7 @@
     },
     "overrides": [
         {
-            "files":[
+            "files": [
                 "**/*.ts"
             ],
             "extends": [
@@ -42,6 +42,7 @@
                 "@typescript-eslint/no-explicit-any": "off",
                 "@typescript-eslint/no-non-null-assertion": "off",
                 "@typescript-eslint/no-unused-vars": "off",
+                "@typescript-eslint/ban-ts-comment": "off",
                 "no-async-promise-executor": "off",
                 "node/no-unsupported-features/es-syntax": [
                     "error",
@@ -51,14 +52,22 @@
                         ]
                     }
                 ],
-                "node/no-missing-import": ["error", {
-                    "tryExtensions": [".js", ".ts"],
-                    "allowModules": ["vscode"]
-                }]
+                "node/no-missing-import": [
+                    "error",
+                    {
+                        "tryExtensions": [
+                            ".js",
+                            ".ts"
+                        ],
+                        "allowModules": [
+                            "vscode"
+                        ]
+                    }
+                ]
             }
         },
         {
-            "files":[
+            "files": [
                 "gulpfile.ts",
                 "test/**/*.ts",
                 "tasks/*.ts"
