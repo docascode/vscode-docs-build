@@ -237,7 +237,7 @@ describe('CredentialController', () => {
 
     describe(`User Sign-in With GitHub`, () => {
         const signInError = new DocsError('errorMessage', ErrorCode.TriggerBuildBeforeSignIn);
-        it(`Sign-in successfully for full-repo validation`, async () => {
+        it(`Sign-in successfully`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
                 function (target: vscode.Uri): Thenable<boolean> {
@@ -249,7 +249,6 @@ describe('CredentialController', () => {
                     });
                 }
             );
-            credentialController.eventHandler(new BuildFailed(fakedCorrelationId, undefined, 1, signInError));
 
             // act
             await credentialController.signIn(fakedCorrelationId);
@@ -274,14 +273,11 @@ describe('CredentialController', () => {
                 new CredentialReset(),
                 new UserSignInTriggered(fakedCorrelationId),
                 new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
-                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, 'FullRepoValidation')
+                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false)
             ]);
-
-            // @ts-ignore
-            assert.equal(credentialController._signInReason, undefined);
         });
 
-        it(`Sign-in successfully for real-time validation`, async () => {
+        it(`Sign-in successfully with sign-in reason`, async () => {
             // Prepare
             stubOpenExternal = sinon.stub(vscode.env, 'openExternal').callsFake(
                 function (target: vscode.Uri): Thenable<boolean> {
@@ -299,28 +295,6 @@ describe('CredentialController', () => {
             await credentialController.signIn(fakedCorrelationId);
 
             // Assert
-            const credential = credentialController.credential;
-            const expectedUserInfo = <UserInfo>{
-                signType: 'GitHub',
-                userId: 'faked-github-id',
-                userEmail: 'fake-github@microsoft.com',
-                userName: 'Fake-User-GitHub',
-                userToken: 'fake-github-token'
-            };
-            const expectedCredential = <Credential>{
-                signInStatus: 'SignedIn',
-                userInfo: expectedUserInfo
-            };
-            assert.deepStrictEqual(credential, expectedCredential);
-            assert.equal(isSetUserInfoCalled, true);
-            assert.deepStrictEqual(setUserInfo, expectedUserInfo);
-            assert.deepStrictEqual(testEventBus.getEvents(), [
-                new CredentialReset(),
-                new UserSignInTriggered(fakedCorrelationId),
-                new UserSignInProgress(`Signing in to Docs with GitHub account...`, 'Sign-in'),
-                new UserSignInSucceeded(fakedCorrelationId, expectedCredential, false, 'RealTimeValidation')
-            ]);
-
             // @ts-ignore
             assert.equal(credentialController._signInReason, undefined);
         });
