@@ -12,8 +12,12 @@ export class InfoMessageObserver {
         switch (event.type) {
             case EventType.UserSignInCompleted:
                 asUserSignInCompleted = <UserSignInCompleted>event;
-                if (asUserSignInCompleted.succeeded && !asUserSignInCompleted.retrievedFromCache && asUserSignInCompleted.signInReason === 'FullRepoValidation') {
-                    this.showInfoMessage('Successfully signed in!', new MessageAction('Validate', 'docs.build', 'Would you like to validate the current workspace folder?'));
+                if (asUserSignInCompleted.succeeded && !asUserSignInCompleted.retrievedFromCache) {
+                    if (asUserSignInCompleted.signInReason === 'RealTimeValidation') {
+                        this.showInfoMessage('Successfully signed in!');
+                    } else {
+                        this.showInfoMessage('Successfully signed in!', new MessageAction('Validate', 'docs.build', 'Would you like to validate the current workspace folder?'));
+                    }
                 }
                 break;
             case EventType.UserSignOutCompleted:

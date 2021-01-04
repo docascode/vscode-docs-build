@@ -74,7 +74,7 @@ describe('InfoMessageObserver', () => {
         it(`Sign in succeeded without credential retrieved from cache for real-time validation`, () => {
             const event = new UserSignInCompleted(`fakedCorrelationId`, true, false, 'RealTimeValidation');
             observer.eventHandler(event);
-            assert.equal(messageToShow, undefined);
+            assert.equal(messageToShow, `[Docs Validation] Successfully signed in!`);
             assert.deepEqual(messageActions, []);
         });
     });
