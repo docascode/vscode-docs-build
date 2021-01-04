@@ -80,9 +80,6 @@ export class BuildExecutor {
 
     public startLanguageServer(input: BuildInput, buildUserToken: string): void {
         const buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
-        if (this._environmentController.userType === UserType.MicrosoftEmployee) {
-            buildParameters.envs['DOCS_OPS_TOKEN'] = buildUserToken;
-        }
         const command = this._binary;
         const args = buildParameters.serveCommand.split(" ");
         args.forEach((arg, i) => args[i] = arg.replace(/^["'](.+(?=["']$))["']$/, '$1'));
