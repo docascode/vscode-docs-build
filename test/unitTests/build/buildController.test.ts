@@ -63,7 +63,7 @@ describe('BuildController', () => {
         }
     };
 
-    const fakedDiagonosticController = <DiagnosticController><unknown>{
+    const fakedDiagnosticController = <DiagnosticController><unknown>{
         setDiagnosticCollection: (diagnosticController: DiagnosticController): void => {
             return;
         }
@@ -85,7 +85,7 @@ describe('BuildController', () => {
                 (correlationId: string, input: BuildInput, buildUserToken: string) => {
                     tokenUsedForBuild = buildUserToken;
                 }),
-            fakedOPBuildAPIClient, fakedDiagonosticController,
+            fakedOPBuildAPIClient, fakedDiagnosticController,
             fakeEnvironmentController, eventStream,
             fakedCredentialController
         );
@@ -118,7 +118,7 @@ describe('BuildController', () => {
         stubGetRepositoryInfoFromLocalFolder = sinon
             .stub(utils, "getRepositoryInfoFromLocalFolder")
             .resolves(['GitHub', 'https://faked.repository', undefined, undefined, undefined]);
-        stubSetDiagnosticCollection = sinon.stub(fakedDiagonosticController, 'setDiagnosticCollection');
+        stubSetDiagnosticCollection = sinon.stub(fakedDiagnosticController, 'setDiagnosticCollection');
     });
 
     after(() => {
