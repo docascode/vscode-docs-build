@@ -353,20 +353,14 @@ describe('BuildExecutor', () => {
 
     describe('Language Client', () => {
         let stubRegisterProposedFeatures: SinonStub;
-        let stubStart: SinonStub;
         before(() => {
             stubRegisterProposedFeatures = sinon.stub(LanguageClient.prototype, 'registerProposedFeatures');
-            stubStart = sinon.stub(LanguageClient.prototype, 'start');
             stubRegisterProposedFeatures.callsFake(() => {
                 return;
-            });
-            stubStart.callsFake(() => {
-                return undefined;
             });
         });
         afterEach(() => {
             stubRegisterProposedFeatures.reset();
-            stubStart.reset();
         });
 
         it('Public contributor', async () => {
@@ -380,7 +374,6 @@ describe('BuildExecutor', () => {
                     `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --template "${publicTemplateURL}"`
                 )]);
             assert(stubRegisterProposedFeatures.calledOnce);
-            assert(stubStart.calledOnce);
         });
 
         it('Microsoft employee', async () => {
@@ -394,7 +387,6 @@ describe('BuildExecutor', () => {
                     `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}"`
                 )]);
             assert(stubRegisterProposedFeatures.calledOnce);
-            assert(stubStart.calledOnce);
         });
     });
 });

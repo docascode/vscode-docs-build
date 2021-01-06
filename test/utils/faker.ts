@@ -11,6 +11,8 @@ import TelemetryReporter from '../../src/telemetryReporter';
 import { BuildInput, BuildType } from '../../src/build/buildInput';
 import { BuildResult, DocfxExecutionResult } from '../../src/build/buildResult';
 import { BuildExecutor } from '../../src/build/buildExecutor';
+import { LanguageClient } from 'vscode-languageclient/node';
+import { DiagnosticCollection } from 'vscode';
 
 export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHub'): EnvironmentController {
     return {
@@ -157,6 +159,12 @@ export function getFakedBuildExecutor(docfxExecutionResult: DocfxExecutionResult
             if (setRunBuildFuncParameters) {
                 setRunBuildFuncParameters(undefined, input, buildUserToken);
             }
+            return <LanguageClient>{
+                start: () => { return; },
+                diagnostics: <DiagnosticCollection>{
+                    name: 'fakeDiagnosticCollection'
+                }
+            };
         }
     };
 }

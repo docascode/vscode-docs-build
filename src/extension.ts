@@ -92,10 +92,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         logger,
         telemetryReporter,
         diagnosticController,
+        buildController,
         docsStatusBar,
         buildStatusBar,
         environmentController,
-        buildExecutor,
         vscode.commands.registerCommand('docs.signIn', () => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
                 credentialController.signIn(getCorrelationId());

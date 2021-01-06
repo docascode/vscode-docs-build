@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import vscode from 'vscode';
+import vscode, { DiagnosticCollection } from 'vscode';
 import * as reportGenerator from '../../../src/build/reportGenerator';
 import * as utils from '../../../src/utils/utils';
 import assert from 'assert';
@@ -38,6 +38,7 @@ describe('BuildController', () => {
     let stubSafelyReadJsonFile: SinonStub;
     let stubGetRepositoryInfoFromLocalFolder: SinonStub;
     let stubWorkspaceFolders: SinonStub;
+    let stubSetDiagnosticCollection: SinonStub;
     const fakeEnvironmentController = getFakeEnvironmentController();
 
     let buildController: BuildController;
@@ -62,6 +63,12 @@ describe('BuildController', () => {
         }
     };
 
+    const fakedDiagonosticController = <DiagnosticController><unknown>{
+        setDiagnosticCollection: (diagnosticController: DiagnosticController): void => {
+            return;
+        }
+    }
+
     const fakedOpConfigPath = path.normalize('/fakedFolder/.openpublishing.publish.config.json');
 
     before(() => {
@@ -78,7 +85,7 @@ describe('BuildController', () => {
                 (correlationId: string, input: BuildInput, buildUserToken: string) => {
                     tokenUsedForBuild = buildUserToken;
                 }),
-            fakedOPBuildAPIClient, undefined,
+            fakedOPBuildAPIClient, fakedDiagonosticController,
             fakeEnvironmentController, eventStream,
             fakedCredentialController
         );
@@ -111,6 +118,7 @@ describe('BuildController', () => {
         stubGetRepositoryInfoFromLocalFolder = sinon
             .stub(utils, "getRepositoryInfoFromLocalFolder")
             .resolves(['GitHub', 'https://faked.repository', undefined, undefined, undefined]);
+        stubSetDiagnosticCollection = sinon.stub(fakedDiagonosticController, 'setDiagnosticCollection');
     });
 
     after(() => {
@@ -503,6 +511,7 @@ describe('BuildController', () => {
             new StartLanguageServerCompleted(true)
         ]);
         assert.equal(tokenUsedForBuild, 'faked-token');
+        assert(stubSetDiagnosticCollection.withArgs(<DiagnosticCollection>{ name: 'fakeDiagnosticCollection' }).calledOnce);
     });
 
     it('Start language server without sign-in', async () => {
