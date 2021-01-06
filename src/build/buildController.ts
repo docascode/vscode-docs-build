@@ -101,7 +101,7 @@ export class BuildController {
         try {
             await this.validateUserCredential();
             buildInput = await this.getBuildInput();
-            this._client = this._buildExecutor.startLanguageServer(buildInput, this._credentialController.credential.userInfo?.userToken);
+            this._client = this._buildExecutor.getLanguageClient(buildInput, this._credentialController.credential.userInfo?.userToken);
             this._disposable = this._client.start();
             this._diagnosticController.setDiagnosticCollection(this._client.diagnostics);
             this._eventStream.post(new StartLanguageServerCompleted(true));

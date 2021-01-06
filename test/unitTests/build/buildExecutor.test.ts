@@ -367,7 +367,7 @@ describe('BuildExecutor', () => {
             sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
                 return UserType.PublicContributor;
             });
-            buildExecutor.startLanguageServer(fakedBuildInput, undefined);
+            buildExecutor.getLanguageClient(fakedBuildInput, undefined);
             assert.deepStrictEqual(testEventBus.getEvents(),
                 [new BuildProgress(
                     `Starting language server using command: docfx.exe ` +
@@ -380,7 +380,7 @@ describe('BuildExecutor', () => {
             sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
                 return UserType.MicrosoftEmployee;
             });
-            buildExecutor.startLanguageServer(fakedBuildInput, 'fakeToken');
+            buildExecutor.getLanguageClient(fakedBuildInput, 'fakeToken');
             assert.deepStrictEqual(testEventBus.getEvents(),
                 [new BuildProgress(
                     `Starting language server using command: docfx.exe ` +

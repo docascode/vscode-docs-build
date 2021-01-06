@@ -36,7 +36,7 @@ export class BuildExecutor {
         private _platformInfo: PlatformInformation,
         private _environmentController: EnvironmentController,
         private _eventStream: EventStream,
-        private _telemetryReporter: TelemetryReporter,
+        private _telemetryReporter: TelemetryReporter
     ) {
         const runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;
         const buildPackage = runtimeDependencies.find((pkg: Package) => pkg.name === 'docfx' && pkg.rid === this._platformInfo.rid);
@@ -70,7 +70,7 @@ export class BuildExecutor {
         return buildResult;
     }
 
-    public startLanguageServer(input: BuildInput, buildUserToken: string): LanguageClient {
+    public getLanguageClient(input: BuildInput, buildUserToken: string): LanguageClient {
         const buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
         const command = this._binary;
         const args = buildParameters.serveCommand.split(" ");
