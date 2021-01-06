@@ -35,7 +35,6 @@ describe('BuildExecutor', () => {
 
     let executedCommands: string[];
     let executedOptions: cp.ExecOptions[];
-    let executedStdinInput: string[];
     let killProcessTreeFuncCalled: boolean;
 
     before(() => {
@@ -69,7 +68,6 @@ describe('BuildExecutor', () => {
                 let childKilled = false;
                 executedCommands.push(command);
                 executedOptions.push(options);
-                executedStdinInput.push(stdinInput);
                 if (command.indexOf(' restore ') !== -1) {
                     setTimeout(() => {
                         if (!childKilled) {
@@ -97,7 +95,6 @@ describe('BuildExecutor', () => {
     beforeEach(() => {
         executedCommands = [];
         executedOptions = [];
-        executedStdinInput = [];
         testEventBus.clear();
     });
 
@@ -169,8 +166,8 @@ describe('BuildExecutor', () => {
             assert.equal(buildResult.isRestoreSkipped, false);
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin`,
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
+                `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
@@ -179,7 +176,8 @@ describe('BuildExecutor', () => {
                         APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
-                        DOCS_ENVIRONMENT: 'PROD'
+                        DOCS_ENVIRONMENT: 'PROD',
+                        DOCFX_HTTP: '{"https://op-build-prod.azurewebsites.net":{"headers":{"X-OP-BuildUserToken":"faked-build-token"}}}'
                     }
                 },
                 {
@@ -188,25 +186,11 @@ describe('BuildExecutor', () => {
                         APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
-                        DOCS_ENVIRONMENT: 'PROD'
+                        DOCS_ENVIRONMENT: 'PROD',
+                        DOCFX_HTTP: '{"https://op-build-prod.azurewebsites.net":{"headers":{"X-OP-BuildUserToken":"faked-build-token"}}}'
                     }
                 }
             ]);
-            assert.equal(executedStdinInput.length, 2);
-            assert.notEqual(executedStdinInput[0], undefined);
-            assert.notEqual(executedStdinInput[1], undefined);
-            const firstExecutedStdinInput = <any>JSON.parse(executedStdinInput[0]);
-            assert.deepStrictEqual(firstExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
-                "headers": {
-                    "X-OP-BuildUserToken": "faked-build-token"
-                }
-            });
-            const secondExecutedStdinInput = <any>JSON.parse(executedStdinInput[1]);
-            assert.deepStrictEqual(secondExecutedStdinInput.http["https://op-build-prod.azurewebsites.net"], {
-                "headers": {
-                    "X-OP-BuildUserToken": "faked-build-token"
-                }
-            });
 
             assert.deepStrictEqual(testEventBus.getEvents(), [
                 new DocfxRestoreStarted(),
@@ -282,7 +266,8 @@ describe('BuildExecutor', () => {
                     env: {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
-                        DOCS_ENVIRONMENT: 'PROD'
+                        DOCS_ENVIRONMENT: 'PROD',
+                        DOCFX_HTTP: '{"https://op-build-prod.azurewebsites.net":{"headers":{"X-OP-BuildUserToken":"faked-build-token"}}}'
                     }
                 }
             ]);
@@ -295,7 +280,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
+                `./docfx build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
 
             // Reset environment
@@ -318,7 +303,7 @@ describe('BuildExecutor', () => {
             );
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --output "${defaultOutputPath}" --output-type "pagejson"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
 
             // Reset environment
@@ -330,7 +315,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --verbose --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --verbose --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
 
             // Reset environment
@@ -344,11 +329,8 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, undefined);
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --stdin --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
             ]);
-
-            const stdinInput = <any>JSON.parse(executedStdinInput[0]);
-            assert.equal(stdinInput.http["https://op-build-prod.azurewebsites.net"], undefined);
 
             assert.deepStrictEqual(executedOptions, [
                 {
@@ -358,7 +340,8 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_REPOSITORY_BRANCH: 'master'
+                        DOCFX_REPOSITORY_BRANCH: 'master',
+                        DOCFX_HTTP: '{}'
                     }
                 }
             ]);

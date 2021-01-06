@@ -24,7 +24,6 @@ interface BuildParameters {
     buildCommand: string;
     serveCommand: string;
     envs: any;
-    stdin: string;
 }
 
 export class BuildExecutor {
@@ -81,9 +80,6 @@ export class BuildExecutor {
 
     public startLanguageServer(input: BuildInput, buildUserToken: string): void {
         const buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
-        if (this._environmentController.userType === UserType.MicrosoftEmployee) {
-            buildParameters.envs['DOCS_OPS_TOKEN'] = buildUserToken;
-        }
         const command = this._binary;
         const args = buildParameters.serveCommand.split(" ");
         args.forEach((arg, i) => args[i] = arg.replace(/^["'](.+(?=["']$))["']$/, '$1'));
@@ -149,7 +145,6 @@ export class BuildExecutor {
                     resolve(docfxExecutionResult);
                 },
                 { env: buildParameters.envs, cwd: this._cwd },
-                buildParameters.stdin
             );
         });
     }
@@ -173,7 +168,6 @@ export class BuildExecutor {
                     resolve(docfxExecutionResult);
                 },
                 { env: buildParameters.envs, cwd: this._cwd },
-                buildParameters.stdin
             );
         });
     }
@@ -216,13 +210,10 @@ export class BuildExecutor {
                 }
             };
         }
-        const stdin = JSON.stringify({
-            "http": secrets
-        });
+        envs["DOCFX_HTTP"] = JSON.stringify(secrets);
 
         return <BuildParameters>{
             envs,
-            stdin,
             restoreCommand: this.getExecCommand("restore", input, isPublicUser),
             buildCommand: this.getExecCommand("build", input, isPublicUser),
             serveCommand: this.getExecCommand("serve", input, isPublicUser)
@@ -238,7 +229,7 @@ export class BuildExecutor {
         if (command === 'serve') {
             cmdWithParameters = `${command} --language-server "${input.localRepositoryPath}"`;
         } else {
-            cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}" --stdin`;
+            cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}"`;
         }
         cmdWithParameters += (isPublicUser ? ` --template "${config.PublicTemplate}"` : '');
         cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');

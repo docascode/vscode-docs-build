@@ -1,88 +1,87 @@
 trigger:
   branches:
     include:
-    - master
+      - master
   tags:
     include:
-    - '*'
+      - "*"
 pr:
-- master
+  - master
 
 variables:
-- group: Docs Authoring Pack KV
-- name: npm_config_cache
-  value: $(Pipeline.Workspace)/.npm
-- name: runCodesignValidationInjection
-  value: false
+  - group: Docs Authoring Pack KV
+  - name: npm_config_cache
+    value: $(Pipeline.Workspace)/.npm
+  - name: runCodesignValidationInjection
+    value: false
 
 strategy:
   matrix:
     mac:
-      imageName: 'macOS-latest'
+      imageName: "macOS-latest"
     windows:
-      imageName: 'windows-latest'
+      imageName: "windows-latest"
 
 pool:
   vmImage: $(imageName)
 
 steps:
+  - task: NodeTool@0
+    displayName: "Use Node 10.x"
+    inputs:
+      versionSpec: 10.x
 
-- task: NodeTool@0
-  displayName: 'Use Node 10.x'
-  inputs:
-    versionSpec: 10.x
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)"
+        npm
+      path: $(npm_config_cache)
+    displayName: Cache npm
 
-- task: Cache@2
-  inputs:
-    key: 'npm | "$(Agent.OS)" | package-lock.json'
-    restoreKeys: |
-       npm | "$(Agent.OS)"
-       npm
-    path: $(npm_config_cache)
-  displayName: Cache npm
+  - task: Npm@1
+    displayName: "npm ci"
+    inputs:
+      verbose: false
 
-- task: Npm@1
-  displayName: 'npm ci'
-  inputs:
-    verbose: false
+  - bash: |
+      npm run test
+    displayName: Run Test(Mac)
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+    env:
+      GITHUB_TOKEN: $(githubToken)
+      VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(opBuildUserToken)
 
-- bash: |
-    npm run test
-  displayName: Run Test(Mac)
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
-  env:
-    VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN: $(githubToken)
-    VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(opBuildUserToken)
+  - powershell: |
+      npm run test
+    displayName: Run Test(Windows)
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+    env:
+      GITHUB_TOKEN: $(githubToken)
+      VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(opBuildUserToken)
 
-- powershell: |
-    npm run test
-  displayName: Run Test(Windows)
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
-  env:
-    VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN: $(githubToken)
-    VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(opBuildUserToken)
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact: output"
+    inputs:
+      PathtoPublish: ".temp/debug"
+      ArtifactName: Output-Mac
+    condition: and(failed(), eq(variables['Agent.OS'], 'Darwin'))
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: output'
-  inputs:
-    PathtoPublish: '.temp/debug'
-    ArtifactName: Output-Mac
-  condition: and(failed(), eq(variables['Agent.OS'], 'Darwin'))
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact: output"
+    inputs:
+      PathtoPublish: ".temp/debug"
+      ArtifactName: Output-Windows
+    condition: and(failed(), eq(variables['Agent.OS'], 'Windows_NT'))
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: output'
-  inputs:
-    PathtoPublish: '.temp/debug'
-    ArtifactName: Output-Windows
-  condition: and(failed(), eq(variables['Agent.OS'], 'Windows_NT'))
+  - bash: ./node_modules/.bin/codecov -f coverage/unit/lcov.info -F unit
+    displayName: "Report unit test coverage"
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+    env:
+      CODECOV_TOKEN: $(CODECOV_TOKEN)
 
-- bash: ./node_modules/.bin/codecov -f coverage/unit/lcov.info -F unit
-  displayName: 'Report unit test coverage'
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
-  env:
-    CODECOV_TOKEN: $(CODECOV_TOKEN)
-
-- bash: |
-    npm run publish -- -p $(Docs-Authoring-Pack-Publish-Token)
-  displayName: 'Publish'
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['Agent.OS'], 'Windows_NT'))
+  - bash: |
+      npm run publish -- -p $(Docs-Authoring-Pack-Publish-Token)
+    displayName: "Publish"
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['Agent.OS'], 'Windows_NT'))

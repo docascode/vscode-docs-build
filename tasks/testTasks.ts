@@ -16,9 +16,9 @@ gulp.task('test:e2e', async () => {
     const git = simpleGit(rootPath);
     await git.submoduleUpdate(['--init']);
 
-    const githubToken = process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN;
+    const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
-        throw new Error('Cannot get "VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN" from environment variable');
+        throw new Error('Cannot get "GITHUB_TOKEN" from environment variable');
     }
 
     const extensionTestsEnv = {
