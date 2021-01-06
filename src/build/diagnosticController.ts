@@ -40,7 +40,7 @@ export class DiagnosticController implements vscode.Disposable {
         this.docsDiagnostics.dispose();
     }
 
-    public setDiagnosticCollection(diagonostics: vscode.DiagnosticCollection): void {
-        this.docsDiagnostics = diagonostics;
+    public setDiagnosticCollection(diagnostics: vscode.DiagnosticCollection): void {
+        this.docsDiagnostics = diagnostics;
     }
 }
