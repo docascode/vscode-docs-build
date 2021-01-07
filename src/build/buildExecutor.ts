@@ -14,8 +14,7 @@ import TelemetryReporter from '../telemetryReporter';
 import {
     LanguageClient,
     LanguageClientOptions,
-    ServerOptions,
-    Disposable
+    ServerOptions
 } from "vscode-languageclient/node";
 import { UserType } from '../shared';
 
@@ -31,7 +30,6 @@ export class BuildExecutor {
     private _binary: string;
     private _runningChildProcess: ChildProcess;
     private static SKIP_RESTORE = false;
-    private _disposable: Disposable;
 
     constructor(
         context: ExtensionContext,
@@ -45,12 +43,6 @@ export class BuildExecutor {
         const absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
         this._cwd = process.env.LOCAL_ATTACH_DOCFX_FOLDER_PATH ? process.env.LOCAL_ATTACH_DOCFX_FOLDER_PATH : absolutePackage.installPath.value;
         this._binary = absolutePackage.binary;
-    }
-
-    dispose(): void {
-        if (this._disposable) {
-            this._disposable.dispose();
-        }
     }
 
     public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> {
@@ -78,7 +70,7 @@ export class BuildExecutor {
         return buildResult;
     }
 
-    public startLanguageServer(input: BuildInput, buildUserToken: string): void {
+    public getLanguageClient(input: BuildInput, buildUserToken: string): LanguageClient {
         const buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
         const command = this._binary;
         const args = buildParameters.serveCommand.split(" ");
@@ -110,7 +102,7 @@ export class BuildExecutor {
         this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${buildParameters.serveCommand}`));
         const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
         client.registerProposedFeatures();
-        this._disposable = client.start();
+        return client;
     }
 
     public async cancelBuild(): Promise<void> {

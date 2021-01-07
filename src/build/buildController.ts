@@ -15,11 +15,14 @@ import { ErrorCode } from '../error/errorCode';
 import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
 import { EnvironmentController } from '../common/environmentController';
+import { Disposable, LanguageClient } from 'vscode-languageclient/node';
 
 export class BuildController {
     private _currentBuildCorrelationId: string;
     private _instanceAvailable: boolean;
     private _buildInput: BuildInput;
+    private _client: LanguageClient;
+    private _disposable: Disposable;
 
     constructor(
         private _buildExecutor: BuildExecutor,
@@ -30,6 +33,12 @@ export class BuildController {
         private _credentialController: CredentialController
     ) {
         this._instanceAvailable = true;
+    }
+
+    dispose(): void {
+        if (this._disposable) {
+            this._disposable.dispose();
+        }
     }
 
     public get instanceAvailable(): boolean {
@@ -92,7 +101,9 @@ export class BuildController {
         try {
             await this.validateUserCredential();
             buildInput = await this.getBuildInput();
-            this._buildExecutor.startLanguageServer(buildInput, this._credentialController.credential.userInfo?.userToken);
+            this._client = this._buildExecutor.getLanguageClient(buildInput, this._credentialController.credential.userInfo?.userToken);
+            this._disposable = this._client.start();
+            this._diagnosticController.setDiagnosticCollection(this._client.diagnostics);
             this._eventStream.post(new StartLanguageServerCompleted(true));
         } catch (err) {
             this._eventStream.post(new StartLanguageServerCompleted(false, err));

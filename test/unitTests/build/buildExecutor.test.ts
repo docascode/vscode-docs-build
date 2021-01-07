@@ -353,48 +353,40 @@ describe('BuildExecutor', () => {
 
     describe('Language Client', () => {
         let stubRegisterProposedFeatures: SinonStub;
-        let stubStart: SinonStub;
         before(() => {
             stubRegisterProposedFeatures = sinon.stub(LanguageClient.prototype, 'registerProposedFeatures');
-            stubStart = sinon.stub(LanguageClient.prototype, 'start');
             stubRegisterProposedFeatures.callsFake(() => {
                 return;
-            });
-            stubStart.callsFake(() => {
-                return undefined;
             });
         });
         afterEach(() => {
             stubRegisterProposedFeatures.reset();
-            stubStart.reset();
         });
 
         it('Public contributor', async () => {
             sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
                 return UserType.PublicContributor;
             });
-            buildExecutor.startLanguageServer(fakedBuildInput, undefined);
+            buildExecutor.getLanguageClient(fakedBuildInput, undefined);
             assert.deepStrictEqual(testEventBus.getEvents(),
                 [new BuildProgress(
                     `Starting language server using command: docfx.exe ` +
                     `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --template "${publicTemplateURL}"`
                 )]);
             assert(stubRegisterProposedFeatures.calledOnce);
-            assert(stubStart.calledOnce);
         });
 
         it('Microsoft employee', async () => {
             sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
                 return UserType.MicrosoftEmployee;
             });
-            buildExecutor.startLanguageServer(fakedBuildInput, 'fakeToken');
+            buildExecutor.getLanguageClient(fakedBuildInput, 'fakeToken');
             assert.deepStrictEqual(testEventBus.getEvents(),
                 [new BuildProgress(
                     `Starting language server using command: docfx.exe ` +
                     `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}"`
                 )]);
             assert(stubRegisterProposedFeatures.calledOnce);
-            assert(stubStart.calledOnce);
         });
     });
 });
