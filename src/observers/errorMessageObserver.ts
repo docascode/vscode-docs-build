@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { EventType } from '../common/eventType';
-import { BaseEvent, UserSignInFailed, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed, StartLanguageServerCompleted } from '../common/loggingEvents';
+import { BaseEvent, UserSignInFailed, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed, StartLanguageServerCompleted, CredentialExpired } from '../common/loggingEvents';
 import { MessageAction, EXTENSION_NAME, USER_TYPE, UserType } from '../shared';
 import { ErrorCode } from '../error/errorCode';
 import { DocsError } from '../error/docsError';
@@ -35,6 +35,11 @@ export class ErrorMessageObserver {
             case EventType.StartLanguageServerCompleted:
                 if (!(<StartLanguageServerCompleted>event).succeeded) {
                     this.handleStartServerFailed(<StartLanguageServerCompleted>event);
+                }
+                break;
+            case EventType.CredentialExpired:
+                if ((<CredentialExpired>event).duringLanguageServerRunning) {
+                    this.handleCredentialExpiredWhenLanguageServerRunning();
                 }
                 break;
         }
@@ -112,5 +117,11 @@ export class ErrorMessageObserver {
                     extensionConfig.update(USER_TYPE, UserType.PublicContributor, true);
                 }
             ));
+    }
+
+    private handleCredentialExpiredWhenLanguageServerRunning() {
+        const action = new MessageAction('Sign in', 'docs.signIn');
+        const message = 'Credential Expired, please sign in again.';
+        this.showErrorMessage(message, action);
     }
 }

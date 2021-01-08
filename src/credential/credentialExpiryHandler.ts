@@ -1,11 +1,12 @@
 import { LanguageClient } from "vscode-languageclient/node";
 import { EventStream } from "../common/eventStream";
 import { EventType } from "../common/eventType";
-import { BaseEvent, CredentialExpiredDuringLanguageServerRunning, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded } from "../common/loggingEvents";
+import { BaseEvent, CredentialExpired, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded } from "../common/loggingEvents";
 import config from '../config';
 import { Subscription } from "rxjs";
 import { UserCredentialRefreshRequest_Type, GetCredentialResponse, GetCredentialParams } from '../requestTypes';
 import { EnvironmentController } from "../common/environmentController";
+import { OP_BUILD_USER_TOKEN_HEADER_NAME } from "../shared";
 
 export class CredentialExpiryHandler {
     constructor(private _client: LanguageClient, private _eventStream: EventStream, private _environmentController: EnvironmentController) {
@@ -24,14 +25,14 @@ export class CredentialExpiryHandler {
     public async userCredentialRefreshRequestHandler(params: GetCredentialParams): Promise<GetCredentialResponse> {
         return new Promise<GetCredentialResponse>(async (resolve, reject) => {
             if (params.url && params.url.startsWith(config.OPBuildAPIEndPoint[this._environmentController.env])) {
-                this._eventStream.post(new CredentialExpiredDuringLanguageServerRunning());
+                this._eventStream.post(new CredentialExpired(true));
                 try {
                     const builderToken = await this.getRefreshedToken();
                     resolve(<GetCredentialResponse>{
                         http: {
                             [config.OPBuildAPIEndPoint[this._environmentController.env]]: {
                                 'headers': {
-                                    ['X-OP-BuildUserToken']: builderToken
+                                    [OP_BUILD_USER_TOKEN_HEADER_NAME]: builderToken
                                 }
                             }
                         }
@@ -40,7 +41,7 @@ export class CredentialExpiryHandler {
                     reject(err);
                 }
             } else {
-                reject(new Error('Request with invalid url.'));
+                reject(new Error(`Credential refresh for URL ${params.url} is not supported.`));
             }
         });
     }
@@ -52,12 +53,11 @@ export class CredentialExpiryHandler {
                 switch (event.type) {
                     case (EventType.UserSignInCompleted):
                         if ((<UserSignInCompleted>event).succeeded) {
-                            subscribe.unsubscribe();
                             resolve((<UserSignInSucceeded>event).credential.userInfo.userToken);
                         } else {
-                            subscribe.unsubscribe();
                             reject((<UserSignInFailed>event).err);
                         }
+                        subscribe.unsubscribe();
                         break;
                 }
             })

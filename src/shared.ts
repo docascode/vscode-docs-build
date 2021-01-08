@@ -49,6 +49,8 @@ export interface UserInfo {
 // Global variables
 export const uriHandler = new UriEventHandler();
 
+export const OP_BUILD_USER_TOKEN_HEADER_NAME = 'X-OP-BuildUserToken';
+
 // Test only
 export interface BenchmarkReport {
     name: string;

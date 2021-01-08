@@ -1,13 +1,13 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, StartLanguageServerCompleted, BuildFailed, BuildCompleted, CredentialExpiredDuringLanguageServerRunning } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, StartLanguageServerCompleted, BuildFailed, BuildCompleted } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import TestEventBus from '../../utils/testEventBus';
-import { UserInfo, uriHandler, UserType, SignInReason } from '../../../src/shared';
+import { UserInfo, uriHandler, UserType, SignInReason, OP_BUILD_USER_TOKEN_HEADER_NAME } from '../../../src/shared';
 import { getFakeEnvironmentController, setupKeyChain, fakedCredential } from '../../utils/faker';
 import extensionConfig from '../../../src/config';
 import { DocsError } from '../../../src/error/docsError';
@@ -18,13 +18,13 @@ import { DocfxExecutionResult } from '../../../src/build/buildResult';
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'docsmsft.docs-build',
     path: '/github-authenticate',
-    query: 'id=faked-github-id&name=Fake-User-GitHub&email=fake-github@microsoft.com&X-OP-BuildUserToken=fake-github-token'
+    query: `id=faked-github-id&name=Fake-User-GitHub&email=fake-github@microsoft.com&${OP_BUILD_USER_TOKEN_HEADER_NAME}=fake-github-token`
 };
 
 const fakedAzureDevOpsCallbackURL = <vscode.Uri>{
     authority: 'docsmsft.docs-build',
     path: '/azure-devops-authenticate',
-    query: 'id=faked-azure-devops-id&name=Fake-User-Azure-DevOps&email=fake-azure-devops@microsoft.com&X-OP-BuildUserToken=fake-azure-devops-token'
+    query: `id=faked-azure-devops-id&name=Fake-User-Azure-DevOps&email=fake-azure-devops@microsoft.com&${OP_BUILD_USER_TOKEN_HEADER_NAME}=fake-azure-devops-token`
 };
 
 const fakedCorrelationId = 'fakedCorrelationId';
@@ -230,7 +230,7 @@ describe('CredentialController', () => {
         });
 
         it(`Handle credential expiry during language server is running`, () => {
-            tempCredentialController.eventHandler(new CredentialExpiredDuringLanguageServerRunning());
+            tempCredentialController.eventHandler(new CredentialExpired(true));
             const credential = credentialController.credential;
             AssertCredentialReset(credential);
             assertSignInReason('RealTimeValidation');

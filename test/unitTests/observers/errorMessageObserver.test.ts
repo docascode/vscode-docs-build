@@ -1,6 +1,6 @@
 import assert from 'assert';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnknownUserType, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
+import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnknownUserType, StartLanguageServerCompleted, CredentialExpired } from '../../../src/common/loggingEvents';
 import { fakedBuildInput, fakedCredential } from '../../utils/faker';
 import { SinonSandbox, createSandbox } from 'sinon';
 import { MessageAction } from '../../../src/shared';
@@ -151,6 +151,18 @@ describe('ErrorMessageObserver', () => {
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
+        });
+    });
+
+    describe(`Credential expired while language server is running`, () => {
+        it(`Credential expired`, () => {
+            const event = new CredentialExpired(true);
+            observer.eventHandler(event);
+            assert.equal(messageToShow, `[Docs Validation] Credential Expired, please sign in again.`);
+            assert.deepEqual(messageActions, [new MessageAction(
+                'Sign in',
+                'docs.signIn'
+            )]);
         });
     });
 });

@@ -7,5 +7,5 @@ export interface GetCredentialParams {
 }
 
 export interface GetCredentialResponse {
-    result?: Object;
+    http?: Object;
 }

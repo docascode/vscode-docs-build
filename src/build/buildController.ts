@@ -16,7 +16,6 @@ import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
 import { EnvironmentController } from '../common/environmentController';
 import { Disposable, LanguageClient } from 'vscode-languageclient/node';
-import { CredentialExpiryHandler } from '../credential/credentialExpiryHandler';
 
 export class BuildController {
     private _currentBuildCorrelationId: string;
@@ -104,12 +103,10 @@ export class BuildController {
             buildInput = await this.getBuildInput();
             this._client = this._buildExecutor.getLanguageClient(buildInput, this._credentialController.credential.userInfo?.userToken);
             this._disposable = this._client.start();
-            this._eventStream.post(new StartLanguageServerCompleted(true));
 
             // share the diagnostics collection to full-repo validation.
             this._diagnosticController.setDiagnosticCollection(this._client.diagnostics);
-            const credentialExpiryHandler = new CredentialExpiryHandler(this._client, this._eventStream, this._environmentController);
-            credentialExpiryHandler.listenCredentialExpiryRequest();
+            this._eventStream.post(new StartLanguageServerCompleted(true));
         } catch (err) {
             this._eventStream.post(new StartLanguageServerCompleted(false, err));
             return;

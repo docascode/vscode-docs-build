@@ -18,8 +18,7 @@ import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { UserType } from '../../../src/shared';
-import { Credential } from '../../../src/credential/credentialController'
-import { CredentialExpiryHandler } from '../../../src/credential/credentialExpiryHandler';
+import { Credential } from '../../../src/credential/credentialController';
 
 const expectedBuildInput = <BuildInput>{
     buildType: 'FullBuild',
@@ -504,7 +503,6 @@ describe('BuildController', () => {
     });
 
     it('Start language server succeeds', async () => {
-        const stunListenCredentialExpiryRequest = sinon.stub(CredentialExpiryHandler.prototype, 'listenCredentialExpiryRequest');
         await buildController.startDocfxLanguageServer();
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new BuildProgress('Retrieving repository information for current workspace folder...'),
@@ -514,8 +512,6 @@ describe('BuildController', () => {
         ]);
         assert.equal(tokenUsedForBuild, 'faked-token');
         assert(stubSetDiagnosticCollection.withArgs(<DiagnosticCollection>{ name: 'fakeDiagnosticCollection' }).calledOnce);
-        assert(stunListenCredentialExpiryRequest.calledOnce);
-        stunListenCredentialExpiryRequest.restore();
     });
 
     it('Start language server without sign-in', async () => {

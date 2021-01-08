@@ -70,6 +70,7 @@ export class CredentialInitializing implements BaseEvent {
 
 export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
+    constructor(public duringLanguageServerRunning: boolean = false) { }
 }
 
 export class PublicContributorSignIn implements BaseEvent {
@@ -259,10 +260,6 @@ export class ExtensionActivated implements BaseEvent {
 export class StartLanguageServerCompleted implements BaseEvent {
     type = EventType.StartLanguageServerCompleted;
     constructor(public succeeded: boolean, public err?: Error) { }
-}
-
-export class CredentialExpiredDuringLanguageServerRunning implements BaseEvent {
-    type = EventType.CredentialExpiredDuringLanguageServerRunning;
 }
 
 // Test only

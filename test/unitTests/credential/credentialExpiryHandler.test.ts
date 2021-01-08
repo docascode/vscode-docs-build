@@ -5,9 +5,9 @@ import { CredentialExpiryHandler } from "../../../src/credential/credentialExpir
 import { GetCredentialParams, GetCredentialResponse } from "../../../src/requestTypes";
 import TestEventBus from '../../utils/testEventBus';
 import assert from 'assert';
-import { CredentialExpiredDuringLanguageServerRunning, UserSignInFailed, UserSignInSucceeded, BaseEvent } from "../../../src/common/loggingEvents";
+import { UserSignInFailed, UserSignInSucceeded, BaseEvent, CredentialExpired } from "../../../src/common/loggingEvents";
 import { Credential } from '../../../src/credential/credentialController';
-import { UserInfo } from "../../../src/shared";
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserInfo } from "../../../src/shared";
 import { Disposable } from 'vscode';
 import { getFakeEnvironmentController } from "../../utils/faker";
 
@@ -56,7 +56,7 @@ describe(('Handle credential expiry during language server is running'), () => {
         try {
             await handler.userCredentialRefreshRequestHandler(params);
         } catch (err) {
-            assert.deepStrictEqual(err, new Error('Request with invalid url.'));
+            assert.deepStrictEqual(err, new Error('Credential refresh for URL invalidUrl is not supported.'));
         }
         assert.deepStrictEqual(testEventBus.getEvents(), []);
     });
@@ -65,12 +65,12 @@ describe(('Handle credential expiry during language server is running'), () => {
         const signInSucceedsEvent = new UserSignInSucceeded(undefined, <Credential>{ userInfo: <UserInfo>{ userToken: fakeToken } });
         postEvent(signInSucceedsEvent);
         const result = await handler.userCredentialRefreshRequestHandler(credentialExpiryParam);
-        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpiredDuringLanguageServerRunning(), signInSucceedsEvent]);
+        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpired(true), signInSucceedsEvent]);
         assert.deepStrictEqual(result, <GetCredentialResponse>
             {
                 http: {
                     [credentialExpiryParam.url]: {
-                        'headers': { 'X-OP-BuildUserToken': fakeToken }
+                        'headers': { [OP_BUILD_USER_TOKEN_HEADER_NAME]: fakeToken }
                     }
                 }
             });
@@ -84,7 +84,7 @@ describe(('Handle credential expiry during language server is running'), () => {
         } catch (err) {
             assert.deepStrictEqual(err, new Error('some errors'));
         }
-        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpiredDuringLanguageServerRunning(), signInFailsEvent]);
+        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpired(true), signInFailsEvent]);
     });
 
     async function postEvent(event: BaseEvent): Promise<void> {

@@ -17,8 +17,9 @@ import { setTimeout } from 'timers';
 import { EventType } from '../../../src/common/eventType';
 import { Subscription } from 'rxjs';
 import { BuildType, BuildInput } from '../../../src/build/buildInput';
-import { UserType } from '../../../src/shared';
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from '../../../src/shared';
 import { LanguageClient } from "vscode-languageclient/node";
+import { CredentialExpiryHandler } from '../../../src/credential/credentialExpiryHandler';
 
 describe('BuildExecutor', () => {
     let sinon: SinonSandbox;
@@ -177,7 +178,7 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: '{"https://op-build-prod.azurewebsites.net":{"headers":{"X-OP-BuildUserToken":"faked-build-token"}}}'
+                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`
                     }
                 },
                 {
@@ -187,7 +188,7 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: '{"https://op-build-prod.azurewebsites.net":{"headers":{"X-OP-BuildUserToken":"faked-build-token"}}}'
+                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`
                     }
                 }
             ]);
@@ -267,7 +268,7 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: '{"https://op-build-prod.azurewebsites.net":{"headers":{"X-OP-BuildUserToken":"faked-build-token"}}}'
+                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`
                     }
                 }
             ]);
@@ -353,14 +354,21 @@ describe('BuildExecutor', () => {
 
     describe('Language Client', () => {
         let stubRegisterProposedFeatures: SinonStub;
+        let stubListenCredentialExpiryRequest: SinonStub;
         before(() => {
             stubRegisterProposedFeatures = sinon.stub(LanguageClient.prototype, 'registerProposedFeatures');
             stubRegisterProposedFeatures.callsFake(() => {
                 return;
             });
+            stubListenCredentialExpiryRequest = sinon.stub(CredentialExpiryHandler.prototype, 'listenCredentialExpiryRequest');
         });
         afterEach(() => {
             stubRegisterProposedFeatures.reset();
+            stubListenCredentialExpiryRequest.reset();
+        });
+        after(() => {
+            stubRegisterProposedFeatures.restore();
+            stubListenCredentialExpiryRequest.restore();
         });
 
         it('Public contributor', async () => {
@@ -374,6 +382,7 @@ describe('BuildExecutor', () => {
                     `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --no-cache --template "${publicTemplateURL}"`
                 )]);
             assert(stubRegisterProposedFeatures.calledOnce);
+            assert(stubListenCredentialExpiryRequest.calledOnce);
         });
 
         it('Microsoft employee', async () => {
@@ -387,6 +396,7 @@ describe('BuildExecutor', () => {
                     `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --no-cache`
                 )]);
             assert(stubRegisterProposedFeatures.calledOnce);
+            assert(stubListenCredentialExpiryRequest.calledOnce);
         });
     });
 });

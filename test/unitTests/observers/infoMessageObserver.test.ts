@@ -1,6 +1,6 @@
 import assert from 'assert';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInCompleted, UserSignOutCompleted, BuildTriggered, BuildCompleted, ExtensionActivated, CredentialExpiredDuringLanguageServerRunning } from '../../../src/common/loggingEvents';
+import { UserSignInCompleted, UserSignOutCompleted, BuildTriggered, BuildCompleted, ExtensionActivated } from '../../../src/common/loggingEvents';
 import { getFakeEnvironmentController } from '../../utils/faker';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { InfoMessageObserver } from '../../../src/observers/infoMessageObserver';
@@ -164,18 +164,6 @@ describe('InfoMessageObserver', () => {
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
-        });
-    });
-
-    describe(`Credential expired while language server is running`, () => {
-        it(`Credential expired`, () => {
-            const event = new CredentialExpiredDuringLanguageServerRunning();
-            observer.eventHandler(event);
-            assert.equal(messageToShow, `[Docs Validation] Credential Expired, please sign in again.`);
-            assert.deepEqual(messageActions, [new MessageAction(
-                'Sign in',
-                'docs.signIn'
-            )]);
         });
     });
 });

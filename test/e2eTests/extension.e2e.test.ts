@@ -6,7 +6,7 @@ import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } fro
 import { EventType } from '../../src/common/eventType';
 import { BaseEvent, UserSignInCompleted, BuildCompleted } from '../../src/common/loggingEvents';
 import { createSandbox, SinonSandbox } from 'sinon';
-import { uriHandler, UserType } from '../../src/shared';
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, uriHandler, UserType } from '../../src/shared';
 import { DocfxExecutionResult } from '../../src/build/buildResult';
 import TestEventBus from '../utils/testEventBus';
 import { EventStream } from '../../src/common/eventStream';
@@ -35,7 +35,7 @@ describe('E2E Test', () => {
         const fakedGitHubCallbackURL = <vscode.Uri>{
             authority: 'docsmsft.docs-build',
             path: '/github-authenticate',
-            query: `id=vsc-service-account-id&name=VSC-Service-Account&email=vscavu@microsoft.com&X-OP-BuildUserToken=${process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}`
+            query: `id=vsc-service-account-id&name=VSC-Service-Account&email=vscavu@microsoft.com&${OP_BUILD_USER_TOKEN_HEADER_NAME}=${process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}`
         };
 
         sinon = createSandbox();
