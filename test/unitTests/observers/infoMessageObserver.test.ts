@@ -65,9 +65,9 @@ describe('InfoMessageObserver', () => {
         it(`Sign in succeeded without credential retrieved from cache for full-repo validation`, () => {
             const event = new UserSignInCompleted(`fakedCorrelationId`, true, false, 'FullRepoValidation');
             observer.eventHandler(event);
-            assert.equal(messageToShow, `[Docs Validation] Successfully signed in! Would you like to validate the current workspace folder?`);
+            assert.equal(messageToShow, `[Docs Validation] Successfully signed in! Would you like to validate the current repository?`);
             assert.deepEqual(messageActions, [
-                new MessageAction('Validate', 'docs.build', 'Would you like to validate the current workspace folder?')
+                new MessageAction('Validate', 'docs.build', 'Would you like to validate the current repository?')
             ]);
         });
 

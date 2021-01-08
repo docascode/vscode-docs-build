@@ -16,7 +16,8 @@ import {
     LanguageClientOptions,
     ServerOptions
 } from "vscode-languageclient/node";
-import { UserType } from '../shared';
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from '../shared';
+import { CredentialExpiryHandler } from '../credential/credentialExpiryHandler';
 
 interface BuildParameters {
     restoreCommand: string;
@@ -102,6 +103,8 @@ export class BuildExecutor {
         this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${buildParameters.serveCommand}`));
         const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
         client.registerProposedFeatures();
+        const credentialExpiryHandler = new CredentialExpiryHandler(client, this._eventStream, this._environmentController);
+        credentialExpiryHandler.listenCredentialExpiryRequest();
         return client;
     }
 
@@ -191,7 +194,7 @@ export class BuildExecutor {
         if (!isPublicUser) {
             secrets[`${config.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
                 "headers": {
-                    "X-OP-BuildUserToken": buildUserToken
+                    [OP_BUILD_USER_TOKEN_HEADER_NAME]: buildUserToken
                 }
             };
         }

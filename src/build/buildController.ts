@@ -103,6 +103,8 @@ export class BuildController {
             buildInput = await this.getBuildInput();
             this._client = this._buildExecutor.getLanguageClient(buildInput, this._credentialController.credential.userInfo?.userToken);
             this._disposable = this._client.start();
+
+            // share the diagnostics collection to full-repo validation.
             this._diagnosticController.setDiagnosticCollection(this._client.diagnostics);
             this._eventStream.post(new StartLanguageServerCompleted(true));
         } catch (err) {

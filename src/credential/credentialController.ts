@@ -1,10 +1,10 @@
 import vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import querystring from 'querystring';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType, SignInReason } from '../shared';
+import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType, SignInReason, OP_BUILD_USER_TOKEN_HEADER_NAME } from '../shared';
 import extensionConfig from '../config';
 import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn, BuildCompleted, StartLanguageServerCompleted, BuildFailed } from '../common/loggingEvents';
+import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn, BuildCompleted, StartLanguageServerCompleted, BuildFailed, CredentialExpired } from '../common/loggingEvents';
 import { EventType } from '../common/eventType';
 import { EventStream } from '../common/eventStream';
 import { KeyChain } from './keyChain';
@@ -50,6 +50,9 @@ export class CredentialController {
                 break;
             case EventType.CredentialExpired:
                 this.resetCredential();
+                if ((<CredentialExpired>event).duringLanguageServerRunning) {
+                    this._signInReason = 'RealTimeValidation';
+                }
                 break;
             case EventType.BuildCompleted:
                 if ((<BuildCompleted>event).result === DocfxExecutionResult.Failed) {
@@ -186,7 +189,7 @@ export class CredentialController {
                         userId: query.id,
                         userName: query.name,
                         userEmail: query.email,
-                        userToken: query['X-OP-BuildUserToken'],
+                        userToken: query[OP_BUILD_USER_TOKEN_HEADER_NAME],
                         signType: 'GitHub'
                     });
                 } catch (err) {
@@ -230,7 +233,7 @@ export class CredentialController {
                         userId: query.id,
                         userName: query.name,
                         userEmail: query.email,
-                        userToken: query['X-OP-BuildUserToken'],
+                        userToken: query[OP_BUILD_USER_TOKEN_HEADER_NAME],
                         signType: 'Azure DevOps'
                     });
                 } catch (err) {

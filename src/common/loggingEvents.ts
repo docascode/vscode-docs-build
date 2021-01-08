@@ -70,6 +70,7 @@ export class CredentialInitializing implements BaseEvent {
 
 export class CredentialExpired implements BaseEvent {
     type = EventType.CredentialExpired;
+    constructor(public duringLanguageServerRunning: boolean = false) { }
 }
 
 export class PublicContributorSignIn implements BaseEvent {

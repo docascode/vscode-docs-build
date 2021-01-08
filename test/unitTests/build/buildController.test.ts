@@ -18,7 +18,7 @@ import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { UserType } from '../../../src/shared';
-import { Credential } from '../../../src/credential/credentialController'
+import { Credential } from '../../../src/credential/credentialController';
 
 const expectedBuildInput = <BuildInput>{
     buildType: 'FullBuild',

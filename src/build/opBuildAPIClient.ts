@@ -4,8 +4,7 @@ import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import extensionConfig from '../config';
 import { APICallFailed, APICallStarted, CredentialExpired, BuildProgress } from '../common/loggingEvents';
-
-const OP_BUILD_USER_TOKEN_HEADER_NAME = 'X-OP-BuildUserToken';
+import { OP_BUILD_USER_TOKEN_HEADER_NAME } from '../shared';
 
 type RequestMethod = 'POST' | 'GET';
 
