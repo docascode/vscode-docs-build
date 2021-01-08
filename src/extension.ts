@@ -120,11 +120,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
                 createQuickPickMenu(getCorrelationId(), eventStream, credentialController, buildController, environmentController);
             }
         }),
-        vscode.commands.registerCommand('docs.enableRealTimeValidation', () => {
-            if (checkIfUserTypeSelected(environmentController, eventStream)) {
-                languageServerManager.startLanguageServer();
-            }
-        }),
         vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
             vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, ".logs")));
         }),
