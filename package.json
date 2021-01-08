@@ -104,11 +104,6 @@
         "command": "docs.openInstallationDirectory",
         "title": "Open extension install directory",
         "category": "Docs"
-      },
-      {
-        "command": "docs.enableRealTimeValidation",
-        "title": "Enable real-time validation",
-        "category": "Docs"
       }
     ],
     "keybindings": [
