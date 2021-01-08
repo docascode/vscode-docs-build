@@ -371,7 +371,7 @@ describe('BuildExecutor', () => {
             assert.deepStrictEqual(testEventBus.getEvents(),
                 [new BuildProgress(
                     `Starting language server using command: docfx.exe ` +
-                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --template "${publicTemplateURL}"`
+                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --no-cache --template "${publicTemplateURL}"`
                 )]);
             assert(stubRegisterProposedFeatures.calledOnce);
         });
@@ -384,7 +384,7 @@ describe('BuildExecutor', () => {
             assert.deepStrictEqual(testEventBus.getEvents(),
                 [new BuildProgress(
                     `Starting language server using command: docfx.exe ` +
-                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}"`
+                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --no-cache`
                 )]);
             assert(stubRegisterProposedFeatures.calledOnce);
         });

@@ -219,7 +219,7 @@ export class BuildExecutor {
     ): string {
         let cmdWithParameters: string;
         if (command === 'serve') {
-            cmdWithParameters = `${command} --language-server "${input.localRepositoryPath}"`;
+            cmdWithParameters = `${command} --language-server "${input.localRepositoryPath}" --no-cache`;
         } else {
             cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}"`;
         }
