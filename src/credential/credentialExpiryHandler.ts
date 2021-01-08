@@ -1,76 +1,66 @@
-import { LanguageClient, ResponseError } from "vscode-languageclient/node";
+import { LanguageClient } from "vscode-languageclient/node";
 import { EventStream } from "../common/eventStream";
 import { EventType } from "../common/eventType";
-import { BaseEvent, CredentialExpiredDuringLanguageServerRunning, UserSignInCompleted, UserSignInSucceeded } from "../common/loggingEvents";
-import { delay } from '../utils/utils';
+import { BaseEvent, CredentialExpiredDuringLanguageServerRunning, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded } from "../common/loggingEvents";
 import config from '../config';
-import { TimeOutError } from '../error/timeOutError';
 import { Subscription } from "rxjs";
-import { UserCredentialRefreshRequest_Type, UserCredentialRefreshResponse, UserCredentialRefreshParams } from '../requestTypes';
+import { UserCredentialRefreshRequest_Type, GetCredentialResponse, GetCredentialParams } from '../requestTypes';
 import { EnvironmentController } from "../common/environmentController";
 
 export class CredentialExpiryHandler {
-    constructor(private _client: LanguageClient, private _eventStream: EventStream, private _environmentController: EnvironmentController) { }
+    constructor(private _client: LanguageClient, private _eventStream: EventStream, private _environmentController: EnvironmentController) {
+    }
 
     public async listenCredentialExpiryRequest(): Promise<void> {
         if (!this._client) {
             return;
         }
         return this._client.onReady().then(async () => {
-            this._client.onRequest(UserCredentialRefreshRequest_Type, this.userCredentialRefreshRequestHandler);
+            this._client.onRequest(UserCredentialRefreshRequest_Type, this.userCredentialRefreshRequestHandler.bind(this));
             return;
         });
     }
 
-    public async userCredentialRefreshRequestHandler(params: UserCredentialRefreshParams): Promise<UserCredentialRefreshResponse> {
-        if (params.url && params.url.startsWith(config.OPBuildAPIEndPoint[this._environmentController.env])) {
-            this._eventStream.post(new CredentialExpiredDuringLanguageServerRunning());
-            try {
-                const builderToken = await this.getRefreshedToken();
-                return <UserCredentialRefreshResponse>{
-                    result: {
-                        [config.OPBuildAPIEndPoint[this._environmentController.env]]: {
-                            'headers': {
-                                ['X-OP-BuildUserToken']: builderToken
+    public userCredentialRefreshRequestHandler(params: GetCredentialParams): Promise<GetCredentialResponse> {
+        return new Promise<GetCredentialResponse>(async (resolve, reject) => {
+            if (params.url && params.url.startsWith(config.OPBuildAPIEndPoint[this._environmentController.env])) {
+                this._eventStream.post(new CredentialExpiredDuringLanguageServerRunning());
+                try {
+                    const builderToken = await this.getRefreshedToken();
+                    resolve(<GetCredentialResponse>{
+                        http: {
+                            [config.OPBuildAPIEndPoint[this._environmentController.env]]: {
+                                'headers': {
+                                    ['X-OP-BuildUserToken']: builderToken
+                                }
                             }
                         }
-                    }
-                };
-            } catch (err) {
-                return <UserCredentialRefreshResponse>{
-                    error: <ResponseError<void>>{ message: (<Error>err).message }
-                };
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            } else {
+                reject(new Error('Request with invalid url.'));
             }
-        } else {
-            return <UserCredentialRefreshResponse>{
-                error: <ResponseError<void>>{ message: 'Request with invalid url.' }
-            };
-        }
+        });
     }
 
-    private async getRefreshedToken() {
+    private async getRefreshedToken(): Promise<string> {
         let subscribe: Subscription;
-        return Promise.race([
-            delay(config.SignInTimeOut, new TimeOutError('Timed out, token refresh failed.')),
-            new Promise<string>((resolve, reject) => {
-                subscribe = this._eventStream.subscribe((event: BaseEvent): void => {
-                    switch (event.type) {
-                        case (EventType.UserSignInCompleted):
-                            if ((<UserSignInCompleted>event).succeeded) {
-                                resolve((<UserSignInSucceeded>event).credential.userInfo.userToken);
-                            } else {
-                                reject(new Error('Sign in failed, token refresh failed.'));
-                            }
-                            break;
-                    }
-                })
-            }).then((result) => {
-                subscribe.unsubscribe();
-                return result;
-            }).catch((err) => {
-                subscribe.unsubscribe();
-                throw err;
+        return new Promise<string>((resolve, reject) => {
+            subscribe = this._eventStream.subscribe((event: BaseEvent): void => {
+                switch (event.type) {
+                    case (EventType.UserSignInCompleted):
+                        if ((<UserSignInCompleted>event).succeeded) {
+                            subscribe.unsubscribe();
+                            resolve((<UserSignInSucceeded>event).credential.userInfo.userToken);
+                        } else {
+                            subscribe.unsubscribe();
+                            reject((<UserSignInFailed>event).err);
+                        }
+                        break;
+                }
             })
-        ]);
+        });
     }
 }

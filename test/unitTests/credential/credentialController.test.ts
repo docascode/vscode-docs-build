@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, StartLanguageServerCompleted, BuildFailed, BuildCompleted } from '../../../src/common/loggingEvents';
+import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, StartLanguageServerCompleted, BuildFailed, BuildCompleted, CredentialExpiredDuringLanguageServerRunning } from '../../../src/common/loggingEvents';
 import { EventStream } from '../../../src/common/eventStream';
 import { CredentialController, Credential } from '../../../src/credential/credentialController';
 import { KeyChain } from '../../../src/credential/keyChain';
@@ -228,6 +228,14 @@ describe('CredentialController', () => {
             tempCredentialController.eventHandler(new StartLanguageServerCompleted(false, signInError));
             assertSignInReason('RealTimeValidation');
         });
+
+        it(`Handle credential expiry during language server is running`, () => {
+            tempCredentialController.eventHandler(new CredentialExpiredDuringLanguageServerRunning());
+            const credential = credentialController.credential;
+            AssertCredentialReset(credential);
+            assertSignInReason('RealTimeValidation');
+        });
+
 
         function assertSignInReason(reason: SignInReason) {
             // @ts-ignore

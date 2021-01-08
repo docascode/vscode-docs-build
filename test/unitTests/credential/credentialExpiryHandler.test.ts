@@ -1,14 +1,13 @@
 import { createSandbox, SinonSandbox, SinonStub } from "sinon";
-import { LanguageClient, ResponseError } from "vscode-languageclient/node";
+import { LanguageClient } from "vscode-languageclient/node";
 import { EventStream } from "../../../src/common/eventStream"
 import { CredentialExpiryHandler } from "../../../src/credential/credentialExpiryHandler";
-import { UserCredentialRefreshParams, UserCredentialRefreshResponse } from "../../../src/requestTypes";
+import { GetCredentialParams, GetCredentialResponse } from "../../../src/requestTypes";
 import TestEventBus from '../../utils/testEventBus';
 import assert from 'assert';
 import { CredentialExpiredDuringLanguageServerRunning, UserSignInFailed, UserSignInSucceeded, BaseEvent } from "../../../src/common/loggingEvents";
 import { Credential } from '../../../src/credential/credentialController';
 import { UserInfo } from "../../../src/shared";
-import extensionConfig from '../../../src/config';
 import { Disposable } from 'vscode';
 import { getFakeEnvironmentController } from "../../utils/faker";
 
@@ -24,7 +23,7 @@ describe(('Handle credential expiry during language server is running'), () => {
     const handler = new CredentialExpiryHandler(fakeLanguageClient, eventStream, fakeEnvironmentController);
     const testEventBus = new TestEventBus(eventStream);
     const fakeToken = 'fakeToken';
-    const credentialExpiryParam = <UserCredentialRefreshParams>{ url: 'https://op-build-prod.azurewebsites.net' };
+    const credentialExpiryParam = <GetCredentialParams>{ url: 'https://op-build-prod.azurewebsites.net' };
 
     let stubOnRequest: SinonStub;
 
@@ -53,27 +52,23 @@ describe(('Handle credential expiry during language server is running'), () => {
     })
 
     it('Request with invalid url', async () => {
-        const params = <UserCredentialRefreshParams>{ url: 'invalidUrl' };
-        const result = await handler.userCredentialRefreshRequestHandler(params);
+        const params = <GetCredentialParams>{ url: 'invalidUrl' };
+        try {
+            await handler.userCredentialRefreshRequestHandler(params);
+        } catch (err) {
+            assert.deepStrictEqual(err, new Error('Request with invalid url.'));
+        }
         assert.deepStrictEqual(testEventBus.getEvents(), []);
-        assert.deepStrictEqual(result,
-            <UserCredentialRefreshResponse>
-            {
-                error: <ResponseError<void>>{
-                    message: 'Request with invalid url.'
-                }
-            });
     });
 
     it('Refresh token succeeds', async () => {
         const signInSucceedsEvent = new UserSignInSucceeded(undefined, <Credential>{ userInfo: <UserInfo>{ userToken: fakeToken } });
-
         postEvent(signInSucceedsEvent);
         const result = await handler.userCredentialRefreshRequestHandler(credentialExpiryParam);
         assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpiredDuringLanguageServerRunning(), signInSucceedsEvent]);
-        assert.deepStrictEqual(result, <UserCredentialRefreshResponse>
+        assert.deepStrictEqual(result, <GetCredentialResponse>
             {
-                result: {
+                http: {
                     [credentialExpiryParam.url]: {
                         'headers': { 'X-OP-BuildUserToken': fakeToken }
                     }
@@ -82,32 +77,14 @@ describe(('Handle credential expiry during language server is running'), () => {
     });
 
     it('Refresh token fails due to sign in failed', async () => {
-        const signInFailsEvent = new UserSignInFailed(undefined, new Error('some error'));
-
+        const signInFailsEvent = new UserSignInFailed(undefined, new Error('some errors'));
         postEvent(signInFailsEvent);
-        const result = await handler.userCredentialRefreshRequestHandler(credentialExpiryParam);
+        try {
+            await handler.userCredentialRefreshRequestHandler(credentialExpiryParam);
+        } catch (err) {
+            assert.deepStrictEqual(err, new Error('some errors'));
+        }
         assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpiredDuringLanguageServerRunning(), signInFailsEvent]);
-        assert.deepStrictEqual(result, <UserCredentialRefreshResponse>
-            {
-                error: <ResponseError<void>>{
-                    message: 'Sign in failed, token refresh failed.'
-                }
-            });
-    });
-
-    it('Refresh token fails due to time out', async () => {
-        const stubConfigTimeout = sinon.stub(extensionConfig, 'SignInTimeOut').get(() => {
-            return 200;
-        });
-        const result = await handler.userCredentialRefreshRequestHandler(credentialExpiryParam);
-        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpiredDuringLanguageServerRunning()]);
-        assert.deepStrictEqual(result, <UserCredentialRefreshResponse>
-            {
-                error: <ResponseError<void>>{
-                    message: 'Timed out, token refresh failed.'
-                }
-            });
-        stubConfigTimeout.restore();
     });
 
     async function postEvent(event: BaseEvent): Promise<void> {

@@ -51,6 +51,10 @@ export class CredentialController {
             case EventType.CredentialExpired:
                 this.resetCredential();
                 break;
+            case EventType.CredentialExpiredDuringLanguageServerRunning:
+                this.resetCredential();
+                this._signInReason = 'RealTimeValidation';
+                break;
             case EventType.BuildCompleted:
                 if ((<BuildCompleted>event).result === DocfxExecutionResult.Failed) {
                     if (this.isSignInError((<BuildFailed>event).err)) {

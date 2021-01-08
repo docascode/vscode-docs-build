@@ -17,7 +17,6 @@ import {
     ServerOptions
 } from "vscode-languageclient/node";
 import { UserType } from '../shared';
-import { CredentialExpiryHandler } from '../credential/credentialExpiryHandler';
 
 interface BuildParameters {
     restoreCommand: string;

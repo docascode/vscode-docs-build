@@ -1,12 +1,11 @@
-import { RequestType, ResponseError } from "vscode-languageclient/node";
+import { RequestType } from "vscode-languageclient/node";
 
-export const UserCredentialRefreshRequest_Type = new RequestType<UserCredentialRefreshParams, UserCredentialRefreshResponse, void>('docfx/userCredentialRefresh');
+export const UserCredentialRefreshRequest_Type = new RequestType<GetCredentialParams, GetCredentialResponse, void>('docfx/getCredential');
 
-export interface UserCredentialRefreshParams {
+export interface GetCredentialParams {
     url: string
 }
 
-export interface UserCredentialRefreshResponse {
+export interface GetCredentialResponse {
     result?: Object;
-    error?: ResponseError<void>;
 }
