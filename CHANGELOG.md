@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.5 (January 8, 2021)
+
+### Added
+
+- Support real-time single file validation with a feature flag(default to be disabled).
+
 ## 0.2.4 (December 4, 2020)
 
 ### Changed
