@@ -21,7 +21,7 @@ export class CredentialExpiryHandler {
         });
     }
 
-    public userCredentialRefreshRequestHandler(params: GetCredentialParams): Promise<GetCredentialResponse> {
+    public async userCredentialRefreshRequestHandler(params: GetCredentialParams): Promise<GetCredentialResponse> {
         return new Promise<GetCredentialResponse>(async (resolve, reject) => {
             if (params.url && params.url.startsWith(config.OPBuildAPIEndPoint[this._environmentController.env])) {
                 this._eventStream.post(new CredentialExpiredDuringLanguageServerRunning());

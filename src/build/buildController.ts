@@ -104,10 +104,12 @@ export class BuildController {
             buildInput = await this.getBuildInput();
             this._client = this._buildExecutor.getLanguageClient(buildInput, this._credentialController.credential.userInfo?.userToken);
             this._disposable = this._client.start();
+            this._eventStream.post(new StartLanguageServerCompleted(true));
+
+            // share the diagnostics collection to full-repo validation.
             this._diagnosticController.setDiagnosticCollection(this._client.diagnostics);
             const credentialExpiryHandler = new CredentialExpiryHandler(this._client, this._eventStream, this._environmentController);
             credentialExpiryHandler.listenCredentialExpiryRequest();
-            this._eventStream.post(new StartLanguageServerCompleted(true));
         } catch (err) {
             this._eventStream.post(new StartLanguageServerCompleted(false, err));
             return;
