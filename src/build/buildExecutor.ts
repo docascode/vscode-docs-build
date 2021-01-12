@@ -74,7 +74,7 @@ export class BuildExecutor {
     public getLanguageClient(input: BuildInput, buildUserToken: string): LanguageClient {
         const buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
         const command = this._binary;
-        const args = buildParameters.serveCommand.split(" ");
+        const args = buildParameters.serveCommand.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g);
         args.forEach((arg, i) => args[i] = arg.replace(/^["'](.+(?=["']$))["']$/, '$1'));
 
         const options = { env: buildParameters.envs, cwd: this._cwd };
