@@ -54,15 +54,15 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
             }
 
             const range = new vscode.Range(
-                convertToZeroBased(reportItem.line ? reportItem.line : 0),
-                convertToZeroBased(reportItem.column ? reportItem.column : 0),
-                convertToZeroBased(reportItem.end_line ? reportItem.end_line : 0),
-                convertToZeroBased(reportItem.end_column ? reportItem.end_column : 0));
+                convertToZeroBased(reportItem.line ?? 0),
+                convertToZeroBased(reportItem.column ?? 0),
+                convertToZeroBased(reportItem.end_line ?? 0),
+                convertToZeroBased(reportItem.end_column ?? 0));
             const diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
             diagnostic.code = reportItem.code;
             diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
 
-            const sourceFile = reportItem.file ? reportItem.file : configFile;
+            const sourceFile = reportItem.file ?? configFile;
             if (!diagnosticsSet.has(sourceFile)) {
                 diagnosticsSet.set(sourceFile, {
                     uri: vscode.Uri.file(path.resolve(repositoryPath, sourceFile)),
