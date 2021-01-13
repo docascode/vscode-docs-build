@@ -119,8 +119,9 @@ describe("ReportGenerator", () => {
             new BuildProgress(`Log file found, Generating report...`),
         ]);
     });
+
     it("Handle pull_request_only diagnostics", () => {
-        const fakedErrorLogWithPullRequest =  `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":true}\n`
+        const fakedErrorLogWithPullRequest = `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":true}\n`
             + `{"message_severity":"info","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":false}\n`
             + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":null}\n`;
         stubFsExistsSync
@@ -135,6 +136,31 @@ describe("ReportGenerator", () => {
                 diagnostics: [
                     expectedInfoDiagnostic,
                     expectedErrorDiagnostic
+                ]
+            },
+        });
+        assert.deepStrictEqual(testEventBus.getEvents(), [
+            new BuildProgress(`Log file found, Generating report...`),
+        ]);
+    });
+
+    it("Handle diagnostic with no source file", () => {
+        const configFile = '.openpublishing.publish.config.json';
+        const configPath = `${testRepositoryPath}/${configFile}`;
+        const configUri = Uri.file(configPath);
+        configUri.fsPath;
+        const fakedErrorLogWithPullRequest = `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`;
+        stubFsExistsSync
+            .withArgs(path.normalize(testLogPath)).returns(true);
+        stubFsReadFileSync
+            .withArgs(path.normalize(testLogPath)).returns(fakedErrorLogWithPullRequest);
+
+        visualizeBuildReport(testRepositoryPath, testLogPath, fakedDiagnosticController, eventStream);
+        assert.deepStrictEqual(diagnosticSet, {
+            [path.normalize(configPath)]: {
+                uri: configUri,
+                diagnostics: [
+                    expectedWarningDiagnostic
                 ]
             },
         });

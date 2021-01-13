@@ -29,6 +29,8 @@ const severityMap = new Map<MessageSeverity, vscode.DiagnosticSeverity>([
     ["suggestion", vscode.DiagnosticSeverity.Information]
 ]);
 
+const configFile = '.openpublishing.publish.config.json';
+
 type MessageSeverity = "error" | "warning" | "info" | "suggestion";
 type LogItemType = 'system' | ' user';
 
@@ -47,23 +49,20 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
         report.forEach(item => {
             const reportItem = <ReportItem>JSON.parse(item);
 
-            if (!reportItem.file) {
-                return;
-            }
             if (reportItem.pull_request_only) {
                 return;
             }
 
             const range = new vscode.Range(
-                convertToZeroBased(reportItem.line),
-                convertToZeroBased(reportItem.column),
-                convertToZeroBased(reportItem.end_line),
-                convertToZeroBased(reportItem.end_column));
+                convertToZeroBased(reportItem.line ? reportItem.line : 0),
+                convertToZeroBased(reportItem.column ? reportItem.column : 0),
+                convertToZeroBased(reportItem.end_line ? reportItem.end_line : 0),
+                convertToZeroBased(reportItem.end_column ? reportItem.end_column : 0));
             const diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
             diagnostic.code = reportItem.code;
             diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
 
-            const sourceFile = reportItem.file;
+            const sourceFile = reportItem.file ? reportItem.file : configFile;
             if (!diagnosticsSet.has(sourceFile)) {
                 diagnosticsSet.set(sourceFile, {
                     uri: vscode.Uri.file(path.resolve(repositoryPath, sourceFile)),
