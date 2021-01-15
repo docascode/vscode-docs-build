@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.2.6 (January 15, 2021)
+
+### Fixed
+
+- Use webSocket to communicate with language server. (#197)
+- Report all diagnostics without source information on `.openpublishing.publish.config`. (#196)
+- Fix build crashed when the folder path contains white-space. (#194)
+
 ## 0.2.5 (January 8, 2021)
 
 ### Added
