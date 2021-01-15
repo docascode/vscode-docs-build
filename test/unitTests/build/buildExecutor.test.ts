@@ -366,6 +366,11 @@ describe('BuildExecutor', () => {
                 return;
             });
             stubListenCredentialExpiryRequest = sinon.stub(CredentialExpiryHandler.prototype, 'listenCredentialExpiryRequest');
+
+            // @ts-ignore
+            sinon.stub(BuildExecutor.prototype, "connectToServer").callsFake((port) => {
+                return undefined;
+            });
         });
         beforeEach(() => {
             testEventBus.clear();

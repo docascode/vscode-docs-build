@@ -5,6 +5,7 @@ import {
     LanguageClient,
     StreamInfo
 } from "vscode-languageclient/node";
+import { Duplex } from 'stream';
 import { PlatformInformation } from '../common/platformInformation';
 import { Package, AbsolutePathPackage } from '../dependency/package';
 import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted } from '../common/loggingEvents';
@@ -97,8 +98,7 @@ export class BuildExecutor implements Disposable {
                     if (!isServerReady) {
                         if (data.indexOf("Now listening on:") >= 0) {
                             isServerReady = true;
-                            const ws = new WebSocket(`ws://localhost:${input.port}/lsp`);
-                            const connection = WebSocket.createWebSocketStream(ws);
+                            const connection = this.connectToServer(input.port);
                             const client = new LanguageClient(
                                 "docfxLanguageServer",
                                 "Docfx Language Server",
@@ -120,6 +120,11 @@ export class BuildExecutor implements Disposable {
 
     public async cancelBuild(): Promise<void> {
         await this.killChildProcess(this._runningBuildChildProcess);
+    }
+
+    private connectToServer(port: number): Duplex {
+        const ws = new WebSocket(`ws://localhost:${port}/lsp`);
+        return WebSocket.createWebSocketStream(ws);
     }
 
     private async killChildProcess(childProcess: ChildProcess) {
