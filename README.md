@@ -33,7 +33,7 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/enable-real-time-validation.gif?raw=true)
 
 4. For **Microsoft employee**, the extension will check your sign-in status before real-time validation starts to work. If you haven't signed in or your credential expired, you will be asked to sign in. After sign-in succeeds, real-time validation will start automatically.
-5. With real-time validation enabled, you will see validation issues (if any) while you are editing on the open files.
+5. With real-time validation enabled, you will see validation issues (if any) while you are working on the repository (eg. modifying files, creating files and deleting files etc.).
 
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/real-time-validation-exp.gif?raw=true)
 
@@ -47,22 +47,22 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 ### Inconsistent results between real-time validation and full-repository validation.
 
-These inconsistent results come from two situations: the currently edited file needs validation results from other files and the currently edited file affects other files' validation results. The real-time validation now will only validates the open files. Therefore, some inconsistent results will show when the files related to these two situations are not opened.
+These inconsistent results mainly come from two situations: the currently edited file needs validation results from other files and the currently edited file affects other files' validation results. The real-time validation now will only validates the open files. Therefore, some inconsistent results will show when the files related to these two situations are not opened.
 
 Inconsistent results caused by the currently edited file needs validation results from other files:
 
 - publish-url-conflict
 - output-path-conflict
-- duplicate-uid
-- xref-property-conflict
-- moniker-overlapping
+- Content or Metadata uniqueness
+    - duplicate-uid
+    - xref-property-conflict
+    - moniker-overlapping
+    - duplicate-title
+    - altText-duplicate
+    - duplicate-h1
+    - ...
 - bookmark-not-found
-- duplicate-title
-- altText-duplicate
-- duplicate-h1
-- Metadata uniqueness
-- Orphan module unit
-- Redirection file
+- Validation on hierarchy (for example `unit-no-module-parent`)
 
 Inconsistent results caused by the currently edited file affects other files' validation results:
 
@@ -71,6 +71,13 @@ Inconsistent results caused by the currently edited file affects other files' va
 - circular-reference
 - include-not-found
 - file-not-found
+
+Other situations:
+- Pull-request-only suggestions will be ingored by full-repository validation but will be reported by real-time validation.
+- Include files will not be validated before you open any file refers to them.
+- .openpublishing.redirection.json will not be validated before you open any content file (.md or .yml).
+
+> **Note:** Validation is not available currently for workspaces with multiple folders.
 
 ## Troubleshooting
 
