@@ -12,21 +12,72 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 ## How to use the Docs Validation extension
 
+### Full-repository validation
+
 1. Open a Docs conceptual or Learn repo in VS Code with the extension installed.
-1. If you're a Microsoft employee, optionally sign in in by clicking **Docs Validation** from the VS Code status bar. You can still use the extension without signing in, but sign in is recommended to use the most recent build information for private repos.
-1. Trigger a build by clicking **Yes** when prompted after sign in, by clicking **Docs Validation** on the status bar then clicking **Validate** from the drop-down menu, or by right-clicking any file in the repo and selecting **Validate this repository**.
+1. For the first time you use the extension, you will be asked to choose your user type between **Microsoft employee** and **Public contributor** before you can use full-repository validation.
+1. For **Microsoft employee**, you are required to sign in before using full-repository validation. You can click **Docs Validation** on the status bar then click **Sign in** from the drop-down menu to sign in.
+1. After signing in, you can trigger a validation by clicking **Validate** when prompted. You can also click **Docs Validation** on the status bar then click **Validate** from the drop-down menu, or by right-clicking any file in the repo and selecting **Validate this repository**.
 1. Build validation will run locally and all results will be output to the Problems pane.
 
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/vscode-docs-build.gif?raw=true)
 
 > **Note:** The first time you validate a repo, all the Docs build dependencies will be fetched and cached locally. Subsequent validation runs will be faster.
 
+### Real-time validation
+
+1. Open a Docs conceptual or Learn repo in VS Code with the extension installed.
+2. For the first time you use the extension, you will be asked to choose your user type between **Microsoft employee** and **Public contributor** before you can use real-time validation.
+3. The real-time validation is disabled by default, you can enable it in the extension settings (Go to Settings -> Docs Validation -> Check **Real-time Validation: Automatically Enable**). You will be asked to reload the extension after you enable real-time validation.
+
+![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/enable-real-time-validation.gif?raw=true)
+
+4. For **Microsoft employee**, the extension will check your sign-in status before real-time validation starts to work. If you haven't signed in or your credential expired, you will be asked to sign in. After sign-in succeeds, real-time validation will start automatically.
+5. With real-time validation enabled, you will see validation issues (if any) while you are working on the repository (eg. modifying files, creating files and deleting files etc.).
+
+![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/real-time-validation-exp.gif?raw=true)
+
+
 ## Known issues
 
-The following validations have inconsistent results between Docs Build validation and local validation.
+### Inconsistent results between Docs Build validation and full-repository validation.
 
 - bookmark-not-found: The rendering information required to validate bookmarks in schema-based content isn't available publicly, so if you aren't signed in as a Microsoft employee you might not get all broken bookmark results.
 - author-not-found and ms-author-invalid: These validations require external API calls that aren't supported locally at this time, so no results will be returned for them.
+
+### Inconsistent results between real-time validation and full-repository validation.
+
+These inconsistent results mainly come from two situations: the currently edited file needs validation results from other files and the currently edited file affects other files' validation results. The real-time validation now will only validates the open files. Therefore, some inconsistent results will show when the files related to these two situations are not opened.
+
+Inconsistent results caused by the currently edited file needs validation results from other files:
+
+- publish-url-conflict
+- output-path-conflict
+- Content or Metadata uniqueness
+    - duplicate-uid
+    - xref-property-conflict
+    - moniker-overlapping
+    - duplicate-title
+    - altText-duplicate
+    - duplicate-h1
+    - ...
+- bookmark-not-found
+- Validation on hierarchy (for example `unit-no-module-parent`)
+
+Inconsistent results caused by the currently edited file affects other files' validation results:
+
+- xref-not-found
+- bookmark-not-found
+- circular-reference
+- include-not-found
+- file-not-found
+
+Other situations:
+- Pull-request-only suggestions will be ignored by full-repository validation but will be reported by real-time validation.
+- Include files will not be validated before you open any file includes them.
+- .openpublishing.redirection.json will not be validated before you open any content file (.md or .yml).
+
+> **Note:** Validation is not available currently for workspaces with multiple folders.
 
 ## Troubleshooting
 
