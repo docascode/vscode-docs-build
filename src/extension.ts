@@ -92,6 +92,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         logger,
         telemetryReporter,
         diagnosticController,
+        buildExecutor,
         buildController,
         docsStatusBar,
         buildStatusBar,

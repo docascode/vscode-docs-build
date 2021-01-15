@@ -29,6 +29,7 @@ const expectedBuildInput = <BuildInput>{
     outputFolderPath: defaultOutputPath,
     logPath: defaultLogPath,
     workspaceFolderName: "fakedWorkspaceFolder",
+    port: undefined,
 };
 
 describe('BuildController', () => {
@@ -359,6 +360,7 @@ describe('BuildController', () => {
                     outputFolderPath: defaultOutputPath,
                     logPath: defaultLogPath,
                     workspaceFolderName: "fakedWorkspaceFolder",
+                    port: undefined,
                 },
                 1,
                 <BuildResult>{

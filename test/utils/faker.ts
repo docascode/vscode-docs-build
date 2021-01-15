@@ -124,7 +124,8 @@ export const fakedBuildInput = <BuildInput>{
     localRepositoryUrl: 'https://faked.repository',
     originalRepositoryUrl: 'https://faked.original.repository',
     outputFolderPath: defaultOutputPath,
-    logPath: defaultLogPath
+    logPath: defaultLogPath,
+    port: 8080,
 };
 
 export function getFakedBuildExecutor(docfxExecutionResult: DocfxExecutionResult, setRunBuildFuncParameters?: Function): BuildExecutor {

@@ -1,6 +1,8 @@
 import vscode from 'vscode';
 import fs from 'fs-extra';
 import path from 'path';
+// eslint-disable-next-line node/no-unpublished-import
+import getPort from 'get-port';
 import { CredentialController } from '../credential/credentialController';
 import { OPBuildAPIClient } from './opBuildAPIClient';
 import { EventStream } from '../common/eventStream';
@@ -100,8 +102,8 @@ export class BuildController {
 
         try {
             await this.validateUserCredential();
-            buildInput = await this.getBuildInput();
-            this._client = this._buildExecutor.getLanguageClient(buildInput, this._credentialController.credential.userInfo?.userToken);
+            buildInput = await this.getBuildInput(true);
+            this._client = await this._buildExecutor.getLanguageClient(buildInput, this._credentialController.credential.userInfo?.userToken);
             this._disposable = this._client.start();
 
             // share the diagnostics collection to full-repo validation.
@@ -152,7 +154,7 @@ export class BuildController {
         }
     }
 
-    private async getBuildInput(): Promise<BuildInput> {
+    private async getBuildInput(getAvailablePort = false): Promise<BuildInput> {
         if (this._buildInput) {
             return this._buildInput;
         }
@@ -166,6 +168,7 @@ export class BuildController {
             const dryRun = this.needDryRun(activeWorkSpaceFolder.uri.fsPath);
             const outputFolderPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER || getTempOutputFolder());
             const logPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_LOG_PATH || path.join(outputFolderPath, '.errors.log'));
+            const port = getAvailablePort ? await getPort() : undefined;
             this._buildInput = <BuildInput>{
                 workspaceFolderName: activeWorkSpaceFolder.name,
                 buildType: BuildType.FullBuild,
@@ -175,6 +178,7 @@ export class BuildController {
                 outputFolderPath,
                 logPath,
                 dryRun,
+                port
             };
             return this._buildInput;
         } catch (err) {

@@ -11,7 +11,7 @@ import { getFakeEnvironmentController, getFakedTelemetryReporter, fakedExtension
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import { BuildExecutor } from '../../../src/build/buildExecutor';
-import { DocfxRestoreStarted, DocfxRestoreCompleted, DocfxBuildStarted, DocfxBuildCompleted, BuildProgress } from '../../../src/common/loggingEvents';
+import { DocfxRestoreStarted, DocfxRestoreCompleted, DocfxBuildStarted, DocfxBuildCompleted } from '../../../src/common/loggingEvents';
 import { DocfxExecutionResult, BuildResult } from '../../../src/build/buildResult';
 import { setTimeout } from 'timers';
 import { EventType } from '../../../src/common/eventType';
@@ -64,7 +64,7 @@ describe('BuildExecutor', () => {
                 eventStream: EventStream,
                 exitHandler: (code: number, signal: string) => void,
                 options?: cp.ExecOptions,
-                stdinInput?: string): cp.ChildProcess {
+                stdoutHandler?: (data: string) => void,): cp.ChildProcess {
 
                 let childKilled = false;
                 executedCommands.push(command);
@@ -80,6 +80,10 @@ describe('BuildExecutor', () => {
                         if (!childKilled) {
                             exitHandler(buildExitCode, undefined);
                         }
+                    }, 10);
+                } else if (command.indexOf(' serve ') !== -1) {
+                    setTimeout(() => {
+                        stdoutHandler("Now listening on: http://127.0.0.1:8080/");
                     }, 10);
                 }
 
@@ -316,7 +320,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --verbose --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson" --verbose`,
             ]);
 
             // Reset environment
@@ -330,7 +334,7 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, undefined);
 
             assert.deepStrictEqual(executedCommands, [
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --template "${publicTemplateURL}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson" --template "${publicTemplateURL}"`,
             ]);
 
             assert.deepStrictEqual(executedOptions, [
@@ -356,11 +360,20 @@ describe('BuildExecutor', () => {
         let stubRegisterProposedFeatures: SinonStub;
         let stubListenCredentialExpiryRequest: SinonStub;
         before(() => {
+            mockExecuteDocfx(0, 0);
             stubRegisterProposedFeatures = sinon.stub(LanguageClient.prototype, 'registerProposedFeatures');
             stubRegisterProposedFeatures.callsFake(() => {
                 return;
             });
             stubListenCredentialExpiryRequest = sinon.stub(CredentialExpiryHandler.prototype, 'listenCredentialExpiryRequest');
+
+            // @ts-ignore
+            sinon.stub(BuildExecutor.prototype, "connectToServer").callsFake((port) => {
+                return undefined;
+            });
+        });
+        beforeEach(() => {
+            testEventBus.clear();
         });
         afterEach(() => {
             stubRegisterProposedFeatures.reset();
@@ -375,12 +388,25 @@ describe('BuildExecutor', () => {
             sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
                 return UserType.PublicContributor;
             });
-            buildExecutor.getLanguageClient(fakedBuildInput, undefined);
-            assert.deepStrictEqual(testEventBus.getEvents(),
-                [new BuildProgress(
-                    `Starting language server using command: docfx.exe ` +
-                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --no-cache --template "${publicTemplateURL}"`
-                )]);
+            await buildExecutor.getLanguageClient(fakedBuildInput, undefined);
+            assert.deepStrictEqual(executedCommands, [
+                `docfx.exe serve "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --language-server --no-cache --address "localhost" --port 8080 --template "${publicTemplateURL}"`,
+            ]);
+
+            assert.deepStrictEqual(executedOptions, [
+                {
+                    cwd: `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`,
+                    env: {
+                        APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
+                        DOCFX_CORRELATION_ID: undefined,
+                        DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
+                        DOCS_ENVIRONMENT: 'PROD',
+                        DOCFX_REPOSITORY_BRANCH: 'master',
+                        DOCFX_HTTP: '{}'
+                    }
+                }
+            ]);
+
             assert(stubRegisterProposedFeatures.calledOnce);
             assert(stubListenCredentialExpiryRequest.calledOnce);
         });
@@ -389,12 +415,23 @@ describe('BuildExecutor', () => {
             sinon.stub(fakedEnvironmentController, "userType").get(function getUserType() {
                 return UserType.MicrosoftEmployee;
             });
-            buildExecutor.getLanguageClient(fakedBuildInput, 'fakeToken');
-            assert.deepStrictEqual(testEventBus.getEvents(),
-                [new BuildProgress(
-                    `Starting language server using command: docfx.exe ` +
-                    `serve --language-server "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --no-cache`
-                )]);
+            await buildExecutor.getLanguageClient(fakedBuildInput, 'fakeToken');
+            assert.deepStrictEqual(executedCommands, [
+                `docfx.exe serve "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --language-server --no-cache --address "localhost" --port 8080`,
+            ]);
+
+            assert.deepStrictEqual(executedOptions, [
+                {
+                    cwd: `${path.resolve(tempFolder, 'fakedExtensionPath', '.docfx')}`,
+                    env: {
+                        APPINSIGHTS_INSTRUMENTATIONKEY: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
+                        DOCFX_CORRELATION_ID: undefined,
+                        DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
+                        DOCS_ENVIRONMENT: 'PROD',
+                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"fakeToken"}}}`
+                    }
+                }
+            ]);
             assert(stubRegisterProposedFeatures.calledOnce);
             assert(stubListenCredentialExpiryRequest.calledOnce);
         });

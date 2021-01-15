@@ -79,15 +79,13 @@ export class ErrorMessageObserver {
         if (error) {
             switch ((<DocsError>error).code) {
                 case ErrorCode.TriggerBuildWithCredentialExpired:
-                    action = new MessageAction('Sign in', 'docs.signIn');
-                    errorMessage += `${error.message} Check the channel output for details`;
-                    break;
                 case ErrorCode.TriggerBuildBeforeSignIn:
                     action = new MessageAction('Sign in', 'docs.signIn');
-                    errorMessage += `${error.message} Check the channel output for details`;
                     break;
             }
+            errorMessage += error.message;
         }
+        errorMessage += ' Please check the channel output for details';
         this.showErrorMessage(errorMessage, action);
     }
 
