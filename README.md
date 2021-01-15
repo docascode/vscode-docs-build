@@ -73,8 +73,8 @@ Inconsistent results caused by the currently edited file affects other files' va
 - file-not-found
 
 Other situations:
-- Pull-request-only suggestions will be ingored by full-repository validation but will be reported by real-time validation.
-- Include files will not be validated before you open any file refers to them.
+- Pull-request-only suggestions will be ignored by full-repository validation but will be reported by real-time validation.
+- Include files will not be validated before you open any file include them.
 - .openpublishing.redirection.json will not be validated before you open any content file (.md or .yml).
 
 > **Note:** Validation is not available currently for workspaces with multiple folders.
