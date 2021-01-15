@@ -1,7 +1,13 @@
-import { PlatformInformation } from '../common/platformInformation';
+import { Disposable } from 'vscode';
 import { ChildProcess } from 'child_process';
+import WebSocket from 'ws';
+import {
+    LanguageClient,
+    StreamInfo
+} from "vscode-languageclient/node";
+import { PlatformInformation } from '../common/platformInformation';
 import { Package, AbsolutePathPackage } from '../dependency/package';
-import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted, BuildProgress } from '../common/loggingEvents';
+import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted } from '../common/loggingEvents';
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
 import { executeDocfx } from '../utils/childProcessUtils';
@@ -11,13 +17,10 @@ import { DocfxExecutionResult, BuildResult } from './buildResult';
 import { BuildInput } from './buildInput';
 import config from '../config';
 import TelemetryReporter from '../telemetryReporter';
-import {
-    LanguageClient,
-    LanguageClientOptions,
-    ServerOptions
-} from "vscode-languageclient/node";
 import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from '../shared';
 import { CredentialExpiryHandler } from '../credential/credentialExpiryHandler';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
 
 interface BuildParameters {
     restoreCommand: string;
@@ -26,10 +29,11 @@ interface BuildParameters {
     envs: any;
 }
 
-export class BuildExecutor {
+export class BuildExecutor implements Disposable {
     private _cwd: string;
     private _binary: string;
-    private _runningChildProcess: ChildProcess;
+    private _runningBuildChildProcess: ChildProcess;
+    private _runningLspChildProcess: ChildProcess;
     private static SKIP_RESTORE = false;
 
     constructor(
@@ -44,6 +48,11 @@ export class BuildExecutor {
         const absolutePackage = AbsolutePathPackage.getAbsolutePathPackage(buildPackage, context.extensionPath);
         this._cwd = process.env.LOCAL_ATTACH_DOCFX_FOLDER_PATH ? process.env.LOCAL_ATTACH_DOCFX_FOLDER_PATH : absolutePackage.installPath.value;
         this._binary = absolutePackage.binary;
+    }
+
+    async dispose(): Promise<void> {
+        await this.killChildProcess(this._runningBuildChildProcess);
+        await this.killChildProcess(this._runningLspChildProcess);
     }
 
     public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> {
@@ -71,50 +80,55 @@ export class BuildExecutor {
         return buildResult;
     }
 
-    public getLanguageClient(input: BuildInput, buildUserToken: string): LanguageClient {
-        const buildParameters = this.getBuildParameters(undefined, input, buildUserToken);
-        const command = this._binary;
-        const args = buildParameters.serveCommand.split(" ");
-        args.forEach((arg, i) => args[i] = arg.replace(/^["'](.+(?=["']$))["']$/, '$1'));
+    public async getLanguageClient(input: BuildInput, buildUserToken: string): Promise<LanguageClient> {
+        return new Promise((resolve, reject) => {
+            input
+            const parameters = this.getBuildParameters(undefined, input, buildUserToken);
+            let isServerReady = false;
 
-        const options = { env: buildParameters.envs, cwd: this._cwd };
-        const optionsWithFullEnvironment = {
-            ...options,
-            env: {
-                ...process.env,
-                ...options.env
-            }
-        };
-        const serverOptions: ServerOptions = {
-            run: {
-                command,
-                args,
-                options: optionsWithFullEnvironment
-            },
-            debug: {
-                command,
-                args,
-                options: optionsWithFullEnvironment
-            },
-        };
-
-        const clientOptions: LanguageClientOptions = {};
-
-        this._eventStream.post(new BuildProgress(`Starting language server using command: ${command} ${buildParameters.serveCommand}`));
-        const client = new LanguageClient("docfxLanguageServer", "Docfx Language Server", serverOptions, clientOptions);
-        client.registerProposedFeatures();
-        const credentialExpiryHandler = new CredentialExpiryHandler(client, this._eventStream, this._environmentController);
-        credentialExpiryHandler.listenCredentialExpiryRequest();
-        return client;
+            this._runningLspChildProcess = executeDocfx(
+                parameters.serveCommand,
+                this._eventStream,
+                (code: number, signal: string) => {
+                    reject(new DocsError('Running DocFX failed', ErrorCode.RunDocfxFailed));
+                },
+                { env: parameters.envs, cwd: this._cwd },
+                (data) => {
+                    if (!isServerReady) {
+                        if (data.indexOf("Now listening on:") >= 0) {
+                            isServerReady = true;
+                            const ws = new WebSocket(`ws://localhost:${input.port}/lsp`);
+                            const connection = WebSocket.createWebSocketStream(ws);
+                            const client = new LanguageClient(
+                                "docfxLanguageServer",
+                                "Docfx Language Server",
+                                () => Promise.resolve<StreamInfo>({
+                                    reader: connection,
+                                    writer: connection,
+                                }),
+                                {});
+                            client.registerProposedFeatures();
+                            const credentialExpiryHandler = new CredentialExpiryHandler(client, this._eventStream, this._environmentController);
+                            credentialExpiryHandler.listenCredentialExpiryRequest();
+                            resolve(client);
+                        }
+                    }
+                }
+            );
+        })
     }
 
     public async cancelBuild(): Promise<void> {
-        if (this._runningChildProcess) {
-            this._runningChildProcess.kill('SIGKILL');
+        await this.killChildProcess(this._runningBuildChildProcess);
+    }
+
+    private async killChildProcess(childProcess: ChildProcess) {
+        if (childProcess) {
+            childProcess.kill('SIGKILL');
             if (this._platformInfo.isWindows()) {
                 // For Windows, grand child process will still keep running even parent process has been killed.
                 // So we need to kill them manually
-                await killProcessTree(this._runningChildProcess.pid);
+                await killProcessTree(childProcess.pid);
             }
         }
     }
@@ -124,7 +138,7 @@ export class BuildExecutor {
         buildParameters: BuildParameters): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxRestoreStarted());
-            this._runningChildProcess = executeDocfx(
+            this._runningBuildChildProcess = executeDocfx(
                 buildParameters.restoreCommand,
                 this._eventStream,
                 (code: number, signal: string) => {
@@ -147,7 +161,7 @@ export class BuildExecutor {
     private async build(buildParameters: BuildParameters): Promise<DocfxExecutionResult> {
         return new Promise((resolve, reject) => {
             this._eventStream.post(new DocfxBuildStarted());
-            this._runningChildProcess = executeDocfx(
+            this._runningBuildChildProcess = executeDocfx(
                 buildParameters.buildCommand,
                 this._eventStream,
                 (code: number, signal: string) => {
@@ -211,7 +225,7 @@ export class BuildExecutor {
             envs,
             restoreCommand: this.getExecCommand("restore", input, isPublicUser),
             buildCommand: this.getExecCommand("build", input, isPublicUser),
-            serveCommand: this.getExecCommand("serve", input, isPublicUser)
+            serveCommand: this.getExecCommand("serve", input, isPublicUser),
         };
     }
 
@@ -220,21 +234,21 @@ export class BuildExecutor {
         input: BuildInput,
         isPublicUser: boolean,
     ): string {
-        let cmdWithParameters: string;
+        let cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}"`;
         if (command === 'serve') {
-            cmdWithParameters = `${command} --language-server "${input.localRepositoryPath}" --no-cache`;
+            cmdWithParameters += ` --language-server --no-cache --address "localhost" --port ${input.port}`;
         } else {
-            cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}" --log "${input.logPath}"`;
+            cmdWithParameters += ` --log "${input.logPath}"`;
         }
-        cmdWithParameters += (isPublicUser ? ` --template "${config.PublicTemplate}"` : '');
-        cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
-
         if (command === 'build') {
             if (input.dryRun) {
                 cmdWithParameters += ' --dry-run';
             }
             cmdWithParameters += ` --output "${input.outputFolderPath}" --output-type "pagejson"`;
         }
+
+        cmdWithParameters += (isPublicUser ? ` --template "${config.PublicTemplate}"` : '');
+        cmdWithParameters += (this._environmentController.debugMode ? ' --verbose' : '');
         return cmdWithParameters;
     }
 }

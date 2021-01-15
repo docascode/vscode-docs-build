@@ -48,9 +48,9 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Sign in failed`, () => {
-            const event = new UserSignInFailed(`fakedCorrelationId`, new Error("faked message"));
+            const event = new UserSignInFailed(`fakedCorrelationId`, new Error("faked message."));
             observer.eventHandler(event);
-            assert.equal(messageToShow, '[Docs Validation] Signing in failed: faked message');
+            assert.equal(messageToShow, '[Docs Validation] Signing in failed: faked message.');
             assert.deepEqual(messageActions, []);
         });
 
@@ -69,9 +69,9 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Sign out failed`, () => {
-            const event = new UserSignOutFailed(`fakedCorrelationId`, new Error("faked message"));
+            const event = new UserSignOutFailed(`fakedCorrelationId`, new Error("faked message."));
             observer.eventHandler(event);
-            assert.equal(messageToShow, '[Docs Validation] Signing out failed: faked message');
+            assert.equal(messageToShow, '[Docs Validation] Signing out failed: faked message.');
             assert.deepEqual(messageActions, []);
         });
 
@@ -97,16 +97,16 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Build failed since credential expires`, () => {
-            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message", ErrorCode.TriggerBuildWithCredentialExpired));
+            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message.", ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
-            assert.equal(messageToShow, '[Docs Validation] Repository validation failed. faked message Check the channel output for details');
+            assert.equal(messageToShow, '[Docs Validation] Repository validation failed. faked message. Please check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 
         it(`Build failed since not signed in`, () => {
-            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message", ErrorCode.TriggerBuildBeforeSignIn));
+            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message.", ErrorCode.TriggerBuildBeforeSignIn));
             observer.eventHandler(event);
-            assert.equal(messageToShow, '[Docs Validation] Repository validation failed. faked message Check the channel output for details');
+            assert.equal(messageToShow, '[Docs Validation] Repository validation failed. faked message. Please check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
     });
@@ -133,16 +133,16 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Start language server fails since credential expires`, () => {
-            const event = new StartLanguageServerCompleted(false, new DocsError('fake error', ErrorCode.TriggerBuildWithCredentialExpired));
+            const event = new StartLanguageServerCompleted(false, new DocsError('fake error.', ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
-            assert.equal(messageToShow, '[Docs Validation] Enable real-time validation failed. fake error Check the channel output for details');
+            assert.equal(messageToShow, '[Docs Validation] Enable real-time validation failed. fake error. Please check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 
         it(`Start language server fails since not signed in`, () => {
-            const event = new StartLanguageServerCompleted(false, new DocsError('fake error', ErrorCode.TriggerBuildWithCredentialExpired));
+            const event = new StartLanguageServerCompleted(false, new DocsError('fake error.', ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
-            assert.equal(messageToShow, '[Docs Validation] Enable real-time validation failed. fake error Check the channel output for details');
+            assert.equal(messageToShow, '[Docs Validation] Enable real-time validation failed. fake error. Please check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 

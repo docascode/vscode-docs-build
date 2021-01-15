@@ -11,16 +11,16 @@ export function executeDocfx(
     eventStream: EventStream,
     exitHandler: (code: number, signal: string) => void,
     options?: cp.ExecOptions,
+    stdoutHandler?: (data: string) => void,
     stdinInput?: string,
 ): cp.ChildProcess {
-
     const optionsWithFullEnvironment = {
         ...options,
         env: {
             ...process.env,
             ...options.env
         },
-        maxBuffer: 100 * 1024 *1024
+        maxBuffer: 100 * 1024 * 1024
     };
 
     eventStream.post(new BuildProgress(`& ${command}`));
@@ -28,7 +28,11 @@ export function executeDocfx(
     const childProc: cp.ChildProcess = cp.exec(command, optionsWithFullEnvironment);
 
     childProc.stdout.on("data", (data: string | Buffer) => {
-        eventStream.post(new BuildProgress(data.toString()));
+        const str = data.toString();
+        eventStream.post(new BuildProgress(str));
+        if (stdoutHandler) {
+            stdoutHandler(str);
+        }
     });
 
     childProc.stderr.on("data", (data: string | Buffer) => {
