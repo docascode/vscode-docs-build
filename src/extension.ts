@@ -146,7 +146,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         },
         eventStream,
         keyChain,
-        environmentController
+        environmentController,
+        diagnosticController
     };
 }
 
