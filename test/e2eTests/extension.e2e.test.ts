@@ -33,7 +33,7 @@ describe('E2E Test', () => {
     let diagnosticController: DiagnosticController;
     const indexFileName = "index.md";
     const tempFileName = 'a.md';
-    const timeOutMs = 120000;
+    const timeOutMs = 120 * 1000;
 
     before(async () => {
         if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
@@ -47,6 +47,7 @@ describe('E2E Test', () => {
         };
 
         sinon = createSandbox();
+        sinon.stub(vscode.window, "showErrorMessage").resolvesArg(1);
         sinon.stub(vscode.env, 'openExternal').callsFake(
             function (target: vscode.Uri): Thenable<boolean> {
                 return new Promise((resolve, reject) => {
@@ -203,9 +204,6 @@ describe('E2E Test', () => {
         sinon.stub(environmentController, "userType").get(function getUserType() {
             return UserType.PublicContributor;
         });
-        sinon.stub(environmentController, "enableAutomaticRealTimeValidation").get(function getEnableAutomaticRealTimeValidation() {
-            return false;
-        });
         (async function () {
             const dispose = eventStream.subscribe((event: BaseEvent) => {
                 switch (event.type) {
@@ -254,9 +252,6 @@ describe('E2E Test', () => {
     it('Sign in to Docs and trigger build', (done) => {
         sinon.stub(environmentController, "userType").get(function getUserType() {
             return UserType.MicrosoftEmployee;
-        });
-        sinon.stub(environmentController, "enableAutomaticRealTimeValidation").get(function getEnableAutomaticRealTimeValidation() {
-            return false;
         });
         (async function () {
             const dispose = eventStream.subscribe((event: BaseEvent) => {
