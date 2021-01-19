@@ -134,10 +134,18 @@ describe('E2E Test', () => {
             }
 
             async function testOpenFile() {
+<<<<<<< HEAD
                 await vscode.window.showTextDocument(indexFileUri);
                 await updateCurrentDiagnosticsAsync(indexFileUri);
                 assertDiagnostic(currentDiagnostics,
                     [
+=======
+                checkDiagnostics({ [indexFileName]: [] });
+                const fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", indexFileName));
+                await vscode.window.showTextDocument(fileUri);
+                await checkDiagnostics({
+                    [indexFileName]: [
+>>>>>>> 3215c08 (trigger sign in command as work-around)
                         <DiagnosticInfo>{
                             range: new Range(7, 0, 7, 0),
                             message: `Invalid file link: '${tempFileName}'.`,
