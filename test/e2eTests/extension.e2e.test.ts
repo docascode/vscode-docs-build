@@ -47,7 +47,6 @@ describe('E2E Test', () => {
         };
 
         sinon = createSandbox();
-        sinon.stub(vscode.window, "showErrorMessage").resolvesArg(1);
         sinon.stub(vscode.env, 'openExternal').callsFake(
             function (target: vscode.Uri): Thenable<boolean> {
                 return new Promise((resolve, reject) => {
