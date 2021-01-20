@@ -6,7 +6,8 @@
     "plugins": [
         "import",
         "node",
-        "promise"
+        "promise",
+        "simple-import-sort"
     ],
     "extends": [
         "eslint:recommended",
@@ -63,7 +64,9 @@
                             "vscode"
                         ]
                     }
-                ]
+                ],
+                "simple-import-sort/imports": "error",
+                "simple-import-sort/exports": "error"
             }
         },
         {

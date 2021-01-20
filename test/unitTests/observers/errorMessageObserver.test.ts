@@ -1,13 +1,14 @@
 import assert from 'assert';
+import { createSandbox,SinonSandbox } from 'sinon';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInFailed, UserSignOutFailed, UserSignOutSucceeded, UserSignInSucceeded, BuildSucceeded, BuildFailed, PublicContributorSignIn, TriggerCommandWithUnknownUserType, StartLanguageServerCompleted, CredentialExpired } from '../../../src/common/loggingEvents';
-import { fakedBuildInput, fakedCredential } from '../../utils/faker';
-import { SinonSandbox, createSandbox } from 'sinon';
-import { MessageAction } from '../../../src/shared';
+
 import { BuildResult } from '../../../src/build/buildResult';
-import { ErrorMessageObserver } from '../../../src/observers/errorMessageObserver';
+import { BuildFailed, BuildSucceeded, CredentialExpired,PublicContributorSignIn, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
+import { ErrorMessageObserver } from '../../../src/observers/errorMessageObserver';
+import { MessageAction } from '../../../src/shared';
+import { fakedBuildInput, fakedCredential } from '../../utils/faker';
 
 describe('ErrorMessageObserver', () => {
     let sinon: SinonSandbox;

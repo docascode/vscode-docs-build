@@ -1,12 +1,13 @@
 import assert from 'assert';
-import { UserSignInSucceeded, UserSignInProgress, RepositoryInfoRetrieved, BuildProgress, APICallStarted, APICallFailed, DependencyInstallStarted, PackageInstallStarted, DownloadStarted, DownloadSizeObtained, DownloadProgress, DownloadValidating, ZipFileInstalling, PlatformInfoRetrieved, UserSignInFailed, UserSignOutSucceeded, UserSignOutFailed, BuildStarted, BuildSucceeded, BuildCanceled, BuildFailed, DocfxRestoreCompleted, DocfxBuildCompleted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildFailed, BuildTriggered, ExtensionActivated, TriggerCommandWithUnknownUserType, PublicContributorSignIn, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
-import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
-import { PlatformInformation } from '../../../src/common/platformInformation';
+
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
-import { fakedPackage, fakedCredential } from '../../utils/faker';
 import { ILogger } from '../../../src/common/logger';
+import { APICallFailed, APICallStarted, BuildCanceled, BuildFailed, BuildProgress, BuildStarted, BuildSucceeded, BuildTriggered, CancelBuildFailed, DependencyInstallCompleted, DependencyInstallStarted, DocfxBuildCompleted, DocfxRestoreCompleted, DownloadProgress, DownloadSizeObtained, DownloadStarted, DownloadValidating, ExtensionActivated, PackageInstallAttemptFailed, PackageInstallCompleted, PackageInstallStarted, PlatformInfoRetrieved, PublicContributorSignIn, RepositoryInfoRetrieved, StartLanguageServerCompleted,TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInProgress, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded, ZipFileInstalling } from '../../../src/common/loggingEvents';
+import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
+import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
+import { fakedCredential,fakedPackage } from '../../utils/faker';
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;

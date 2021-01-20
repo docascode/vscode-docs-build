@@ -1,19 +1,20 @@
-import vscode from 'vscode';
 import assert from 'assert';
-import { CredentialExpired, CredentialReset, EnvironmentChanged, BaseEvent, UserSignInProgress, UserSignInSucceeded, UserSignInFailed, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered, PublicContributorSignIn, StartLanguageServerCompleted, BuildFailed, BuildCompleted } from '../../../src/common/loggingEvents';
-import { EventStream } from '../../../src/common/eventStream';
-import { CredentialController, Credential } from '../../../src/credential/credentialController';
-import { KeyChain } from '../../../src/credential/keyChain';
+import { createSandbox, SinonSandbox, SinonStub } from 'sinon';
+import vscode from 'vscode';
+
+import { DocfxExecutionResult } from '../../../src/build/buildResult';
 import { EnvironmentController } from '../../../src/common/environmentController';
-import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
-import TestEventBus from '../../utils/testEventBus';
-import { UserInfo, uriHandler, UserType, SignInReason, OP_BUILD_USER_TOKEN_HEADER_NAME } from '../../../src/shared';
-import { getFakeEnvironmentController, setupKeyChain, fakedCredential } from '../../utils/faker';
+import { EventStream } from '../../../src/common/eventStream';
+import { BaseEvent, BuildCompleted,BuildFailed, CredentialExpired, CredentialReset, EnvironmentChanged, PublicContributorSignIn, StartLanguageServerCompleted, UserSignInFailed, UserSignInProgress, UserSignInSucceeded, UserSignInTriggered, UserSignOutSucceeded, UserSignOutTriggered } from '../../../src/common/loggingEvents';
 import extensionConfig from '../../../src/config';
+import { Credential,CredentialController } from '../../../src/credential/credentialController';
+import { KeyChain } from '../../../src/credential/keyChain';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { TimeOutError } from '../../../src/error/timeOutError';
-import { DocfxExecutionResult } from '../../../src/build/buildResult';
+import { OP_BUILD_USER_TOKEN_HEADER_NAME,SignInReason, uriHandler, UserInfo, UserType } from '../../../src/shared';
+import { fakedCredential,getFakeEnvironmentController, setupKeyChain } from '../../utils/faker';
+import TestEventBus from '../../utils/testEventBus';
 
 const fakedGitHubCallbackURL = <vscode.Uri>{
     authority: 'docsmsft.docs-build',

@@ -1,7 +1,8 @@
-import { BaseEvent, BuildCompleted } from '../common/loggingEvents';
 import { OutputChannel } from 'vscode';
-import { EventType } from '../common/eventType';
+
 import { DocfxExecutionResult } from '../build/buildResult';
+import { EventType } from '../common/eventType';
+import { BaseEvent, BuildCompleted } from '../common/loggingEvents';
 
 export class DocsOutputChannelObserver {
     constructor(private _channel: OutputChannel) { }

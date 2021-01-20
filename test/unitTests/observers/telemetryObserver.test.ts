@@ -1,12 +1,13 @@
 import assert from 'assert';
-import { UserSignInTriggered, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, BuildCanceled, BuildFailed, BuildTriggered, BuildSucceeded, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, } from '../../../src/common/loggingEvents';
-import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
-import { DocsError } from '../../../src/error/docsError';
-import { ErrorCode } from '../../../src/error/errorCode';
+
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
-import { fakedPackage, fakedCredential } from '../../utils/faker';
+import { BuildCanceled, BuildFailed, BuildSucceeded, BuildTriggered, CancelBuildFailed,CancelBuildSucceeded, CancelBuildTriggered, DependencyInstallCompleted, DependencyInstallStarted, LearnMoreClicked, PackageInstallAttemptFailed, PackageInstallCompleted, QuickPickCommandSelected, QuickPickTriggered, UserSignInFailed, UserSignInSucceeded, UserSignInTriggered, UserSignOutFailed, UserSignOutSucceeded, UserSignOutTriggered,  } from '../../../src/common/loggingEvents';
+import { DocsError } from '../../../src/error/docsError';
+import { ErrorCode } from '../../../src/error/errorCode';
+import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
 import TelemetryReporter from '../../../src/telemetryReporter';
+import { fakedCredential,fakedPackage } from '../../utils/faker';
 
 describe('TelemetryObserver', () => {
     let observer: TelemetryObserver;

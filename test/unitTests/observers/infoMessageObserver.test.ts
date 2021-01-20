@@ -1,12 +1,13 @@
 import assert from 'assert';
+import { createSandbox,SinonSandbox } from 'sinon';
 import vscode, { MessageItem } from 'vscode';
-import { UserSignInCompleted, UserSignOutCompleted, BuildTriggered, BuildCompleted, ExtensionActivated } from '../../../src/common/loggingEvents';
-import { getFakeEnvironmentController } from '../../utils/faker';
-import { EnvironmentController } from '../../../src/common/environmentController';
-import { InfoMessageObserver } from '../../../src/observers/infoMessageObserver';
-import { SinonSandbox, createSandbox } from 'sinon';
-import { MessageAction, UserType } from '../../../src/shared';
+
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
+import { EnvironmentController } from '../../../src/common/environmentController';
+import { BuildCompleted, BuildTriggered, ExtensionActivated,UserSignInCompleted, UserSignOutCompleted } from '../../../src/common/loggingEvents';
+import { InfoMessageObserver } from '../../../src/observers/infoMessageObserver';
+import { MessageAction, UserType } from '../../../src/shared';
+import { getFakeEnvironmentController } from '../../utils/faker';
 
 describe('InfoMessageObserver', () => {
     let sinon: SinonSandbox;

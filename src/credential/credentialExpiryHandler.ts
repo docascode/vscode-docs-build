@@ -1,11 +1,12 @@
+import { Subscription } from "rxjs";
 import { LanguageClient } from "vscode-languageclient/node";
+
+import { EnvironmentController } from "../common/environmentController";
 import { EventStream } from "../common/eventStream";
 import { EventType } from "../common/eventType";
 import { BaseEvent, CredentialExpired, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded } from "../common/loggingEvents";
 import config from '../config';
-import { Subscription } from "rxjs";
-import { UserCredentialRefreshRequest_Type, GetCredentialResponse, GetCredentialParams } from '../requestTypes';
-import { EnvironmentController } from "../common/environmentController";
+import { GetCredentialParams, GetCredentialResponse, UserCredentialRefreshRequest_Type } from '../requestTypes';
 import { OP_BUILD_USER_TOKEN_HEADER_NAME } from "../shared";
 
 export class CredentialExpiryHandler {

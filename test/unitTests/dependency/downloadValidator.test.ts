@@ -1,11 +1,12 @@
 import * as assert from 'assert';
-import { MockHttpsServer } from "../../utils/mockHttpsServer";
+
 import { EventStream } from "../../../src/common/eventStream";
-import TestEventBus from "../../utils/testEventBus";
 import { DownloadValidating } from "../../../src/common/loggingEvents";
 import { validateDownload } from '../../../src/dependency/downloadValidator';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
+import { MockHttpsServer } from "../../utils/mockHttpsServer";
+import TestEventBus from "../../utils/testEventBus";
 
 describe(`downloadChecker`, () => {
     const testBuffer = Buffer.from('test');

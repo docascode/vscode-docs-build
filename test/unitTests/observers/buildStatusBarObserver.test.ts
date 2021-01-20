@@ -1,7 +1,8 @@
 import assert from 'assert';
 import { StatusBarItem } from 'vscode';
-import { BuildStatusBarObserver } from '../../../src/observers/buildStatusBarObserver';
+
 import { BuildInstantAllocated, BuildInstantReleased } from '../../../src/common/loggingEvents';
+import { BuildStatusBarObserver } from '../../../src/observers/buildStatusBarObserver';
 
 describe('BuildStatusBarObserver', () => {
     let showCalled: boolean;

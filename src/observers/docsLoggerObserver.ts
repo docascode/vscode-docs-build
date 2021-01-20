@@ -1,8 +1,8 @@
-import { BaseEvent, PlatformInfoRetrieved, UserSignInSucceeded, UserSignInProgress, PackageInstallStarted, DownloadStarted, DownloadProgress, DownloadSizeObtained, DownloadValidating, ZipFileInstalling, RepositoryInfoRetrieved, APICallStarted, APICallFailed, BuildProgress, UserSignOutCompleted, UserSignOutFailed, UserSignInCompleted, UserSignInFailed, BuildStarted, BuildCompleted, DocfxRestoreCompleted, DocfxBuildCompleted, BuildFailed, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildCompleted, CancelBuildFailed, StartLanguageServerCompleted } from '../common/loggingEvents';
-import { EventType } from '../common/eventType';
 import { DocfxExecutionResult } from '../build/buildResult';
-import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
+import { EventType } from '../common/eventType';
 import { ILogger } from '../common/logger';
+import { APICallFailed, APICallStarted, BaseEvent, BuildCompleted, BuildFailed, BuildProgress, BuildStarted, CancelBuildCompleted, CancelBuildFailed, DependencyInstallCompleted, DocfxBuildCompleted, DocfxRestoreCompleted, DownloadProgress, DownloadSizeObtained, DownloadStarted, DownloadValidating, PackageInstallAttemptFailed, PackageInstallCompleted, PackageInstallStarted, PlatformInfoRetrieved, RepositoryInfoRetrieved, StartLanguageServerCompleted,UserSignInCompleted, UserSignInFailed, UserSignInProgress, UserSignInSucceeded, UserSignOutCompleted, UserSignOutFailed, ZipFileInstalling } from '../common/loggingEvents';
+import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
 
 export class DocsLoggerObserver {
     private _downloadProgressDot: number;

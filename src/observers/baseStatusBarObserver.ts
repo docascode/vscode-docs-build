@@ -1,4 +1,5 @@
 import { StatusBarItem } from 'vscode';
+
 import { BaseEvent } from '../common/loggingEvents';
 
 export abstract class BaseStatusBarObserver {

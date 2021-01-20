@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
-import getPort from 'get-port';
 import fs from 'fs-extra';
+import getPort from 'get-port';
 import path from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

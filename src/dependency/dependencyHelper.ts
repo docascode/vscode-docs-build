@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+
 import { AbsolutePath } from '../common/absolutePath';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';

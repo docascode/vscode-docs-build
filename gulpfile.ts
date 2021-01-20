@@ -1,6 +1,7 @@
 'use strict';
 
 import gulp from 'gulp';
+
 import { updateRuntimeDependencies } from './src/tools/updateRuntimeDependencies';
 
 // eslint-disable-next-line node/no-missing-require

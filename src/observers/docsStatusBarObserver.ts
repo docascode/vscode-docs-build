@@ -1,9 +1,10 @@
-import { BaseStatusBarObserver } from './baseStatusBarObserver';
-import { BaseEvent, UserSignInSucceeded, UserSignInCompleted } from '../common/loggingEvents';
-import { EventType } from '../common/eventType';
-import { Credential } from '../credential/credentialController';
 import { StatusBarItem } from 'vscode';
+
 import { EnvironmentController } from '../common/environmentController';
+import { EventType } from '../common/eventType';
+import { BaseEvent, UserSignInCompleted,UserSignInSucceeded } from '../common/loggingEvents';
+import { Credential } from '../credential/credentialController';
+import { BaseStatusBarObserver } from './baseStatusBarObserver';
 
 export class DocsStatusBarObserver extends BaseStatusBarObserver {
     constructor(statusBarItem: StatusBarItem, private _environmentController: EnvironmentController) {

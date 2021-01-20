@@ -1,24 +1,25 @@
-import fs from 'fs-extra';
-import vscode, { DiagnosticCollection } from 'vscode';
-import * as reportGenerator from '../../../src/build/reportGenerator';
-import * as utils from '../../../src/utils/utils';
 import assert from 'assert';
+import fs from 'fs-extra';
 import path from 'path';
-import { EventStream } from '../../../src/common/eventStream';
-import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
-import TestEventBus from '../../utils/testEventBus';
-import { OPBuildAPIClient } from '../../../src/build/opBuildAPIClient';
-import { BuildResult, DocfxExecutionResult } from '../../../src/build/buildResult';
-import { BuildInput } from '../../../src/build/buildInput';
+import { createSandbox, SinonSandbox, SinonStub } from 'sinon';
+import vscode, { DiagnosticCollection } from 'vscode';
+
 import { BuildController } from '../../../src/build/buildController';
+import { BuildInput } from '../../../src/build/buildInput';
+import { BuildResult, DocfxExecutionResult } from '../../../src/build/buildResult';
 import { DiagnosticController } from '../../../src/build/diagnosticController';
-import { fakedCredentialController, getFakedBuildExecutor, defaultLogPath, defaultOutputPath, getFakeEnvironmentController, fakedCredential } from '../../utils/faker';
-import { BuildTriggered, BuildFailed, BuildProgress, RepositoryInfoRetrieved, BuildInstantAllocated, BuildStarted, BuildSucceeded, BuildInstantReleased, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CredentialExpired, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
+import { OPBuildAPIClient } from '../../../src/build/opBuildAPIClient';
+import * as reportGenerator from '../../../src/build/reportGenerator';
+import { EnvironmentController } from '../../../src/common/environmentController';
+import { EventStream } from '../../../src/common/eventStream';
+import { BuildCanceled, BuildFailed, BuildInstantAllocated, BuildInstantReleased, BuildProgress, BuildStarted, BuildSucceeded, BuildTriggered, CancelBuildSucceeded, CancelBuildTriggered, CredentialExpired, RepositoryInfoRetrieved, StartLanguageServerCompleted } from '../../../src/common/loggingEvents';
+import { Credential } from '../../../src/credential/credentialController';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
-import { EnvironmentController } from '../../../src/common/environmentController';
 import { UserType } from '../../../src/shared';
-import { Credential } from '../../../src/credential/credentialController';
+import * as utils from '../../../src/utils/utils';
+import { defaultLogPath, defaultOutputPath, fakedCredential,fakedCredentialController, getFakedBuildExecutor, getFakeEnvironmentController } from '../../utils/faker';
+import TestEventBus from '../../utils/testEventBus';
 
 const expectedBuildInput = <BuildInput>{
     buildType: 'FullBuild',

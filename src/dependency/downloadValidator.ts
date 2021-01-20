@@ -1,7 +1,8 @@
 import * as crypto from 'crypto';
+
 import { EventStream } from "../common/eventStream";
-import { DocsError } from "../error/docsError";
 import { DownloadValidating } from "../common/loggingEvents";
+import { DocsError } from "../error/docsError";
 import { ErrorCode } from "../error/errorCode";
 
 export function validateDownload(eventStream: EventStream, buffer: Buffer, integrity: string): void {

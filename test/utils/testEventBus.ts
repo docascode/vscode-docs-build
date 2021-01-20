@@ -1,6 +1,7 @@
-import { BaseEvent } from '../../src/common/loggingEvents';
-import { EventStream } from '../../src/common/eventStream';
 import { Subscription } from 'rxjs';
+
+import { EventStream } from '../../src/common/eventStream';
+import { BaseEvent } from '../../src/common/loggingEvents';
 
 export default class TestEventBus {
     private eventBus: Array<BaseEvent>;

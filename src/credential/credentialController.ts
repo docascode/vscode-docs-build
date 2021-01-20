@@ -1,18 +1,19 @@
-import vscode from 'vscode';
 import { AzureEnvironment } from 'ms-rest-azure';
 import querystring from 'querystring';
-import { UserInfo, DocsSignInStatus, EXTENSION_ID, uriHandler, UserType, SignInReason, OP_BUILD_USER_TOKEN_HEADER_NAME } from '../shared';
-import extensionConfig from '../config';
-import { parseQuery, delay, trimEndSlash, getCorrelationId } from '../utils/utils';
-import { UserSignInSucceeded, CredentialReset, UserSignInFailed, BaseEvent, UserSignInProgress, UserSignInTriggered, UserSignOutTriggered, UserSignOutSucceeded, UserSignOutFailed, PublicContributorSignIn, BuildCompleted, StartLanguageServerCompleted, BuildFailed, CredentialExpired } from '../common/loggingEvents';
-import { EventType } from '../common/eventType';
-import { EventStream } from '../common/eventStream';
-import { KeyChain } from './keyChain';
+import vscode from 'vscode';
+
+import { DocfxExecutionResult } from '../build/buildResult';
 import { EnvironmentController } from '../common/environmentController';
-import { TimeOutError } from '../error/timeOutError';
+import { EventStream } from '../common/eventStream';
+import { EventType } from '../common/eventType';
+import { BaseEvent, BuildCompleted, BuildFailed, CredentialExpired,CredentialReset, PublicContributorSignIn, StartLanguageServerCompleted, UserSignInFailed, UserSignInProgress, UserSignInSucceeded, UserSignInTriggered, UserSignOutFailed, UserSignOutSucceeded, UserSignOutTriggered } from '../common/loggingEvents';
+import extensionConfig from '../config';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
-import { DocfxExecutionResult } from '../build/buildResult';
+import { TimeOutError } from '../error/timeOutError';
+import { DocsSignInStatus, EXTENSION_ID, OP_BUILD_USER_TOKEN_HEADER_NAME,SignInReason, uriHandler, UserInfo, UserType } from '../shared';
+import { delay, getCorrelationId,parseQuery, trimEndSlash } from '../utils/utils';
+import { KeyChain } from './keyChain';
 
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
     let uriEventListener: vscode.Disposable;

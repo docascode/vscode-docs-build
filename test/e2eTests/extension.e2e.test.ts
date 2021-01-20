@@ -1,16 +1,17 @@
-import vscode, { Uri, Diagnostic, Range, DiagnosticSeverity } from 'vscode';
 import assert from 'assert';
-import path from 'path';
 import fs from 'fs-extra';
-import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from '../utils/testHelper';
-import { EventType } from '../../src/common/eventType';
-import { BaseEvent, UserSignInCompleted, BuildCompleted } from '../../src/common/loggingEvents';
+import path from 'path';
 import { createSandbox, SinonSandbox } from 'sinon';
-import { OP_BUILD_USER_TOKEN_HEADER_NAME, uriHandler, UserType } from '../../src/shared';
+import vscode, { Diagnostic, DiagnosticSeverity,Range, Uri } from 'vscode';
+
 import { DocfxExecutionResult } from '../../src/build/buildResult';
-import TestEventBus from '../utils/testEventBus';
-import { EventStream } from '../../src/common/eventStream';
 import { EnvironmentController } from '../../src/common/environmentController';
+import { EventStream } from '../../src/common/eventStream';
+import { EventType } from '../../src/common/eventType';
+import { BaseEvent, BuildCompleted,UserSignInCompleted } from '../../src/common/loggingEvents';
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, uriHandler, UserType } from '../../src/shared';
+import TestEventBus from '../utils/testEventBus';
+import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from '../utils/testHelper';
 
 const detailE2EOutput: any = {};
 

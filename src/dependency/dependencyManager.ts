@@ -1,15 +1,16 @@
 import fs from 'fs-extra';
-import { AbsolutePathPackage, Package } from './package';
-import { PlatformInformation } from '../common/platformInformation';
-import { downloadFile } from './fileDownloader';
-import { createInstallLockFile, InstallFileType, installFileExists, deleteInstallLockFile, getInstallLockFilePath } from './dependencyHelper';
-import { InstallZip } from './zipInstaller';
-import { PlatformInfoRetrieved, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallStarted, PackageInstallCompleted, PackageInstallAttemptFailed } from '../common/loggingEvents';
+
 import { EventStream } from '../common/eventStream';
+import { DependencyInstallCompleted, DependencyInstallStarted, PackageInstallAttemptFailed,PackageInstallCompleted, PackageInstallStarted, PlatformInfoRetrieved } from '../common/loggingEvents';
+import { PlatformInformation } from '../common/platformInformation';
 import { ExtensionContext } from '../extensionContext';
-import { getDurationInSeconds } from '../utils/utils';
-import { validateDownload } from './downloadValidator';
 import { INSTALL_DEPENDENCY_PACKAGE_RETRY_TIME } from '../shared';
+import { getDurationInSeconds } from '../utils/utils';
+import { createInstallLockFile, deleteInstallLockFile, getInstallLockFilePath,installFileExists, InstallFileType } from './dependencyHelper';
+import { validateDownload } from './downloadValidator';
+import { downloadFile } from './fileDownloader';
+import { AbsolutePathPackage, Package } from './package';
+import { InstallZip } from './zipInstaller';
 
 export async function ensureRuntimeDependencies(context: ExtensionContext, correlationId: string, platformInfo: PlatformInformation, eventStream: EventStream): Promise<boolean> {
     const runtimeDependencies = <Package[]>context.packageJson.runtimeDependencies;

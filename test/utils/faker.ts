@@ -1,18 +1,19 @@
 import path from 'path';
-import { EnvironmentController } from '../../src/common/environmentController';
-import { AbsolutePathPackage } from '../../src/dependency/package';
-import { SinonStub, SinonSandbox } from 'sinon';
-import { KeyChain } from '../../src/credential/keyChain';
-import { UserInfo, DocsRepoType, UserType } from '../../src/shared';
-import { Credential, CredentialController } from '../../src/credential/credentialController';
-import { ExtensionContext } from '../../src/extensionContext';
-import { PlatformInformation } from '../../src/common/platformInformation';
-import TelemetryReporter from '../../src/telemetryReporter';
+import { SinonSandbox,SinonStub } from 'sinon';
+import { DiagnosticCollection } from 'vscode';
+import { LanguageClient } from 'vscode-languageclient/node';
+
+import { BuildExecutor } from '../../src/build/buildExecutor';
 import { BuildInput, BuildType } from '../../src/build/buildInput';
 import { BuildResult, DocfxExecutionResult } from '../../src/build/buildResult';
-import { BuildExecutor } from '../../src/build/buildExecutor';
-import { LanguageClient } from 'vscode-languageclient/node';
-import { DiagnosticCollection } from 'vscode';
+import { EnvironmentController } from '../../src/common/environmentController';
+import { PlatformInformation } from '../../src/common/platformInformation';
+import { Credential, CredentialController } from '../../src/credential/credentialController';
+import { KeyChain } from '../../src/credential/keyChain';
+import { AbsolutePathPackage } from '../../src/dependency/package';
+import { ExtensionContext } from '../../src/extensionContext';
+import { DocsRepoType, UserInfo, UserType } from '../../src/shared';
+import TelemetryReporter from '../../src/telemetryReporter';
 
 export function getFakeEnvironmentController(docsRepoType: DocsRepoType = 'GitHub'): EnvironmentController {
     return {

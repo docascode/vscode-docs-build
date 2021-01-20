@@ -1,27 +1,28 @@
-import { Disposable } from 'vscode';
 import { ChildProcess } from 'child_process';
-import WebSocket from 'ws';
+import { Duplex } from 'stream';
+import { Disposable } from 'vscode';
 import {
     LanguageClient,
     StreamInfo
 } from "vscode-languageclient/node";
-import { Duplex } from 'stream';
-import { PlatformInformation } from '../common/platformInformation';
-import { Package, AbsolutePathPackage } from '../dependency/package';
-import { DocfxBuildStarted, DocfxRestoreStarted, DocfxBuildCompleted, DocfxRestoreCompleted } from '../common/loggingEvents';
+import WebSocket from 'ws';
+
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
-import { executeDocfx } from '../utils/childProcessUtils';
-import { basicAuth, getDurationInSeconds, killProcessTree } from '../utils/utils';
-import { ExtensionContext } from '../extensionContext';
-import { DocfxExecutionResult, BuildResult } from './buildResult';
-import { BuildInput } from './buildInput';
+import { DocfxBuildCompleted, DocfxBuildStarted, DocfxRestoreCompleted,DocfxRestoreStarted } from '../common/loggingEvents';
+import { PlatformInformation } from '../common/platformInformation';
 import config from '../config';
-import TelemetryReporter from '../telemetryReporter';
-import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from '../shared';
 import { CredentialExpiryHandler } from '../credential/credentialExpiryHandler';
+import { AbsolutePathPackage,Package } from '../dependency/package';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
+import { ExtensionContext } from '../extensionContext';
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from '../shared';
+import TelemetryReporter from '../telemetryReporter';
+import { executeDocfx } from '../utils/childProcessUtils';
+import { basicAuth, getDurationInSeconds, killProcessTree } from '../utils/utils';
+import { BuildInput } from './buildInput';
+import { BuildResult,DocfxExecutionResult } from './buildResult';
 
 interface BuildParameters {
     restoreCommand: string;

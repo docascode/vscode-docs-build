@@ -1,13 +1,14 @@
-import vscode from 'vscode';
-import path from 'path';
+import du from 'du';
 import fs from 'fs-extra';
 import gitUrlParse from 'git-url-parse';
-import simpleGit from 'simple-git';
-import uuid from 'uuid/v1';
-import du from 'du';
+import path from 'path';
 import psTree from 'ps-tree';
-import { DocsRepoType } from '../shared';
+import simpleGit from 'simple-git';
 import tempDirectory from 'temp-dir';
+import uuid from 'uuid/v1';
+import vscode from 'vscode';
+
+import { DocsRepoType } from '../shared';
 
 export function parseQuery(uri: vscode.Uri): any {
     return uri.query.split('&').reduce((prev: any, current) => {

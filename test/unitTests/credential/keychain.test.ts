@@ -1,7 +1,8 @@
 import assert from 'assert';
-import { KeyChain, Keytar } from '../../../src/credential/keyChain';
-import { getFakeEnvironmentController, setEnvToPROD, setEnvToPPE, fakedCredential } from '../../utils/faker';
+
 import { EnvironmentController } from '../../../src/common/environmentController';
+import { KeyChain, Keytar } from '../../../src/credential/keyChain';
+import { fakedCredential,getFakeEnvironmentController, setEnvToPPE, setEnvToPROD } from '../../utils/faker';
 
 class MockKeytar implements Keytar {
     map = new Map;

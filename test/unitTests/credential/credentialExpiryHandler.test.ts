@@ -1,15 +1,16 @@
+import assert from 'assert';
 import { createSandbox, SinonSandbox, SinonStub } from "sinon";
+import { Disposable } from 'vscode';
 import { LanguageClient } from "vscode-languageclient/node";
+
 import { EventStream } from "../../../src/common/eventStream"
+import { BaseEvent, CredentialExpired,UserSignInFailed, UserSignInSucceeded } from "../../../src/common/loggingEvents";
+import { Credential } from '../../../src/credential/credentialController';
 import { CredentialExpiryHandler } from "../../../src/credential/credentialExpiryHandler";
 import { GetCredentialParams, GetCredentialResponse } from "../../../src/requestTypes";
-import TestEventBus from '../../utils/testEventBus';
-import assert from 'assert';
-import { UserSignInFailed, UserSignInSucceeded, BaseEvent, CredentialExpired } from "../../../src/common/loggingEvents";
-import { Credential } from '../../../src/credential/credentialController';
 import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserInfo } from "../../../src/shared";
-import { Disposable } from 'vscode';
 import { getFakeEnvironmentController } from "../../utils/faker";
+import TestEventBus from '../../utils/testEventBus';
 
 describe(('Handle credential expiry during language server is running'), () => {
     let sinon: SinonSandbox;

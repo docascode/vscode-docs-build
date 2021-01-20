@@ -1,9 +1,10 @@
 import vscode from 'vscode';
-import { EnvironmentChanged } from './loggingEvents';
-import { Environment, DocsRepoType, EXTENSION_NAME, ENVIRONMENT_CONFIG_NAME, DEBUG_MODE_CONFIG_NAME, USER_TYPE, UserType, ENABLE_AUTOMATIC_REAL_TIME_VALIDATION } from '../shared';
-import { EventStream } from './eventStream';
-import { EnvironmentController } from './environmentController';
+
+import { DEBUG_MODE_CONFIG_NAME, DocsRepoType, ENABLE_AUTOMATIC_REAL_TIME_VALIDATION,Environment, ENVIRONMENT_CONFIG_NAME, EXTENSION_NAME, USER_TYPE, UserType } from '../shared';
 import { getRepositoryInfoFromLocalFolder } from '../utils/utils';
+import { EnvironmentController } from './environmentController';
+import { EventStream } from './eventStream';
+import { EnvironmentChanged } from './loggingEvents';
 
 export class DocsEnvironmentController implements EnvironmentController, vscode.Disposable {
     private _environment: Environment;
