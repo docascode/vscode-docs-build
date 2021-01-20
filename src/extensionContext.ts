@@ -1,4 +1,5 @@
 import vscode from 'vscode';
+
 import { safelyReadJsonFile } from './utils/utils';
 
 export class ExtensionContext {

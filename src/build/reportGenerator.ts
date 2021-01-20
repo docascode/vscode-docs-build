@@ -1,12 +1,13 @@
 import fs from 'fs-extra';
 import path from 'path';
 import vscode from 'vscode';
+
 import { EventStream } from "../common/eventStream";
-import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
-import { DiagnosticController } from './diagnosticController';
 import { BuildProgress } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
+import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
+import { DiagnosticController } from './diagnosticController';
 
 interface ReportItem {
     message_severity: MessageSeverity;

@@ -1,8 +1,9 @@
 import vscode from 'vscode';
-import { BaseEvent, UserSignInCompleted, UserSignOutCompleted, BuildCompleted } from '../common/loggingEvents';
-import { EventType } from '../common/eventType';
-import { MessageAction, EXTENSION_NAME, USER_TYPE, UserType } from '../shared';
+
 import { EnvironmentController } from '../common/environmentController';
+import { EventType } from '../common/eventType';
+import { BaseEvent, BuildCompleted,UserSignInCompleted, UserSignOutCompleted } from '../common/loggingEvents';
+import { EXTENSION_NAME, MessageAction, USER_TYPE, UserType } from '../shared';
 
 export class InfoMessageObserver {
     constructor(private _environmentController: EnvironmentController) { }

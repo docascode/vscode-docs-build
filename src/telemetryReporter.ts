@@ -9,11 +9,11 @@
 
 (process.env['APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL'] as any) = true;
 
+import * as appInsights from 'applicationinsights';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as appInsights from 'applicationinsights';
 
 export default class TelemetryReporter {
     private appInsightsClient: appInsights.TelemetryClient | undefined;

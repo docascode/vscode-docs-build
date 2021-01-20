@@ -1,10 +1,11 @@
-import { SinonSandbox, createSandbox, SinonSpy } from 'sinon';
-import { EnvironmentController } from '../../../src/common/environmentController';
-import { LanguageServerManager } from '../../../src/build/languageServerManager';
-import { UserType } from '../../../src/shared';
-import { ExtensionActivated, StartLanguageServerCompleted, UserSignInCompleted } from '../../../src/common/loggingEvents';
 import assert from 'assert';
+import { createSandbox, SinonSandbox, SinonSpy } from 'sinon';
+
 import { BuildController } from '../../../src/build/buildController';
+import { LanguageServerManager } from '../../../src/build/languageServerManager';
+import { EnvironmentController } from '../../../src/common/environmentController';
+import { ExtensionActivated, StartLanguageServerCompleted, UserSignInCompleted } from '../../../src/common/loggingEvents';
+import { UserType } from '../../../src/shared';
 
 describe('LanguageServerManager', () => {
     const sinon: SinonSandbox = createSandbox();

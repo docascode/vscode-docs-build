@@ -1,7 +1,8 @@
 import https from 'https';
 import { URL } from 'url';
-import { DownloadStarted, DownloadSizeObtained, DownloadProgress } from '../common/loggingEvents';
+
 import { EventStream } from '../common/eventStream';
+import { DownloadProgress,DownloadSizeObtained, DownloadStarted } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 

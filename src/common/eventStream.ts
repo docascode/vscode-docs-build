@@ -1,4 +1,5 @@
 import { Subject, Subscription } from 'rxjs';
+
 import { BaseEvent } from './loggingEvents';
 
 export class EventStream {

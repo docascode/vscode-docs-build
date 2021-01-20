@@ -1,10 +1,11 @@
 import vscode from 'vscode';
-import { EventType } from '../common/eventType';
-import { BaseEvent, UserSignInFailed, UserSignInCompleted, UserSignOutCompleted, UserSignOutFailed, BuildCompleted, BuildFailed, StartLanguageServerCompleted, CredentialExpired } from '../common/loggingEvents';
-import { MessageAction, EXTENSION_NAME, USER_TYPE, UserType } from '../shared';
-import { ErrorCode } from '../error/errorCode';
-import { DocsError } from '../error/docsError';
+
 import { DocfxExecutionResult } from '../build/buildResult';
+import { EventType } from '../common/eventType';
+import { BaseEvent, BuildCompleted, BuildFailed, CredentialExpired,StartLanguageServerCompleted, UserSignInCompleted, UserSignInFailed, UserSignOutCompleted, UserSignOutFailed } from '../common/loggingEvents';
+import { DocsError } from '../error/docsError';
+import { ErrorCode } from '../error/errorCode';
+import { EXTENSION_NAME, MessageAction, USER_TYPE, UserType } from '../shared';
 
 export class ErrorMessageObserver {
     public eventHandler = (event: BaseEvent): void => {

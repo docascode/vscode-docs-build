@@ -1,13 +1,14 @@
 import fs from 'fs-extra';
+import gitUrlParse from 'git-url-parse';
+import glob from 'glob';
 import gulp from 'gulp';
 import path from 'path';
-import glob from 'glob';
 import { runTests } from "vscode-test";
-import gitUrlParse from 'git-url-parse';
-import { rootPath, benchmarkTestAssetsPath, benchmarkTestReportsPath } from './projectPaths';
-import { safelyReadJsonFile, formatDuration } from '../src/utils/utils';
+
 import { BenchmarkReport } from '../src/shared';
+import { formatDuration,safelyReadJsonFile } from '../src/utils/utils';
 import { convertBenchmarkResultToMarkdown, downloadLatestTestRepo } from './benchmarkHelper';
+import { benchmarkTestAssetsPath, benchmarkTestReportsPath,rootPath } from './projectPaths';
 
 interface TestRepo {
     url: string;

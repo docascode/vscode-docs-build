@@ -1,10 +1,10 @@
-import { EventType } from './eventType';
-import { Credential } from '../credential/credentialController';
-import { PlatformInformation } from './platformInformation';
-import { Environment, SignInReason } from '../shared';
-import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { BuildInput } from '../build/buildInput';
+import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
+import { Credential } from '../credential/credentialController';
 import { AbsolutePathPackage } from '../dependency/package';
+import { Environment, SignInReason } from '../shared';
+import { EventType } from './eventType';
+import { PlatformInformation } from './platformInformation';
 
 export interface BaseEvent {
     type: EventType;

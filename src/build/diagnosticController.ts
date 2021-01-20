@@ -1,5 +1,5 @@
-import vscode from 'vscode';
 import path from 'path';
+import vscode from 'vscode';
 
 export interface DiagnosticItem {
     readonly filePath: string;

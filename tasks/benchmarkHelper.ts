@@ -1,9 +1,10 @@
-import fs from 'fs-extra';
-import path from 'path';
 import { execSync, ExecSyncOptions } from 'child_process';
-import { rootPath, benchmarkTestAssetsPath } from './projectPaths';
-import { basicAuth } from '../src/utils/utils';
+import fs from 'fs-extra';
 import gitUrlParse from 'git-url-parse';
+import path from 'path';
+
+import { basicAuth } from '../src/utils/utils';
+import { benchmarkTestAssetsPath,rootPath } from './projectPaths';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function convertBenchmarkResultToMarkdown(result: any): string {

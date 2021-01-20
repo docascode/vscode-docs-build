@@ -1,11 +1,12 @@
 import assert from 'assert';
-import { MockHttpsServer } from "../../utils/mockHttpsServer";
-import { downloadFile } from "../../../src/dependency/fileDownloader";
+
 import { EventStream } from "../../../src/common/eventStream";
-import TestEventBus from "../../utils/testEventBus";
-import { DownloadStarted, DownloadSizeObtained, DownloadProgress } from "../../../src/common/loggingEvents";
+import { DownloadProgress,DownloadSizeObtained, DownloadStarted } from "../../../src/common/loggingEvents";
+import { downloadFile } from "../../../src/dependency/fileDownloader";
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
+import { MockHttpsServer } from "../../utils/mockHttpsServer";
+import TestEventBus from "../../utils/testEventBus";
 
 describe(`fileDownloader`, () => {
     const downloadDescription = 'Test FileDownloader';

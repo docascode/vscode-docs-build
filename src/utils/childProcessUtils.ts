@@ -1,6 +1,7 @@
 import cp from 'child_process';
-import { BuildProgress } from '../common/loggingEvents';
+
 import { EventStream } from '../common/eventStream';
+import { BuildProgress } from '../common/loggingEvents';
 
 export function executeCommandSync(command: string, args?: ReadonlyArray<string>, options?: cp.ExecSyncOptionsWithStringEncoding): string {
     return cp.execSync(`${command} ${args}`, options).toString();

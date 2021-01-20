@@ -1,6 +1,6 @@
-import { EventStream } from "./eventStream";
 import { KeyChain } from "../credential/keyChain";
 import { EnvironmentController } from "./environmentController";
+import { EventStream } from "./eventStream";
 
 export default interface ExtensionExports {
     initializationFinished: () => Promise<void>;

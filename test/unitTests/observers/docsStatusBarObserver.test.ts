@@ -1,9 +1,10 @@
 import assert from 'assert';
-import { DocsStatusBarObserver } from '../../../src/observers/docsStatusBarObserver';
 import { StatusBarItem } from 'vscode';
-import { CredentialInitializing, UserSignInSucceeded, CredentialReset, UserSignInTriggered } from '../../../src/common/loggingEvents';
-import { getFakeEnvironmentController, setEnvToPPE, fakedCredential } from '../../utils/faker';
+
 import { EnvironmentController } from '../../../src/common/environmentController';
+import { CredentialInitializing, CredentialReset, UserSignInSucceeded, UserSignInTriggered } from '../../../src/common/loggingEvents';
+import { DocsStatusBarObserver } from '../../../src/observers/docsStatusBarObserver';
+import { fakedCredential,getFakeEnvironmentController, setEnvToPPE } from '../../utils/faker';
 
 describe('DocsStatusBarObserver', () => {
     let showCalled: boolean;

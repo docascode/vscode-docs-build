@@ -1,9 +1,10 @@
+import * as fs from 'fs-extra';
+import * as path from 'path';
 import * as vscode from "vscode";
+
+import { ExtensionContext } from "../extensionContext";
 import { EnvironmentController } from "./environmentController";
 import { ILogger } from "./logger";
-import * as path from 'path';
-import * as fs from 'fs-extra';
-import { ExtensionContext } from "../extensionContext";
 
 export class DocsLogger implements ILogger, vscode.Disposable {
     private _fileLogger: fs.WriteStream;

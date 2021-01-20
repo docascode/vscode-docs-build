@@ -1,14 +1,15 @@
 import fs from 'fs-extra';
-import path from 'path';
-import vscode from 'vscode';
-import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from "../utils/testHelper";
-import { BaseEvent, RefreshCredential, DocfxRestoreCompleted, DocfxBuildCompleted, BuildCompleted } from "../../src/common/loggingEvents";
-import { createSandbox } from 'sinon';
-import { EventType } from "../../src/common/eventType";
 import converter from 'number-to-words';
+import path from 'path';
+import { createSandbox } from 'sinon';
+import vscode from 'vscode';
+
+import { EventType } from "../../src/common/eventType";
+import { BaseEvent, BuildCompleted,DocfxBuildCompleted, DocfxRestoreCompleted, RefreshCredential } from "../../src/common/loggingEvents";
+import { BenchmarkReport, ReportItem, UserInfo } from "../../src/shared";
 import { formatDuration, getRepositoryInfoFromLocalFolder } from "../../src/utils/utils";
-import { ReportItem, BenchmarkReport, UserInfo } from "../../src/shared";
 import { setupKeyChain } from '../utils/faker';
+import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from "../utils/testHelper";
 
 const testRound = 3;
 

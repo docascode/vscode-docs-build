@@ -1,8 +1,9 @@
 import vscode from 'vscode';
-import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
+
 import { EventStream } from '../common/eventStream';
 import { LearnMoreClicked } from '../common/loggingEvents';
 import config from '../config';
+import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
 
 export class CodeActionProvider implements vscode.CodeActionProvider {
     public static readonly providedCodeActionKinds = [

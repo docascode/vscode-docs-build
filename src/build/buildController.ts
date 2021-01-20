@@ -1,23 +1,24 @@
-import vscode from 'vscode';
 import fs from 'fs-extra';
-import path from 'path';
 // eslint-disable-next-line node/no-unpublished-import
 import getPort from 'get-port';
-import { CredentialController } from '../credential/credentialController';
-import { OPBuildAPIClient } from './opBuildAPIClient';
+import path from 'path';
+import vscode from 'vscode';
+import { Disposable, LanguageClient } from 'vscode-languageclient/node';
+
+import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
-import { DiagnosticController } from './diagnosticController';
-import { safelyReadJsonFile, getRepositoryInfoFromLocalFolder, getDurationInSeconds, normalizeDriveLetter, getTempOutputFolder } from '../utils/utils';
-import { BuildExecutor } from './buildExecutor';
-import { OP_CONFIG_FILE_NAME, UserType } from '../shared';
-import { visualizeBuildReport } from './reportGenerator';
-import { BuildInstantAllocated, BuildInstantReleased, BuildProgress, RepositoryInfoRetrieved, BuildTriggered, BuildFailed, BuildStarted, BuildSucceeded, BuildCanceled, CancelBuildTriggered, CancelBuildSucceeded, CancelBuildFailed, CredentialExpired, StartLanguageServerCompleted } from '../common/loggingEvents';
+import { BuildCanceled, BuildFailed, BuildInstantAllocated, BuildInstantReleased, BuildProgress, BuildStarted, BuildSucceeded, BuildTriggered, CancelBuildFailed, CancelBuildSucceeded, CancelBuildTriggered, CredentialExpired, RepositoryInfoRetrieved, StartLanguageServerCompleted } from '../common/loggingEvents';
+import { CredentialController } from '../credential/credentialController';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
+import { OP_CONFIG_FILE_NAME, UserType } from '../shared';
+import { getDurationInSeconds, getRepositoryInfoFromLocalFolder, getTempOutputFolder,normalizeDriveLetter, safelyReadJsonFile } from '../utils/utils';
+import { BuildExecutor } from './buildExecutor';
 import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
-import { EnvironmentController } from '../common/environmentController';
-import { Disposable, LanguageClient } from 'vscode-languageclient/node';
+import { DiagnosticController } from './diagnosticController';
+import { OPBuildAPIClient } from './opBuildAPIClient';
+import { visualizeBuildReport } from './reportGenerator';
 
 export class BuildController {
     private _currentBuildCorrelationId: string;

@@ -1,6 +1,6 @@
-import { BaseEvent, StartLanguageServerCompleted, UserSignInCompleted } from '../common/loggingEvents';
-import { EventType } from '../common/eventType';
 import { EnvironmentController } from '../common/environmentController';
+import { EventType } from '../common/eventType';
+import { BaseEvent, StartLanguageServerCompleted, UserSignInCompleted } from '../common/loggingEvents';
 import { LanguageServerStatus } from '../shared';
 import { BuildController } from './buildController';
 

@@ -1,4 +1,5 @@
 import vscode from 'vscode';
+
 import ExtensionExports from '../../src/common/extensionExport';
 import { EXTENSION_ID } from '../../src/shared';
 

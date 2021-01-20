@@ -1,4 +1,4 @@
-import { Environment, DocsRepoType, UserType } from '../shared';
+import { DocsRepoType, Environment, UserType } from '../shared';
 
 export interface EnvironmentController {
     env: Environment;

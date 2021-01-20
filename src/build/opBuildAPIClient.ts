@@ -1,9 +1,10 @@
-import request from 'request';
 import querystring from 'querystring';
+import request from 'request';
+
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
+import { APICallFailed, APICallStarted, BuildProgress,CredentialExpired } from '../common/loggingEvents';
 import extensionConfig from '../config';
-import { APICallFailed, APICallStarted, CredentialExpired, BuildProgress } from '../common/loggingEvents';
 import { OP_BUILD_USER_TOKEN_HEADER_NAME } from '../shared';
 
 type RequestMethod = 'POST' | 'GET';

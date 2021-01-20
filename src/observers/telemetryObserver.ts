@@ -1,13 +1,14 @@
-import { BaseEvent, UserSignInTriggered, UserSignInCompleted, UserSignInSucceeded, UserSignInFailed, UserSignOutTriggered, UserSignOutCompleted, BuildTriggered, BuildCompleted, BuildSucceeded, BuildFailed, LearnMoreClicked, QuickPickTriggered, QuickPickCommandSelected, DependencyInstallStarted, DependencyInstallCompleted, PackageInstallCompleted, PackageInstallAttemptFailed, CancelBuildTriggered, CancelBuildCompleted, DocfxRestoreCompleted } from '../common/loggingEvents';
-import { EventType } from '../common/eventType';
-import { DocsRepoType } from '../shared';
-import { DocsError } from '../error/docsError';
-import { BuildType } from '../build/buildInput';
-import { DocfxExecutionResult } from '../build/buildResult';
-import TelemetryReporter from '../telemetryReporter';
-import { getFolderSizeInMB } from '../utils/utils';
 import os from 'os';
 import path from 'path';
+
+import { BuildType } from '../build/buildInput';
+import { DocfxExecutionResult } from '../build/buildResult';
+import { EventType } from '../common/eventType';
+import { BaseEvent, BuildCompleted, BuildFailed, BuildSucceeded, BuildTriggered, CancelBuildCompleted, CancelBuildTriggered, DependencyInstallCompleted, DependencyInstallStarted, DocfxRestoreCompleted,LearnMoreClicked, PackageInstallAttemptFailed, PackageInstallCompleted, QuickPickCommandSelected, QuickPickTriggered, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded, UserSignInTriggered, UserSignOutCompleted, UserSignOutTriggered } from '../common/loggingEvents';
+import { DocsError } from '../error/docsError';
+import { DocsRepoType } from '../shared';
+import TelemetryReporter from '../telemetryReporter';
+import { getFolderSizeInMB } from '../utils/utils';
 
 export class TelemetryObserver {
     constructor(private _reporter: TelemetryReporter) { }

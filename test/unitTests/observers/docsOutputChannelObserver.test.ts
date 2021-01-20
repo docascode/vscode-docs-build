@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { OutputChannel } from 'vscode';
-import { BaseEvent, DependencyInstallStarted, BuildInstantAllocated, UserSignInTriggered } from '../../../src/common/loggingEvents';
+
+import { BaseEvent, BuildInstantAllocated, DependencyInstallStarted, UserSignInTriggered } from '../../../src/common/loggingEvents';
 import { DocsOutputChannelObserver } from '../../../src/observers/docsOutputChannelObserver';
 
 describe('DocsOutputChannelObserver', () => {

@@ -1,13 +1,14 @@
 import assert from 'assert';
 import fs from 'fs-extra';
 import path from 'path';
-import { EventStream } from '../../../src/common/eventStream';
-import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
-import TestEventBus from '../../utils/testEventBus';
+import { createSandbox, SinonSandbox, SinonStub } from 'sinon';
+import { Diagnostic, DiagnosticSeverity, Range,Uri } from 'vscode';
+
 import { DiagnosticController } from '../../../src/build/diagnosticController';
-import { Uri, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
 import { visualizeBuildReport } from '../../../src/build/reportGenerator';
+import { EventStream } from '../../../src/common/eventStream';
 import { BuildProgress } from '../../../src/common/loggingEvents';
+import TestEventBus from '../../utils/testEventBus';
 
 describe("ReportGenerator", () => {
     const testRepositoryPath = path.resolve(__dirname, "fakedFolder");

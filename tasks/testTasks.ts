@@ -1,8 +1,9 @@
 import gulp from 'gulp';
 import path from 'path';
-import { rootPath, testAssetsPath, defaultOutputPath } from './projectPaths';
-import { runTests } from 'vscode-test';
 import simpleGit from 'simple-git';
+import { runTests } from 'vscode-test';
+
+import { defaultOutputPath,rootPath, testAssetsPath } from './projectPaths';
 
 // eslint-disable-next-line node/no-missing-require
 require('./benchmarkTestTask');

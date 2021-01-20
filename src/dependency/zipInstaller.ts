@@ -2,9 +2,10 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import yauzl from 'yauzl';
+
 import { AbsolutePath } from '../common/absolutePath';
-import { ZipFileInstalling } from '../common/loggingEvents';
 import { EventStream } from '../common/eventStream';
+import { ZipFileInstalling } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 

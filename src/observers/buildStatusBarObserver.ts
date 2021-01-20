@@ -1,6 +1,6 @@
-import { BaseStatusBarObserver } from "./baseStatusBarObserver";
 import { EventType } from "../common/eventType";
 import { BaseEvent } from "../common/loggingEvents";
+import { BaseStatusBarObserver } from "./baseStatusBarObserver";
 
 export class BuildStatusBarObserver extends BaseStatusBarObserver {
     public eventHandler = (event: BaseEvent): void => {
