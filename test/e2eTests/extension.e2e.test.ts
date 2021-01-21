@@ -10,11 +10,11 @@ import { EnvironmentController } from '../../src/common/environmentController';
 import { EventStream } from '../../src/common/eventStream';
 import { EventType } from '../../src/common/eventType';
 import { BaseEvent, BuildCompleted, StartLanguageServerCompleted, UserSignInCompleted } from '../../src/common/loggingEvents';
+import { TimeOutError } from '../../src/error/timeOutError';
 import { OP_BUILD_USER_TOKEN_HEADER_NAME, uriHandler, UserType } from '../../src/shared';
+import { delay } from '../../src/utils/utils';
 import TestEventBus from '../utils/testEventBus';
 import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from '../utils/testHelper';
-import { TimeOutError } from '../../src/error/timeOutError';
-import { delay } from '../../src/utils/utils';
 
 const detailE2EOutput: any = {};
 
