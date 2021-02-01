@@ -4,7 +4,7 @@ import path from 'path';
 import { BuildType } from '../build/buildInput';
 import { DocfxExecutionResult } from '../build/buildResult';
 import { EventType } from '../common/eventType';
-import { BaseEvent, BuildCompleted, BuildFailed, BuildSucceeded, BuildTriggered, CancelBuildCompleted, CancelBuildTriggered, DependencyInstallCompleted, DependencyInstallStarted, DocfxRestoreCompleted,LearnMoreClicked, PackageInstallAttemptFailed, PackageInstallCompleted, QuickPickCommandSelected, QuickPickTriggered, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded, UserSignInTriggered, UserSignOutCompleted, UserSignOutTriggered } from '../common/loggingEvents';
+import { BaseEvent, BuildCompleted, BuildFailed, BuildSucceeded, BuildTriggered, CancelBuildCompleted, CancelBuildTriggered, DependencyInstallCompleted, DependencyInstallStarted, DocfxRestoreCompleted, ExtensionActivated, LearnMoreClicked, PackageInstallAttemptFailed, PackageInstallCompleted, QuickPickCommandSelected, QuickPickTriggered, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded, UserSignInTriggered, UserSignOutCompleted, UserSignOutTriggered } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { DocsRepoType } from '../shared';
 import TelemetryReporter from '../telemetryReporter';
@@ -64,6 +64,10 @@ export class TelemetryObserver {
                 break;
             case EventType.LearnMoreClicked:
                 this.handleLearnMoreClicked(<LearnMoreClicked>event);
+                break;
+            // Other
+            case EventType.ExtensionActivated:
+                this.handleExtensionActivated(<ExtensionActivated>event);
                 break;
         }
     }
@@ -280,6 +284,16 @@ export class TelemetryObserver {
             {
                 CorrelationId: event.correlationId,
                 ErrorCode: event.diagnosticErrorCode
+            }
+        );
+    }
+
+    private handleExtensionActivated(event: ExtensionActivated) {
+        this._reporter.sendTelemetryEvent(
+            'SessionInfo',
+            {
+                SessionId: event.sessionId,
+                UserRole: event.userType
             }
         );
     }

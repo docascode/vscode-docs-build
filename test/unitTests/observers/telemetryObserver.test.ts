@@ -2,12 +2,13 @@ import assert from 'assert';
 
 import { BuildInput } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
-import { BuildCanceled, BuildFailed, BuildSucceeded, BuildTriggered, CancelBuildFailed,CancelBuildSucceeded, CancelBuildTriggered, DependencyInstallCompleted, DependencyInstallStarted, LearnMoreClicked, PackageInstallAttemptFailed, PackageInstallCompleted, QuickPickCommandSelected, QuickPickTriggered, UserSignInFailed, UserSignInSucceeded, UserSignInTriggered, UserSignOutFailed, UserSignOutSucceeded, UserSignOutTriggered,  } from '../../../src/common/loggingEvents';
+import { BuildCanceled, BuildFailed, BuildSucceeded, BuildTriggered, CancelBuildFailed, CancelBuildSucceeded, CancelBuildTriggered, DependencyInstallCompleted, DependencyInstallStarted, ExtensionActivated, LearnMoreClicked, PackageInstallAttemptFailed, PackageInstallCompleted, QuickPickCommandSelected, QuickPickTriggered, UserSignInFailed, UserSignInSucceeded, UserSignInTriggered, UserSignOutFailed, UserSignOutSucceeded, UserSignOutTriggered, } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { TelemetryObserver } from '../../../src/observers/telemetryObserver';
+import { UserType } from '../../../src/shared';
 import TelemetryReporter from '../../../src/telemetryReporter';
-import { fakedCredential,fakedPackage } from '../../utils/faker';
+import { fakedCredential, fakedPackage } from '../../utils/faker';
 
 describe('TelemetryObserver', () => {
     let observer: TelemetryObserver;
@@ -250,11 +251,11 @@ describe('TelemetryObserver', () => {
         });
     });
 
-    describe('CancelBuildCompleted', ()=> {
+    describe('CancelBuildCompleted', () => {
         it('CancelBuildSucceeded', () => {
             const event = new CancelBuildSucceeded('FakedCorrelationId');
             observer.eventHandler(event);
-    
+
             assert.equal(sentEventName, 'CancelBuild.Completed');
             assert.deepStrictEqual(sentEventProperties, {
                 CorrelationId: 'FakedCorrelationId',
@@ -265,7 +266,7 @@ describe('TelemetryObserver', () => {
         it('CancelBuildFailed', () => {
             const event = new CancelBuildFailed('FakedCorrelationId');
             observer.eventHandler(event);
-    
+
             assert.equal(sentEventName, 'CancelBuild.Completed');
             assert.deepStrictEqual(sentEventProperties, {
                 CorrelationId: 'FakedCorrelationId',
@@ -381,6 +382,19 @@ describe('TelemetryObserver', () => {
         assert.deepStrictEqual(sentEventProperties, {
             CorrelationId: 'fakedCorrelationId',
             ErrorCode: 'fakedErrorCode'
+        });
+    });
+
+    describe(`Extension activated`, () => {
+        it(`SessionInfo should be sent`, () => {
+            const fakeSessionId = 'fakeSessionId';
+            const event = new ExtensionActivated(UserType.MicrosoftEmployee, fakeSessionId);
+            observer.eventHandler(event);
+            assert.equal(sentEventName, 'SessionInfo');
+            assert.deepStrictEqual(sentEventProperties, {
+                SessionId: fakeSessionId,
+                UserRole: UserType.MicrosoftEmployee
+            })
         });
     });
 });

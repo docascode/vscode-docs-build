@@ -2,12 +2,13 @@ import assert from 'assert';
 
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
 import { ILogger } from '../../../src/common/logger';
-import { APICallFailed, APICallStarted, BuildCanceled, BuildFailed, BuildProgress, BuildStarted, BuildSucceeded, BuildTriggered, CancelBuildFailed, DependencyInstallCompleted, DependencyInstallStarted, DocfxBuildCompleted, DocfxRestoreCompleted, DownloadProgress, DownloadSizeObtained, DownloadStarted, DownloadValidating, ExtensionActivated, PackageInstallAttemptFailed, PackageInstallCompleted, PackageInstallStarted, PlatformInfoRetrieved, PublicContributorSignIn, RepositoryInfoRetrieved, StartLanguageServerCompleted,TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInProgress, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded, ZipFileInstalling } from '../../../src/common/loggingEvents';
+import { APICallFailed, APICallStarted, BuildCanceled, BuildFailed, BuildProgress, BuildStarted, BuildSucceeded, BuildTriggered, CancelBuildFailed, DependencyInstallCompleted, DependencyInstallStarted, DocfxBuildCompleted, DocfxRestoreCompleted, DownloadProgress, DownloadSizeObtained, DownloadStarted, DownloadValidating, ExtensionActivated, PackageInstallAttemptFailed, PackageInstallCompleted, PackageInstallStarted, PlatformInfoRetrieved, PublicContributorSignIn, RepositoryInfoRetrieved, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInProgress, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded, ZipFileInstalling } from '../../../src/common/loggingEvents';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { DocsLoggerObserver } from '../../../src/observers/docsLoggerObserver';
-import { fakedCredential,fakedPackage } from '../../utils/faker';
+import { UserType } from '../../../src/shared';
+import { fakedCredential, fakedPackage } from '../../utils/faker';
 
 describe('DocsLoggerObserver', () => {
     let loggerText: string;
@@ -380,7 +381,7 @@ describe('DocsLoggerObserver', () => {
 
     describe('Extension Activated', () => {
         it(`Extension Activated`, () => {
-            const event = new ExtensionActivated();
+            const event = new ExtensionActivated(UserType.MicrosoftEmployee, 'fakeSessionId');
             observer.eventHandler(event);
 
             const expectedOutput = `Extension activated.\n`;

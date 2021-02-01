@@ -1,10 +1,10 @@
 import assert from 'assert';
-import { createSandbox,SinonSandbox } from 'sinon';
+import { createSandbox, SinonSandbox } from 'sinon';
 import vscode, { MessageItem } from 'vscode';
 
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
 import { EnvironmentController } from '../../../src/common/environmentController';
-import { BuildCompleted, BuildTriggered, ExtensionActivated,UserSignInCompleted, UserSignOutCompleted } from '../../../src/common/loggingEvents';
+import { BuildCompleted, BuildTriggered, ExtensionActivated, UserSignInCompleted, UserSignOutCompleted } from '../../../src/common/loggingEvents';
 import { InfoMessageObserver } from '../../../src/observers/infoMessageObserver';
 import { MessageAction, UserType } from '../../../src/shared';
 import { getFakeEnvironmentController } from '../../utils/faker';
@@ -140,6 +140,7 @@ describe('InfoMessageObserver', () => {
     });
 
     describe(`Extension activated`, () => {
+        const fakeSessionId = 'fakeSessionId';
         beforeEach(() => {
             messageToShow = undefined;
             messageActions = [];
@@ -149,7 +150,7 @@ describe('InfoMessageObserver', () => {
             sinon.stub(environmentController, "userType").get(function getUserType() {
                 return UserType.Unknown;
             });
-            const event = new ExtensionActivated();
+            const event = new ExtensionActivated(environmentController.userType, fakeSessionId);
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Are you a Microsoft employee or a public contributor? We need this information to provide a better validation experience. ` +
                 `You can change your selection later if needed in the extension settings (Docs validation -> User type).`);
@@ -161,7 +162,7 @@ describe('InfoMessageObserver', () => {
             sinon.stub(environmentController, "userType").get(function getUserType() {
                 return UserType.MicrosoftEmployee;
             });
-            const event = new ExtensionActivated();
+            const event = new ExtensionActivated(environmentController.userType, fakeSessionId);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
