@@ -4,22 +4,23 @@ import path from 'path';
 import { Subscription } from 'rxjs';
 import { createSandbox, SinonSandbox, SinonStub } from 'sinon';
 import { setTimeout } from 'timers';
+import vscode from 'vscode';
 import { LanguageClient } from "vscode-languageclient/node";
 
 import { BuildExecutor } from '../../../src/build/buildExecutor';
-import { BuildInput,BuildType } from '../../../src/build/buildInput';
-import { BuildResult,DocfxExecutionResult } from '../../../src/build/buildResult';
+import { BuildInput, BuildType } from '../../../src/build/buildInput';
+import { BuildResult, DocfxExecutionResult } from '../../../src/build/buildResult';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { EventStream } from '../../../src/common/eventStream';
 import { EventType } from '../../../src/common/eventType';
-import { DocfxBuildCompleted,DocfxBuildStarted, DocfxRestoreCompleted, DocfxRestoreStarted } from '../../../src/common/loggingEvents';
+import { DocfxBuildCompleted, DocfxBuildStarted, DocfxRestoreCompleted, DocfxRestoreStarted } from '../../../src/common/loggingEvents';
 import { PlatformInformation } from '../../../src/common/platformInformation';
 import { CredentialExpiryHandler } from '../../../src/credential/credentialExpiryHandler';
 import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from '../../../src/shared';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import * as childProcessUtil from '../../../src/utils/childProcessUtils';
 import * as utils from '../../../src/utils/utils';
-import { defaultLogPath, defaultOutputPath, fakedBuildInput, fakedExtensionContext, getFakedNonWindowsPlatformInformation, getFakedTelemetryReporter, getFakedWindowsPlatformInformation, getFakeEnvironmentController, publicTemplateURL,setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, tempFolder } from '../../utils/faker';
+import { defaultLogPath, defaultOutputPath, fakedBuildInput, fakedExtensionContext, getFakedNonWindowsPlatformInformation, getFakedTelemetryReporter, getFakedWindowsPlatformInformation, getFakeEnvironmentController, publicTemplateURL, setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, tempFolder } from '../../utils/faker';
 import TestEventBus from '../../utils/testEventBus';
 
 describe('BuildExecutor', () => {
@@ -38,6 +39,8 @@ describe('BuildExecutor', () => {
     let executedCommands: string[];
     let executedOptions: cp.ExecOptions[];
     let killProcessTreeFuncCalled: boolean;
+
+    const fakeSessionId = 'fakeSessionId';
 
     before(() => {
         eventStream = new EventStream();
@@ -155,6 +158,9 @@ describe('BuildExecutor', () => {
     describe('Build', () => {
         before(() => {
             mockExecuteDocfx(0, 0);
+            sinon.stub(vscode.env, 'sessionId').get(function getSessionId() {
+                return fakeSessionId;
+            });
         });
 
         beforeEach(() => {
@@ -183,7 +189,9 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`
+                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
+                        DOCFX_SESSION_ID: fakeSessionId
+
                     }
                 },
                 {
@@ -193,7 +201,8 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`
+                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
@@ -273,7 +282,8 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`
+                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
@@ -347,7 +357,8 @@ describe('BuildExecutor', () => {
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_REPOSITORY_BRANCH: 'master',
-                        DOCFX_HTTP: '{}'
+                        DOCFX_HTTP: '{}',
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
@@ -403,7 +414,8 @@ describe('BuildExecutor', () => {
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_REPOSITORY_BRANCH: 'master',
-                        DOCFX_HTTP: '{}'
+                        DOCFX_HTTP: '{}',
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
@@ -429,7 +441,8 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: undefined,
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"fakeToken"}}}`
+                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"fakeToken"}}}`,
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);

@@ -136,7 +136,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
 
     // eslint-disable-next-line promise/catch-or-return, promise/always-return
     credentialInitialPromise.then(() => {
-        eventStream.post(new ExtensionActivated());
+        eventStream.post(new ExtensionActivated(environmentController.userType, vscode.env.sessionId));
     });
 
     return {

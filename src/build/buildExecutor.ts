@@ -1,6 +1,6 @@
 import { ChildProcess } from 'child_process';
 import { Duplex } from 'stream';
-import { Disposable } from 'vscode';
+import vscode, { Disposable } from 'vscode';
 import {
     LanguageClient,
     StreamInfo
@@ -9,11 +9,11 @@ import WebSocket from 'ws';
 
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
-import { DocfxBuildCompleted, DocfxBuildStarted, DocfxRestoreCompleted,DocfxRestoreStarted } from '../common/loggingEvents';
+import { DocfxBuildCompleted, DocfxBuildStarted, DocfxRestoreCompleted, DocfxRestoreStarted } from '../common/loggingEvents';
 import { PlatformInformation } from '../common/platformInformation';
 import config from '../config';
 import { CredentialExpiryHandler } from '../credential/credentialExpiryHandler';
-import { AbsolutePathPackage,Package } from '../dependency/package';
+import { AbsolutePathPackage, Package } from '../dependency/package';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { ExtensionContext } from '../extensionContext';
@@ -22,7 +22,7 @@ import TelemetryReporter from '../telemetryReporter';
 import { executeDocfx } from '../utils/childProcessUtils';
 import { basicAuth, getDurationInSeconds, killProcessTree } from '../utils/utils';
 import { BuildInput } from './buildInput';
-import { BuildResult,DocfxExecutionResult } from './buildResult';
+import { BuildResult, DocfxExecutionResult } from './buildResult';
 
 interface BuildParameters {
     restoreCommand: string;
@@ -195,7 +195,8 @@ export class BuildExecutor implements Disposable {
         const envs: any = {
             'DOCFX_CORRELATION_ID': correlationId,
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
-            'DOCS_ENVIRONMENT': this._environmentController.env
+            'DOCS_ENVIRONMENT': this._environmentController.env,
+            'DOCFX_SESSION_ID': vscode.env.sessionId
         };
 
         const isPublicUser = this._environmentController.userType === UserType.PublicContributor;

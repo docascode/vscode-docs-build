@@ -15,6 +15,7 @@ describe('LanguageServerManager', () => {
             return;
         }
     };
+    const fakeSessionId = 'fakeSessionId';
     const spyStartLanguageServer: SinonSpy = sinon.spy(fakeBuildController, 'startDocfxLanguageServer');
 
     let manager: LanguageServerManager;
@@ -35,7 +36,7 @@ describe('LanguageServerManager', () => {
             enableAutomaticRealTimeValidation: false
         },
             fakeBuildController);
-        manager.eventHandler(new ExtensionActivated());
+        manager.eventHandler(new ExtensionActivated(UserType.MicrosoftEmployee, fakeSessionId));
         assert(spyStartLanguageServer.notCalled);
     });
 
@@ -48,7 +49,7 @@ describe('LanguageServerManager', () => {
             enableAutomaticRealTimeValidation: true
         },
             fakeBuildController);
-        manager.eventHandler(new ExtensionActivated());
+        manager.eventHandler(new ExtensionActivated(UserType.Unknown, fakeSessionId));
         assert(spyStartLanguageServer.notCalled);
     });
 
@@ -61,7 +62,7 @@ describe('LanguageServerManager', () => {
             enableAutomaticRealTimeValidation: true
         },
             fakeBuildController);
-        manager.eventHandler(new ExtensionActivated());
+        manager.eventHandler(new ExtensionActivated(UserType.PublicContributor, fakeSessionId));
         assert(spyStartLanguageServer.calledOnce);
     });
 

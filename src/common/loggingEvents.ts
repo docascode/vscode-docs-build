@@ -2,7 +2,7 @@ import { BuildInput } from '../build/buildInput';
 import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { Credential } from '../credential/credentialController';
 import { AbsolutePathPackage } from '../dependency/package';
-import { Environment, SignInReason } from '../shared';
+import { Environment, SignInReason, UserType } from '../shared';
 import { EventType } from './eventType';
 import { PlatformInformation } from './platformInformation';
 
@@ -255,6 +255,7 @@ export class TriggerCommandWithUnknownUserType implements BaseEvent {
 
 export class ExtensionActivated implements BaseEvent {
     type = EventType.ExtensionActivated;
+    constructor(public userType: UserType, public sessionId: string) { }
 }
 
 export class StartLanguageServerCompleted implements BaseEvent {
