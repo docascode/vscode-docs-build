@@ -195,7 +195,8 @@ export class BuildExecutor implements Disposable {
         const envs: any = {
             'DOCFX_CORRELATION_ID': correlationId,
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
-            'DOCS_ENVIRONMENT': this._environmentController.env
+            'DOCS_ENVIRONMENT': this._environmentController.env,
+            'DOCS_SESSION_ID': vscode.env.sessionId
         };
 
         const isPublicUser = this._environmentController.userType === UserType.PublicContributor;
@@ -226,7 +227,6 @@ export class BuildExecutor implements Disposable {
             };
         }
         envs["DOCFX_HTTP"] = JSON.stringify(secrets);
-        envs["SESSION_ID"] = vscode.env.sessionId;
 
         return <BuildParameters>{
             envs,
