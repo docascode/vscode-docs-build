@@ -196,7 +196,7 @@ export class BuildExecutor implements Disposable {
             'DOCFX_CORRELATION_ID': correlationId,
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this._environmentController.env,
-            'DOCS_SESSION_ID': vscode.env.sessionId
+            'DOCFX_SESSION_ID': vscode.env.sessionId
         };
 
         const isPublicUser = this._environmentController.userType === UserType.PublicContributor;

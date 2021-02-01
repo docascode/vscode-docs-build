@@ -190,7 +190,7 @@ describe('BuildExecutor', () => {
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
-                        DOCS_SESSION_ID: fakeSessionId
+                        DOCFX_SESSION_ID: fakeSessionId
 
                     }
                 },
@@ -202,7 +202,7 @@ describe('BuildExecutor', () => {
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
-                        DOCS_SESSION_ID: fakeSessionId
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
@@ -283,7 +283,7 @@ describe('BuildExecutor', () => {
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
-                        DOCS_SESSION_ID: fakeSessionId
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
@@ -358,7 +358,7 @@ describe('BuildExecutor', () => {
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_REPOSITORY_BRANCH: 'master',
                         DOCFX_HTTP: '{}',
-                        DOCS_SESSION_ID: fakeSessionId
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
@@ -415,7 +415,7 @@ describe('BuildExecutor', () => {
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_REPOSITORY_BRANCH: 'master',
                         DOCFX_HTTP: '{}',
-                        DOCS_SESSION_ID: fakeSessionId
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
@@ -442,7 +442,7 @@ describe('BuildExecutor', () => {
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"fakeToken"}}}`,
-                        DOCS_SESSION_ID: fakeSessionId
+                        DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
             ]);
