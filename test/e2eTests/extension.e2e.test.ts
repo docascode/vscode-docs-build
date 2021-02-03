@@ -2,14 +2,17 @@ import assert from 'assert';
 import fs from 'fs-extra';
 import path from 'path';
 import { createSandbox, SinonSandbox } from 'sinon';
-import vscode, { Diagnostic, DiagnosticSeverity,Range, Uri } from 'vscode';
+import vscode, { Diagnostic, DiagnosticSeverity, Position, Range, Uri } from 'vscode';
 
 import { DocfxExecutionResult } from '../../src/build/buildResult';
+import { DiagnosticController } from '../../src/build/diagnosticController';
 import { EnvironmentController } from '../../src/common/environmentController';
 import { EventStream } from '../../src/common/eventStream';
 import { EventType } from '../../src/common/eventType';
-import { BaseEvent, BuildCompleted,UserSignInCompleted } from '../../src/common/loggingEvents';
+import { BaseEvent, BuildCompleted, StartLanguageServerCompleted, UserSignInCompleted } from '../../src/common/loggingEvents';
+import { TimeOutError } from '../../src/error/timeOutError';
 import { OP_BUILD_USER_TOKEN_HEADER_NAME, uriHandler, UserType } from '../../src/shared';
+import { delay } from '../../src/utils/utils';
 import TestEventBus from '../utils/testEventBus';
 import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from '../utils/testHelper';
 
@@ -27,6 +30,10 @@ describe('E2E Test', () => {
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
     let environmentController: EnvironmentController;
+    let diagnosticController: DiagnosticController;
+    const indexFileName = "index.md";
+    const tempFileName = 'a.md';
+    const timeOutMs = 120 * 1000;
 
     before(async () => {
         if (!process.env.VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN) {
@@ -57,6 +64,7 @@ describe('E2E Test', () => {
         eventStream = extension.exports.eventStream;
         environmentController = extension.exports.environmentController;
         testEventBus = new TestEventBus(eventStream);
+        diagnosticController = extension.exports.diagnosticController;
     });
 
     beforeEach(() => {
@@ -65,6 +73,7 @@ describe('E2E Test', () => {
 
     afterEach(function () {
         detailE2EOutput[this.currentTest.fullTitle()] = testEventBus.getEvents();
+        diagnosticController.reset();
     });
 
     after(() => {
@@ -73,6 +82,121 @@ describe('E2E Test', () => {
         const detailE2EOutputFile = `${__dirname}/../../../.temp/debug/detail-e2e-output.json`;
         fs.ensureFileSync(detailE2EOutputFile);
         fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
+    });
+
+    it('Sign in to Docs and use real-time validation', (done) => {
+        let currentDiagnostics: Diagnostic[] = [];
+        const indexFileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", indexFileName));
+        const tempFileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", tempFileName));
+
+        (async function () {
+            const dispose = eventStream.subscribe(async (event: BaseEvent) => {
+                switch (event.type) {
+                    case EventType.StartLanguageServerCompleted: {
+                        if ((<StartLanguageServerCompleted>event).succeeded) {
+                            await testOpenFile();
+                            await testCreateFile();
+                            await testDeleteFile();
+                            await testModifyFile();
+
+                            dispose.unsubscribe();
+                            testEventBus.dispose();
+                            done();
+                        }
+                        break;
+                    }
+                }
+            });
+
+            triggerCommand('docs.signIn');
+
+            async function updateCurrentDiagnosticsAsync(fileUri: Uri) {
+                return Promise.race(
+                    [delay(timeOutMs, new TimeOutError('Timed out')),
+                    new Promise<void>(async resolve => {
+                        // eslint-disable-next-line
+                        while (true) {
+                            await delay(1000);
+                            const diagnostics = vscode.languages.getDiagnostics(fileUri);
+                            if (diagnostics.length != currentDiagnostics.length) {
+                                currentDiagnostics = [];
+                                diagnostics.forEach((item) => {
+                                    const diagnostic = new Diagnostic(item.range, item.message, item.severity);
+                                    diagnostic.code = item.code;
+                                    diagnostic.source = item.source;
+                                    currentDiagnostics.push(diagnostic);
+                                });
+                                resolve();
+                                break;
+                            }
+                        }
+                    })]);
+            }
+
+            async function testOpenFile() {
+                await vscode.window.showTextDocument(indexFileUri);
+                await updateCurrentDiagnosticsAsync(indexFileUri);
+                assertDiagnostic(currentDiagnostics,
+                    [
+                        <DiagnosticInfo>{
+                            range: new Range(7, 0, 7, 0),
+                            message: `Invalid file link: '${tempFileName}'.`,
+                            severity: vscode.DiagnosticSeverity.Warning,
+                            code: 'file-not-found',
+                        }
+                    ]
+                );
+            }
+
+            async function testModifyFile() {
+                await vscode.window.showTextDocument(indexFileUri);
+                const workspaceEdit = new vscode.WorkspaceEdit();
+                workspaceEdit.replace(indexFileUri, new Range(new Position(1, 0), new Position(1, 5)), "titer");
+                await vscode.workspace.applyEdit(workspaceEdit);
+                await updateCurrentDiagnosticsAsync(indexFileUri);
+                assertDiagnostic(currentDiagnostics,
+                    [
+                        <DiagnosticInfo>{
+                            range: new Range(1, 0, 1, 0),
+                            message: `Missing required attribute: 'title'. Add a title string to show in search engine results.`,
+                            severity: vscode.DiagnosticSeverity.Warning,
+                            code: 'title-missing',
+                        },
+                        <DiagnosticInfo>{
+                            range: new Range(7, 0, 7, 0),
+                            message: `Invalid file link: '${tempFileName}'.`,
+                            severity: vscode.DiagnosticSeverity.Warning,
+                            code: 'file-not-found',
+                        }
+                    ]
+                );
+            }
+
+            async function testCreateFile() {
+                const workspaceEdit = new vscode.WorkspaceEdit();
+                workspaceEdit.createFile(tempFileUri);
+                await vscode.workspace.applyEdit(workspaceEdit);
+                await updateCurrentDiagnosticsAsync(indexFileUri);
+                assertDiagnostic(currentDiagnostics, []);
+            }
+
+            async function testDeleteFile() {
+                const workspaceEdit = new vscode.WorkspaceEdit();
+                workspaceEdit.deleteFile(tempFileUri);
+                await vscode.workspace.applyEdit(workspaceEdit);
+                await updateCurrentDiagnosticsAsync(indexFileUri);
+                assertDiagnostic(currentDiagnostics,
+                    [
+                        <DiagnosticInfo>{
+                            range: new Range(7, 0, 7, 0),
+                            message: `Invalid file link: '${tempFileName}'.`,
+                            severity: vscode.DiagnosticSeverity.Warning,
+                            code: 'file-not-found',
+                        }
+                    ]
+                );
+            }
+        })();
     });
 
     it('build without sign-in', (done) => {
@@ -103,10 +227,10 @@ describe('E2E Test', () => {
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 assertDiagnostics({
-                    "index.md": [
+                    [indexFileName]: [
                         <DiagnosticInfo>{
                             range: new Range(7, 0, 7, 0),
-                            message: `Invalid file link: 'a.md'.`,
+                            message: `Invalid file link: '${tempFileName}'.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'file-not-found',
                         }
@@ -153,10 +277,10 @@ describe('E2E Test', () => {
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 assertDiagnostics({
-                    "index.md": [
+                    [indexFileName]: [
                         <DiagnosticInfo>{
                             range: new Range(7, 0, 7, 0),
-                            message: `Invalid file link: 'a.md'.`,
+                            message: `Invalid file link: '${tempFileName}'.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'file-not-found',
                         }
@@ -170,15 +294,18 @@ describe('E2E Test', () => {
         Object.entries(expected).forEach(([file, expectedDiagnostics]) => {
             const fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", file));
             const diagnostics = vscode.languages.getDiagnostics(fileUri);
-
-            const expectedDiagnosticsForCurrentFile: Diagnostic[] = [];
-            expectedDiagnostics.forEach((item) => {
-                const expectedDiagnostic = new Diagnostic(item.range, item.message, item.severity);
-                expectedDiagnostic.code = item.code;
-                expectedDiagnostic.source = 'Docs Validation';
-                expectedDiagnosticsForCurrentFile.push(expectedDiagnostic);
-            });
-            assert.deepStrictEqual(diagnostics, expectedDiagnosticsForCurrentFile);
+            assertDiagnostic(diagnostics, expectedDiagnostics);
         });
+    }
+
+    function assertDiagnostic(actualDiagnostics: Diagnostic[], expectedDiagnosticInfos: DiagnosticInfo[]) {
+        const expectedDiagnostics: Diagnostic[] = [];
+        expectedDiagnosticInfos.forEach((item) => {
+            const diagnostic = new Diagnostic(item.range, item.message, item.severity);
+            diagnostic.code = item.code;
+            diagnostic.source = 'Docs Validation';
+            expectedDiagnostics.push(diagnostic);
+        });
+        assert.deepStrictEqual(actualDiagnostics, expectedDiagnostics);
     }
 });

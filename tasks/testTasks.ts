@@ -3,12 +3,19 @@ import path from 'path';
 import simpleGit, { CleanOptions } from 'simple-git';
 import { runTests } from 'vscode-test';
 
-import { defaultOutputPath,rootPath, testAssetsPath } from './projectPaths';
+import { isMacintosh } from '../src/utils/childProcessUtils';
+import { defaultOutputPath, rootPath, testAssetsPath } from './projectPaths';
 
 // eslint-disable-next-line node/no-missing-require
 require('./benchmarkTestTask');
 
 gulp.task('test:e2e', async () => {
+    // TODO: remove this after vscode fixes the issue that the deactivate function is not called on mac
+    // issue link: https://github.com/microsoft/vscode/issues/114688
+    if (isMacintosh) {
+        return;
+    }
+
     const extensionDevelopmentPath = rootPath;
     const extensionTestsPath = path.resolve(rootPath, './out/test/e2eTests/index');
     const testRepoPath = path.join(testAssetsPath, "vscode-docs-build-e2e-test");
