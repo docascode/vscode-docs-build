@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.2.7 (February 3, 2021)
+
+### Added
+
+- Add e2e test for real-time validation. (#198)
+- Add new telemetry for real-time validation. (#202)
+
+### Fixed
+
+- Terminate child process properly. (#203)
+
 ## 0.2.6 (January 15, 2021)
 
 ### Fixed
