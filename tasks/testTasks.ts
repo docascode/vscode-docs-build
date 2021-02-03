@@ -1,6 +1,6 @@
 import gulp from 'gulp';
 import path from 'path';
-import simpleGit from 'simple-git';
+import simpleGit, { CleanOptions } from 'simple-git';
 import { runTests } from 'vscode-test';
 
 import { defaultOutputPath,rootPath, testAssetsPath } from './projectPaths';
@@ -14,8 +14,11 @@ gulp.task('test:e2e', async () => {
     const testRepoPath = path.join(testAssetsPath, "vscode-docs-build-e2e-test");
 
     // Initialize Submodule
-    const git = simpleGit(rootPath);
+    let git = simpleGit(rootPath);
     await git.submoduleUpdate(['--init']);
+    git = simpleGit(testRepoPath);
+    await git.reset(['--hard']);
+    await git.clean(CleanOptions.FORCE);
 
     const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {

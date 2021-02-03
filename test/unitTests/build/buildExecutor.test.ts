@@ -1,5 +1,5 @@
 import assert from 'assert';
-import cp from 'child_process';
+import cp, { ChildProcess } from 'child_process';
 import path from 'path';
 import { Subscription } from 'rxjs';
 import { createSandbox, SinonSandbox, SinonStub } from 'sinon';
@@ -19,7 +19,6 @@ import { CredentialExpiryHandler } from '../../../src/credential/credentialExpir
 import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from '../../../src/shared';
 import TelemetryReporter from '../../../src/telemetryReporter';
 import * as childProcessUtil from '../../../src/utils/childProcessUtils';
-import * as utils from '../../../src/utils/utils';
 import { defaultLogPath, defaultOutputPath, fakedBuildInput, fakedExtensionContext, getFakedNonWindowsPlatformInformation, getFakedTelemetryReporter, getFakedWindowsPlatformInformation, getFakeEnvironmentController, publicTemplateURL, setTelemetryUserOptInToFalse, setTelemetryUserOptInToTrue, tempFolder } from '../../utils/faker';
 import TestEventBus from '../../utils/testEventBus';
 
@@ -38,7 +37,7 @@ describe('BuildExecutor', () => {
 
     let executedCommands: string[];
     let executedOptions: cp.ExecOptions[];
-    let killProcessTreeFuncCalled: boolean;
+    let killProcessFuncCalled: boolean;
 
     const fakeSessionId = 'fakeSessionId';
 
@@ -55,8 +54,9 @@ describe('BuildExecutor', () => {
         sinon = createSandbox();
         stubExecuteDocfx = undefined;
 
-        sinon.stub(utils, 'killProcessTree').callsFake((pid: number, signal: string) => {
-            killProcessTreeFuncCalled = true;
+        sinon.stub(childProcessUtil, 'softKillProcess').callsFake((process: ChildProcess) => {
+            killProcessFuncCalled = true;
+            process.kill('SIGKILL');
             return Promise.resolve();
         });
     });
@@ -137,7 +137,7 @@ describe('BuildExecutor', () => {
 
         it('Restore Cancelled', (done) => {
             mockExecuteDocfx(0, 0);
-            killProcessTreeFuncCalled = false;
+            killProcessFuncCalled = false;
 
             const buildPromise = buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
             setTimeout(async () => {
@@ -149,7 +149,7 @@ describe('BuildExecutor', () => {
                 ]);
                 assert.equal(buildResult.result, DocfxExecutionResult.Canceled);
                 assert.equal(buildResult.isRestoreSkipped, false);
-                assert.equal(killProcessTreeFuncCalled, true);
+                assert.equal(killProcessFuncCalled, true);
                 done();
             }, 5);
         });
@@ -241,7 +241,7 @@ describe('BuildExecutor', () => {
 
         it('Build Cancelled', (done) => {
             mockExecuteDocfx(0, 0);
-            killProcessTreeFuncCalled = false;
+            killProcessFuncCalled = false;
             // eslint-disable-next-line prefer-const
             let buildPromise: Promise<BuildResult>;
 
@@ -261,7 +261,7 @@ describe('BuildExecutor', () => {
                         ]);
                         assert.equal(buildResult.result, DocfxExecutionResult.Canceled);
                         assert.equal(buildResult.isRestoreSkipped, true);
-                        assert.equal(killProcessTreeFuncCalled, true);
+                        assert.equal(killProcessFuncCalled, true);
                         done();
                     }, 5);
                 }
