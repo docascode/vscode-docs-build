@@ -5,9 +5,9 @@ import psTree from 'ps-tree';
 import { EventStream } from '../common/eventStream';
 import { BuildProgress } from '../common/loggingEvents';
 
-const isWindows = (process.platform === 'win32');
-const isMacintosh = (process.platform === 'darwin');
-const isLinux = (process.platform === 'linux');
+export const isWindows = (process.platform === 'win32');
+export const isMacintosh = (process.platform === 'darwin');
+export const isLinux = (process.platform === 'linux');
 
 export function executeCommandSync(command: string, args?: ReadonlyArray<string>, options?: cp.ExecSyncOptionsWithStringEncoding): string {
     return cp.execSync(`${command} ${args}`, options).toString();

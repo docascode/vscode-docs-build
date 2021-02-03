@@ -1,18 +1,18 @@
 import gulp from 'gulp';
-import os from 'os';
 import path from 'path';
 import simpleGit, { CleanOptions } from 'simple-git';
 import { runTests } from 'vscode-test';
 
+import { isMacintosh } from '../src/utils/childProcessUtils';
 import { defaultOutputPath, rootPath, testAssetsPath } from './projectPaths';
 
 // eslint-disable-next-line node/no-missing-require
 require('./benchmarkTestTask');
 
 gulp.task('test:e2e', async () => {
-    // TODO: remove this after vscode fixes the issue that the deactive function is not called on mac
-    const platform = os.platform();
-    if (platform == 'darwin') {
+    // TODO: remove this after vscode fixes the issue that the deactivate function is not called on mac
+    // issue link: https://github.com/microsoft/vscode/issues/114688
+    if (isMacintosh) {
         return;
     }
 
