@@ -2,7 +2,6 @@ import du from 'du';
 import fs from 'fs-extra';
 import gitUrlParse from 'git-url-parse';
 import path from 'path';
-import psTree from 'ps-tree';
 import simpleGit from 'simple-git';
 import tempDirectory from 'temp-dir';
 import uuid from 'uuid/v1';
@@ -108,22 +107,6 @@ export async function getFolderSizeInMB(folderPath: string): Promise<number> {
     return size;
 }
 
-export async function killProcessTree(pid: number, signal?: string | number): Promise<void> {
-    return new Promise((resolve, reject) => {
-        signal = signal || 'SIGKILL';
-        psTree(pid, function (err, children: psTree.PS[]) {
-            if (err) {
-                reject(err);
-            } else {
-                children.forEach((ps: psTree.PS) => {
-                    process.kill(Number(ps.PID), signal);
-                });
-                resolve();
-            }
-        });
-    });
-}
-
 export function getTempOutputFolder(): string {
     const randomFolder = Math.random().toString(36).substring(7);
     return path.join(tempDirectory, randomFolder);
@@ -131,8 +114,8 @@ export function getTempOutputFolder(): string {
 
 export function normalizeDriveLetter(filePath: string): string {
     if (process.platform === 'win32') {
-        return filePath.replace(/^([A-Z]):/, (match, driver) => `${driver.toLowerCase()}:`);
+        return path.normalize(filePath.replace(/^([A-Z]):/, (match, driver) => `${driver.toLowerCase()}:`));
     } else {
-        return filePath;
+        return path.normalize(filePath);
     }
 }

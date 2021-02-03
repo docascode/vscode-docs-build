@@ -30,6 +30,8 @@ import { EXTENSION_ID, uriHandler, UserType } from './shared';
 import TelemetryReporter from './telemetryReporter';
 import { getCorrelationId } from './utils/utils';
 
+let buildExecutor: BuildExecutor;
+
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
     const eventStream = new EventStream();
     const extensionContext = new ExtensionContext(context);
@@ -74,7 +76,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     // Build component initialize
     const diagnosticController = new DiagnosticController();
     const opBuildAPIClient = new OPBuildAPIClient(environmentController);
-    const buildExecutor = new BuildExecutor(extensionContext, platformInformation, environmentController, eventStream, telemetryReporter);
+    buildExecutor = new BuildExecutor(extensionContext, platformInformation, environmentController, eventStream, telemetryReporter);
     const buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, environmentController, eventStream, credentialController);
 
     // Build status bar
@@ -93,7 +95,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         logger,
         telemetryReporter,
         diagnosticController,
-        buildExecutor,
         buildController,
         docsStatusBar,
         buildStatusBar,
@@ -225,4 +226,8 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     });
     quickPickMenu.onDidHide(() => quickPickMenu.dispose());
     quickPickMenu.show();
+}
+
+export async function deactivate(): Promise<void> {
+    await buildExecutor.disposeAsync();
 }

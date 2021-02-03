@@ -1,6 +1,6 @@
 import { ChildProcess } from 'child_process';
 import { Duplex } from 'stream';
-import vscode, { Disposable } from 'vscode';
+import vscode from 'vscode';
 import {
     LanguageClient,
     StreamInfo
@@ -19,8 +19,8 @@ import { ErrorCode } from '../error/errorCode';
 import { ExtensionContext } from '../extensionContext';
 import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from '../shared';
 import TelemetryReporter from '../telemetryReporter';
-import { executeDocfx } from '../utils/childProcessUtils';
-import { basicAuth, getDurationInSeconds, killProcessTree } from '../utils/utils';
+import { executeDocfx, hardKillProcess, softKillProcess } from '../utils/childProcessUtils';
+import { basicAuth, getDurationInSeconds } from '../utils/utils';
 import { BuildInput } from './buildInput';
 import { BuildResult, DocfxExecutionResult } from './buildResult';
 
@@ -31,7 +31,7 @@ interface BuildParameters {
     envs: any;
 }
 
-export class BuildExecutor implements Disposable {
+export class BuildExecutor {
     private _cwd: string;
     private _binary: string;
     private _runningBuildChildProcess: ChildProcess;
@@ -52,7 +52,7 @@ export class BuildExecutor implements Disposable {
         this._binary = absolutePackage.binary;
     }
 
-    async dispose(): Promise<void> {
+    async disposeAsync(): Promise<void> {
         await this.killChildProcess(this._runningBuildChildProcess);
         await this.killChildProcess(this._runningLspChildProcess);
     }
@@ -120,7 +120,7 @@ export class BuildExecutor implements Disposable {
     }
 
     public async cancelBuild(): Promise<void> {
-        await this.killChildProcess(this._runningBuildChildProcess);
+        await this.killChildProcess(this._runningBuildChildProcess, true);
     }
 
     private connectToServer(port: number): Duplex {
@@ -128,14 +128,9 @@ export class BuildExecutor implements Disposable {
         return WebSocket.createWebSocketStream(ws);
     }
 
-    private async killChildProcess(childProcess: ChildProcess) {
+    private async killChildProcess(childProcess: ChildProcess, softKill = false): Promise<void> {
         if (childProcess) {
-            childProcess.kill('SIGKILL');
-            if (this._platformInfo.isWindows()) {
-                // For Windows, grand child process will still keep running even parent process has been killed.
-                // So we need to kill them manually
-                await killProcessTree(childProcess.pid);
-            }
+            softKill ? await softKillProcess(childProcess) : hardKillProcess(childProcess);
         }
     }
 
@@ -157,6 +152,7 @@ export class BuildExecutor implements Disposable {
                         docfxExecutionResult = DocfxExecutionResult.Failed;
                     }
                     this._eventStream.post(new DocfxRestoreCompleted(correlationId, docfxExecutionResult, code));
+                    this._runningBuildChildProcess = undefined;
                     resolve(docfxExecutionResult);
                 },
                 { env: buildParameters.envs, cwd: this._cwd },
@@ -180,6 +176,7 @@ export class BuildExecutor implements Disposable {
                         docfxExecutionResult = DocfxExecutionResult.Failed;
                     }
                     this._eventStream.post(new DocfxBuildCompleted(docfxExecutionResult, code));
+                    this._runningBuildChildProcess = undefined;
                     resolve(docfxExecutionResult);
                 },
                 { env: buildParameters.envs, cwd: this._cwd },

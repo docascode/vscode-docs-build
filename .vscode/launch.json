@@ -87,6 +87,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch whole gulp test task",
+            "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
+            "args": [
+                "test"
+            ],
+            "env": {
+                "VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN": "{VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN}",
+                "GITHUB_TOKEN": "{GITHUB_TOKEN}"
+            },
+            "preLaunchTask": "npm: watch",
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch runtime dependencies update script",
             "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
             "args": [

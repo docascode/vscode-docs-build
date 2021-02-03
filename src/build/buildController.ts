@@ -20,7 +20,7 @@ import { DiagnosticController } from './diagnosticController';
 import { OPBuildAPIClient } from './opBuildAPIClient';
 import { visualizeBuildReport } from './reportGenerator';
 
-export class BuildController {
+export class BuildController implements Disposable {
     private _currentBuildCorrelationId: string;
     private _instanceAvailable: boolean;
     private _buildInput: BuildInput;
@@ -41,6 +41,9 @@ export class BuildController {
     dispose(): void {
         if (this._disposable) {
             this._disposable.dispose();
+        }
+        if (this._client) {
+            this._client.stop();
         }
     }
 
