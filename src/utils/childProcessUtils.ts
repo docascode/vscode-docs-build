@@ -1,5 +1,4 @@
 import cp from 'child_process';
-
 import path from 'path';
 import psTree from 'ps-tree';
 
