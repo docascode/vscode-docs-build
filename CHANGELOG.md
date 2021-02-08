@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.3.0 (February 8, 2021)
+
+### Changed
+
+- Use latest docfx: 3.0.0-beta1.741+1591a68e4f. (#205)
+- Enable real-time validation as default. (#205)
+
 ## 0.2.7 (February 3, 2021)
 
 ### Added
