@@ -70,7 +70,7 @@
         },
         "docs-build.real-TimeValidation.automaticallyEnable": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "With this checked, the real-time validation will be automatically enabled once the opened repository is a valid Docs repository."
         }
       }
@@ -223,21 +223,21 @@
       "id": "docfx-win7-x64",
       "name": "docfx",
       "description": "DocFX for Windows (x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta1.739+f35b8c38de.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-win7-x64-3.0.0-beta1.741+1591a68e4f.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
       "rid": "win7-x64",
-      "integrity": "6485883D9378DEF59E5590B409B9478B282E1604DD8EC1D298702AEDCA450349"
+      "integrity": "EC701979D2C89D5AF427C11A110C2E220714883AB529698AA524E56C7727606A"
     },
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
       "description": "DocFX for OSX(x64)",
-      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta1.739+f35b8c38de.zip",
+      "url": "https://opsbuildk8sprod.blob.core.windows.net/docfx-bin/docfx-osx-x64-3.0.0-beta1.741+1591a68e4f.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
       "rid": "osx-x64",
-      "integrity": "85C2C7D0E03D4BCF10018482F59954249D5B6F418D3AEA439A0E63F0642A6487"
+      "integrity": "2518273EE8B7FFD8E1D2F5F2B6191687D25695701380ACAD41B733E9259CA52E"
     }
   ]
 }
