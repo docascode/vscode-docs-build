@@ -28,7 +28,7 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 1. Open a Docs conceptual or Learn repo in VS Code with the extension installed.
 2. For the first time you use the extension, you will be asked to choose your user type between **Microsoft employee** and **Public contributor** before you can use real-time validation.
-3. The real-time validation is disabled by default, you can enable it in the extension settings (Go to Settings -> Docs Validation -> Check **Real-time Validation: Automatically Enable**). You will be asked to reload the extension after you enable real-time validation.
+3. The real-time validation is enabled by default, you can disable it in the extension settings (Go to Settings -> Docs Validation -> Uncheck **Real-time Validation: Automatically Enable**). You will be asked to reload the extension after you disable real-time validation.
 
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/enable-real-time-validation.gif?raw=true)
 
