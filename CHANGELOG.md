@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.3.1 (February 10, 2021)
+
+### Changed
+
+- Update README.md (#207)
+
 ## 0.3.0 (February 8, 2021)
 
 ### Changed
