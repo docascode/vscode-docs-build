@@ -122,6 +122,40 @@ Please try the following solutions:
    remote: this repository, visit https://github.com/enterprises/microsoftopensource/sso?authorization_request=AEJANEWOPPW6YTNW5TYNW2K7OBDR3A5PN5ZGOYLONF5GC5DJN5XF62LEZYAF32PCVVRXEZLEMVXHI2LBNRPWSZGODVDHWBVPMNZGKZDFNZ2GSYLML52HS4DFVNHWC5LUNBAWGY3FONZQ
    ```
 
+1. If you see the below errors while cloning the temolates repository, this is caused by that you used the `Git Credential Manager Core` before GitHub enabled the SSO, and you need to re-authorize the application.
+   ```bash
+   $ git clone https://github.com/microsoft/templates.docs.msft.git
+   Cloning into 'templates.docs.msft'...
+   remote: The `microsoft' organization has enabled or enforced SAML SSO. To access
+   remote: this repository, you must re-authorize the OAuth Application `Git Credential Manager`.
+   fatal: unable to access 'https://github.com/microsoft/templates.docs.msft.git/': The requested URL returned error: 403
+   ```
+
+   Please follow the steps below to re-authorize, you can either:
+   - Sign in with your browser.
+
+      a. Go to [github settings page](https://github.com/settings/applications).
+      
+      b. Go inside `Git Credential Manager` and click `Revoke access`.
+
+      c. Retry to clone the repository in commander/ terminal.
+
+      d. Select `Sign in with your browser` in the pop-up window.
+   - Sign in with `Personal Access Token`.
+
+      a. Go to [this page](https://github.com/settings/tokens).
+         
+      b. Generate a new token if you don't have one. Enter the note of the token, check `repo` in `Select scope` section, and click `Generate token`.
+
+      c. Enable the SSO for the token used in `Git Credential Manager Core`.
+
+      ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/enable-sso.png?raw=true)
+
+      d. Retry to clone the repository in commander/ terminal.
+
+      e. Enter `Personal Access Token` in the pop-up window.
+
+
 ## License
 
 [MIT](https://raw.githubusercontent.com/docascode/vscode-docs-build/master/LICENSE)
