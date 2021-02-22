@@ -12,11 +12,7 @@ export enum ErrorCode {
     // Build
     TriggerBuildWhenInstantNotAvailable = 'TriggerBuildWhenInstantNotAvailable',
     TriggerBuildWithCredentialExpired = 'TriggerBuildWithCredentialExpired',
-    TriggerBuildOnV2Repo = 'TriggerBuildOnV2Repo',
-    TriggerBuildOnNonWorkspace = 'TriggerBuildOnNonWorkspace',
-    TriggerBuildOnNonDocsRepo = 'TriggerBuildOnNonDocsRepo',
     TriggerBuildOnInvalidDocsRepo = 'TriggerBuildOnInvalidDocsRepo',
-    TriggerBuildOnWorkspaceWithMultipleFolders = 'TriggerBuildOnWorkspaceWithMultipleFolders',
     RunDocfxFailed = 'RunDocfxFailed',
     GenerateReportFailed = 'GenerateReportFailed',
     TriggerBuildBeforeSignIn = 'TriggerBuildBeforeSignIn',

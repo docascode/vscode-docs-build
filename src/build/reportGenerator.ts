@@ -36,6 +36,7 @@ type MessageSeverity = "error" | "warning" | "info" | "suggestion";
 type LogItemType = 'system' | ' user';
 
 export function visualizeBuildReport(repositoryPath: string, logPath: string, diagnosticController: DiagnosticController, eventStream: EventStream): void {
+    // TODO: If a sub-folder is opening, considering only display the diagnostics on the files under the curret sub-folder.
     try {
         diagnosticController.reset();
 

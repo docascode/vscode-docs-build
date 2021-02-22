@@ -36,10 +36,8 @@ const expectedBuildInput = <BuildInput>{
 describe('BuildController', () => {
     let sinon: SinonSandbox;
     let visualizeBuildReportCalled: boolean;
-    let stubExistsSync: SinonStub;
     let stubSafelyReadJsonFile: SinonStub;
     let stubGetRepositoryInfoFromLocalFolder: SinonStub;
-    let stubWorkspaceFolders: SinonStub;
     let stubSetDiagnosticCollection: SinonStub;
     const fakeEnvironmentController = getFakeEnvironmentController();
 
@@ -82,6 +80,7 @@ describe('BuildController', () => {
 
     beforeEach(() => {
         buildController = new BuildController(
+            path.normalize('/fakedFolder/'),
             getFakedBuildExecutor(
                 DocfxExecutionResult.Succeeded,
                 (correlationId: string, input: BuildInput, buildUserToken: string) => {
@@ -100,13 +99,13 @@ describe('BuildController', () => {
             visualizeBuildReportCalled = true;
         });
         sinon.stub(utils, "getDurationInSeconds").returns(1);
-        stubWorkspaceFolders = sinon.stub(vscode.workspace, "workspaceFolders").get(() => {
+        sinon.stub(vscode.workspace, "workspaceFolders").get(() => {
             return [<vscode.WorkspaceFolder>{
                 name: 'fakedWorkspaceFolder',
                 uri: vscode.Uri.parse("fakedFolder/")
             }];
         });
-        stubExistsSync = sinon.stub(fs, "existsSync").withArgs(fakedOpConfigPath).returns(true);
+        sinon.stub(fs, "existsSync").withArgs(fakedOpConfigPath).returns(true);
         stubSafelyReadJsonFile = sinon.stub(utils, "safelyReadJsonFile").withArgs(fakedOpConfigPath).returns({
             docsets_to_publish: [
                 {
@@ -127,69 +126,6 @@ describe('BuildController', () => {
         sinon.restore();
     });
 
-    it('Trigger build on workspace with multiple folders', async () => {
-        stubWorkspaceFolders.get(() => {
-            return [{}, {}];
-        });
-
-        await buildController.build('fakedCorrelationId');
-        assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId', true),
-            new BuildFailed('fakedCorrelationId', undefined, 1,
-                new DocsError(
-                    'Validation is triggered on a workspace which contains multiple folders, please close other folders and only keep one in the current workspace',
-                    ErrorCode.TriggerBuildOnWorkspaceWithMultipleFolders
-                ))
-        ]);
-    });
-
-    it('Trigger build on non-workspace', async () => {
-        stubWorkspaceFolders = sinon.stub(vscode.workspace, "workspaceFolders").get(() => undefined);
-
-        await buildController.build('fakedCorrelationId');
-        assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId', true),
-            new BuildFailed('fakedCorrelationId', undefined, 1,
-                new DocsError(
-                    'You can only trigger the build on a workspace folder.',
-                    ErrorCode.TriggerBuildOnNonWorkspace
-                ))
-        ]);
-    });
-
-    it('Trigger build on non-Docs repository', async () => {
-        stubExistsSync.withArgs(fakedOpConfigPath).returns(false);
-
-        await buildController.build('fakedCorrelationId');
-        assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId', true),
-            new BuildFailed('fakedCorrelationId', undefined, 1,
-                new DocsError(
-                    `Cannot find '.openpublishing.publish.config.json' file under current workspace folder, please open the root directory of the repository and retry`,
-                    ErrorCode.TriggerBuildOnNonDocsRepo
-                ))
-        ]);
-    });
-
-    it('Trigger build on V2 repository', async () => {
-        stubSafelyReadJsonFile.withArgs(fakedOpConfigPath).returns({
-            "docs_build_engine": {
-                "name": "docfx_v2"
-            }
-        });
-
-        await buildController.build('fakedCorrelationId');
-        assert.deepStrictEqual(testEventBus.getEvents(), [
-            new BuildTriggered('fakedCorrelationId', true),
-            new BuildFailed('fakedCorrelationId', undefined, 1,
-                new DocsError(
-                    `Docs Validation Extension requires the repository has DocFX v3 enabled`,
-                    ErrorCode.TriggerBuildOnV2Repo,
-                    undefined
-                ))
-        ]);
-    });
-
     it('Trigger build when credential expires', async () => {
         const opBuildAPIClient = <OPBuildAPIClient>{
             validateCredential: (opBuildUserToken: string, eventStream: EventStream): Promise<boolean> => {
@@ -198,7 +134,14 @@ describe('BuildController', () => {
                 });
             }
         };
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
+        buildController = new BuildController(
+            path.normalize('/fakedFolder/'),
+            getFakedBuildExecutor(DocfxExecutionResult.Succeeded),
+            opBuildAPIClient,
+            undefined,
+            fakeEnvironmentController,
+            eventStream,
+            fakedCredentialController);
 
         await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -299,6 +242,7 @@ describe('BuildController', () => {
             enableAutomaticRealTimeValidation: false
         };
         buildController = new BuildController(
+            path.normalize('/fakedFolder/'),
             getFakedBuildExecutor(
                 DocfxExecutionResult.Succeeded,
                 (correlationId: string, input: BuildInput, buildUserToken: string) => {
@@ -392,7 +336,14 @@ describe('BuildController', () => {
                 });
             },
         };
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
+        buildController = new BuildController(
+            path.normalize('/fakedFolder/'),
+            getFakedBuildExecutor(DocfxExecutionResult.Succeeded),
+            opBuildAPIClient,
+            undefined,
+            fakeEnvironmentController,
+            eventStream,
+            fakedCredentialController);
 
         await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -455,7 +406,14 @@ describe('BuildController', () => {
     });
 
     it('Build Failed', async () => {
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Failed), fakedOPBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
+        buildController = new BuildController(
+            path.normalize('/fakedFolder/'),
+            getFakedBuildExecutor(DocfxExecutionResult.Failed),
+            fakedOPBuildAPIClient,
+            undefined,
+            fakeEnvironmentController,
+            eventStream,
+            fakedCredentialController);
 
         await buildController.build('fakedCorrelationId');
         assert.deepStrictEqual(testEventBus.getEvents(), [
@@ -479,7 +437,14 @@ describe('BuildController', () => {
         assert.equal(visualizeBuildReportCalled, false);
 
         // Reset environment
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), fakedOPBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
+        buildController = new BuildController(
+            path.normalize('/fakedFolder/'),
+            getFakedBuildExecutor(DocfxExecutionResult.Succeeded),
+            fakedOPBuildAPIClient,
+            undefined,
+            fakeEnvironmentController,
+            eventStream,
+            fakedCredentialController);
     });
 
     it('Build Cancelled', async () => {
@@ -541,7 +506,14 @@ describe('BuildController', () => {
                 });
             }
         };
-        buildController = new BuildController(getFakedBuildExecutor(DocfxExecutionResult.Succeeded), opBuildAPIClient, undefined, fakeEnvironmentController, eventStream, fakedCredentialController);
+        buildController = new BuildController(
+            path.normalize('/fakedFolder/'),
+            getFakedBuildExecutor(DocfxExecutionResult.Succeeded),
+            opBuildAPIClient,
+            undefined,
+            fakeEnvironmentController,
+            eventStream,
+            fakedCredentialController);
         await buildController.startDocfxLanguageServer();
         assert.deepStrictEqual(testEventBus.getEvents(), [
             new CredentialExpired(),

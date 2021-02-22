@@ -1,3 +1,5 @@
+import { ExecSyncOptionsWithStringEncoding } from 'child_process';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import vscode, { Uri } from 'vscode';
 
@@ -26,13 +28,32 @@ import { DocsStatusBarObserver } from './observers/docsStatusBarObserver';
 import { ErrorMessageObserver } from './observers/errorMessageObserver';
 import { InfoMessageObserver } from './observers/infoMessageObserver';
 import { TelemetryObserver } from './observers/telemetryObserver';
-import { EXTENSION_ID, uriHandler, UserType } from './shared';
+import { EXTENSION_ID, OP_CONFIG_FILE_NAME, uriHandler, UserType } from './shared';
 import TelemetryReporter from './telemetryReporter';
-import { getCorrelationId } from './utils/utils';
+import { executeCommandSync } from './utils/childProcessUtils';
+import { getCorrelationId, safelyReadJsonFile } from './utils/utils';
 
+enum InvalidDocsRepoType {
+    NoWorkspaceFolder,
+    multipleWorksapceFolder,
+    InvalidGitRepository,
+    InvalidDocsRepositoryWithoutOpConfig,
+    InvalidDocsRepositoryWithV2BuildEngine,
+}
+
+let invalidDocsRepoType: InvalidDocsRepoType;
 let buildExecutor: BuildExecutor;
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
+    const docsRepositoryRoot = getValidDocsRepositoryRoot();
+    if (docsRepositoryRoot) {
+        return _activate(context, docsRepositoryRoot);
+    } else {
+        return errorHandleActivate(context);
+    }
+}
+
+async function _activate(context: vscode.ExtensionContext, repositoryRoot: string): Promise<ExtensionExports> {
     const eventStream = new EventStream();
     const extensionContext = new ExtensionContext(context);
     const environmentController = await DocsEnvironmentController.CreateAsync(eventStream);
@@ -77,7 +98,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const diagnosticController = new DiagnosticController();
     const opBuildAPIClient = new OPBuildAPIClient(environmentController);
     buildExecutor = new BuildExecutor(extensionContext, platformInformation, environmentController, eventStream, telemetryReporter);
-    const buildController = new BuildController(buildExecutor, opBuildAPIClient, diagnosticController, environmentController, eventStream, credentialController);
+    const buildController = new BuildController(repositoryRoot, buildExecutor, opBuildAPIClient, diagnosticController, environmentController, eventStream, credentialController);
 
     // Build status bar
     const buildStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, Number.MIN_VALUE);
@@ -124,7 +145,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
             }
         }),
         vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
-            vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, ".logs")));
+            vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, '.logs')));
         }),
         vscode.languages.registerCodeActionsProvider('*', codeActionProvider, {
             providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds
@@ -149,6 +170,84 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         environmentController,
         diagnosticController
     };
+}
+
+function getValidDocsRepositoryRoot(): string {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+        invalidDocsRepoType = InvalidDocsRepoType.NoWorkspaceFolder;
+        return undefined;
+    }
+
+    if (workspaceFolders.length > 1) {
+        invalidDocsRepoType = InvalidDocsRepoType.multipleWorksapceFolder;
+        return undefined;
+    }
+
+    const workspaceFolder = workspaceFolders[0];
+
+    try {
+        const gitRoot = executeCommandSync('git', ['rev-parse --show-toplevel'], <ExecSyncOptionsWithStringEncoding>{ cwd: workspaceFolder.uri.fsPath }).replace(/[\r\n]+$/, '');
+        const opConfigPath = path.join(path.normalize(gitRoot), OP_CONFIG_FILE_NAME);
+        if (!fs.existsSync(opConfigPath)) {
+            invalidDocsRepoType = InvalidDocsRepoType.InvalidDocsRepositoryWithoutOpConfig;
+            return undefined;
+        }
+
+        const opConfig = safelyReadJsonFile(opConfigPath);
+        if (opConfig.docs_build_engine && opConfig.docs_build_engine.name === 'docfx_v2') {
+            invalidDocsRepoType = InvalidDocsRepoType.InvalidDocsRepositoryWithV2BuildEngine;
+            return undefined;
+        }
+        return gitRoot;
+    } catch (error) {
+        invalidDocsRepoType = InvalidDocsRepoType.InvalidGitRepository;
+        return undefined;
+    }
+}
+
+async function errorHandleActivate(context: vscode.ExtensionContext): Promise<ExtensionExports> {
+    context.subscriptions.push(
+        vscode.commands.registerCommand('docs.signIn', reportInvalidDocsRepository),
+        vscode.commands.registerCommand('docs.signOut', reportInvalidDocsRepository),
+        vscode.commands.registerCommand('docs.build', reportInvalidDocsRepository),
+        vscode.commands.registerCommand('docs.cancelBuild', reportInvalidDocsRepository),
+        vscode.commands.registerCommand('docs.validationQuickPick', reportInvalidDocsRepository),
+        vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
+            vscode.commands.executeCommand('revealFileInOS', Uri.file(path.resolve(context.extensionPath, '.logs')));
+        }),
+    );
+
+    return {
+        initializationFinished: undefined,
+        eventStream: undefined,
+        keyChain: undefined,
+        environmentController: undefined,
+        diagnosticController: undefined,
+    };
+
+    function reportInvalidDocsRepository(): void {
+        let errorMessage: string;
+        switch (invalidDocsRepoType) {
+            case InvalidDocsRepoType.NoWorkspaceFolder:
+                errorMessage = 'Please open a workspace folder and retry.';
+                break;
+            case InvalidDocsRepoType.multipleWorksapceFolder:
+                errorMessage = 'Validation is triggered on a workspace that contains multiple folders, please close other folders and only keep one in the current workspace';
+                break;
+            case InvalidDocsRepoType.InvalidGitRepository:
+                errorMessage = 'Validation is triggered on a invalid git repository, Please open a git repository and retry';
+                break;
+            case InvalidDocsRepoType.InvalidDocsRepositoryWithoutOpConfig:
+                errorMessage = `Cannot find '${OP_CONFIG_FILE_NAME} ' file under git root folder of the opening workspace folder, please open a valid Docs repository and retry`;
+                break;
+            case InvalidDocsRepoType.InvalidDocsRepositoryWithV2BuildEngine:
+                errorMessage = `Docs Validation Extension requires the repository has DocFX v3 enabled`;
+                break;
+        }
+        vscode.window.showErrorMessage(errorMessage);
+    }
 }
 
 function getTelemetryReporter(context: ExtensionContext, environmentController: EnvironmentController): TelemetryReporter {
@@ -203,7 +302,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
             });
     }
 
-    quickPickMenu.placeholder = "Which command would you like to run?";
+    quickPickMenu.placeholder = 'Which command would you like to run?';
     quickPickMenu.items = pickItems;
     quickPickMenu.onDidChangeSelection(selection => {
         if (selection[0]) {
@@ -230,5 +329,7 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
 }
 
 export async function deactivate(): Promise<void> {
-    await buildExecutor.disposeAsync();
+    if (buildExecutor) {
+        await buildExecutor.disposeAsync();
+    }
 }
