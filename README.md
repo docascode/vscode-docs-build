@@ -122,7 +122,7 @@ Please try the following solutions:
    remote: this repository, visit https://github.com/enterprises/microsoftopensource/sso?authorization_request=AEJANEWOPPW6YTNW5TYNW2K7OBDR3A5PN5ZGOYLONF5GC5DJN5XF62LEZYAF32PCVVRXEZLEMVXHI2LBNRPWSZGODVDHWBVPMNZGKZDFNZ2GSYLML52HS4DFVNHWC5LUNBAWGY3FONZQ
    ```
 
-1. If you see the below errors while cloning the temolates repository, this is caused by that you used the `Git Credential Manager Core` before GitHub enabled the SSO, and you need to re-authorize the application.
+1. If you see the below errors while cloning the template repository, this is caused by that you used the `Git Credential Manager Core` before GitHub enabled the SSO, and you need to re-authorize the application.
    ```bash
    $ git clone https://github.com/microsoft/templates.docs.msft.git
    Cloning into 'templates.docs.msft'...
@@ -134,7 +134,7 @@ Please try the following solutions:
    Please follow the steps below to re-authorize, you can either:
    - Sign in with your browser.
 
-      a. Go to [github settings page](https://github.com/settings/applications).
+      a. Go to [Github application setting page](https://github.com/settings/applications).
       
       b. Go inside `Git Credential Manager` and click `Revoke access`.
 
@@ -143,9 +143,9 @@ Please try the following solutions:
       d. Select `Sign in with your browser` in the pop-up window.
    - Sign in with `Personal Access Token`.
 
-      a. Go to [this page](https://github.com/settings/tokens).
+      a. Go to [Github token setting page](https://github.com/settings/tokens).
          
-      b. Generate a new token if you don't have one. Enter the note of the token, check `repo` in `Select scope` section, and click `Generate token`.
+      b. Generate a new token if you don't have one. Enter the note of the token, check `repo` in `Select scopes` section, and click `Generate token`.
 
       c. Enable the SSO for the token used in `Git Credential Manager Core`.
 
