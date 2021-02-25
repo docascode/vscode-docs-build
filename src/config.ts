@@ -16,20 +16,20 @@ const config = {
         PPE: {
             GitHubOauthClientId: '7decdab5f6801e75e1d5',
             GitHubOauthScope: 'repo user:email read:user',
-            GitHubOauthRedirectUrl: 'https://BuildApiPubDev.azurefd.net/v1/Authorizations/github',
+            GitHubOauthRedirectUrl: 'https://buildapipubdev.azurefd.net/v1/Authorizations/github',
             AzureDevOpsOauthClientId: '378784D0-5873-4D41-9626-B9A6CE8AF4EC',
             AzureDevOpsOauthScope: 'vso.build_execute vso.chat_manage vso.code_manage vso.test_write vso.work_write',
-            AzureDevOpsRedirectUrl: 'https://BuildApiPubDev.azurefd.net/v1/Authorizations/vso',
+            AzureDevOpsRedirectUrl: 'https://buildapipubdev.azurefd.net/v1/Authorizations/vso',
             AADAuthTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47',
             AADAuthClientId: '90e8d374-2270-4528-86d0-77b9f736ffbf',
             AADAuthScope: 'openid offline_access profile',
             AADAuthResource: 'https://graph.windows.net',
-            AADAuthRedirectUrl: 'https://BuildApiPubDev.azurefd.net/v1/Authorizations/aad'
+            AADAuthRedirectUrl: 'https://buildapipubdev.azurefd.net/v1/Authorizations/aad'
         }
     },
     OPBuildAPIEndPoint: {
         PROD: 'https://buildapi.docs.microsoft.com',
-        PPE: 'https://BuildApiPubDev.azurefd.net'
+        PPE: 'https://buildapipubdev.azurefd.net'
     },
     AIKey: {
         PROD: '4424c909-fdd9-4229-aecb-ad2a52b039e6',
