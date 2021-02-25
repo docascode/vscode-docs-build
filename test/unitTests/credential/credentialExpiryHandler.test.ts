@@ -4,11 +4,11 @@ import { Disposable } from 'vscode';
 import { LanguageClient } from "vscode-languageclient/node";
 
 import { EventStream } from "../../../src/common/eventStream"
-import { BaseEvent, CredentialExpired,UserSignInFailed, UserSignInSucceeded } from "../../../src/common/loggingEvents";
+import { BaseEvent, CredentialExpired, CredentialRefreshFailed, UserSignInFailed, UserSignInSucceeded } from "../../../src/common/loggingEvents";
 import { Credential } from '../../../src/credential/credentialController';
 import { CredentialExpiryHandler } from "../../../src/credential/credentialExpiryHandler";
 import { GetCredentialParams, GetCredentialResponse } from "../../../src/requestTypes";
-import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserInfo } from "../../../src/shared";
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserInfo, UserType } from "../../../src/shared";
 import { getFakeEnvironmentController } from "../../utils/faker";
 import TestEventBus from '../../utils/testEventBus';
 
@@ -58,8 +58,8 @@ describe(('Handle credential expiry during language server is running'), () => {
             await handler.userCredentialRefreshRequestHandler(params);
         } catch (err) {
             assert.deepStrictEqual(err, new Error('Credential refresh for URL invalidUrl is not supported.'));
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRefreshFailed(err)]);
         }
-        assert.deepStrictEqual(testEventBus.getEvents(), []);
     });
 
     it('Refresh token succeeds', async () => {
@@ -84,8 +84,21 @@ describe(('Handle credential expiry during language server is running'), () => {
             await handler.userCredentialRefreshRequestHandler(credentialExpiryParam);
         } catch (err) {
             assert.deepStrictEqual(err, new Error('some errors'));
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpired(true), signInFailsEvent, new CredentialRefreshFailed(err)]);
         }
-        assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialExpired(true), signInFailsEvent]);
+    });
+
+    it('Public user', async () => {
+        sinon.stub(fakeEnvironmentController, "userType").get(function getUserType() {
+            return UserType.PublicContributor;
+        });
+        try {
+            await handler.userCredentialRefreshRequestHandler(credentialExpiryParam);
+        } catch (err) {
+            assert.deepStrictEqual(err, new Error(`Some required data to validate this repository is only accessible to Microsoft employee. ` +
+                `If you are a Microsoft employee, you can change the user type in extension settings.`));
+            assert.deepStrictEqual(testEventBus.getEvents(), [new CredentialRefreshFailed(err)]);
+        }
     });
 
     async function postEvent(event: BaseEvent): Promise<void> {
