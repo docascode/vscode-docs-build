@@ -189,7 +189,7 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
+                        DOCFX_HTTP: `{"https://buildapi.docs.microsoft.com":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
                         DOCFX_SESSION_ID: fakeSessionId
 
                     }
@@ -201,7 +201,7 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
+                        DOCFX_HTTP: `{"https://buildapi.docs.microsoft.com":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
                         DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
@@ -282,7 +282,7 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: 'fakedCorrelationId',
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
+                        DOCFX_HTTP: `{"https://buildapi.docs.microsoft.com":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
                         DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
@@ -441,7 +441,7 @@ describe('BuildExecutor', () => {
                         DOCFX_CORRELATION_ID: undefined,
                         DOCFX_REPOSITORY_URL: 'https://faked.original.repository',
                         DOCS_ENVIRONMENT: 'PROD',
-                        DOCFX_HTTP: `{"https://op-build-prod.azurewebsites.net":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"fakeToken"}}}`,
+                        DOCFX_HTTP: `{"https://buildapi.docs.microsoft.com":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"fakeToken"}}}`,
                         DOCFX_SESSION_ID: fakeSessionId
                     }
                 }
