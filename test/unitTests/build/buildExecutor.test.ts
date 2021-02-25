@@ -191,7 +191,7 @@ describe('BuildExecutor', () => {
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_HTTP: `{"https://buildapi.docs.microsoft.com":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
                         DOCFX_SESSION_ID: fakeSessionId,
-                        DOCS_PPE_SERVICE_ENDPOINT: "https://BuildApiPubDev.azurefd.net",
+                        DOCS_PPE_SERVICE_ENDPOINT: "https://buildapipubdev.azurefd.net",
                         DOCS_PPOD_SERVICE_ENDPOINT: "https://buildapi.docs.microsoft.com"
                     }
                 },
@@ -204,7 +204,7 @@ describe('BuildExecutor', () => {
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_HTTP: `{"https://buildapi.docs.microsoft.com":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
                         DOCFX_SESSION_ID: fakeSessionId,
-                        DOCS_PPE_SERVICE_ENDPOINT: "https://BuildApiPubDev.azurefd.net",
+                        DOCS_PPE_SERVICE_ENDPOINT: "https://buildapipubdev.azurefd.net",
                         DOCS_PPOD_SERVICE_ENDPOINT: "https://buildapi.docs.microsoft.com"
                     }
                 }
@@ -287,7 +287,7 @@ describe('BuildExecutor', () => {
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_HTTP: `{"https://buildapi.docs.microsoft.com":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"faked-build-token"}}}`,
                         DOCFX_SESSION_ID: fakeSessionId,
-                        DOCS_PPE_SERVICE_ENDPOINT: "https://BuildApiPubDev.azurefd.net",
+                        DOCS_PPE_SERVICE_ENDPOINT: "https://buildapipubdev.azurefd.net",
                         DOCS_PPOD_SERVICE_ENDPOINT: "https://buildapi.docs.microsoft.com"
                     }
                 }
@@ -364,7 +364,7 @@ describe('BuildExecutor', () => {
                         DOCFX_REPOSITORY_BRANCH: 'master',
                         DOCFX_HTTP: '{}',
                         DOCFX_SESSION_ID: fakeSessionId,
-                        DOCS_PPE_SERVICE_ENDPOINT: "https://BuildApiPubDev.azurefd.net",
+                        DOCS_PPE_SERVICE_ENDPOINT: "https://buildapipubdev.azurefd.net",
                         DOCS_PPOD_SERVICE_ENDPOINT: "https://buildapi.docs.microsoft.com"
                     }
                 }
@@ -423,7 +423,7 @@ describe('BuildExecutor', () => {
                         DOCFX_REPOSITORY_BRANCH: 'master',
                         DOCFX_HTTP: '{}',
                         DOCFX_SESSION_ID: fakeSessionId,
-                        DOCS_PPE_SERVICE_ENDPOINT: "https://BuildApiPubDev.azurefd.net",
+                        DOCS_PPE_SERVICE_ENDPOINT: "https://buildapipubdev.azurefd.net",
                         DOCS_PPOD_SERVICE_ENDPOINT: "https://buildapi.docs.microsoft.com"
                     }
                 }
@@ -452,7 +452,7 @@ describe('BuildExecutor', () => {
                         DOCS_ENVIRONMENT: 'PROD',
                         DOCFX_HTTP: `{"https://buildapi.docs.microsoft.com":{"headers":{"${OP_BUILD_USER_TOKEN_HEADER_NAME}":"fakeToken"}}}`,
                         DOCFX_SESSION_ID: fakeSessionId,
-                        DOCS_PPE_SERVICE_ENDPOINT: "https://BuildApiPubDev.azurefd.net",
+                        DOCS_PPE_SERVICE_ENDPOINT: "https://buildapipubdev.azurefd.net",
                         DOCS_PPOD_SERVICE_ENDPOINT: "https://buildapi.docs.microsoft.com"
                     }
                 }
