@@ -193,7 +193,9 @@ export class BuildExecutor {
             'DOCFX_CORRELATION_ID': correlationId,
             'DOCFX_REPOSITORY_URL': input.originalRepositoryUrl,
             'DOCS_ENVIRONMENT': this._environmentController.env,
-            'DOCFX_SESSION_ID': vscode.env.sessionId
+            'DOCFX_SESSION_ID': vscode.env.sessionId,
+            'DOCS_PPOD_SERVICE_ENDPOINT': config.OPBuildAPIEndPoint.PROD,
+            'DOCS_PPE_SERVICE_ENDPOINT': config.OPBuildAPIEndPoint.PPE,
         };
 
         const isPublicUser = this._environmentController.userType === UserType.PublicContributor;
