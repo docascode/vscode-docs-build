@@ -7,7 +7,7 @@ interface PackageJSONFile {
     runtimeDependencies: Package[];
 }
 
-const DOCFX_PACKAGE_BLOB_URL = 'https://opsbuildk8sprod.blob.core.windows.net/docfx-bin';
+const DOCFX_PACKAGE_BLOB_URL = 'https://github.com/dotnet/docfx/releases/download';
 
 export async function updateRuntimeDependencies(): Promise<void> {
     console.log(`Updating package dependencies...`);
@@ -30,7 +30,7 @@ async function updateDocFXPackages(packageJSON: PackageJSONFile): Promise<void> 
 
     for (const pkg of docfxPackages) {
         console.log(`    Updating package '${pkg.id}(${pkg.description})'...`);
-        pkg.url = `${DOCFX_PACKAGE_BLOB_URL}/docfx-${pkg.rid}-${docfxVersion}.zip`;
+        pkg.url = `${DOCFX_PACKAGE_BLOB_URL}/${docfxVersion}/docfx-${pkg.rid}-${docfxVersion}.zip`;
         pkg.integrity = (await getFileFromURL(`${pkg.url}.sha256`)).trim();
     }
 }
@@ -39,8 +39,10 @@ async function getFileFromURL(url: string): Promise<string> {
     let result = '';
 
     return new Promise<string>((resolve, reject) => {
-        const request = https.request(url, response => {
-            if (response.statusCode !== 200) {
+        const request = https.request(url, async response => {
+            if (response.statusCode == 302) {
+                resolve(await getFileFromURL(response.headers.location))
+            } else if (response.statusCode !== 200) {
                 return reject(new Error(`Failed to download from ${url} with error code '${response.statusCode}'`));
             }
 
