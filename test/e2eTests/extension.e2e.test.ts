@@ -59,7 +59,7 @@ describe('E2E Test', () => {
         );
 
         const extension = await ensureExtensionActivatedAndInitializationFinished();
-        assert.notEqual(extension, undefined);
+        assert.notStrictEqual(extension, undefined);
 
         eventStream = extension.exports.eventStream;
         environmentController = extension.exports.environmentController;

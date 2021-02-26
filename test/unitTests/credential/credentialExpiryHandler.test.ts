@@ -24,7 +24,7 @@ describe(('Handle credential expiry during language server is running'), () => {
     const handler = new CredentialExpiryHandler(fakeLanguageClient, eventStream, fakeEnvironmentController);
     const testEventBus = new TestEventBus(eventStream);
     const fakeToken = 'fakeToken';
-    const credentialExpiryParam = <GetCredentialParams>{ url: 'https://op-build-prod.azurewebsites.net' };
+    const credentialExpiryParam = <GetCredentialParams>{ url: 'https://buildapi.docs.microsoft.com' };
 
     let stubOnRequest: SinonStub;
 
