@@ -41,7 +41,8 @@
         "webpack'ed",
         "taskkill",
         "cpid",
-        "pgrep"
+        "pgrep",
+        "PPOD"
     ],
     "ignorePaths": [
         "package-lock.json",

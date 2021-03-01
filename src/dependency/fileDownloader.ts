@@ -17,7 +17,7 @@ async function downloadCore(urlString: string, eventStream: EventStream, strictS
     // TODO: Apply network settings(proxy, strictSSL..)
     const options: https.RequestOptions = {
         host: url.hostname,
-        path: url.pathname,
+        path: `${url.pathname}${url.search}`,
         port: url.port,
         rejectUnauthorized: strictSSL
     };
