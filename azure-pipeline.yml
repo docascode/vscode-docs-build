@@ -45,6 +45,41 @@ steps:
     inputs:
       verbose: false
 
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-semmle.Semmle@0
+    displayName: 'Run Semmle (tsandjs)'
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['Build.Reason'], 'PullRequest'))
+    inputs:
+      toolVersion: LatestPreRelease
+      language: tsandjs
+      includeNodeModules: false
+      querySuite: Required
+
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
+    displayName: 'Run CredScan'
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['Build.Reason'], 'PullRequest'))
+    inputs:
+      toolMajorVersion: V2
+      suppressionsFile: suppression-files.json
+      debugMode: false
+
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-report.SdtReport@1
+    displayName: 'Create Security Analysis Report'
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['Build.Reason'], 'PullRequest'))
+    inputs:
+      CredScan: true
+      Semmle: true
+
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
+    displayName: 'Publish Security Analysis Logs'
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT', ne(variables['Build.Reason'], 'PullRequest')))
+
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
+    displayName: 'Post Analysis'
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT', ne(variables['Build.Reason'], 'PullRequest')))
+    inputs:
+      CredScan: true
+      Semmle: true
+
   - bash: |
       npm run test
     displayName: Run Test(Mac)
