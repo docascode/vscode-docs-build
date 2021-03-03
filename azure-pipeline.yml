@@ -71,11 +71,11 @@ steps:
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
-    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT', ne(variables['Build.Reason'], 'PullRequest')))
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['Build.Reason'], 'PullRequest'))
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
     displayName: 'Post Analysis'
-    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT', ne(variables['Build.Reason'], 'PullRequest')))
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['Build.Reason'], 'PullRequest'))
     inputs:
       CredScan: true
       Semmle: true
