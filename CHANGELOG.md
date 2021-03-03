@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.3.2 (March 3, 2021)
+
+### Changed
+
+- Update dependency download logic and use the latest docfx: Use latest docfx: 3.0.0-beta1.741+1591a68e4f. (#214. #215)
+- Update OP Build API endpoint. (#212)
+
 ## 0.3.1 (February 10, 2021)
 
 ### Changed

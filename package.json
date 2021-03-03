@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "docs-validation",
   "description": "Docs Validation Extension which enables you to run build validation on a Docs conceptual or Learn repo at authoring time in VS Code",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "engines": {
     "node": ">=10",
     "vscode": "^1.40.0"
