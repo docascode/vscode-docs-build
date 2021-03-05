@@ -42,7 +42,8 @@
         "taskkill",
         "cpid",
         "pgrep",
-        "PPOD"
+        "PPOD",
+        "snakeoil"
     ],
     "ignorePaths": [
         "package-lock.json",

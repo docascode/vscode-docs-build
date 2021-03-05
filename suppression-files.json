@@ -1,0 +1,21 @@
+{
+    "tool": "Credential Scanner",
+    "suppressions": [
+        {
+            "file": "\\testAssets\\cert.pem",
+            "_justification": "public key"
+        },
+        {
+            "file": "\\testAssets\\key.pem",
+            "_justification": "public key"
+        },
+        {
+            "file": "\\node_modules\\vscode-test\\node_modules\\http-proxy-agent\\test\\ssl-cert-snakeoil.key",
+            "_justification": "public key"
+        },
+        {
+            "file": "\\node_modules\\vscode-test\\node_modules\\agent-base\\test\\ssl-cert-snakeoil.key",
+            "_justification": "public key"
+        }
+    ]
+}
