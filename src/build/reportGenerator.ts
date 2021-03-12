@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import vscode from 'vscode';
+import vscode, { Uri } from 'vscode';
 
 import { EventStream } from "../common/eventStream";
 import { BuildProgress } from '../common/loggingEvents';
@@ -14,6 +14,7 @@ interface ReportItem {
     log_item_type: LogItemType;
     code: string;
     message: string;
+    document_url: string;
     file: string;
     line: number;
     end_line: number;
@@ -60,7 +61,16 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
                 convertToZeroBased(reportItem.end_line ?? 0),
                 convertToZeroBased(reportItem.end_column ?? 0));
             const diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
-            diagnostic.code = reportItem.code;
+
+            if (reportItem.document_url) {
+                diagnostic.code = {
+                    value: reportItem.code,
+                    target: Uri.parse(reportItem.document_url)
+                };
+            } else {
+                diagnostic.code = reportItem.code;
+            }
+
             diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
 
             const sourceFile = reportItem.file ?? configFile;

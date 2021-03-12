@@ -1,4 +1,4 @@
-import vscode from 'vscode';
+import vscode, { Uri } from 'vscode';
 
 import { EventStream } from '../common/eventStream';
 import { LearnMoreClicked } from '../common/loggingEvents';
@@ -16,18 +16,28 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
             .map(diagnostic => this.createCommandCodeAction(diagnostic));
     }
 
-    public static learnMoreAboutCode(eventStream: EventStream, correlationId: string, diagnosticErrorCode: string): void {
+    public static learnMoreAboutCode(eventStream: EventStream, correlationId: string, diagnosticErrorCode: string, documentUrl: Uri): void {
         eventStream.post(new LearnMoreClicked(correlationId, diagnosticErrorCode));
-        vscode.env.openExternal(vscode.Uri.parse(`${config.LogCodeServiceEndpoint}?logcode=${diagnosticErrorCode}`));
+        vscode.env.openExternal(documentUrl);
     }
 
     private createCommandCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
-        const action = new vscode.CodeAction(`See doc: '${diagnostic.code}'`, vscode.CodeActionKind.QuickFix);
+        let code: string;
+        let documentUrl: Uri;
+        if (typeof (diagnostic.code) == "object") {
+            code = diagnostic.code.value.toString();
+            documentUrl = diagnostic.code.target;
+        } else {
+            code = diagnostic.code.toString();
+            documentUrl = Uri.parse(config.DefaultCodeDocumentURL);
+        }
+
+        const action = new vscode.CodeAction(`See doc: '${code}'`, vscode.CodeActionKind.QuickFix);
         action.command = {
             command: 'learnMore',
             title: `Go to document to learn more about the error code '${diagnostic.code}'`,
             tooltip: `This will open the documentation for the error code '${diagnostic.code}'.`,
-            arguments: [diagnostic.code]
+            arguments: [code, documentUrl]
         };
         action.diagnostics = [diagnostic];
         action.isPreferred = true;

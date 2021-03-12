@@ -22,6 +22,7 @@ interface DiagnosticInfo {
     range: Range;
     message: string;
     code: string;
+    codeDocumentUrl: string;
     severity: DiagnosticSeverity;
 }
 
@@ -143,6 +144,7 @@ describe('E2E Test', () => {
                             message: `Invalid file link: '${tempFileName}'.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'file-not-found',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
                         }
                     ]
                 );
@@ -161,12 +163,14 @@ describe('E2E Test', () => {
                             message: `Missing required attribute: 'title'. Add a title string to show in search engine results.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'title-missing',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/title-missing?branch=main",
                         },
                         <DiagnosticInfo>{
                             range: new Range(7, 0, 7, 0),
                             message: `Invalid file link: '${tempFileName}'.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'file-not-found',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
                         }
                     ]
                 );
@@ -192,6 +196,7 @@ describe('E2E Test', () => {
                             message: `Invalid file link: '${tempFileName}'.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'file-not-found',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
                         }
                     ]
                 );
@@ -233,12 +238,13 @@ describe('E2E Test', () => {
                             message: `Invalid file link: '${tempFileName}'.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'file-not-found',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
                         }
                     ],
                     "docfx.json": [
                         <DiagnosticInfo>{
                             range: new Range(52, 39, 52, 39),
-                            message: `Invalid moniker range 'netcore-1.1.0': Moniker 'netcore-1.1.0' is not defined.`,
+                            message: `Invalid moniker range: 'netcore-1.1.0'. Moniker 'netcore-1.1.0' is not defined.`,
                             severity: vscode.DiagnosticSeverity.Error,
                             code: 'moniker-range-invalid',
                         }
@@ -283,6 +289,7 @@ describe('E2E Test', () => {
                             message: `Invalid file link: '${tempFileName}'.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'file-not-found',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
                         }
                     ]
                 });
@@ -302,7 +309,14 @@ describe('E2E Test', () => {
         const expectedDiagnostics: Diagnostic[] = [];
         expectedDiagnosticInfos.forEach((item) => {
             const diagnostic = new Diagnostic(item.range, item.message, item.severity);
-            diagnostic.code = item.code;
+            if (item.codeDocumentUrl) {
+                diagnostic.code = {
+                    value: item.code,
+                    target: Uri.parse(item.codeDocumentUrl),
+                };
+            } else {
+                diagnostic.code = item.code;
+            }
             diagnostic.source = 'Docs Validation';
             expectedDiagnostics.push(diagnostic);
         });
