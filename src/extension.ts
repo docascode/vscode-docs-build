@@ -35,7 +35,7 @@ import { getCorrelationId, safelyReadJsonFile } from './utils/utils';
 
 enum InvalidDocsRepoType {
     NoWorkspaceFolder,
-    multipleWorksapceFolder,
+    MultipleWorkspaceFolder,
     InvalidGitRepository,
     InvalidDocsRepositoryWithoutOpConfig,
     InvalidDocsRepositoryWithV2BuildEngine,
@@ -181,14 +181,14 @@ function getValidDocsRepositoryRoot(): string {
     }
 
     if (workspaceFolders.length > 1) {
-        invalidDocsRepoType = InvalidDocsRepoType.multipleWorksapceFolder;
+        invalidDocsRepoType = InvalidDocsRepoType.MultipleWorkspaceFolder;
         return undefined;
     }
 
     const workspaceFolder = workspaceFolders[0];
 
     try {
-        const gitRoot = executeCommandSync('git', ['rev-parse --show-toplevel'], <ExecSyncOptionsWithStringEncoding>{ cwd: workspaceFolder.uri.fsPath }).replace(/[\r\n]+$/, '');
+        let gitRoot = executeCommandSync('git', ['rev-parse --show-toplevel'], <ExecSyncOptionsWithStringEncoding>{ cwd: workspaceFolder.uri.fsPath }).replace(/[\r\n]+$/, '');
         const opConfigPath = path.join(path.normalize(gitRoot), OP_CONFIG_FILE_NAME);
         if (!fs.existsSync(opConfigPath)) {
             invalidDocsRepoType = InvalidDocsRepoType.InvalidDocsRepositoryWithoutOpConfig;
@@ -199,6 +199,12 @@ function getValidDocsRepositoryRoot(): string {
         if (opConfig.docs_build_engine && opConfig.docs_build_engine.name === 'docfx_v2') {
             invalidDocsRepoType = InvalidDocsRepoType.InvalidDocsRepositoryWithV2BuildEngine;
             return undefined;
+        }
+
+        // If device is a drive letter, normalize to lower case.
+        // Reference this issue for more detail: https://github.com/microsoft/vscode/issues/104387
+        if (gitRoot && gitRoot.charAt(1) === ':') {
+            gitRoot = gitRoot[0].toLowerCase() + gitRoot.substr(1);
         }
         return gitRoot;
     } catch (error) {
@@ -233,7 +239,7 @@ async function errorHandleActivate(context: vscode.ExtensionContext): Promise<Ex
             case InvalidDocsRepoType.NoWorkspaceFolder:
                 errorMessage = 'Please open a workspace folder and retry.';
                 break;
-            case InvalidDocsRepoType.multipleWorksapceFolder:
+            case InvalidDocsRepoType.MultipleWorkspaceFolder:
                 errorMessage = 'Validation is triggered on a workspace that contains multiple folders, please close other folders and only keep one in the current workspace';
                 break;
             case InvalidDocsRepoType.InvalidGitRepository:

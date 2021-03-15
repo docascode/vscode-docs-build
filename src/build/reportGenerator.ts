@@ -36,7 +36,6 @@ type MessageSeverity = "error" | "warning" | "info" | "suggestion";
 type LogItemType = 'system' | ' user';
 
 export function visualizeBuildReport(repositoryPath: string, logPath: string, diagnosticController: DiagnosticController, eventStream: EventStream): void {
-    // TODO: If a sub-folder is opening, considering only display the diagnostics on the files under the curret sub-folder.
     try {
         diagnosticController.reset();
 
@@ -48,10 +47,17 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
 
         const report = fs.readFileSync(logPath).toString().split('\n').filter(item => item);
         const diagnosticsSet = new Map<string, any>();
+        const workspacePath = path.normalize(path.relative(repositoryPath, vscode.workspace.workspaceFolders[0].uri.fsPath)).toLowerCase();
         report.forEach(item => {
             const reportItem = <ReportItem>JSON.parse(item);
 
             if (reportItem.pull_request_only) {
+                return;
+            }
+
+            const sourceFile = reportItem.file ?? configFile;
+
+            if (workspacePath != '.' && !path.normalize(sourceFile).toLowerCase().startsWith(workspacePath)) {
                 return;
             }
 
@@ -64,7 +70,6 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
             diagnostic.code = reportItem.code;
             diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
 
-            const sourceFile = reportItem.file ?? configFile;
             if (!diagnosticsSet.has(sourceFile)) {
                 diagnosticsSet.set(sourceFile, {
                     uri: vscode.Uri.file(path.resolve(repositoryPath, sourceFile)),

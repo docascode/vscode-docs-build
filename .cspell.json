@@ -43,7 +43,8 @@
         "cpid",
         "pgrep",
         "PPOD",
-        "snakeoil"
+        "snakeoil",
+        "toplevel"
     ],
     "ignorePaths": [
         "package-lock.json",
