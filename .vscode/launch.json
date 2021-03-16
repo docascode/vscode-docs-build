@@ -43,8 +43,7 @@
                 "VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER": "${workspaceFolder}/.temp/output",
                 "SUB_FOLDER_TEST": "false",
                 // Fill in the folder which contains the docfx you want to attach, like 'E:/docfx/src/docfx/bin/Debug/net5.0'
-                "LOCAL_ATTACH_DOCFX_FOLDER_PATH": "",
-                "DOCS_ENV": "PPE"
+                "LOCAL_ATTACH_DOCFX_FOLDER_PATH": ""
             },
             "preLaunchTask": "npm: watch",
             "sourceMaps": true
@@ -68,8 +67,7 @@
                 "VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER": "${workspaceFolder}/.temp/output",
                 "SUB_FOLDER_TEST": "true",
                 // Fill in the folder which contains the docfx you want to attach, like 'E:/docfx/src/docfx/bin/Debug/net5.0'
-                "LOCAL_ATTACH_DOCFX_FOLDER_PATH": "",
-                "DOCS_ENV": "PPE"
+                "LOCAL_ATTACH_DOCFX_FOLDER_PATH": ""
             },
             "preLaunchTask": "npm: watch",
             "sourceMaps": true

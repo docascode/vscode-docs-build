@@ -160,7 +160,7 @@
     "prebenchmark": "webpack --mode production",
     "benchmark": "gulp test:benchmark",
     "lint": "eslint .",
-    "pre-commit": "npm run test:ut & npm run lint"
+    "pre-commit": "npm run lint"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",

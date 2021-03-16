@@ -72,9 +72,6 @@ export class DocsEnvironmentController implements EnvironmentController, vscode.
     }
 
     private getEnv(): Environment {
-        if (process.env.DOCS_ENV) {
-            return process.env.DOCS_ENV == 'PROD' ? 'PROD' : 'PPE';
-        }
         const extensionConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(EXTENSION_NAME, undefined);
         return extensionConfig.get<Environment>(ENVIRONMENT_CONFIG_NAME, 'PROD');
     }

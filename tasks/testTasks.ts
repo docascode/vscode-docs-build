@@ -35,8 +35,7 @@ gulp.task('test:e2e:rootFolder', async () => {
     const extensionTestsEnv = {
         'VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN': githubToken,
         'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath,
-        'SUB_FOLDER_TEST': 'false',
-        'DOCS_ENV': 'PPE'
+        'SUB_FOLDER_TEST': 'false'
     };
 
     // Download VS Code, unzip it and run the integration test
@@ -74,8 +73,7 @@ gulp.task('test:e2e:subFolder', async () => {
     const extensionTestsEnv = {
         'VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN': githubToken,
         'VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER': defaultOutputPath,
-        'SUB_FOLDER_TEST': 'true',
-        'DOCS_ENV': 'PPE'
+        'SUB_FOLDER_TEST': 'true'
     };
 
     // Download VS Code, unzip it and run the integration test
