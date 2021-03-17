@@ -22,6 +22,8 @@ variables:
     value: true
   - name: Semmle.SkipAnalysis
     value: true
+  - name: isBranchBuild
+    value: $[ne(variables['Build.Reason'], 'PullRequest')]
 
 strategy:
   matrix:
@@ -75,7 +77,7 @@ steps:
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
     inputs:
       CredScan: true
-      Semmle: ne(variables['Build.Reason'], 'PullRequest')
+      Semmle: $(isBranchBuild)
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
@@ -86,7 +88,7 @@ steps:
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
     inputs:
       CredScan: true
-      Semmle: ne(variables['Build.Reason'], 'PullRequest')
+      Semmle: $(isBranchBuild)
 
   - bash: |
       npm run test
