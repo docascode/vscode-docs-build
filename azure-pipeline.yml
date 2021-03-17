@@ -24,8 +24,6 @@ variables:
     value: true
   - name: isBranchBuild
     value: $[ne(variables['Build.Reason'], 'PullRequest')]
-  - name: System_AccessToken
-    value: $(System.AccessToken)
 
 strategy:
   matrix:
@@ -65,6 +63,8 @@ steps:
       language: tsandjs
       includeNodeModules: false
       querySuite: Required
+    env:
+      System_AccessToken: $(System.AccessToken)
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
     displayName: 'Run CredScan'
