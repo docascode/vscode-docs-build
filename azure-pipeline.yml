@@ -24,6 +24,8 @@ variables:
     value: true
   - name: isBranchBuild
     value: $[ne(variables['Build.Reason'], 'PullRequest')]
+  - name: System_AccessToken
+    value: $(System.AccessToken)
 
 strategy:
   matrix:
@@ -57,7 +59,7 @@ steps:
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-semmle.Semmle@0
     displayName: 'Run Semmle (tsandjs)'
-    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['Build.Reason'], 'PullRequest'))
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
     inputs:
       toolVersion: LatestPreRelease
       language: tsandjs
