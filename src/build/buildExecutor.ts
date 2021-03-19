@@ -84,7 +84,6 @@ export class BuildExecutor {
 
     public async getLanguageClient(input: BuildInput, buildUserToken: string): Promise<LanguageClient> {
         return new Promise((resolve, reject) => {
-            input
             const parameters = this.getBuildParameters(undefined, input, buildUserToken);
             let isServerReady = false;
 
