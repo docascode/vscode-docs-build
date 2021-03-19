@@ -57,7 +57,7 @@ steps:
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-semmle.Semmle@0
     displayName: 'Run Semmle (tsandjs)'
-    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['Build.Reason'], 'PullRequest'))
     inputs:
       toolVersion: LatestPreRelease
       language: tsandjs
