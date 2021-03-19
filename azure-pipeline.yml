@@ -63,6 +63,8 @@ steps:
       language: tsandjs
       includeNodeModules: false
       querySuite: Required
+    env:
+      System_AccessToken: $(MICROSOFT_PAT_TOKEN)
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
     displayName: 'Run CredScan'

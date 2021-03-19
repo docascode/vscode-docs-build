@@ -155,7 +155,7 @@
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
-    "@types/gulp": "^4.0.6",
+    "@types/gulp": "^4.0.8",
     "@types/mocha": "^8.0.3",
     "@types/node": "^10.17.13",
     "@types/number-to-words": "^1.2.0",
