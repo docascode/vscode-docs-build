@@ -247,6 +247,7 @@ describe('E2E Test', () => {
                             message: `Invalid moniker range: 'netcore-1.1.0'. Moniker 'netcore-1.1.0' is not defined.`,
                             severity: vscode.DiagnosticSeverity.Error,
                             code: 'moniker-range-invalid',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/en-us/help/contribute/validation-ref/doc-not-available",
                         }
                     ]
                 });
