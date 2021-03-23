@@ -10,7 +10,7 @@ import { EventStream } from '../../../src/common/eventStream';
 import { BuildProgress } from '../../../src/common/loggingEvents';
 import TestEventBus from '../../utils/testEventBus';
 
-describe.only("ReportGenerator", () => {
+describe("ReportGenerator", () => {
     const testRepositoryPath = path.resolve(__dirname, "fakedFolder");
     const testLogPath = path.resolve(__dirname, ".errors.log");
     const fakedErrorLog = `{"message_severity":"info","log_item_type":"user","code":"test-info","message":"message for test info","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z","document_url":"https://test-document"}\n`
