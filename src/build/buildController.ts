@@ -2,8 +2,8 @@ import fs from 'fs-extra';
 // eslint-disable-next-line node/no-unpublished-import
 import getPort from 'get-port';
 import path from 'path';
-import vscode from 'vscode';
-import { Disposable, LanguageClient } from 'vscode-languageclient/node';
+import vscode, { Disposable } from 'vscode';
+import { LanguageClient } from 'vscode-languageclient/node';
 
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';

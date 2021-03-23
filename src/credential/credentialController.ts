@@ -1,4 +1,3 @@
-import { AzureEnvironment } from 'ms-rest-azure';
 import querystring from 'querystring';
 import vscode from 'vscode';
 
@@ -12,7 +11,7 @@ import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { TimeOutError } from '../error/timeOutError';
 import { DocsSignInStatus, EXTENSION_ID, OP_BUILD_USER_TOKEN_HEADER_NAME,SignInReason, uriHandler, UserInfo, UserType } from '../shared';
-import { delay, getCorrelationId,parseQuery, trimEndSlash } from '../utils/utils';
+import { delay, getCorrelationId, parseQuery } from '../utils/utils';
 import { KeyChain } from './keyChain';
 
 async function handleAuthCallback(callback: (uri: vscode.Uri, resolve: (result: any) => void, reject: (reason: any) => void) => void): Promise<any> {
@@ -156,7 +155,7 @@ export class CredentialController {
             response_type: 'code',
             response_mode: 'query'
         });
-        return `${trimEndSlash(AzureEnvironment.Azure.activeDirectoryEndpointUrl)}/${authConfig.AADAuthTenantId}/oauth2/authorize?${query}`;
+        return `https://login.microsoftonline.com/${authConfig.AADAuthTenantId}/oauth2/authorize?${query}`;
     }
 
     private async signInWithGitHub(): Promise<UserInfo | null> {

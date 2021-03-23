@@ -376,11 +376,6 @@ describe('BuildController', () => {
 
     it('Successfully build with getting repo info by docset name', async () => {
         const opBuildAPIClient = <OPBuildAPIClient>{
-            getProvisionedRepositoryUrlByRepositoryUrl: (gitRepoUrl: string, opBuildUserToken: string, eventStream: EventStream): Promise<string> => {
-                return new Promise((resolve, reject) => {
-                    resolve(undefined);
-                });
-            },
             validateCredential: (opBuildUserToken: string, eventStream: EventStream): Promise<boolean> => {
                 return new Promise((resolve, reject) => {
                     resolve(true);
