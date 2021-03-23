@@ -4,6 +4,7 @@ import vscode, { Uri } from 'vscode';
 
 import { EventStream } from "../common/eventStream";
 import { BuildProgress } from '../common/loggingEvents';
+import config from '../config';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { EXTENSION_DIAGNOSTIC_SOURCE } from '../shared';
@@ -48,17 +49,10 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
 
         const report = fs.readFileSync(logPath).toString().split('\n').filter(item => item);
         const diagnosticsSet = new Map<string, any>();
-        const workspacePath = path.normalize(path.relative(repositoryPath, vscode.workspace.workspaceFolders[0].uri.fsPath)).toLowerCase();
         report.forEach(item => {
             const reportItem = <ReportItem>JSON.parse(item);
 
             if (reportItem.pull_request_only) {
-                return;
-            }
-
-            const sourceFile = reportItem.file ?? configFile;
-
-            if (workspacePath != '.' && !path.normalize(sourceFile).toLowerCase().startsWith(workspacePath)) {
                 return;
             }
 
@@ -69,17 +63,14 @@ export function visualizeBuildReport(repositoryPath: string, logPath: string, di
                 convertToZeroBased(reportItem.end_column ?? 0));
             const diagnostic = new vscode.Diagnostic(range, reportItem.message, severityMap.get(reportItem.message_severity));
 
-            if (reportItem.document_url) {
-                diagnostic.code = {
-                    value: reportItem.code,
-                    target: Uri.parse(reportItem.document_url)
-                };
-            } else {
-                diagnostic.code = reportItem.code;
-            }
+            diagnostic.code = {
+                value: reportItem.code,
+                target: Uri.parse(reportItem.document_url ? reportItem.document_url : config.DefaultCodeDocumentURL),
+            };
 
             diagnostic.source = EXTENSION_DIAGNOSTIC_SOURCE;
 
+            const sourceFile = reportItem.file ?? configFile;
             if (!diagnosticsSet.has(sourceFile)) {
                 diagnosticsSet.set(sourceFile, {
                     uri: vscode.Uri.file(path.resolve(repositoryPath, sourceFile)),

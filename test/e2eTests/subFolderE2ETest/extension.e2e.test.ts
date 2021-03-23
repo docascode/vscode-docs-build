@@ -161,7 +161,7 @@ describe('Sub-folder E2E Test', () => {
 
                 assertDiagnostics({
                     [getFullPath("test.md")]: [fileNotFoundWarning],
-                    [getFullPath("../index.md")]: []
+                    [getFullPath("../index.md")]: [fileNotFoundWarning]
                 });
             }
         })();

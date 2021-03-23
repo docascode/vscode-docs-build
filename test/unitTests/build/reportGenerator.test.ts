@@ -13,9 +13,9 @@ import TestEventBus from '../../utils/testEventBus';
 describe("ReportGenerator", () => {
     const testRepositoryPath = path.resolve(__dirname, "fakedFolder");
     const testLogPath = path.resolve(__dirname, ".errors.log");
-    const fakedErrorLog = `{"message_severity":"info","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
-        + `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
-        + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`;
+    const fakedErrorLog = `{"message_severity":"info","log_item_type":"user","code":"test-info","message":"message for test info","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z","document_url":"https://test-document"}\n`
+        + `{"message_severity":"warning","log_item_type":"user","code":"test-warning","message":"message for test warning","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`
+        + `{"message_severity":"error","log_item_type":"user","code":"test-error","message":"message for test error","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`;
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
 
@@ -38,14 +38,23 @@ describe("ReportGenerator", () => {
         }
     };
 
-    const expectedInfoDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, DiagnosticSeverity.Hint);
-    const expectedWarningDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, DiagnosticSeverity.Warning);
-    const expectedErrorDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `Missing required attribute: 'author'. Add the current author's GitHub ID.`, DiagnosticSeverity.Error);
-    expectedInfoDiagnostic.code = 'author-missing';
+    const expectedInfoDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `message for test info`, DiagnosticSeverity.Hint);
+    const expectedWarningDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `message for test warning`, DiagnosticSeverity.Warning);
+    const expectedErrorDiagnostic = new Diagnostic(new Range(0, 0, 0, 0), `message for test error`, DiagnosticSeverity.Error);
+    expectedInfoDiagnostic.code = {
+        value: 'test-info',
+        target: Uri.parse("https://test-document"),
+    };
     expectedInfoDiagnostic.source = 'Docs Validation';
-    expectedWarningDiagnostic.code = 'author-missing';
+    expectedWarningDiagnostic.code = {
+        value: 'test-warning',
+        target: Uri.parse("https://review.docs.microsoft.com/en-us/help/contribute/validation-ref/doc-not-available"),
+    };
     expectedWarningDiagnostic.source = 'Docs Validation';
-    expectedErrorDiagnostic.code = 'author-missing';
+    expectedErrorDiagnostic.code = {
+        value: 'test-error',
+        target: Uri.parse("https://review.docs.microsoft.com/en-us/help/contribute/validation-ref/doc-not-available"),
+    };
     expectedErrorDiagnostic.source = 'Docs Validation';
     const expectedFileUri = Uri.file(`${testRepositoryPath}/index.md`);
     expectedFileUri.fsPath;
@@ -122,9 +131,9 @@ describe("ReportGenerator", () => {
     });
 
     it("Handle pull_request_only diagnostics", () => {
-        const fakedErrorLogWithPullRequest = `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":true}\n`
-            + `{"message_severity":"info","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":false}\n`
-            + `{"message_severity":"error","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z", "pull_request_only":null}\n`;
+        const fakedErrorLogWithPullRequest = `{"message_severity":"info","log_item_type":"user","code":"test-info","message":"message for test info","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z","document_url":"https://test-document","pull_request_only":true}\n`
+            + `{"message_severity":"warning","log_item_type":"user","code":"test-warning","message":"message for test warning","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z","pull_request_only":false}\n`
+            + `{"message_severity":"error","log_item_type":"user","code":"test-error","message":"message for test error","file":"index.md","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z","pull_request_only":null}\n`;
         stubFsExistsSync
             .withArgs(path.normalize(testLogPath)).returns(true);
         stubFsReadFileSync
@@ -135,7 +144,7 @@ describe("ReportGenerator", () => {
             [path.normalize(`${testRepositoryPath}/index.md`)]: {
                 uri: expectedFileUri,
                 diagnostics: [
-                    expectedInfoDiagnostic,
+                    expectedWarningDiagnostic,
                     expectedErrorDiagnostic
                 ]
             },
@@ -150,7 +159,7 @@ describe("ReportGenerator", () => {
         const configPath = `${testRepositoryPath}/${configFile}`;
         const configUri = Uri.file(configPath);
         configUri.fsPath;
-        const fakedErrorLogWithPullRequest = `{"message_severity":"warning","log_item_type":"user","code":"author-missing","message":"Missing required attribute: 'author'. Add the current author's GitHub ID.","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`;
+        const fakedErrorLogWithPullRequest = `{"message_severity":"warning","log_item_type":"user","code":"test-warning","message":"message for test warning","line":1,"end_line":1,"column":1,"end_column":1,"date_time":"2020-03-04T08:43:12.3284386Z"}\n`;
         stubFsExistsSync
             .withArgs(path.normalize(testLogPath)).returns(true);
         stubFsReadFileSync
