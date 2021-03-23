@@ -1,4 +1,3 @@
-import { AzureEnvironment } from 'ms-rest-azure';
 import querystring from 'querystring';
 import vscode from 'vscode';
 
@@ -156,7 +155,7 @@ export class CredentialController {
             response_type: 'code',
             response_mode: 'query'
         });
-        return `${trimEndSlash(AzureEnvironment.Azure.activeDirectoryEndpointUrl)}/${authConfig.AADAuthTenantId}/oauth2/authorize?${query}`;
+        return `https://login.microsoftonline.com/${authConfig.AADAuthTenantId}/oauth2/authorize?${query}`;
     }
 
     private async signInWithGitHub(): Promise<UserInfo | null> {

@@ -1,39 +1,20 @@
+import https from 'https';
 import querystring from 'querystring';
-import request from 'request';
+import { URL } from 'url';
 
 import { EnvironmentController } from '../common/environmentController';
 import { EventStream } from '../common/eventStream';
-import { APICallFailed, APICallStarted, BuildProgress,CredentialExpired } from '../common/loggingEvents';
+import { APICallFailed, APICallStarted, CredentialExpired } from '../common/loggingEvents';
 import extensionConfig from '../config';
 import { OP_BUILD_USER_TOKEN_HEADER_NAME } from '../shared';
-
-type RequestMethod = 'POST' | 'GET';
 
 export class OPBuildAPIClient {
     constructor(private _environmentController: EnvironmentController) { }
 
-    public async getProvisionedRepositoryUrlByRepositoryUrl(gitRepoUrl: string, opBuildUserToken: string, eventStream: EventStream): Promise<string> {
-        const requestUrl = `${this.APIBaseUrl}/v2/Repositories/ProvisionedRepositoryUrlByRepositoryUrl`
-            + `?${querystring.stringify({
-                gitRepoUrl
-            })}`;
-
-        return this.sendRequest('GetProvisionedRepositoryUrlByRepositoryUrl', requestUrl, 'GET', opBuildUserToken, eventStream, {}, [200, 404])
-            .then((response: any) => {
-                if (response.statusCode !== 200) {
-                    eventStream.post(new BuildProgress(`[OPBuildAPIClient.GetProvisionedRepositoryUrlByRepositoryUrl] Get provisioned repository information by repository URL failed: (${response.body.error})${response.body.message}`));
-                    return undefined;
-                }
-                return response.body.toString();
-            }, (code: any) => {
-                throw new Error(`Cannot retrieve the original repository URL for current repository (${code})`);
-            });
-    }
-
     public async validateCredential(opBuildUserToken: string, eventStream: EventStream): Promise<boolean> {
         const requestUrl = `${this.APIBaseUrl}/v1/Users/OpsPermission`;
 
-        return this.sendRequest('ValidateCredential', requestUrl, 'GET', opBuildUserToken, eventStream, {}, [200, 401])
+        return this.get('ValidateCredential', requestUrl, opBuildUserToken, eventStream, [200, 401])
             .then((response: any) => {
                 return response.statusCode === 200;
             }, (code: any) => {
@@ -48,9 +29,9 @@ export class OPBuildAPIClient {
                 locale
             })}`;
 
-        return this.sendRequest('GetProvisionedRepositoryUrlByDocsetNameAndLocale', requestUrl, 'GET', opBuildUserToken, eventStream, {}, [200])
+        return this.get('GetProvisionedRepositoryUrlByDocsetNameAndLocale', requestUrl, opBuildUserToken, eventStream, [200])
             .then((response: any) => {
-                return response.body.toString();
+                return response.body;
             }, (code: any) => {
                 throw new Error(`Cannot retrieve the original repository URL for current docset and locale (${code})`);
             });
@@ -60,49 +41,56 @@ export class OPBuildAPIClient {
         return extensionConfig.OPBuildAPIEndPoint[this._environmentController.env];
     }
 
-    private async sendRequest(
+    private async get(
         name: string,
         url: string,
-        method: RequestMethod,
         token: string,
         eventStream: EventStream,
-        reqObj: any = {},
         acceptedStatusCode: number[] = [200],
         headers: any = {},
     ): Promise<any> {
-        method = method || 'GET';
         if (token) {
             headers[OP_BUILD_USER_TOKEN_HEADER_NAME] = token;
         }
 
         eventStream.post(new APICallStarted(name, url));
         const promise = new Promise((resolve, reject) => {
-            request({
-                url,
-                method,
-                headers,
-                json: true,
-                body: reqObj,
-            }, (error, response, respObj) => {
-                if (error) {
-                    eventStream.post(new APICallFailed(name, url, error.message));
-                    reject(error.message);
-                }
+            const options: https.RequestOptions = {
+                headers: headers,
+            };
 
-                if (!acceptedStatusCode.includes(response.statusCode)) {
+            const buffers: any[] = [];
+            https.get(
+                new URL(url),
+                options,
+                response => {
                     if (response.statusCode === 401) {
                         eventStream.post(new CredentialExpired());
                         reject(response.statusCode);
                     }
 
-                    eventStream.post(new APICallFailed(name, url, `${respObj.error ? (`${respObj.error}(${response.statusCode}): `) : 'error: '}`
-                        + `${respObj.message ? respObj.message : JSON.stringify(respObj)}`));
-                    reject(response.statusCode);
+                    response.on('data', data => {
+                        buffers.push(data);
+                    })
+
+                    response.on('end', () => {
+                        const respObj = JSON.parse(buffers.toString());
+
+                        if (!acceptedStatusCode.includes(response.statusCode)) {
+                            eventStream.post(new APICallFailed(name, url, `${respObj.error}(${response.statusCode}): `
+                                + `${respObj.message ? respObj.message : JSON.stringify(respObj)}`));
+                            reject(response.statusCode);
+                        } else {
+                            resolve({
+                                statusCode: response.statusCode,
+                                body: respObj,
+                            });
+                        }
+                    })
                 }
-                resolve({
-                    statusCode: response.statusCode,
-                    body: respObj
-                });
+            ).on('error', (e) => {
+                eventStream.post(new APICallFailed(name, url, e.message));
+                reject(e.message);
             });
         });
         return promise;
