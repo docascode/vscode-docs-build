@@ -145,6 +145,7 @@ describe('Root Folder E2E Test', () => {
                             message: `Missing required attribute: 'title'. Add a title string to show in search engine results.`,
                             severity: vscode.DiagnosticSeverity.Warning,
                             code: 'title-missing',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/title-missing?branch=main",
                         },
                         fileNotFoundWarning
                     ]
@@ -201,9 +202,10 @@ describe('Root Folder E2E Test', () => {
                     [getFullPath("docfx.json")]: [
                         <DiagnosticInfo>{
                             range: new Range(52, 39, 52, 39),
-                            message: `Invalid moniker range 'netcore-1.1.0': Moniker 'netcore-1.1.0' is not defined.`,
+                            message: `Invalid moniker range: 'netcore-1.1.0'. Moniker 'netcore-1.1.0' is not defined.`,
                             severity: vscode.DiagnosticSeverity.Error,
                             code: 'moniker-range-invalid',
+                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
                         }
                     ]
                 });

@@ -8,6 +8,7 @@ export interface DiagnosticInfo {
     range: Range;
     message: string;
     code: string;
+    codeDocumentUrl: string;
     severity: DiagnosticSeverity;
 }
 
@@ -16,6 +17,7 @@ export const fileNotFoundWarning = <DiagnosticInfo>{
     message: `Invalid file link: 'a.md'.`,
     severity: vscode.DiagnosticSeverity.Warning,
     code: 'file-not-found',
+    codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
 }
 
 export async function ensureExtensionActivatedAndInitializationFinished(): Promise<vscode.Extension<ExtensionExports>> {
@@ -49,7 +51,14 @@ export function assertDiagnostic(actualDiagnostics: Diagnostic[], expectedDiagno
     const expectedDiagnostics: Diagnostic[] = [];
     expectedDiagnosticInfos.forEach((item) => {
         const diagnostic = new Diagnostic(item.range, item.message, item.severity);
-        diagnostic.code = item.code;
+        if (item.codeDocumentUrl) {
+            diagnostic.code = {
+                value: item.code,
+                target: Uri.parse(item.codeDocumentUrl),
+            };
+        } else {
+            diagnostic.code = item.code;
+        }
         diagnostic.source = 'Docs Validation';
         expectedDiagnostics.push(diagnostic);
     });

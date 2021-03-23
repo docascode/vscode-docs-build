@@ -136,8 +136,8 @@ async function _activate(context: vscode.ExtensionContext, repositoryRoot: strin
             }
         }),
         vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
-        vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string) => {
-            CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode);
+        vscode.commands.registerCommand('learnMore', (diagnosticErrorCode: string, documentUrl: Uri) => {
+            CodeActionProvider.learnMoreAboutCode(eventStream, getCorrelationId(), diagnosticErrorCode, documentUrl);
         }),
         vscode.commands.registerCommand('docs.validationQuickPick', () => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {

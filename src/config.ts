@@ -37,7 +37,7 @@ const config = {
     },
     SignInTimeOut: 120000,
     PublicTemplate: "https://static.docs.com/ui/latest",
-    LogCodeServiceEndpoint: "https://ops-logcode-prod.azurewebsites.net/api/logcode"
+    DefaultCodeDocumentURL: "https://review.docs.microsoft.com/en-us/help/contribute/validation-ref/doc-not-available"
 };
 
 export default config;
