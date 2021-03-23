@@ -60,7 +60,7 @@ export async function getRepositoryInfoFromLocalFolder(repositoryPath: string): 
 
 function parseRemoteUrl(url: string): [DocsRepoType, string, string] {
     const repository = gitUrlParse(url);
-    const docsRepoType = repository.resource.startsWith('github.com') ? 'GitHub' : 'Azure DevOps';
+    const docsRepoType = repository.resource.toLowerCase() == 'github.com' ? 'GitHub' : 'Azure DevOps';
     const match = /^.+?(?<locale>\.[a-z]{2,4}-[a-z]{2,4}(-[a-z]{2,4})?|\.loc)?$/g.exec(repository.name);
     let locale = 'en-us';
     if (match && match.groups && match.groups.locale) {
