@@ -2,7 +2,7 @@ import vscode from 'vscode';
 
 import { DocfxExecutionResult } from '../build/buildResult';
 import { EventType } from '../common/eventType';
-import { BaseEvent, BuildCompleted, BuildFailed, CredentialExpired,StartLanguageServerCompleted, UserSignInCompleted, UserSignInFailed, UserSignOutCompleted, UserSignOutFailed } from '../common/loggingEvents';
+import { BaseEvent, BuildCompleted, BuildFailed, CredentialExpired, CredentialRefreshFailed, StartLanguageServerCompleted, UserSignInCompleted, UserSignInFailed, UserSignOutCompleted, UserSignOutFailed } from '../common/loggingEvents';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { EXTENSION_NAME, MessageAction, USER_TYPE, UserType } from '../shared';
@@ -42,6 +42,9 @@ export class ErrorMessageObserver {
                 if ((<CredentialExpired>event).duringLanguageServerRunning) {
                     this.handleCredentialExpiredWhenLanguageServerRunning();
                 }
+                break;
+            case EventType.CredentialRefreshFailed:
+                this.handleCredentialRefreshFailed(<CredentialRefreshFailed>event);
                 break;
         }
     }
@@ -122,5 +125,9 @@ export class ErrorMessageObserver {
         const action = new MessageAction('Sign in', 'docs.signIn');
         const message = 'Credential Expired, please sign in again.';
         this.showErrorMessage(message, action);
+    }
+
+    private handleCredentialRefreshFailed(event: CredentialRefreshFailed) {
+        this.showErrorMessage(event.error.message);
     }
 }

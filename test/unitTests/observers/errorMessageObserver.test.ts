@@ -1,9 +1,9 @@
 import assert from 'assert';
-import { createSandbox,SinonSandbox } from 'sinon';
+import { createSandbox, SinonSandbox } from 'sinon';
 import vscode, { MessageItem } from 'vscode';
 
 import { BuildResult } from '../../../src/build/buildResult';
-import { BuildFailed, BuildSucceeded, CredentialExpired,PublicContributorSignIn, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded } from '../../../src/common/loggingEvents';
+import { BuildFailed, BuildSucceeded, CredentialExpired, CredentialRefreshFailed, PublicContributorSignIn, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { ErrorMessageObserver } from '../../../src/observers/errorMessageObserver';
@@ -164,6 +164,16 @@ describe('ErrorMessageObserver', () => {
                 'Sign in',
                 'docs.signIn'
             )]);
+        });
+    });
+
+    describe(`Credential refresh failed`, () => {
+        it(`Credential refresh failed`, () => {
+            const err = new Error(`error message`);
+            const event = new CredentialRefreshFailed(err);
+            observer.eventHandler(event);
+            assert.equal(messageToShow, `[Docs Validation] ${err.message}`);
+            assert.deepEqual(messageActions, []);
         });
     });
 });

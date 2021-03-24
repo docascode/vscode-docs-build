@@ -77,6 +77,11 @@ export class PublicContributorSignIn implements BaseEvent {
     type = EventType.PublicContributorSignIn;
 }
 
+export class CredentialRefreshFailed implements BaseEvent {
+    type = EventType.CredentialRefreshFailed;
+    constructor(public error: Error) { }
+}
+
 // Build
 export class RepositoryInfoRetrieved implements BaseEvent {
     type = EventType.RepositoryInfoRetrieved;

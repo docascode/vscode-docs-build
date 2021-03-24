@@ -4,10 +4,10 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { EnvironmentController } from "../common/environmentController";
 import { EventStream } from "../common/eventStream";
 import { EventType } from "../common/eventType";
-import { BaseEvent, CredentialExpired, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded } from "../common/loggingEvents";
+import { BaseEvent, CredentialExpired, CredentialRefreshFailed, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded } from "../common/loggingEvents";
 import config from '../config';
 import { GetCredentialParams, GetCredentialResponse, UserCredentialRefreshRequest_Type } from '../requestTypes';
-import { OP_BUILD_USER_TOKEN_HEADER_NAME } from "../shared";
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, UserType } from "../shared";
 
 export class CredentialExpiryHandler {
     constructor(private _client: LanguageClient, private _eventStream: EventStream, private _environmentController: EnvironmentController) {
@@ -25,6 +25,13 @@ export class CredentialExpiryHandler {
 
     public async userCredentialRefreshRequestHandler(params: GetCredentialParams): Promise<GetCredentialResponse> {
         return new Promise<GetCredentialResponse>(async (resolve, reject) => {
+            if (this._environmentController.userType === UserType.PublicContributor) {
+                const err = new Error(`Some required data to validate this repository is only accessible to Microsoft employee. ` +
+                    `If you are a Microsoft employee, you can change the user type in extension settings.`)
+                this._eventStream.post(new CredentialRefreshFailed(err));
+                reject(err);
+                return;
+            }
             if (params.url && params.url.startsWith(config.OPBuildAPIEndPoint[this._environmentController.env])) {
                 this._eventStream.post(new CredentialExpired(true));
                 try {
@@ -39,10 +46,13 @@ export class CredentialExpiryHandler {
                         }
                     });
                 } catch (err) {
+                    this._eventStream.post(new CredentialRefreshFailed(err));
                     reject(err);
                 }
             } else {
-                reject(new Error(`Credential refresh for URL ${params.url} is not supported.`));
+                const err = new Error(`Credential refresh for URL ${params.url} is not supported.`);
+                this._eventStream.post(new CredentialRefreshFailed(err));
+                reject(err);
             }
         });
     }
