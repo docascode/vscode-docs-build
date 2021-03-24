@@ -254,7 +254,7 @@ export class BuildExecutor {
             }
             cmdWithParameters += ` --output "${input.outputFolderPath}" --output-type "pagejson"`;
             if (buildSubFolder) {
-                cmdWithParameters += ` --file "${path.join(buildSubFolder, "**")}"`;
+                cmdWithParameters += ` --file "${path.normalize(path.join(buildSubFolder, "**"))}"`;
             }
         }
 

@@ -179,7 +179,7 @@ describe('BuildExecutor', () => {
 
             assert.deepStrictEqual(executedCommands, [
                 `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}"`,
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson" --file "fakedSubFolder\\**"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson" --file "${path.normalize("fakedSubFolder/**")}"`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
