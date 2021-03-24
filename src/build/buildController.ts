@@ -28,6 +28,7 @@ export class BuildController implements Disposable {
     private _disposable: Disposable;
 
     constructor(
+        private _repositoryRoot: string,
         private _buildExecutor: BuildExecutor,
         private _opBuildAPIClient: OPBuildAPIClient,
         private _diagnosticController: DiagnosticController,
@@ -163,20 +164,16 @@ export class BuildController implements Disposable {
             return this._buildInput;
         }
 
-        // Check the workspace is a valid Docs repository
-        const activeWorkSpaceFolder = await this.getValidatedWorkSpace();
-        const localRepositoryPath = activeWorkSpaceFolder.uri.fsPath;
-
         try {
-            const [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(localRepositoryPath, this._credentialController.credential.userInfo?.userToken);
-            const dryRun = this.needDryRun(activeWorkSpaceFolder.uri.fsPath);
+            const [localRepositoryUrl, originalRepositoryUrl] = await this.retrieveRepositoryInfo(this._repositoryRoot, this._credentialController.credential.userInfo?.userToken);
+            const dryRun = this.needDryRun(this._repositoryRoot);
             const outputFolderPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_OUTPUT_FOLDER || getTempOutputFolder());
             const logPath = normalizeDriveLetter(process.env.VSCODE_DOCS_BUILD_EXTENSION_LOG_PATH || path.join(outputFolderPath, '.errors.log'));
             const port = getAvailablePort ? await getPort() : undefined;
             this._buildInput = <BuildInput>{
-                workspaceFolderName: activeWorkSpaceFolder.name,
+                workspaceFolderName: vscode.workspace.workspaceFolders[0].name,
                 buildType: BuildType.FullBuild,
-                localRepositoryPath,
+                localRepositoryPath: this._repositoryRoot,
                 localRepositoryUrl,
                 originalRepositoryUrl,
                 outputFolderPath,
@@ -191,45 +188,6 @@ export class BuildController implements Disposable {
                 ErrorCode.TriggerBuildOnInvalidDocsRepo
             );
         }
-    }
-
-    private async getValidatedWorkSpace(): Promise<vscode.WorkspaceFolder> {
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            throw new DocsError(
-                'You can only trigger the build on a workspace folder.',
-                ErrorCode.TriggerBuildOnNonWorkspace
-            );
-        }
-
-        if (workspaceFolders.length > 1) {
-            throw new DocsError(
-                'Validation is triggered on a workspace which contains multiple folders, please close other folders and only keep one in the current workspace',
-                ErrorCode.TriggerBuildOnWorkspaceWithMultipleFolders
-            );
-        }
-
-        const workspaceFolder = workspaceFolders[0];
-
-        const opConfigPath = path.join(workspaceFolder.uri.fsPath, OP_CONFIG_FILE_NAME);
-        if (!fs.existsSync(opConfigPath)) {
-            throw new DocsError(
-                `Cannot find '${OP_CONFIG_FILE_NAME}' file under current workspace folder, please open the root directory of the repository and retry`,
-                ErrorCode.TriggerBuildOnNonDocsRepo
-            );
-        }
-
-        const opConfig = safelyReadJsonFile(opConfigPath);
-        if (opConfig.docs_build_engine && opConfig.docs_build_engine.name === 'docfx_v2') {
-            throw new DocsError(
-                'Docs Validation Extension requires the repository has DocFX v3 enabled',
-                ErrorCode.TriggerBuildOnV2Repo,
-                undefined
-            );
-        }
-
-        return workspaceFolder;
     }
 
     private needDryRun(repoPath: string): boolean {

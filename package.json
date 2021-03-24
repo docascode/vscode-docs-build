@@ -31,8 +31,7 @@
     "theme": "light"
   },
   "activationEvents": [
-    "workspaceContains:.openpublishing.publish.config.json",
-    "onCommand:docs.build"
+    "*"
   ],
   "author": {
     "email": "jipe@microsoft.com",
@@ -72,6 +71,16 @@
           "type": "boolean",
           "default": true,
           "description": "With this checked, the real-time validation will be automatically enabled once the opened repository is a valid Docs repository."
+        },
+        "docfxLanguageServer.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between Language server and client."
         }
       }
     },

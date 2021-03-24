@@ -10,9 +10,13 @@ export function run(): Promise<void> {
     });
 
     const testsRoot = path.resolve(__dirname, '.');
+    const isSubFolderTest = process.env['SUB_FOLDER_TEST'] == 'true';
 
     return new Promise((resolve, reject) => {
-        glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
+        glob(
+            isSubFolderTest ? 'subFolderE2ETest/**/**.test.js' : 'rootFolderE2ETest/**/**.test.js',
+            { cwd: testsRoot },
+            (err, files) => {
             if (err) {
                 return reject(err);
             }

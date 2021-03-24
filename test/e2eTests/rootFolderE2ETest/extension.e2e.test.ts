@@ -2,31 +2,23 @@ import assert from 'assert';
 import fs from 'fs-extra';
 import path from 'path';
 import { createSandbox, SinonSandbox } from 'sinon';
-import vscode, { Diagnostic, DiagnosticSeverity, Position, Range, Uri } from 'vscode';
+import vscode, { Diagnostic, Position, Range, Uri } from 'vscode';
 
-import { DocfxExecutionResult } from '../../src/build/buildResult';
-import { DiagnosticController } from '../../src/build/diagnosticController';
-import { EnvironmentController } from '../../src/common/environmentController';
-import { EventStream } from '../../src/common/eventStream';
-import { EventType } from '../../src/common/eventType';
-import { BaseEvent, BuildCompleted, StartLanguageServerCompleted, UserSignInCompleted } from '../../src/common/loggingEvents';
-import { TimeOutError } from '../../src/error/timeOutError';
-import { OP_BUILD_USER_TOKEN_HEADER_NAME, uriHandler, UserType } from '../../src/shared';
-import { delay } from '../../src/utils/utils';
-import TestEventBus from '../utils/testEventBus';
-import { ensureExtensionActivatedAndInitializationFinished, triggerCommand } from '../utils/testHelper';
+import { DocfxExecutionResult } from '../../../src/build/buildResult';
+import { DiagnosticController } from '../../../src/build/diagnosticController';
+import { EnvironmentController } from '../../../src/common/environmentController';
+import { EventStream } from '../../../src/common/eventStream';
+import { EventType } from '../../../src/common/eventType';
+import { BaseEvent, BuildCompleted, StartLanguageServerCompleted, UserSignInCompleted } from '../../../src/common/loggingEvents';
+import { TimeOutError } from '../../../src/error/timeOutError';
+import { OP_BUILD_USER_TOKEN_HEADER_NAME, uriHandler, UserType } from '../../../src/shared';
+import { delay } from '../../../src/utils/utils';
+import TestEventBus from '../../utils/testEventBus';
+import { assertDiagnostic, assertDiagnostics, DiagnosticInfo, ensureExtensionActivatedAndInitializationFinished, fileNotFoundWarning, triggerCommand } from '../../utils/testHelper';
 
 const detailE2EOutput: any = {};
 
-interface DiagnosticInfo {
-    range: Range;
-    message: string;
-    code: string;
-    codeDocumentUrl: string;
-    severity: DiagnosticSeverity;
-}
-
-describe('E2E Test', () => {
+describe('Root Folder E2E Test', () => {
     let sinon: SinonSandbox;
     let eventStream: EventStream;
     let testEventBus: TestEventBus;
@@ -60,7 +52,7 @@ describe('E2E Test', () => {
         );
 
         const extension = await ensureExtensionActivatedAndInitializationFinished();
-        assert.notStrictEqual(extension, undefined);
+        assert.notEqual(extension, undefined);
 
         eventStream = extension.exports.eventStream;
         environmentController = extension.exports.environmentController;
@@ -80,7 +72,7 @@ describe('E2E Test', () => {
     after(() => {
         sinon.restore();
 
-        const detailE2EOutputFile = `${__dirname}/../../../.temp/debug/detail-e2e-output.json`;
+        const detailE2EOutputFile = `${__dirname}/../../../../.temp/debug/detail-e2e-root-folder-output.json`;
         fs.ensureFileSync(detailE2EOutputFile);
         fs.writeJSONSync(detailE2EOutputFile, detailE2EOutput);
     });
@@ -137,17 +129,7 @@ describe('E2E Test', () => {
             async function testOpenFile() {
                 await vscode.window.showTextDocument(indexFileUri);
                 await updateCurrentDiagnosticsAsync(indexFileUri);
-                assertDiagnostic(currentDiagnostics,
-                    [
-                        <DiagnosticInfo>{
-                            range: new Range(7, 0, 7, 0),
-                            message: `Invalid file link: '${tempFileName}'.`,
-                            severity: vscode.DiagnosticSeverity.Warning,
-                            code: 'file-not-found',
-                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
-                        }
-                    ]
-                );
+                assertDiagnostic(currentDiagnostics, [fileNotFoundWarning]);
             }
 
             async function testModifyFile() {
@@ -165,13 +147,7 @@ describe('E2E Test', () => {
                             code: 'title-missing',
                             codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/title-missing?branch=main",
                         },
-                        <DiagnosticInfo>{
-                            range: new Range(7, 0, 7, 0),
-                            message: `Invalid file link: '${tempFileName}'.`,
-                            severity: vscode.DiagnosticSeverity.Warning,
-                            code: 'file-not-found',
-                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
-                        }
+                        fileNotFoundWarning
                     ]
                 );
             }
@@ -189,17 +165,7 @@ describe('E2E Test', () => {
                 workspaceEdit.deleteFile(tempFileUri);
                 await vscode.workspace.applyEdit(workspaceEdit);
                 await updateCurrentDiagnosticsAsync(indexFileUri);
-                assertDiagnostic(currentDiagnostics,
-                    [
-                        <DiagnosticInfo>{
-                            range: new Range(7, 0, 7, 0),
-                            message: `Invalid file link: '${tempFileName}'.`,
-                            severity: vscode.DiagnosticSeverity.Warning,
-                            code: 'file-not-found',
-                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
-                        }
-                    ]
-                );
+                assertDiagnostic(currentDiagnostics, [fileNotFoundWarning]);
             }
         })();
     });
@@ -232,16 +198,8 @@ describe('E2E Test', () => {
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 assertDiagnostics({
-                    [indexFileName]: [
-                        <DiagnosticInfo>{
-                            range: new Range(7, 0, 7, 0),
-                            message: `Invalid file link: '${tempFileName}'.`,
-                            severity: vscode.DiagnosticSeverity.Warning,
-                            code: 'file-not-found',
-                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
-                        }
-                    ],
-                    "docfx.json": [
+                    [getFullPath(indexFileName)]: [fileNotFoundWarning],
+                    [getFullPath("docfx.json")]: [
                         <DiagnosticInfo>{
                             range: new Range(52, 39, 52, 39),
                             message: `Invalid moniker range: 'netcore-1.1.0'. Moniker 'netcore-1.1.0' is not defined.`,
@@ -284,43 +242,13 @@ describe('E2E Test', () => {
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 assertDiagnostics({
-                    [indexFileName]: [
-                        <DiagnosticInfo>{
-                            range: new Range(7, 0, 7, 0),
-                            message: `Invalid file link: '${tempFileName}'.`,
-                            severity: vscode.DiagnosticSeverity.Warning,
-                            code: 'file-not-found',
-                            codeDocumentUrl: "https://review.docs.microsoft.com/help/contribute/validation-ref/file-not-found?branch=main",
-                        }
-                    ]
+                    [getFullPath(indexFileName)]: [fileNotFoundWarning]
                 });
             }
         })();
     });
-
-    function assertDiagnostics(expected: { [key: string]: DiagnosticInfo[]; }) {
-        Object.entries(expected).forEach(([file, expectedDiagnostics]) => {
-            const fileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", file));
-            const diagnostics = vscode.languages.getDiagnostics(fileUri);
-            assertDiagnostic(diagnostics, expectedDiagnostics);
-        });
-    }
-
-    function assertDiagnostic(actualDiagnostics: Diagnostic[], expectedDiagnosticInfos: DiagnosticInfo[]) {
-        const expectedDiagnostics: Diagnostic[] = [];
-        expectedDiagnosticInfos.forEach((item) => {
-            const diagnostic = new Diagnostic(item.range, item.message, item.severity);
-            if (item.codeDocumentUrl) {
-                diagnostic.code = {
-                    value: item.code,
-                    target: Uri.parse(item.codeDocumentUrl),
-                };
-            } else {
-                diagnostic.code = item.code;
-            }
-            diagnostic.source = 'Docs Validation';
-            expectedDiagnostics.push(diagnostic);
-        });
-        assert.deepStrictEqual(actualDiagnostics, expectedDiagnostics);
-    }
 });
+
+function getFullPath(fileName: string): string {
+    return path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "vscode-docs-build-e2e-test", fileName);
+}

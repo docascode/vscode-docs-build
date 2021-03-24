@@ -44,7 +44,13 @@
         "vscodemachineid",
         "vscodesessionid",
         "vscodeversion",
-        "webpack'ed"
+        "webpack'ed",
+        "taskkill",
+        "cpid",
+        "pgrep",
+        "PPOD",
+        "snakeoil",
+        "toplevel"
     ],
     "ignorePaths": [
         "package-lock.json",
