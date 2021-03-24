@@ -69,7 +69,7 @@ describe('InfoMessageObserver', () => {
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Successfully signed in! Would you like to validate the current workspace?`);
             assert.deepEqual(messageActions, [
-                new MessageAction('Validate', 'docs.build', 'Would you like to validate the current repository?')
+                new MessageAction('Validate', 'docs.build', 'Would you like to validate the current workspace?')
             ]);
         });
 
