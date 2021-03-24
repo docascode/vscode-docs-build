@@ -35,8 +35,8 @@ export async function ensureExtensionActivatedAndInitializationFinished(): Promi
     return extension;
 }
 
-export function triggerCommand(command: string): void {
-    vscode.commands.executeCommand(command);
+export function triggerCommand(command: string, ...args: any[]): void {
+    vscode.commands.executeCommand(command, ...args);
 }
 
 export function assertDiagnostics(expected: { [key: string]: DiagnosticInfo[]; }): void {

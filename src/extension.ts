@@ -130,9 +130,10 @@ async function _activate(context: vscode.ExtensionContext, repositoryRoot: strin
                 credentialController.signOut(getCorrelationId());
             }
         }),
-        vscode.commands.registerCommand('docs.build', () => {
+        vscode.commands.registerCommand('docs.build', (uri: Uri) => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
-                buildController.build(getCorrelationId());
+                const buildSubFolder = (!uri || (Array.isArray(uri) && uri.length == 0)) ? getCurrentWorkspaceUri() : uri
+                buildController.build(getCorrelationId(), buildSubFolder);
             }
         }),
         vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
@@ -295,10 +296,11 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
         }
     }
     if (buildController.instanceAvailable) {
+        // TODO: add a command to let user trigger the validation on the whole repository
         pickItems.push(
             {
-                label: '$(debug-start) Validate',
-                description: 'Trigger a validation on current repository'
+                label: '$(debug-start) Validate the current workspace',
+                description: 'Trigger a validation on current workspace'
             });
     } else {
         pickItems.push(
@@ -320,8 +322,8 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                 case '$(sign-out) Sign-out':
                     credentialController.signOut(getCorrelationId());
                     break;
-                case '$(debug-start) Validate':
-                    buildController.build(getCorrelationId());
+                case '$(debug-start) Validate the current workspace':
+                    buildController.build(getCorrelationId(), getCurrentWorkspaceUri());
                     break;
                 case '$(debug-stop) Cancel Build':
                     buildController.cancelBuild();
@@ -332,6 +334,10 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
     });
     quickPickMenu.onDidHide(() => quickPickMenu.dispose());
     quickPickMenu.show();
+}
+
+function getCurrentWorkspaceUri() {
+    return vscode.workspace.workspaceFolders[0].uri;
 }
 
 export async function deactivate(): Promise<void> {

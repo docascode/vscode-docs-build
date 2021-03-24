@@ -97,7 +97,7 @@
       },
       {
         "command": "docs.build",
-        "title": "Validate this repository",
+        "title": "Validate this workspace",
         "category": "Docs"
       },
       {

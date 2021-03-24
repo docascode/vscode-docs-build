@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { BuildInput } from '../../../src/build/buildInput';
+import { BuildInput, BuildType } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
 import { BuildCanceled, BuildFailed, BuildSucceeded, BuildTriggered, CancelBuildFailed, CancelBuildSucceeded, CancelBuildTriggered, DependencyInstallCompleted, DependencyInstallStarted, ExtensionActivated, LearnMoreClicked, PackageInstallAttemptFailed, PackageInstallCompleted, QuickPickCommandSelected, QuickPickTriggered, UserSignInFailed, UserSignInSucceeded, UserSignInTriggered, UserSignOutFailed, UserSignOutSucceeded, UserSignOutTriggered, } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
@@ -150,11 +150,11 @@ describe('TelemetryObserver', () => {
             const event = new BuildSucceeded(
                 'FakedCorrelationId',
                 <BuildInput>{
-                    buildType: 'FullBuild',
                     localRepositoryPath: '/fakedPath/',
                     localRepositoryUrl: 'https://faked.local-repository.com',
                     originalRepositoryUrl: 'https://faked.original-repository.com',
                 },
+                BuildType.FullBuild,
                 10,
                 <BuildResult>{
                     result: 'Succeeded',
@@ -185,11 +185,11 @@ describe('TelemetryObserver', () => {
             const event = new BuildFailed(
                 'FakedCorrelationId',
                 <BuildInput>{
-                    buildType: 'FullBuild',
                     localRepositoryPath: '/fakedPath/',
                     localRepositoryUrl: 'https://faked.local-repository.com',
                     originalRepositoryUrl: 'https://faked.original-repository.com',
                 },
+                BuildType.PartialBuild,
                 10,
                 new DocsError('Faked error msg', ErrorCode.GenerateReportFailed));
             observer.eventHandler(event);
@@ -200,7 +200,7 @@ describe('TelemetryObserver', () => {
                 Result: 'Failed',
                 ErrorCode: 'GenerateReportFailed',
                 IsRestoreSkipped: 'false',
-                BuildType: 'FullBuild',
+                BuildType: 'PartialBuild',
                 LocalRepositoryUrl: 'https://faked.local-repository.com',
                 OriginalRepositoryUrl: 'https://faked.original-repository.com',
             });
@@ -215,11 +215,11 @@ describe('TelemetryObserver', () => {
             const event = new BuildCanceled(
                 'FakedCorrelationId',
                 <BuildInput>{
-                    buildType: 'FullBuild',
                     localRepositoryPath: '/fakedPath/',
                     localRepositoryUrl: 'https://faked.local-repository.com',
                     originalRepositoryUrl: 'https://faked.original-repository.com',
                 },
+                BuildType.FullBuild,
                 10);
             observer.eventHandler(event);
 

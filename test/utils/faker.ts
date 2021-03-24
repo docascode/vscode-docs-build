@@ -4,7 +4,7 @@ import { DiagnosticCollection } from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/node';
 
 import { BuildExecutor } from '../../src/build/buildExecutor';
-import { BuildInput, BuildType } from '../../src/build/buildInput';
+import { BuildInput } from '../../src/build/buildInput';
 import { BuildResult, DocfxExecutionResult } from '../../src/build/buildResult';
 import { EnvironmentController } from '../../src/common/environmentController';
 import { PlatformInformation } from '../../src/common/platformInformation';
@@ -119,7 +119,6 @@ export const fakedExtensionContext = <ExtensionContext>{
 };
 
 export const fakedBuildInput = <BuildInput>{
-    buildType: BuildType.FullBuild,
     dryRun: true,
     localRepositoryPath: path.resolve(tempFolder, 'fakedRepositoryPath'),
     localRepositoryUrl: 'https://faked.repository',
@@ -132,9 +131,9 @@ export const fakedBuildInput = <BuildInput>{
 export function getFakedBuildExecutor(docfxExecutionResult: DocfxExecutionResult, setRunBuildFuncParameters?: Function): BuildExecutor {
     let buildCancelled = false;
     return <any>{
-        RunBuild: (correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> => {
+        RunBuild: (correlationId: string, input: BuildInput, buildUserToken: string, buildSubFolder?: string): Promise<BuildResult> => {
             if (setRunBuildFuncParameters) {
-                setRunBuildFuncParameters(correlationId, input, buildUserToken);
+                setRunBuildFuncParameters(correlationId, input, buildUserToken, buildSubFolder);
             }
             return new Promise((resolve, reject) => {
                 setTimeout(() => {

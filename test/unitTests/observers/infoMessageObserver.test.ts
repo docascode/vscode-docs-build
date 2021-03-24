@@ -2,6 +2,7 @@ import assert from 'assert';
 import { createSandbox, SinonSandbox } from 'sinon';
 import vscode, { MessageItem } from 'vscode';
 
+import { BuildType } from '../../../src/build/buildInput';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { BuildCompleted, BuildTriggered, ExtensionActivated, UserSignInCompleted, UserSignOutCompleted } from '../../../src/common/loggingEvents';
@@ -66,7 +67,7 @@ describe('InfoMessageObserver', () => {
         it(`Sign in succeeded without credential retrieved from cache for full-repo validation`, () => {
             const event = new UserSignInCompleted(`fakedCorrelationId`, true, false, 'FullRepoValidation');
             observer.eventHandler(event);
-            assert.equal(messageToShow, `[Docs Validation] Successfully signed in! Would you like to validate the current repository?`);
+            assert.equal(messageToShow, `[Docs Validation] Successfully signed in! Would you like to validate the current workspace?`);
             assert.deepEqual(messageActions, [
                 new MessageAction('Validate', 'docs.build', 'Would you like to validate the current repository?')
             ]);
@@ -122,7 +123,7 @@ describe('InfoMessageObserver', () => {
         });
 
         it(`Build succeeded`, () => {
-            const event = new BuildCompleted(`fakedCorrelationId`, DocfxExecutionResult.Succeeded, undefined, undefined);
+            const event = new BuildCompleted(`fakedCorrelationId`, DocfxExecutionResult.Succeeded, undefined, BuildType.FullBuild, undefined);
             observer.eventHandler(event);
             assert.equal(messageToShow, `[Docs Validation] Build finished. Please open the 'Problem' panel to see the results`);
             assert.deepEqual(messageActions, [new MessageAction(
@@ -132,7 +133,7 @@ describe('InfoMessageObserver', () => {
         });
 
         it(`Build fails`, () => {
-            const event = new BuildCompleted(`fakedCorrelationId`, DocfxExecutionResult.Failed, undefined, undefined);
+            const event = new BuildCompleted(`fakedCorrelationId`, DocfxExecutionResult.Failed, undefined, BuildType.FullBuild, undefined);
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);

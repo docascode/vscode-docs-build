@@ -1,7 +1,6 @@
 import os from 'os';
 import path from 'path';
 
-import { BuildType } from '../build/buildInput';
 import { DocfxExecutionResult } from '../build/buildResult';
 import { EventType } from '../common/eventType';
 import { BaseEvent, BuildCompleted, BuildFailed, BuildSucceeded, BuildTriggered, CancelBuildCompleted, CancelBuildTriggered, DependencyInstallCompleted, DependencyInstallStarted, DocfxRestoreCompleted, ExtensionActivated, LearnMoreClicked, PackageInstallAttemptFailed, PackageInstallCompleted, QuickPickCommandSelected, QuickPickTriggered, UserSignInCompleted, UserSignInFailed, UserSignInSucceeded, UserSignInTriggered, UserSignOutCompleted, UserSignOutTriggered } from '../common/loggingEvents';
@@ -135,7 +134,6 @@ export class TelemetryObserver {
 
     private handleBuildCompleted(event: BuildCompleted) {
         let errorCode: string;
-        let buildType: BuildType;
         let localRepositoryUrl: string;
         let originalRepositoryUrl: string;
 
@@ -145,7 +143,6 @@ export class TelemetryObserver {
 
         const buildInput = event.buildInput;
         if (buildInput) {
-            buildType = buildInput.buildType;
             localRepositoryUrl = buildInput.localRepositoryUrl;
             originalRepositoryUrl = buildInput.originalRepositoryUrl;
         }
@@ -164,7 +161,7 @@ export class TelemetryObserver {
                 Result: event.result,
                 ErrorCode: errorCode,
                 IsRestoreSkipped: isRestoreSkipped.toString(),
-                BuildType: buildType,
+                BuildType: event.buildType,
                 LocalRepositoryUrl: localRepositoryUrl,
                 OriginalRepositoryUrl: originalRepositoryUrl,
             },

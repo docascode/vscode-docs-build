@@ -56,7 +56,7 @@ gulp.task('test:e2e:subFolder', async () => {
 
     const extensionDevelopmentPath = rootPath;
     const extensionTestsPath = path.resolve(rootPath, './out/test/e2eTests/index');
-    const testRepoSubFolderPath = path.join(testAssetsPath, "vscode-docs-build-e2e-test", "vscode-docs-build-e2e-test", "sub-folder");
+    const testRepoSubFolderPath = path.join(testAssetsPath, "vscode-docs-build-e2e-test", "vscode-docs-build-e2e-test", "sub-folder1");
 
     // Initialize Submodule
     let git = simpleGit(rootPath);

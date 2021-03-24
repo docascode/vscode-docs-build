@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 // eslint-disable-next-line node/no-unpublished-import
 import getPort from 'get-port';
 import path from 'path';
-import vscode, { Disposable } from 'vscode';
+import vscode, { Disposable, Uri } from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/node';
 
 import { EnvironmentController } from '../common/environmentController';
@@ -12,7 +12,7 @@ import { CredentialController } from '../credential/credentialController';
 import { DocsError } from '../error/docsError';
 import { ErrorCode } from '../error/errorCode';
 import { OP_CONFIG_FILE_NAME, UserType } from '../shared';
-import { getDurationInSeconds, getRepositoryInfoFromLocalFolder, getTempOutputFolder,normalizeDriveLetter, safelyReadJsonFile } from '../utils/utils';
+import { getDurationInSeconds, getRepositoryInfoFromLocalFolder, getTempOutputFolder, normalizeDriveLetter, safelyReadJsonFile } from '../utils/utils';
 import { BuildExecutor } from './buildExecutor';
 import { BuildInput, BuildType } from './buildInput';
 import { DocfxExecutionResult } from './buildResult';
@@ -52,10 +52,11 @@ export class BuildController implements Disposable {
         return this._instanceAvailable;
     }
 
-    public async build(correlationId: string): Promise<void> {
+    public async build(correlationId: string, buildWorkspace?: Uri): Promise<void> {
         let buildInput: BuildInput;
         this._eventStream.post(new BuildTriggered(correlationId, !!this._credentialController.credential.userInfo));
         const start = Date.now();
+        const buildType = !buildWorkspace || (buildWorkspace.fsPath.toLowerCase() == this._repositoryRoot.toLowerCase()) ? BuildType.FullBuild : BuildType.PartialBuild;
 
         try {
             await this.validateUserCredential();
@@ -64,29 +65,29 @@ export class BuildController implements Disposable {
             fs.removeSync(this._buildInput.logPath);
             this.setAvailableFlag();
         } catch (err) {
-            this._eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
+            this._eventStream.post(new BuildFailed(correlationId, buildInput, buildType, getTotalTimeInSeconds(), err));
             return;
         }
 
         try {
             this._currentBuildCorrelationId = correlationId;
             this._eventStream.post(new BuildStarted(buildInput.workspaceFolderName));
-            const buildResult = await this._buildExecutor.RunBuild(correlationId, buildInput, this._credentialController.credential.userInfo?.userToken);
+            const buildResult = await this._buildExecutor.RunBuild(correlationId, buildInput, this._credentialController.credential.userInfo?.userToken, this.getBuildSubFolder(buildWorkspace));
             // TODO: For multiple docset repo, we still need to generate report if one docset build crashed
             switch (buildResult.result) {
                 case DocfxExecutionResult.Succeeded:
                     visualizeBuildReport(buildInput.localRepositoryPath, buildInput.logPath, this._diagnosticController, this._eventStream);
-                    this._eventStream.post(new BuildSucceeded(correlationId, buildInput, getTotalTimeInSeconds(), buildResult));
+                    this._eventStream.post(new BuildSucceeded(correlationId, buildInput, buildType, getTotalTimeInSeconds(), buildResult));
                     break;
                 case DocfxExecutionResult.Canceled:
-                    this._eventStream.post(new BuildCanceled(correlationId, buildInput, getTotalTimeInSeconds()));
+                    this._eventStream.post(new BuildCanceled(correlationId, buildInput, buildType, getTotalTimeInSeconds()));
                     break;
                 case DocfxExecutionResult.Failed:
                     throw new DocsError('Running DocFX failed', ErrorCode.RunDocfxFailed);
             }
         }
         catch (err) {
-            this._eventStream.post(new BuildFailed(correlationId, buildInput, getTotalTimeInSeconds(), err));
+            this._eventStream.post(new BuildFailed(correlationId, buildInput, buildType, getTotalTimeInSeconds(), err));
         }
         finally {
             this._currentBuildCorrelationId = undefined;
@@ -172,7 +173,6 @@ export class BuildController implements Disposable {
             const port = getAvailablePort ? await getPort() : undefined;
             this._buildInput = <BuildInput>{
                 workspaceFolderName: vscode.workspace.workspaceFolders[0].name,
-                buildType: BuildType.FullBuild,
                 localRepositoryPath: this._repositoryRoot,
                 localRepositoryUrl,
                 originalRepositoryUrl,
@@ -188,6 +188,16 @@ export class BuildController implements Disposable {
                 ErrorCode.TriggerBuildOnInvalidDocsRepo
             );
         }
+    }
+
+    private getBuildSubFolder(uri?: Uri): string {
+        if (uri) {
+            if (fs.lstatSync(uri.fsPath).isDirectory()) {
+                return uri.fsPath;
+            }
+            return path.dirname(uri.fsPath);
+        }
+        return undefined;
     }
 
     private needDryRun(repoPath: string): boolean {

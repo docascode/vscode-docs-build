@@ -2,6 +2,7 @@ import assert from 'assert';
 import { createSandbox, SinonSandbox } from 'sinon';
 import vscode, { MessageItem } from 'vscode';
 
+import { BuildType } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
 import { BuildFailed, BuildSucceeded, CredentialExpired, CredentialRefreshFailed, PublicContributorSignIn, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
@@ -91,21 +92,21 @@ describe('ErrorMessageObserver', () => {
         });
 
         it(`Build succeeded`, () => {
-            const event = new BuildSucceeded(`fakedCorrelationId`, fakedBuildInput, 0, <BuildResult>{});
+            const event = new BuildSucceeded(`fakedCorrelationId`, fakedBuildInput, BuildType.FullBuild, 0, <BuildResult>{});
             observer.eventHandler(event);
             assert.equal(messageToShow, undefined);
             assert.deepEqual(messageActions, []);
         });
 
         it(`Build failed since credential expires`, () => {
-            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message.", ErrorCode.TriggerBuildWithCredentialExpired));
+            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, BuildType.FullBuild, 0, new DocsError("faked message.", ErrorCode.TriggerBuildWithCredentialExpired));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Repository validation failed. faked message. Please check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
         });
 
         it(`Build failed since not signed in`, () => {
-            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, 0, new DocsError("faked message.", ErrorCode.TriggerBuildBeforeSignIn));
+            const event = new BuildFailed(`fakedCorrelationId`, fakedBuildInput, BuildType.FullBuild, 0, new DocsError("faked message.", ErrorCode.TriggerBuildBeforeSignIn));
             observer.eventHandler(event);
             assert.equal(messageToShow, '[Docs Validation] Repository validation failed. faked message. Please check the channel output for details');
             assert.deepEqual(messageActions, [new MessageAction('Sign in', 'docs.signIn')]);
