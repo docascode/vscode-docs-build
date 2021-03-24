@@ -128,43 +128,80 @@ describe('Sub-folder E2E Test', () => {
         })();
     });
 
-    it('Sign in to Docs and trigger build', (done) => {
-        sinon.stub(environmentController, "userType").get(function getUserType() {
-            return UserType.MicrosoftEmployee;
-        });
-        (async function () {
-            const dispose = eventStream.subscribe((event: BaseEvent) => {
-                switch (event.type) {
-                    case EventType.UserSignInCompleted:
-                        assert.equal((<UserSignInCompleted>event).succeeded, true);
-                        triggerCommand('docs.build');
-                        break;
-                    case EventType.BuildCompleted:
-                        finalCheck(<BuildCompleted>event);
-                        break;
-                    case EventType.BuildInstantReleased:
-                        dispose.unsubscribe();
-                        testEventBus.dispose();
-                        done();
-                        break;
-                }
+    describe("Sign in to Docs and trigger build", () => {
+        it('Trigger build on the current workspace', (done) => {
+            sinon.stub(environmentController, "userType").get(function getUserType() {
+                return UserType.MicrosoftEmployee;
             });
-
-            triggerCommand('docs.signIn');
-
-            function finalCheck(event: BuildCompleted) {
-                detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
-                assert.equal(event.result, DocfxExecutionResult.Succeeded);
-
-                assertDiagnostics({
-                    [getFullPath("../index.md")]: [],
-                    [getFullPath("test-file-with-invalid-link.md")]: [fileNotFoundWarning],
-                    [getFullPath("test-perfect-file.md")]: [],
-                    [getFullPath("../sub-folder2/test-file-with-invalid-link.md")]: [],
-                    [getFullPath("../sub-folder2/test-perfect-file.md")]: [],
+            (async function () {
+                const dispose = eventStream.subscribe((event: BaseEvent) => {
+                    switch (event.type) {
+                        case EventType.UserSignInCompleted:
+                            assert.equal((<UserSignInCompleted>event).succeeded, true);
+                            triggerCommand('docs.build');
+                            break;
+                        case EventType.BuildCompleted:
+                            finalCheck(<BuildCompleted>event);
+                            break;
+                        case EventType.BuildInstantReleased:
+                            dispose.unsubscribe();
+                            testEventBus.dispose();
+                            done();
+                            break;
+                    }
                 });
-            }
-        })();
+
+                triggerCommand('docs.signIn');
+
+                function finalCheck(event: BuildCompleted) {
+                    detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
+                    assert.equal(event.result, DocfxExecutionResult.Succeeded);
+
+                    assertDiagnostics({
+                        [getFullPath("../index.md")]: [],
+                        [getFullPath("test-file-with-invalid-link.md")]: [fileNotFoundWarning],
+                        [getFullPath("test-perfect-file.md")]: [],
+                        [getFullPath("../sub-folder2/test-file-with-invalid-link.md")]: [],
+                        [getFullPath("../sub-folder2/test-perfect-file.md")]: [],
+                    });
+                }
+            })();
+        });
+
+        it('Trigger build on the whole repository', (done) => {
+            sinon.stub(environmentController, "userType").get(function getUserType() {
+                return UserType.MicrosoftEmployee;
+            });
+            (async function () {
+                const dispose = eventStream.subscribe((event: BaseEvent) => {
+                    switch (event.type) {
+                        case EventType.BuildCompleted:
+                            finalCheck(<BuildCompleted>event);
+                            break;
+                        case EventType.BuildInstantReleased:
+                            dispose.unsubscribe();
+                            testEventBus.dispose();
+                            done();
+                            break;
+                    }
+                });
+
+                triggerCommand('docs.build.fullRepo');
+
+                function finalCheck(event: BuildCompleted) {
+                    detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
+                    assert.equal(event.result, DocfxExecutionResult.Succeeded);
+
+                    assertDiagnostics({
+                        [getFullPath("../index.md")]: [fileNotFoundWarning],
+                        [getFullPath("test-file-with-invalid-link.md")]: [fileNotFoundWarning],
+                        [getFullPath("test-perfect-file.md")]: [],
+                        [getFullPath("../sub-folder2/test-file-with-invalid-link.md")]: [fileNotFoundWarning],
+                        [getFullPath("../sub-folder2/test-perfect-file.md")]: [],
+                    });
+                }
+            })();
+        });
     });
 });
 

@@ -132,8 +132,12 @@ async function _activate(context: vscode.ExtensionContext, repositoryRoot: strin
         }),
         vscode.commands.registerCommand('docs.build', (uri: Uri) => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
-                const buildSubFolder = (!uri || (Array.isArray(uri) && uri.length == 0)) ? getCurrentWorkspaceUri() : uri
-                buildController.build(getCorrelationId(), buildSubFolder);
+                buildController.build(getCorrelationId(), uri ?? getCurrentWorkspaceUri());
+            }
+        }),
+        vscode.commands.registerCommand('docs.build.fullRepo', (uri: Uri) => {
+            if (checkIfUserTypeSelected(environmentController, eventStream)) {
+                buildController.build(getCorrelationId());
             }
         }),
         vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
@@ -219,6 +223,7 @@ async function errorHandleActivate(context: vscode.ExtensionContext): Promise<Ex
         vscode.commands.registerCommand('docs.signIn', reportInvalidDocsRepository),
         vscode.commands.registerCommand('docs.signOut', reportInvalidDocsRepository),
         vscode.commands.registerCommand('docs.build', reportInvalidDocsRepository),
+        vscode.commands.registerCommand('docs.build.fullRepo', reportInvalidDocsRepository),
         vscode.commands.registerCommand('docs.cancelBuild', reportInvalidDocsRepository),
         vscode.commands.registerCommand('docs.validationQuickPick', reportInvalidDocsRepository),
         vscode.commands.registerCommand('docs.openInstallationDirectory', () => {
@@ -296,11 +301,15 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
         }
     }
     if (buildController.instanceAvailable) {
-        // TODO: add a command to let user trigger the validation on the whole repository
         pickItems.push(
             {
                 label: '$(debug-start) Validate the current workspace',
                 description: 'Trigger a validation on current workspace'
+            });
+        pickItems.push(
+            {
+                label: '$(debug-start) Validate the whole repository',
+                description: 'Trigger a validation on the whole repository'
             });
     } else {
         pickItems.push(
@@ -324,6 +333,9 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
                     break;
                 case '$(debug-start) Validate the current workspace':
                     buildController.build(getCorrelationId(), getCurrentWorkspaceUri());
+                    break;
+                case '$(debug-start) Validate the whole repository':
+                    buildController.build(getCorrelationId());
                     break;
                 case '$(debug-stop) Cancel Build':
                     buildController.cancelBuild();

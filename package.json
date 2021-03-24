@@ -97,7 +97,12 @@
       },
       {
         "command": "docs.build",
-        "title": "Validate this workspace",
+        "title": "Validate this folder",
+        "category": "Docs"
+      },
+      {
+        "command": "docs.build.fullRepo",
+        "title": "Validate the whole repository",
         "category": "Docs"
       },
       {
