@@ -1,4 +1,4 @@
-import { BuildInput } from '../build/buildInput';
+import { BuildInput, BuildType } from '../build/buildInput';
 import { BuildResult, DocfxExecutionResult } from '../build/buildResult';
 import { Credential } from '../credential/credentialController';
 import { AbsolutePathPackage } from '../dependency/package';
@@ -108,19 +108,19 @@ export class BuildStarted implements BaseEvent {
 
 export class BuildCompleted implements BaseEvent {
     type = EventType.BuildCompleted;
-    constructor(public correlationId: string, public result: DocfxExecutionResult, public buildInput: BuildInput, public totalTimeInSeconds: number) { }
+    constructor(public correlationId: string, public result: DocfxExecutionResult, public buildInput: BuildInput, public buildType: BuildType, public totalTimeInSeconds: number) { }
 }
 
 export class BuildSucceeded extends BuildCompleted {
-    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number, public buildResult: BuildResult) { super(correlationId, DocfxExecutionResult.Succeeded, buildInput, totalTimeInSeconds); }
+    constructor(public correlationId: string, public buildInput: BuildInput, public buildType: BuildType, public totalTimeInSeconds: number, public buildResult: BuildResult) { super(correlationId, DocfxExecutionResult.Succeeded, buildInput, buildType, totalTimeInSeconds); }
 }
 
 export class BuildFailed extends BuildCompleted {
-    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number, public err: Error) { super(correlationId, DocfxExecutionResult.Failed, buildInput, totalTimeInSeconds); }
+    constructor(public correlationId: string, public buildInput: BuildInput, public buildType: BuildType, public totalTimeInSeconds: number, public err: Error) { super(correlationId, DocfxExecutionResult.Failed, buildInput, buildType, totalTimeInSeconds); }
 }
 
 export class BuildCanceled extends BuildCompleted {
-    constructor(public correlationId: string, public buildInput: BuildInput, public totalTimeInSeconds: number) { super(correlationId, DocfxExecutionResult.Canceled, buildInput, totalTimeInSeconds); }
+    constructor(public correlationId: string, public buildInput: BuildInput, public buildType: BuildType, public totalTimeInSeconds: number) { super(correlationId, DocfxExecutionResult.Canceled, buildInput, buildType, totalTimeInSeconds); }
 }
 
 export class CancelBuildTriggered implements BaseEvent {

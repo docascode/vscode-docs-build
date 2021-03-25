@@ -1,6 +1,5 @@
 export interface BuildInput {
     readonly workspaceFolderName: string;
-    readonly buildType: BuildType;
     readonly localRepositoryPath: string;
     readonly localRepositoryUrl: string;
     readonly originalRepositoryUrl: string;
@@ -12,5 +11,5 @@ export interface BuildInput {
 
 export enum BuildType {
     FullBuild = 'FullBuild',
-    ChangedFileBuild = 'ChangedFileBuild'
+    PartialBuild = 'PartialBuild'
 }

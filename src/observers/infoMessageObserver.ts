@@ -17,7 +17,7 @@ export class InfoMessageObserver {
                     if (asUserSignInCompleted.signInReason === 'RealTimeValidation') {
                         this.showInfoMessage('Successfully signed in!');
                     } else {
-                        this.showInfoMessage('Successfully signed in!', new MessageAction('Validate', 'docs.build', 'Would you like to validate the current repository?'));
+                        this.showInfoMessage('Successfully signed in!', new MessageAction('Validate', 'docs.build', 'Would you like to validate the current workspace?'));
                     }
                 }
                 break;

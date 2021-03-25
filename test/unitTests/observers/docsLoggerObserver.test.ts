@@ -1,5 +1,6 @@
 import assert from 'assert';
 
+import { BuildType } from '../../../src/build/buildInput';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
 import { ILogger } from '../../../src/common/logger';
 import { APICallFailed, APICallStarted, BuildCanceled, BuildFailed, BuildProgress, BuildStarted, BuildSucceeded, BuildTriggered, CancelBuildFailed, DependencyInstallCompleted, DependencyInstallStarted, DocfxBuildCompleted, DocfxRestoreCompleted, DownloadProgress, DownloadSizeObtained, DownloadStarted, DownloadValidating, ExtensionActivated, PackageInstallAttemptFailed, PackageInstallCompleted, PackageInstallStarted, PlatformInfoRetrieved, PublicContributorSignIn, RepositoryInfoRetrieved, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInProgress, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded, ZipFileInstalling } from '../../../src/common/loggingEvents';
@@ -127,7 +128,7 @@ describe('DocsLoggerObserver', () => {
 
     describe('BuildCompleted', () => {
         it('BuildSucceeded', () => {
-            const event = new BuildSucceeded('FakedCorrelationId', undefined, 10, undefined);
+            const event = new BuildSucceeded('FakedCorrelationId', undefined, BuildType.FullBuild, 10, undefined);
             observer.eventHandler(event);
 
             const expectedOutput = `Report generated, please view them in 'PROBLEMS' tab\n\n`;
@@ -135,7 +136,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it('BuildCanceled', () => {
-            const event = new BuildCanceled('FakedCorrelationId', undefined, 10);
+            const event = new BuildCanceled('FakedCorrelationId', undefined, BuildType.FullBuild, 10);
             observer.eventHandler(event);
 
             const expectedOutput = `Build has been canceled\n\n`;
@@ -143,7 +144,7 @@ describe('DocsLoggerObserver', () => {
         });
 
         it('BuildFailed', () => {
-            const event = new BuildFailed('FakedCorrelationId', undefined, 10, new Error('Faked error msg'));
+            const event = new BuildFailed('FakedCorrelationId', undefined, BuildType.FullBuild, 10, new Error('Faked error msg'));
             observer.eventHandler(event);
 
             const expectedOutput = `Build failed: Faked error msg\n\n`;

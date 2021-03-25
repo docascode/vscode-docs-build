@@ -1,4 +1,5 @@
 import { ChildProcess } from 'child_process';
+import path from 'path';
 import { Duplex } from 'stream';
 import vscode from 'vscode';
 import {
@@ -57,13 +58,13 @@ export class BuildExecutor {
         await this.killChildProcess(this._runningLspChildProcess);
     }
 
-    public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string): Promise<BuildResult> {
+    public async RunBuild(correlationId: string, input: BuildInput, buildUserToken: string, buildSubFolder?: string): Promise<BuildResult> {
         const buildResult = <BuildResult>{
             result: DocfxExecutionResult.Succeeded,
             isRestoreSkipped: BuildExecutor.SKIP_RESTORE
         };
 
-        const buildParameters = this.getBuildParameters(correlationId, input, buildUserToken);
+        const buildParameters = this.getBuildParameters(correlationId, input, buildUserToken, buildSubFolder);
 
         if (!BuildExecutor.SKIP_RESTORE) {
             const restoreStart = Date.now();
@@ -187,6 +188,7 @@ export class BuildExecutor {
         correlationId: string,
         input: BuildInput,
         buildUserToken: string,
+        buildSubFolder?: string,
     ): BuildParameters {
         const envs: any = {
             'DOCFX_CORRELATION_ID': correlationId,
@@ -228,9 +230,9 @@ export class BuildExecutor {
 
         return <BuildParameters>{
             envs,
-            restoreCommand: this.getExecCommand("restore", input, isPublicUser),
-            buildCommand: this.getExecCommand("build", input, isPublicUser),
-            serveCommand: this.getExecCommand("serve", input, isPublicUser),
+            restoreCommand: this.getExecCommand("restore", input, isPublicUser, buildSubFolder),
+            buildCommand: this.getExecCommand("build", input, isPublicUser, buildSubFolder),
+            serveCommand: this.getExecCommand("serve", input, isPublicUser, buildSubFolder),
         };
     }
 
@@ -238,6 +240,7 @@ export class BuildExecutor {
         command: string,
         input: BuildInput,
         isPublicUser: boolean,
+        buildSubFolder?: string,
     ): string {
         let cmdWithParameters = `${this._binary} ${command} "${input.localRepositoryPath}"`;
         if (command === 'serve') {
@@ -250,6 +253,9 @@ export class BuildExecutor {
                 cmdWithParameters += ' --dry-run';
             }
             cmdWithParameters += ` --output "${input.outputFolderPath}" --output-type "pagejson"`;
+            if (buildSubFolder) {
+                cmdWithParameters += ` --file "${path.normalize(path.join(buildSubFolder, "**"))}"`;
+            }
         }
 
         cmdWithParameters += (isPublicUser ? ` --template "${config.PublicTemplate}"` : '');

@@ -54,7 +54,7 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceFolder}/testAssets/vscode-docs-build-e2e-test/vscode-docs-build-e2e-test/sub-folder",
+                "${workspaceFolder}/testAssets/vscode-docs-build-e2e-test/vscode-docs-build-e2e-test/sub-folder1",
                 "--disable-extensions",
                 "--extensionDevelopmentPath=${workspaceFolder}",
                 "--extensionTestsPath=${workspaceFolder}/out/test/e2eTests"
@@ -135,7 +135,7 @@
                 "updateRuntimeDependencies"
             ],
             "env": {
-                "DOCFX_VERSION": "3.0.0-beta1.823+2c63df49f1"
+                "DOCFX_VERSION": "3.0.0-beta1.828+04298ea9d8"
             },
             "cwd": "${workspaceFolder}"
         }

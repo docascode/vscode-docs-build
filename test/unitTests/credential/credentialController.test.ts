@@ -2,6 +2,7 @@ import assert from 'assert';
 import { createSandbox, SinonSandbox, SinonStub } from 'sinon';
 import vscode from 'vscode';
 
+import { BuildType } from '../../../src/build/buildInput';
 import { DocfxExecutionResult } from '../../../src/build/buildResult';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { EventStream } from '../../../src/common/eventStream';
@@ -201,17 +202,17 @@ describe('CredentialController', () => {
         });
 
         it(`Handle build succeeded`, () => {
-            tempCredentialController.eventHandler(new BuildCompleted(fakedCorrelationId, DocfxExecutionResult.Succeeded, undefined, 1));
+            tempCredentialController.eventHandler(new BuildCompleted(fakedCorrelationId, DocfxExecutionResult.Succeeded, undefined, BuildType.FullBuild, 1));
             assertSignInReason(undefined);
         });
 
         it(`Handle build failed not caused by sign in error`, () => {
-            tempCredentialController.eventHandler(new BuildFailed(fakedCorrelationId, undefined, 1, notSignInError));
+            tempCredentialController.eventHandler(new BuildFailed(fakedCorrelationId, undefined, BuildType.FullBuild, 1, notSignInError));
             assertSignInReason(undefined);
         });
 
         it(`Handle build failed caused by sign in error`, () => {
-            tempCredentialController.eventHandler(new BuildFailed(fakedCorrelationId, undefined, 1, signInError));
+            tempCredentialController.eventHandler(new BuildFailed(fakedCorrelationId, undefined, BuildType.FullBuild, 1, signInError));
             assertSignInReason('FullRepoValidation');
         });
 

@@ -64,7 +64,7 @@ export class OPBuildAPIClient {
                 new URL(url),
                 options,
                 response => {
-                    if (response.statusCode === 401) {
+                    if (!acceptedStatusCode.includes(response.statusCode) && response.statusCode === 401) {
                         eventStream.post(new CredentialExpired());
                         reject(response.statusCode);
                     }

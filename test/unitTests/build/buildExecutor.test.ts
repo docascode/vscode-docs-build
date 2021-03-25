@@ -8,7 +8,7 @@ import vscode from 'vscode';
 import { LanguageClient } from "vscode-languageclient/node";
 
 import { BuildExecutor } from '../../../src/build/buildExecutor';
-import { BuildInput, BuildType } from '../../../src/build/buildInput';
+import { BuildInput } from '../../../src/build/buildInput';
 import { BuildResult, DocfxExecutionResult } from '../../../src/build/buildResult';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { EventStream } from '../../../src/common/eventStream';
@@ -172,14 +172,14 @@ describe('BuildExecutor', () => {
         });
 
         it('First Time to run build successfully', async () => {
-            const buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token');
+            const buildResult = await buildExecutor.RunBuild('fakedCorrelationId', fakedBuildInput, 'faked-build-token', "fakedSubFolder");
 
             assert.equal(buildResult.result, DocfxExecutionResult.Succeeded);
             assert.equal(buildResult.isRestoreSkipped, false);
 
             assert.deepStrictEqual(executedCommands, [
                 `docfx.exe restore "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}"`,
-                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson"`,
+                `docfx.exe build "${path.resolve(tempFolder, 'fakedRepositoryPath')}" --log "${defaultLogPath}" --dry-run --output "${defaultOutputPath}" --output-type "pagejson" --file "${path.normalize("fakedSubFolder/**")}"`,
             ]);
             assert.deepStrictEqual(executedOptions, [
                 {
@@ -312,7 +312,6 @@ describe('BuildExecutor', () => {
             await buildExecutor.RunBuild(
                 'fakedCorrelationId',
                 <BuildInput>{
-                    buildType: BuildType.FullBuild,
                     dryRun: false,
                     localRepositoryPath: path.resolve(tempFolder, 'fakedRepositoryPath'),
                     localRepositoryUrl: 'https://faked.repository',

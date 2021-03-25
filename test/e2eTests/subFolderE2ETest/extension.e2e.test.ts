@@ -18,9 +18,6 @@ import { assertDiagnostic, assertDiagnostics, DiagnosticInfo, ensureExtensionAct
 
 const detailE2EOutput: any = {};
 
-const indexFileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "..", "index.md"));
-const subFolderTestFileUri = Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "test.md"));
-
 describe('Sub-folder E2E Test', () => {
     let sinon: SinonSandbox;
     let eventStream: EventStream;
@@ -86,9 +83,9 @@ describe('Sub-folder E2E Test', () => {
                 switch (event.type) {
                     case EventType.StartLanguageServerCompleted: {
                         if ((<StartLanguageServerCompleted>event).succeeded) {
-                            await testOpenFile(indexFileUri, [fileNotFoundWarning]);
+                            await testOpenFile(Uri.file(getFullPath("../index.md")), [fileNotFoundWarning]);
                             currentDiagnostics = [];
-                            await testOpenFile(subFolderTestFileUri, [fileNotFoundWarning]);
+                            await testOpenFile(Uri.file(getFullPath("test-file-with-invalid-link.md")), [fileNotFoundWarning]);
                             dispose.unsubscribe();
                             testEventBus.dispose();
                             done();
@@ -160,8 +157,11 @@ describe('Sub-folder E2E Test', () => {
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 assertDiagnostics({
-                    [getFullPath("test.md")]: [fileNotFoundWarning],
-                    [getFullPath("../index.md")]: [fileNotFoundWarning]
+                    [getFullPath("../index.md")]: [],
+                    [getFullPath("test-file-with-invalid-link.md")]: [fileNotFoundWarning],
+                    [getFullPath("test-perfect-file.md")]: [],
+                    [getFullPath("../sub-folder2/test-file-with-invalid-link.md")]: [],
+                    [getFullPath("../sub-folder2/test-perfect-file.md")]: [],
                 });
             }
         })();
