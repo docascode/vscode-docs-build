@@ -25,6 +25,8 @@ variables:
     value: true
   - name: isBranchBuild
     value: $[ne(variables['Build.Reason'], 'PullRequest')]
+  - name: COVERAGE
+    value: true
 
 strategy:
   matrix:
