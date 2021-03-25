@@ -8,16 +8,24 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 - Install [git](https://git-scm.com/downloads).
 - Clone your Docs or Learn repo locally in VS Code.
-- All files in the repo must be saved.
+- All files in the repo must be saved if you trigger the manual validation.
 
 ## How to use the Docs Validation extension
 
-### Full-repository validation
+### Manual validation
 
-1. Open a Docs conceptual or Learn repo in VS Code with the extension installed.
+You can trigger the validation manually with the following options:
+
+- Full repository validation
+- Sub-repository validation
+
+1. Open the root folder or any sub-folder of a Docs conceptual or Learn repo in VS Code with the extension installed.
 1. For the first time you use the extension, you will be asked to choose your user type between **Microsoft employee** and **Public contributor** before you can use full-repository validation.
 1. For **Microsoft employee**, you are required to sign in before using full-repository validation. You can click **Docs Validation** on the status bar then click **Sign in** from the drop-down menu to sign in.
-1. After signing in, you can trigger a validation by clicking **Validate** when prompted. You can also click **Docs Validation** on the status bar then click **Validate** from the drop-down menu, or by right-clicking any file in the repo and selecting **Validate this repository**.
+1. You three ways to trigger the manual validation:
+   1. After signing in, you can trigger a validation by clicking **Validate** when prompted. This will trigger the validation on the current opening workspace, so the files outside the current workspace will not be validated if you are on the sub-folder of a repository.
+   2. You can click **Docs Validation** on the status bar then click **Validate the current workspace** or **Validate the whole repository** from the drop-down menu to trigger the validation on different scope.
+   3. You can right-clicking any file/folder inside the **Explorer** and selecting **Validate this folder**, if you click on the file, the validation will be applied to the folder contains the selected file, otherwise, the validation will be applied to the selected folder.
 1. Build validation will run locally and all results will be output to the Problems pane.
 
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/vscode-docs-build.gif?raw=true)
@@ -26,7 +34,7 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 ### Real-time validation
 
-1. Open a Docs conceptual or Learn repo in VS Code with the extension installed.
+1. Open the root folder or any sub-folder of a Docs conceptual or Learn repo in VS Code with the extension installed.
 2. For the first time you use the extension, you will be asked to choose your user type between **Microsoft employee** and **Public contributor** before you can use real-time validation.
 3. The real-time validation is enabled by default, you can disable it in the extension settings (Go to Settings -> Docs Validation -> Uncheck **Real-time Validation: Automatically Enable**). You will be asked to reload the extension after you disable real-time validation.
 
@@ -36,7 +44,6 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 5. With real-time validation enabled, you will see validation issues (if any) while you are working on the repository (eg. modifying files, creating files and deleting files etc.).
 
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/real-time-validation-exp.gif?raw=true)
-
 
 ## Known issues
 
