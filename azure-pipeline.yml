@@ -10,6 +10,7 @@ pr:
 
 variables:
   - group: Docs Authoring Pack KV
+  - group: docs-validation-ci-kv
   - name: npm_config_cache
     value: $(Pipeline.Workspace)/.npm
   - name: runCodesignValidationInjection
@@ -24,6 +25,8 @@ variables:
     value: true
   - name: isBranchBuild
     value: $[ne(variables['Build.Reason'], 'PullRequest')]
+  - name: COVERAGE
+    value: true
 
 strategy:
   matrix:
@@ -64,7 +67,7 @@ steps:
       includeNodeModules: false
       querySuite: Required
     env:
-      System_AccessToken: $(MICROSOFT_PAT_TOKEN)
+      System_AccessToken: $(MicrosoftPATTokenForLGTMReport)
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
     displayName: 'Run CredScan'
@@ -97,16 +100,16 @@ steps:
     displayName: Run Test(Mac)
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
     env:
-      GITHUB_TOKEN: $(githubToken)
-      VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(opBuildUserToken)
+      GITHUB_TOKEN: $(GitHubTokenToCloneDocsTemplateRepo)
+      VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(OpBuildUserToken)
 
   - powershell: |
       npm run test
     displayName: Run Test(Windows)
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
     env:
-      GITHUB_TOKEN: $(githubToken)
-      VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(opBuildUserToken)
+      GITHUB_TOKEN: $(GitHubTokenToCloneDocsTemplateRepo)
+      VSCODE_DOCS_BUILD_EXTENSION_BUILD_USER_TOKEN: $(OpBuildUserToken)
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Artifact: output"
@@ -126,7 +129,7 @@ steps:
     displayName: "Report unit test coverage"
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
     env:
-      CODECOV_TOKEN: $(CODECOV_TOKEN)
+      CODECOV_TOKEN: $(CodeCovToken)
 
   - bash: |
       npm run publish -- -p $(Docs-Authoring-Pack-Publish-Token)
