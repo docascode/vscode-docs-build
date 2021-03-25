@@ -56,7 +56,8 @@ export class BuildController implements Disposable {
         let buildInput: BuildInput;
         this._eventStream.post(new BuildTriggered(correlationId, !!this._credentialController.credential.userInfo));
         const start = Date.now();
-        const buildType = !buildWorkspace || (buildWorkspace.fsPath.toLowerCase() == this._repositoryRoot.toLowerCase()) ? BuildType.FullBuild : BuildType.PartialBuild;
+        const buildType = !buildWorkspace || (buildWorkspace.fsPath.toLowerCase() === this._repositoryRoot.toLowerCase()) ? BuildType.FullBuild : BuildType.PartialBuild;
+
 
         try {
             await this.validateUserCredential();
