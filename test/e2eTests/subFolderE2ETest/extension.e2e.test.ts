@@ -69,6 +69,7 @@ describe('Sub-folder E2E Test', () => {
 
     after(() => {
         sinon.restore();
+        testEventBus.dispose();
 
         const detailE2EOutputFile = `${__dirname}/../../../../.temp/debug/detail-e2e-sub-folder-output.json`;
         fs.ensureFileSync(detailE2EOutputFile);
@@ -87,7 +88,7 @@ describe('Sub-folder E2E Test', () => {
                             currentDiagnostics = [];
                             await testOpenFile(Uri.file(getFullPath("test-file-with-invalid-link.md")), [fileNotFoundWarning]);
                             dispose.unsubscribe();
-                            testEventBus.dispose();
+
                             done();
                         }
                         break;
@@ -145,7 +146,6 @@ describe('Sub-folder E2E Test', () => {
                             break;
                         case EventType.BuildInstantReleased:
                             dispose.unsubscribe();
-                            testEventBus.dispose();
                             done();
                             break;
                     }
@@ -154,7 +154,6 @@ describe('Sub-folder E2E Test', () => {
                 triggerCommand('docs.signIn');
 
                 function finalCheck(event: BuildCompleted) {
-                    detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
                     assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                     assertDiagnostics({
@@ -180,7 +179,6 @@ describe('Sub-folder E2E Test', () => {
                             break;
                         case EventType.BuildInstantReleased:
                             dispose.unsubscribe();
-                            testEventBus.dispose();
                             done();
                             break;
                     }
@@ -189,7 +187,6 @@ describe('Sub-folder E2E Test', () => {
                 triggerCommand('docs.build.fullRepo');
 
                 function finalCheck(event: BuildCompleted) {
-                    detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
                     assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                     assertDiagnostics({

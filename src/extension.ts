@@ -137,8 +137,7 @@ async function _activate(context: vscode.ExtensionContext, repositoryRoot: strin
         }),
         vscode.commands.registerCommand('docs.build.fullRepo', (uri: Uri) => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
-                const buildSubFolder = (!uri || (Array.isArray(uri) && uri.length == 0)) ? getCurrentWorkspaceUri() : uri
-                buildController.build(getCorrelationId(), buildSubFolder);
+                buildController.build(getCorrelationId());
             }
         }),
         vscode.commands.registerCommand('docs.cancelBuild', () => buildController.cancelBuild()),
