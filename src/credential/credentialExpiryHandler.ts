@@ -27,7 +27,7 @@ export class CredentialExpiryHandler {
         return new Promise<GetCredentialResponse>(async (resolve, reject) => {
             if (this._environmentController.userType === UserType.PublicContributor) {
                 const err = new Error(`Some required data to validate this repository is only accessible to Microsoft employee. ` +
-                    `If you are a Microsoft employee, you can change the user type in extension settings.`)
+                    `If you are a Microsoft employee, you can change the user type in extension settings.`);
                 this._eventStream.post(new CredentialRefreshFailed(err));
                 reject(err);
                 return;
