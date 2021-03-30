@@ -135,7 +135,7 @@ async function _activate(context: vscode.ExtensionContext, repositoryRoot: strin
                 buildController.build(getCorrelationId(), uri ?? getCurrentWorkspaceUri());
             }
         }),
-        vscode.commands.registerCommand('docs.build.fullRepo', (uri: Uri) => {
+        vscode.commands.registerCommand('docs.build.fullRepo', () => {
             if (checkIfUserTypeSelected(environmentController, eventStream)) {
                 buildController.build(getCorrelationId());
             }
@@ -301,16 +301,10 @@ function createQuickPickMenu(correlationId: string, eventStream: EventStream, cr
         }
     }
     if (buildController.instanceAvailable) {
-        // TODO: add a command to let user trigger the validation on the whole repository
         pickItems.push(
             {
                 label: '$(debug-start) Validate the current workspace',
                 description: 'Trigger a validation on current workspace'
-            });
-        pickItems.push(
-            {
-                label: '$(debug-start) Validate the whole repository',
-                description: 'Trigger a validation on the whole repository'
             });
     } else {
         pickItems.push(
