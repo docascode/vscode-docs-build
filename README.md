@@ -12,20 +12,15 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 ## How to use the Docs Validation extension
 
-### Manual validation
-
-You can trigger the validation manually with the following options:
-
-- Full repository validation
-- Sub-repository validation
+### Manually triggered validation
 
 1. Open the root folder or any sub-folder of a Docs conceptual or Learn repo in VS Code with the extension installed.
 1. For the first time you use the extension, you will be asked to choose your user type between **Microsoft employee** and **Public contributor** before you can use full-repository validation.
 1. For **Microsoft employee**, you are required to sign in before using full-repository validation. You can click **Docs Validation** on the status bar then click **Sign in** from the drop-down menu to sign in.
-1. You three ways to trigger the manual validation:
+1. There are three ways to trigger the manual validation:
    1. After signing in, you can trigger a validation by clicking **Validate** when prompted. This will trigger the validation on the current opening workspace, so the files outside the current workspace will not be validated if you are on the sub-folder of a repository.
-   2. You can click **Docs Validation** on the status bar then click **Validate the current workspace** or **Validate the whole repository** from the drop-down menu to trigger the validation on different scope.
-   3. You can right-clicking any file/folder inside the **Explorer** and selecting **Validate this folder**, if you click on the file, the validation will be applied to the folder contains the selected file, otherwise, the validation will be applied to the selected folder.
+   2. You can click **Docs Validation** on the status bar then click **Validate the current workspace** from the drop-down menu to trigger the validation on the current workspace.
+   3. You can right-click any file/folder inside the **Explorer** and select **Validate this folder**, if you click on the file, the validation will be applied to the folder contains the selected file, otherwise, the validation will be applied to the selected folder.
 1. Build validation will run locally and all results will be output to the Problems pane.
 
 ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/vscode-docs-build.gif?raw=true)

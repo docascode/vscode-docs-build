@@ -4,8 +4,8 @@
 
 ### Added
 
-- Support Activating extension when the user is on the sub-folder of Docs repository. (#209)
-- Support trigger validation on the sub-folder of the current repository. (#229)
+- Support activating extension when the user is on the sub-folder of Docs repository. (#209)
+- Support triggering validation on the sub-folder of the current repository. (#229)
 
 ### Changed
 
