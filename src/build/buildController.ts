@@ -58,7 +58,6 @@ export class BuildController implements Disposable {
         const start = Date.now();
         const buildType = !buildWorkspace || (buildWorkspace.fsPath.toLowerCase() === this._repositoryRoot.toLowerCase()) ? BuildType.FullBuild : BuildType.PartialBuild;
 
-
         try {
             await this.validateUserCredential();
             buildInput = await this.getBuildInput();
