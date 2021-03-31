@@ -8,7 +8,7 @@ This extension enables you to run build validation on a Docs conceptual or Learn
 
 - Install [git](https://git-scm.com/downloads).
 - Clone your Docs or Learn repo locally in VS Code.
-- All files in the repo must be saved if you trigger the manual validation.
+- All files in the repo must be saved when you are using the manually triggered validation.
 
 ## How to use the Docs Validation extension
 
