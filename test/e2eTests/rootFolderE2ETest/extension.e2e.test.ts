@@ -93,7 +93,6 @@ describe('Root Folder E2E Test', () => {
                             await testModifyFile();
 
                             dispose.unsubscribe();
-                            testEventBus.dispose();
                             done();
                         }
                         break;
@@ -185,7 +184,6 @@ describe('Root Folder E2E Test', () => {
                         break;
                     case EventType.BuildInstantReleased:
                         dispose.unsubscribe();
-                        testEventBus.dispose();
                         done();
                         break;
                 }
@@ -194,7 +192,6 @@ describe('Root Folder E2E Test', () => {
             triggerCommand('docs.signOut');
 
             function finalCheck(event: BuildCompleted) {
-                detailE2EOutput['build without sign-in'] = testEventBus.getEvents();
                 assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                 assertDiagnostics({
@@ -237,7 +234,6 @@ describe('Root Folder E2E Test', () => {
                             break;
                         case EventType.BuildInstantReleased:
                             dispose.unsubscribe();
-                            testEventBus.dispose();
                             done();
                             break;
                     }
@@ -246,7 +242,6 @@ describe('Root Folder E2E Test', () => {
                 triggerCommand('docs.signIn');
 
                 function finalCheck(event: BuildCompleted) {
-                    detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
                     assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                     assertDiagnostics({
@@ -269,7 +264,6 @@ describe('Root Folder E2E Test', () => {
                             break;
                         case EventType.BuildInstantReleased:
                             dispose.unsubscribe();
-                            testEventBus.dispose();
                             done();
                             break;
                     }
@@ -278,7 +272,6 @@ describe('Root Folder E2E Test', () => {
                 triggerCommand('docs.build', Uri.file(getFullPath("sub-folder2")));
 
                 function finalCheck(event: BuildCompleted) {
-                    detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
                     assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                     assertDiagnostics({
@@ -304,7 +297,6 @@ describe('Root Folder E2E Test', () => {
                             break;
                         case EventType.BuildInstantReleased:
                             dispose.unsubscribe();
-                            testEventBus.dispose();
                             done();
                             break;
                     }
@@ -313,7 +305,6 @@ describe('Root Folder E2E Test', () => {
                 triggerCommand('docs.build');
 
                 function finalCheck(event: BuildCompleted) {
-                    detailE2EOutput['Sign in to Docs and trigger build'] = testEventBus.getEvents();
                     assert.equal(event.result, DocfxExecutionResult.Succeeded);
 
                     assertDiagnostics({
