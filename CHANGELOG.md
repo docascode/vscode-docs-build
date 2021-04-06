@@ -1,5 +1,17 @@
 # Change Log
 
+## 0.3.3 (March 25, 2021)
+
+### Added
+
+- Support activating extension when the user is on the sub-folder of Docs repository. (#209)
+- Support triggering validation on the sub-folder of the current repository. (#229)
+
+### Changed
+
+- Populate help link code action from document_url. (#226)
+- Handle credential expiry for public contributor. (#211)
+
 ## 0.3.2 (March 3, 2021)
 
 ### Changed
