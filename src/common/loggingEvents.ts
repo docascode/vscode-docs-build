@@ -84,8 +84,8 @@ export class CredentialRefreshFailed implements BaseEvent {
 //#endregion
 
 //#region Build
-export class StopStartingLSP implements BaseEvent {
-    type = EventType.StopStartingLSP;
+export class LSPMaxRetryHit implements BaseEvent {
+    type = EventType.LSPMaxRetryHit;
 }
 
 export class RepositoryInfoRetrieved implements BaseEvent {

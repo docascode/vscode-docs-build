@@ -5,7 +5,7 @@ import { BuildController } from '../../../src/build/buildController';
 import { LanguageServerManager } from '../../../src/build/languageServerManager';
 import { EnvironmentController } from '../../../src/common/environmentController';
 import { EventStream } from '../../../src/common/eventStream';
-import { ExtensionActivated, StartLanguageServerCompleted, StopStartingLSP, UserSignInCompleted } from '../../../src/common/loggingEvents';
+import { ExtensionActivated, LSPMaxRetryHit, StartLanguageServerCompleted, UserSignInCompleted } from '../../../src/common/loggingEvents';
 import { UserType } from '../../../src/shared';
 import TestEventBus from '../../utils/testEventBus';
 
@@ -123,7 +123,7 @@ describe('LanguageServerManager', () => {
         manager.eventHandler(new UserSignInCompleted(fakeCorrelationId, true));
         assert.strictEqual(2, spyStartLanguageServer.callCount);
         assert.deepStrictEqual(testEventBus.getEvents(), [
-            new StopStartingLSP(),
+            new LSPMaxRetryHit(),
         ]);
     });
 

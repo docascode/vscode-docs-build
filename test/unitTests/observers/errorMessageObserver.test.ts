@@ -4,7 +4,7 @@ import vscode, { MessageItem } from 'vscode';
 
 import { BuildType } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
-import { BuildFailed, BuildSucceeded, CredentialExpired, CredentialRefreshFailed, PublicContributorSignIn, StartLanguageServerCompleted, StopStartingLSP, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded } from '../../../src/common/loggingEvents';
+import { BuildFailed, BuildSucceeded, CredentialExpired, CredentialRefreshFailed, LSPMaxRetryHit, PublicContributorSignIn, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { ErrorMessageObserver } from '../../../src/observers/errorMessageObserver';
@@ -175,7 +175,7 @@ describe('ErrorMessageObserver', () => {
     });
 
     it(`Stop starting language server retry`, () => {
-        const event = new StopStartingLSP();
+        const event = new LSPMaxRetryHit();
         observer.eventHandler(event);
         assert.equal(messageToShow, `[Docs Validation] System error happens during starting the language server, please restart the VS Code and retry. If the issue still happens, please file an issue by following this document: https://github.com/docascode/vscode-docs-build/blob/master/docs/file-issue.md`);
         assert.deepEqual(messageActions, []);

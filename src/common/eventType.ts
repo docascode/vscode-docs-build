@@ -12,8 +12,7 @@ export enum EventType {
     CredentialRefreshFailed = 'CredentialRefreshFailed',
 
     // Build
-    StopStartingLSP = 'StopStartingLSP',
-
+    LSPMaxRetryHit = 'LSPMaxRetryHit',
     RepositoryInfoRetrieved = 'RepositoryInfoRetrieved',
 
     BuildInstantReleased = 'BuildInstantReleased',

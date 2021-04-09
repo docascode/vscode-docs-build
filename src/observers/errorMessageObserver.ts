@@ -46,8 +46,8 @@ export class ErrorMessageObserver {
             case EventType.CredentialRefreshFailed:
                 this.handleCredentialRefreshFailed(<CredentialRefreshFailed>event);
                 break;
-            case EventType.StopStartingLSP:
-                this.handleStopStartingLSP();
+            case EventType.LSPMaxRetryHit:
+                this.handleLSPMaxRetryHit();
                 break;
         }
     }
@@ -100,7 +100,7 @@ export class ErrorMessageObserver {
         this.showErrorMessage(`Sign in is only available for Microsoft employees.`);
     }
 
-    private handleStopStartingLSP() {
+    private handleLSPMaxRetryHit() {
         this.showErrorMessage(`System error happens during starting the language server, please restart the VS Code and retry. If the issue still happens, please file an issue by following this document: https://github.com/docascode/vscode-docs-build/blob/master/docs/file-issue.md`);
     }
 
