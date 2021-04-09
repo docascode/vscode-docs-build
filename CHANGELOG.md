@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.3.4 (April 9, 2021)
+
+### Fix
+
+- Handle starting language server failed multiple times. (#236)
+
 ## 0.3.3 (March 25, 2021)
 
 ### Added
