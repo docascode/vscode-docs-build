@@ -177,7 +177,7 @@ describe('ErrorMessageObserver', () => {
     it(`Stop starting language server retry`, () => {
         const event = new StopStartingLSP();
         observer.eventHandler(event);
-        assert.equal(messageToShow, `[Docs Validation] System error happens during starting the language server, please restart the VS Code and retry. If the issue still happens, file a issue by following this instrument: https://github.com/docascode/vscode-docs-build/blob/master/docs/file-issue.md`);
+        assert.equal(messageToShow, `[Docs Validation] System error happens during starting the language server, please restart the VS Code and retry. If the issue still happens, please file an issue by following this document: https://github.com/docascode/vscode-docs-build/blob/master/docs/file-issue.md`);
         assert.deepEqual(messageActions, []);
     });
 });
