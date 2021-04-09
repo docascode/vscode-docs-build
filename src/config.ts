@@ -37,7 +37,8 @@ const config = {
     },
     SignInTimeOut: 120000,
     PublicTemplate: "https://static.docs.com/ui/latest",
-    DefaultCodeDocumentURL: "https://review.docs.microsoft.com/en-us/help/contribute/validation-ref/doc-not-available"
+    DefaultCodeDocumentURL: "https://review.docs.microsoft.com/en-us/help/contribute/validation-ref/doc-not-available",
+    StartLanguageServerMaxTryCount: 2,
 };
 
 export default config;

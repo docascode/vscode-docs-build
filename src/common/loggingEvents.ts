@@ -10,7 +10,7 @@ export interface BaseEvent {
     type: EventType;
 }
 
-// Sign in
+//#region Sign in
 export class UserSignInTriggered implements BaseEvent {
     type = EventType.UserSignInTriggered;
     constructor(public correlationId: string) { }
@@ -81,8 +81,13 @@ export class CredentialRefreshFailed implements BaseEvent {
     type = EventType.CredentialRefreshFailed;
     constructor(public error: Error) { }
 }
+//#endregion
 
-// Build
+//#region Build
+export class LSPMaxRetryHit implements BaseEvent {
+    type = EventType.LSPMaxRetryHit;
+}
+
 export class RepositoryInfoRetrieved implements BaseEvent {
     type = EventType.RepositoryInfoRetrieved;
     constructor(public localRepositoryUrl: string, public originalRepositoryUrl: string) { }
@@ -167,8 +172,9 @@ export class DocfxBuildCompleted implements BaseEvent {
     type = EventType.DocfxBuildCompleted;
     constructor(public result: DocfxExecutionResult, public exitCode?: number) { }
 }
+//#endregion
 
-// API
+//#region API
 export class APICallStarted implements BaseEvent {
     type = EventType.APICallStarted;
     constructor(public name: string, public url: string) { }
@@ -178,8 +184,9 @@ export class APICallFailed implements BaseEvent {
     type = EventType.APICallFailed;
     constructor(public name: string, public url: string, public message: string) { }
 }
+//#endregion
 
-// Runtime Dependency
+//#region Runtime Dependency
 export class DependencyInstallStarted implements BaseEvent {
     type = EventType.DependencyInstallStarted;
     constructor(public correlationId: string) { }
@@ -232,8 +239,9 @@ export class PlatformInfoRetrieved implements BaseEvent {
     type = EventType.PlatformInfoRetrieved;
     constructor(public platformInfo: PlatformInformation) { }
 }
+//#endregion
 
-// Others
+//#region Others
 export class EnvironmentChanged implements BaseEvent {
     type = EventType.EnvironmentChanged;
     constructor(public env: Environment) { }
@@ -267,6 +275,7 @@ export class StartLanguageServerCompleted implements BaseEvent {
     type = EventType.StartLanguageServerCompleted;
     constructor(public succeeded: boolean, public err?: Error) { }
 }
+//#endregion
 
 // Test only
 export class RefreshCredential implements BaseEvent {

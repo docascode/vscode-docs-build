@@ -4,7 +4,7 @@ import vscode, { MessageItem } from 'vscode';
 
 import { BuildType } from '../../../src/build/buildInput';
 import { BuildResult } from '../../../src/build/buildResult';
-import { BuildFailed, BuildSucceeded, CredentialExpired, CredentialRefreshFailed, PublicContributorSignIn, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded } from '../../../src/common/loggingEvents';
+import { BuildFailed, BuildSucceeded, CredentialExpired, CredentialRefreshFailed, LSPMaxRetryHit, PublicContributorSignIn, StartLanguageServerCompleted, TriggerCommandWithUnknownUserType, UserSignInFailed, UserSignInSucceeded, UserSignOutFailed, UserSignOutSucceeded } from '../../../src/common/loggingEvents';
 import { DocsError } from '../../../src/error/docsError';
 import { ErrorCode } from '../../../src/error/errorCode';
 import { ErrorMessageObserver } from '../../../src/observers/errorMessageObserver';
@@ -156,25 +156,28 @@ describe('ErrorMessageObserver', () => {
         });
     });
 
-    describe(`Credential expired while language server is running`, () => {
-        it(`Credential expired`, () => {
-            const event = new CredentialExpired(true);
-            observer.eventHandler(event);
-            assert.equal(messageToShow, `[Docs Validation] Credential Expired, please sign in again.`);
-            assert.deepEqual(messageActions, [new MessageAction(
-                'Sign in',
-                'docs.signIn'
-            )]);
-        });
+    it(`Credential expired while language server is running`, () => {
+        const event = new CredentialExpired(true);
+        observer.eventHandler(event);
+        assert.equal(messageToShow, `[Docs Validation] Credential Expired, please sign in again.`);
+        assert.deepEqual(messageActions, [new MessageAction(
+            'Sign in',
+            'docs.signIn'
+        )]);
     });
 
-    describe(`Credential refresh failed`, () => {
-        it(`Credential refresh failed`, () => {
-            const err = new Error(`error message`);
-            const event = new CredentialRefreshFailed(err);
-            observer.eventHandler(event);
-            assert.equal(messageToShow, `[Docs Validation] ${err.message}`);
-            assert.deepEqual(messageActions, []);
-        });
+    it(`Credential refresh failed`, () => {
+        const err = new Error(`error message`);
+        const event = new CredentialRefreshFailed(err);
+        observer.eventHandler(event);
+        assert.equal(messageToShow, `[Docs Validation] ${err.message}`);
+        assert.deepEqual(messageActions, []);
+    });
+
+    it(`Stop starting language server retry`, () => {
+        const event = new LSPMaxRetryHit();
+        observer.eventHandler(event);
+        assert.equal(messageToShow, `[Docs Validation] System error happens during starting the language server, please restart the VS Code and retry. If the issue still happens, please file an issue by following this document: https://github.com/docascode/vscode-docs-build/blob/master/docs/file-issue.md`);
+        assert.deepEqual(messageActions, []);
     });
 });
