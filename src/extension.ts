@@ -108,7 +108,7 @@ async function _activate(context: vscode.ExtensionContext, repositoryRoot: strin
     const codeActionProvider = new CodeActionProvider();
 
     // Start language server
-    const languageServerManager = new LanguageServerManager(environmentController, buildController);
+    const languageServerManager = new LanguageServerManager(environmentController, buildController, eventStream);
     eventStream.subscribe(languageServerManager.eventHandler);
 
     context.subscriptions.push(

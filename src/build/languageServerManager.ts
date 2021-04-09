@@ -1,12 +1,15 @@
 import { EnvironmentController } from '../common/environmentController';
+import { EventStream } from '../common/eventStream';
 import { EventType } from '../common/eventType';
-import { BaseEvent, StartLanguageServerCompleted, UserSignInCompleted } from '../common/loggingEvents';
+import { BaseEvent, StartLanguageServerCompleted, StopStartingLSP, UserSignInCompleted } from '../common/loggingEvents';
+import config from '../config';
 import { LanguageServerStatus } from '../shared';
 import { BuildController } from './buildController';
 
 export class LanguageServerManager {
     private _languageServerStatus: LanguageServerStatus = 'Idle';
-    constructor(private _environmentController: EnvironmentController, private _buildController: BuildController) { }
+    private TryCount = 0;
+    constructor(private _environmentController: EnvironmentController, private _buildController: BuildController, private _eventStream: EventStream) { }
 
     public eventHandler = (event: BaseEvent): void => {
         switch (event.type) {
@@ -18,8 +21,10 @@ export class LanguageServerManager {
             case EventType.StartLanguageServerCompleted:
                 if ((<StartLanguageServerCompleted>event).succeeded) {
                     this._languageServerStatus = 'Running';
+                    this.TryCount = 0;
                 } else {
                     this._languageServerStatus = 'Idle';
+                    this.TryCount++;
                 }
                 break;
             case EventType.UserSignInCompleted:
@@ -36,7 +41,9 @@ export class LanguageServerManager {
     }
 
     public startLanguageServer(): void {
-        if (this._languageServerStatus === 'Idle') {
+        if (this.TryCount >= config.StartLanguageServerMaxTryCount) {
+            this._eventStream.post(new StopStartingLSP());
+        } else if (this._languageServerStatus === 'Idle') {
             this._languageServerStatus = 'Starting';
             this._buildController.startDocfxLanguageServer();
         }
