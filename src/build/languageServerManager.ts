@@ -8,7 +8,7 @@ import { BuildController } from './buildController';
 
 export class LanguageServerManager {
     private _languageServerStatus: LanguageServerStatus = 'Idle';
-    private TryCount = 0;
+    private RetryCount = 0;
     constructor(private _environmentController: EnvironmentController, private _buildController: BuildController, private _eventStream: EventStream) { }
 
     public eventHandler = (event: BaseEvent): void => {
@@ -21,10 +21,10 @@ export class LanguageServerManager {
             case EventType.StartLanguageServerCompleted:
                 if ((<StartLanguageServerCompleted>event).succeeded) {
                     this._languageServerStatus = 'Running';
-                    this.TryCount = 0;
+                    this.RetryCount = 0;
                 } else {
                     this._languageServerStatus = 'Idle';
-                    this.TryCount++;
+                    this.RetryCount++;
                 }
                 break;
             case EventType.UserSignInCompleted:
@@ -41,7 +41,7 @@ export class LanguageServerManager {
     }
 
     public startLanguageServer(): void {
-        if (this.TryCount >= config.StartLanguageServerMaxTryCount) {
+        if (this.RetryCount >= config.StartLanguageServerMaxTryCount) {
             this._eventStream.post(new StopStartingLSP());
         } else if (this._languageServerStatus === 'Idle') {
             this._languageServerStatus = 'Starting';
