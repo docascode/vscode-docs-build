@@ -74,17 +74,23 @@ export class OPBuildAPIClient {
                     })
 
                     response.on('end', () => {
-                        const respObj = JSON.parse(buffers.toString());
+                        const content = buffers.toString();
+                        try {
+                            const respObj = JSON.parse(content);
 
-                        if (!acceptedStatusCode.includes(response.statusCode)) {
-                            eventStream.post(new APICallFailed(name, url, `${respObj.error}(${response.statusCode}): `
-                                + `${respObj.message ? respObj.message : JSON.stringify(respObj)}`));
+                            if (!acceptedStatusCode.includes(response.statusCode)) {
+                                eventStream.post(new APICallFailed(name, url, `${respObj.error}(${response.statusCode}): `
+                                    + `${respObj.message ? respObj.message : JSON.stringify(respObj)}`));
+                                reject(response.statusCode);
+                            } else {
+                                resolve({
+                                    statusCode: response.statusCode,
+                                    body: respObj,
+                                });
+                            }
+                        } catch (e) {
+                            console.log(`Parse the response content as JSON failed: ${e}, content: ${content}`);
                             reject(response.statusCode);
-                        } else {
-                            resolve({
-                                statusCode: response.statusCode,
-                                body: respObj,
-                            });
                         }
                     })
                 }
