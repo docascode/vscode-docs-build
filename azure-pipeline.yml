@@ -125,6 +125,12 @@ steps:
       ArtifactName: Output-Windows
     condition: and(failed(), eq(variables['Agent.OS'], 'Windows_NT'))
 
+  - bash: env
+    displayName: "Print env"
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+    env:
+      CODECOV_TOKEN: $(CodeCovToken)
+
   - bash: ./node_modules/.bin/codecov -f coverage/unit/lcov.info -F unit
     displayName: "Report unit test coverage"
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
