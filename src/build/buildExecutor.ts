@@ -226,9 +226,7 @@ export class BuildExecutor {
                 }
             };
         }
-        envs["DOCFX_SECRETS"] = JSON.stringify({
-            http
-        });
+        envs["DOCFX_SECRETS"] = JSON.stringify({ http });
 
         return <BuildParameters>{
             envs,
