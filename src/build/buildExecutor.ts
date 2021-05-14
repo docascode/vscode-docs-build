@@ -209,24 +209,24 @@ export class BuildExecutor {
             envs['APPINSIGHTS_INSTRUMENTATIONKEY'] = config.AIKey[this._environmentController.env];
         }
 
-        const secrets = <any>{
+        const http = <any>{
         };
 
         if (!isPublicUser) {
-            secrets[`${config.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
+            http[`${config.OPBuildAPIEndPoint[this._environmentController.env]}`] = {
                 "headers": {
                     [OP_BUILD_USER_TOKEN_HEADER_NAME]: buildUserToken
                 }
             };
         }
         if (process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN) {
-            secrets["https://github.com"] = {
+            http["https://github.com"] = {
                 "headers": {
                     "authorization": `basic ${basicAuth(process.env.VSCODE_DOCS_BUILD_EXTENSION_GITHUB_TOKEN)}`
                 }
             };
         }
-        envs["DOCFX_HTTP"] = JSON.stringify(secrets);
+        envs["DOCFX_SECRETS"] = JSON.stringify({ http });
 
         return <BuildParameters>{
             envs,
