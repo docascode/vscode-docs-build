@@ -233,21 +233,21 @@
       "id": "docfx-win7-x64",
       "name": "docfx",
       "description": "DocFX for Windows (x64)",
-      "url": "https://github.com/dotnet/docfx/releases/download/3.0.0-beta1.852+d2c3bde611/docfx-win7-x64-3.0.0-beta1.852+d2c3bde611.zip",
+      "url": "https://github.com/dotnet/docfx/releases/download/3.0.0-beta1.901+8208e04bec/docfx-win7-x64-3.0.0-beta1.901+8208e04bec.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
       "rid": "win7-x64",
-      "integrity": "0FE0044462E4428A06B0E7047252692F21985C27E783FE431B79944E8DDDCDE7"
+      "integrity": "E589032CF95C956204566692801ACD75B28624E29AA869DB2E09D5C239D8757E"
     },
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
       "description": "DocFX for OSX(x64)",
-      "url": "https://github.com/dotnet/docfx/releases/download/3.0.0-beta1.852+d2c3bde611/docfx-osx-x64-3.0.0-beta1.852+d2c3bde611.zip",
+      "url": "https://github.com/dotnet/docfx/releases/download/3.0.0-beta1.901+8208e04bec/docfx-osx-x64-3.0.0-beta1.901+8208e04bec.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
       "rid": "osx-x64",
-      "integrity": "C4EDBF20B8FCFCCDB07996915311E1052B9AE98F6EBB5F101D0E5E16E9D45C87"
+      "integrity": "FCF4677FC79D5DF9685ADD6119ACDDFE35ED6085B8786B743FAE9920343AA5EC"
     }
   ]
 }
