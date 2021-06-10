@@ -162,7 +162,7 @@ Please try the following solutions:
 
 [MIT](https://raw.githubusercontent.com/docascode/vscode-docs-build/master/LICENSE)
 
-## Pravicy statements
+## Privacy statements
 
 For Microsoft employee privacy: https://privacy.microsoft.com/en-US/data-privacy-notice
 For Public contributor: https://privacy.microsoft.com/en-us/privacystatement
