@@ -164,7 +164,7 @@ Please try the following solutions:
 
 ## Privacy statements
 
-For Microsoft employee privacy: https://privacy.microsoft.com/en-US/data-privacy-notice
+For Microsoft employee: https://privacy.microsoft.com/en-US/data-privacy-notice
 For Public contributor: https://privacy.microsoft.com/en-us/privacystatement
 
 ## Issue
