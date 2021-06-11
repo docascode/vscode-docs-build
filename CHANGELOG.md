@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.3.5 (May 13, 2021)
+
+### Changed
+
+- Use latest docfx: 3.0.0-beta1.901+8208e04bec. (#205)
+
 ## 0.3.4 (April 9, 2021)
 
 ### Fix

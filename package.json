@@ -2,7 +2,7 @@
   "name": "docs-build",
   "displayName": "docs-validation",
   "description": "Docs Validation Extension which enables you to run build validation on a Docs conceptual or Learn repo at authoring time in VS Code",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "engines": {
     "node": ">=10",
     "vscode": "^1.40.0"
@@ -233,21 +233,21 @@
       "id": "docfx-win7-x64",
       "name": "docfx",
       "description": "DocFX for Windows (x64)",
-      "url": "https://github.com/dotnet/docfx/releases/download/3.0.0-beta1.901+8208e04bec/docfx-win7-x64-3.0.0-beta1.901+8208e04bec.zip",
+      "url": "https://github.com/dotnet/docfx/releases/download/3.0.0-beta1.931+ac184a447e/docfx-win7-x64-3.0.0-beta1.931+ac184a447e.zip",
       "binary": "docfx.exe",
       "installPath": ".docfx",
       "rid": "win7-x64",
-      "integrity": "E589032CF95C956204566692801ACD75B28624E29AA869DB2E09D5C239D8757E"
+      "integrity": "0CE419561DF0DA314B3EDBACB993C6CE1D6B9BCBBD0C5BB03F9F74CE90E6D640"
     },
     {
       "id": "docfx-osx-x64",
       "name": "docfx",
       "description": "DocFX for OSX(x64)",
-      "url": "https://github.com/dotnet/docfx/releases/download/3.0.0-beta1.901+8208e04bec/docfx-osx-x64-3.0.0-beta1.901+8208e04bec.zip",
+      "url": "https://github.com/dotnet/docfx/releases/download/3.0.0-beta1.931+ac184a447e/docfx-osx-x64-3.0.0-beta1.931+ac184a447e.zip",
       "binary": "./docfx",
       "installPath": ".docfx",
       "rid": "osx-x64",
-      "integrity": "FCF4677FC79D5DF9685ADD6119ACDDFE35ED6085B8786B743FAE9920343AA5EC"
+      "integrity": "A5BE45895BECE0553DC0F8F58F864B25C5EC8A0BA2DEFD56878ADBC9187B99F7"
     }
   ]
 }
