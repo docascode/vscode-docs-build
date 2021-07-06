@@ -67,7 +67,7 @@ steps:
       includeNodeModules: false
       querySuite: Required
     env:
-      System_AccessToken: $(MicrosoftPATTokenForLGTMReport)
+      System_AccessToken: $(System.AccessToken)
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
     displayName: 'Run CredScan'
