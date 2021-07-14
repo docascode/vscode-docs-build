@@ -84,7 +84,7 @@ In the CI pipeline, we need some secrets for the following purposes, for securit
 1. CodeCovToken
 
    1. Pleas make sure you are the contributor or admin of this repository
-   2. Go to https://app.codecov.io/gh/docascode/vscode-docs-build/settings, click the `Regrenerate` button, then you will get a new token.
+   2. Go to https://app.codecov.io/gh/docascode/vscode-docs-build/settings, click the `Regenerate` button, then you will get a new token.
 
 2. GitHubTokenToCloneDocsTemplateRepo
 
