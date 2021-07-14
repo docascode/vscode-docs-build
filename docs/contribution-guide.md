@@ -68,3 +68,29 @@ $ code .
 - `npm run test:unit`: Run Unit test
 - `npm run benchmark`: Run benchmark
 - `npm run lint`: Run ESLint
+
+## Related KeyVaults
+
+In the CI pipeline, we need some secrets for the following purposes, for security consideration, those secret is stored in the Azure KeyVault `docs-validation-kv-ci` (Microsoft Corp tenant `DevRel - DocsValidation.VSCode.Extension (Dev)`)
+
+| Secret                             | Type                | Usage                                                        | Corresponding account    | Expiration |
+| ---------------------------------- | ------------------- | ------------------------------------------------------------ | ------------------------ | ---------- |
+| CodeCovToken                       | CodeCov PAT         | Used to publish the PR code coverage result into the CodeCov | -                        | 90d        |
+| GitHubTokenToCloneDocsTemplateRepo | GitHub PAT          | Used to clone template repository in the CI test             | VSC-service-account      | 90d        |
+| OpBuildUserToken                   | OP build user token | Used to call OP Build API in the CI test                     | VSC-service-account(PPE) | 70d        |
+
+### Rotate instruction
+
+1. CodeCovToken
+
+   1. Pleas make sure you are the contributor or admin of this repository
+   2. Go to https://app.codecov.io/gh/docascode/vscode-docs-build/settings, click the `Regrenerate` button, then you will get a new token.
+
+2. GitHubTokenToCloneDocsTemplateRepo
+
+   1. Sign in with the Github Account `VSC-service-account`.
+   1. Go to https://github.com/settings/tokens, Delete the original one with name `vscode-docs-build CI pipeline` and generate a new one.
+
+3. OpBuildUserToken
+
+    1. Before the original token expires, Please follow this [instruction](https://ceapex.visualstudio.com/Engineering/_git/Docs.Build.Tools?path=%2FREADME.md&_a=preview&version=GBdevelop&anchor=how-to-refersh-an-opbuildusertoken) to refresh the token.
