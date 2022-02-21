@@ -147,7 +147,7 @@ Please try the following solutions:
 
       c. Enable the SSO for the token used in `Git Credential Manager Core`.
 
-      ![OAuth](https://github.com/docascode/vscode-docs-build/blob/master/resources/enable-sso.png?raw=true)
+      ![OAuth](./resources/enable-sso.png?raw=true)
 
       d. Retry to clone the repository in commander/ terminal.
 
